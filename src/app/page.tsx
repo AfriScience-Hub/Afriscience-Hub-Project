@@ -8,6 +8,10 @@ import Footer from './components/footer';
 import Hero from './components/hero';
 import Categories from './components/categories';
 import TopRatedInstitutes from './components/institutes';
+import TrendingInnovations from './components/innovations';
+import SpecialistCenters from './components/centers';
+import Programs from './components/programs';
+import Partners from './components/partners';
 
 export default function Home() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -20,9 +24,15 @@ export default function Home() {
         <Hero />
         <Categories />
 
-        <div className='bg-gray-200'>
+        <div className='bg-gray-100'>
           <TopRatedInstitutes />
-        </div>
+          <TrendingInnovations />
+          <SpecialistCenters />
+        </div>       
+
+        <Programs />
+
+        <Partners />
 
       {/* Footer */}
       <Footer />

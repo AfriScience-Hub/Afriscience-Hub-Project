@@ -5,12 +5,6 @@ import { useState } from 'react';
 import Header from '../components/header';
 import SearchModal from '../components/search';
 import Footer from '../components/footer';
-import Hero from './components/hero';
-import Purpose from './components/purpose';
-import CoreValue from './components/coreValue';
-import WhatWeDo from './components/whatWeDo';
-import Team from './components/team';
-import Join from './components/join';
 
 export default function Home() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -19,23 +13,8 @@ export default function Home() {
     <div className="min-h-screen bg-white flex flex-col">
       <Header onSearchOpen={() => setSearchOpen(true)} />
       
-      {/* Hero Section */}
-      <Hero />
-
-      {/* Purpose Section */}
-      <Purpose />
-
-      {/* Core Values Section */}
-      <CoreValue />
-
-      {/* What We Do Section */}
-      <WhatWeDo />
-
-      {/* Team Section */}
-      <Team />
-
-      {/* Join Section */}
-      <Join />
+      {/* Main content area - Add your page content here */}
+      
 
       {/* Footer */}
       <Footer />

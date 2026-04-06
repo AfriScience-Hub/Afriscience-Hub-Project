@@ -7,7 +7,7 @@ import { FaLinkedin, FaFacebook, FaTwitter, FaYoutube, FaInstagram } from 'react
 export default function Footer() {
   return (
     <footer className="bg-linear-to-b from-slate-900 to-slate-950 text-gray-300 pt-16 pb-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           {/* Logo and Description Section */}
@@ -16,8 +16,8 @@ export default function Footer() {
               <Image
                 src="/miniLogo.png"
                 alt="AfriScience Hub"
-                width={80}
-                height={80}
+                width={40}
+                height={40}
                 className="h-20 w-auto"
               />
             </div>

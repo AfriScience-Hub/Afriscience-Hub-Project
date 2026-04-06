@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import Link from 'next/link';
@@ -18,7 +19,7 @@ const institutes: Institute[] = [
   {
     id: 1,
     name: 'Pan-African University of Science',
-    image: 'https://images.unsplash.com/photo-1547036328-c9fa89d128fa?w=600&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=600&h=400&fit=crop',
     badge: 'University',
     rating: 4.8,
     location: 'Nairobi, Kenya',
@@ -38,7 +39,7 @@ const institutes: Institute[] = [
   {
     id: 3,
     name: 'Cape Town Science Academy',
-    image: 'https://images.unsplash.com/photo-1427504494785-cdba58dadff0?w=600&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1512032917802-6f06ad7cecc7?w=600&h=400&fit=crop',
     badge: 'Primary School',
     rating: 4.7,
     location: 'Cape Town, South Africa',
@@ -50,14 +51,14 @@ const institutes: Institute[] = [
 export default function TopRatedInstitutes() {
   return (
     <section className="py-16">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-12">
-          <div>
-            <h2 className="text-md md:text-xl font-bold text-gray-900">Top Rated Institutes</h2>
+        <div className="flex items-center justify-between mb-12 gap-3">
+          <div className='flex-2 lg:flex-none'>
+            <h2 className="text-md md:text-2xl font-bold text-gray-900">Top Rated Institutes</h2>
             <p className="text-xs md:text-sm text-gray-600">Discover verified educational centers of excellence.</p>
           </div>
-          <Link href="/institutions" className="text-red-600 hover:text-red-700 font-slim text-xs md:text-sm flex items-center gap-1">
+          <Link href="/institutions" className="text-red-600 hover:text-red-700 font-slim text-xs lg:text-lg flex items-center gap-1 flex-1 lg:flex-none">
             View All <span>→</span>
           </Link>
         </div>
@@ -115,7 +116,7 @@ export default function TopRatedInstitutes() {
                 </div>
 
                 {/* View Profile Button */}
-                <button className="w-full border border-gray-300 hover:border-gray-400 text-gray-900 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition-colors duration-300">
+                <button className="w-full border border-gray-300 hover:border-gray-400 text-gray-900 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition-colors duration-300 cursor-pointer">
                   View Profile
                 </button>
               </div>

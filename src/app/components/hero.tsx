@@ -103,67 +103,61 @@ export default function Hero() {
   const slide = slides[currentSlide];
 
   return (
-    <div className="w-full py-16 md:py-0">
-      {/* Hero Carousel */}
-      <div
-        className="relative h-[130vh] lg:h-[120vh] w-full bg-cover bg-center bg-no-repeat transition-all duration-1000"
-        style={{
+    <div className="w-full py-16 md:py-0 relative bg-cover bg-center bg-no-repeat transition-all duration-1000" style={{
           backgroundImage: slide.backgroundImage,
-        }}
-      >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-[#0B1D35]/90"></div>
+        }}>
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-[#0B1D35]/90"></div>
 
-        {/* Content */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 py-16">
-          <div className="max-w-3xl text-center">
-            {/* Title */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              {slide.title}
-            </h1>
+      {/* Hero Carousel Content */}
+      <div className="relative h-[130vh] lg:h-[120vh] flex flex-col items-center justify-center px-4 py-16 lg:py-12">
+        <div className="max-w-3xl text-center">
+          {/* Title */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+            {slide.title}
+          </h1>
 
-            {/* Description */}
-            <p className="text-base md:text-lg text-gray-100 mb-8 leading-relaxed">
-              {slide.description}
-            </p>
+          {/* Description */}
+          <p className="text-base md:text-lg text-gray-100 mb-8 leading-relaxed">
+            {slide.description}
+          </p>
 
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Link
-                href="/signup"
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors text-center"
-              >
-                Join our community
-              </Link>
-              <Link
-                href="/institutes"
-                className="border-2 border-gray-400 hover:border-white text-white font-semibold px-8 py-3 rounded-lg transition-colors text-center"
-              >
-                Explore Ecosystem
-              </Link>
-            </div>
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <Link
+              href="/signup"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors text-center"
+            >
+              Join our community
+            </Link>
+            <Link
+              href="/institutes"
+              className="border-2 border-gray-400 hover:border-white text-white font-semibold px-8 py-3 rounded-lg transition-colors text-center"
+            >
+              Explore Ecosystem
+            </Link>
+          </div>
 
-            {/* Slide Indicators */}
-            <div className="flex gap-2 justify-center">
-              {slides.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToSlide(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    index === currentSlide
-                      ? 'bg-red-600 w-8'
-                      : 'bg-gray-400 w-2 hover:bg-gray-300'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
+          {/* Slide Indicators */}
+          <div className="flex gap-2 justify-center">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide
+                    ? 'bg-red-600 w-8'
+                    : 'bg-gray-400 w-2 hover:bg-gray-300'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
       </div>
-
+        <hr className='text-white max-w-5xl mx-auto font-bold' />
       {/* Statistics Section */}
-      <div className="bg-linear-to-b from-slate-900 to-slate-950 py-8">
+      <div className="relative py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
             {stats.map((stat, index) => {
