@@ -129,12 +129,12 @@ export default function Footer() {
             <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-6">Support AfriScienceHub</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/sponsor" className="text-gray-400 hover:text-red-600 transition-colors">
+                <Link href="/support/sponsor" className="text-gray-400 hover:text-red-600 transition-colors">
                   Sponsor AfriScienceHub
                 </Link>
               </li>
               <li>
-                <Link href="/donate" className="text-gray-400 hover:text-red-600 transition-colors">
+                <Link href="/support/donate" className="text-gray-400 hover:text-red-600 transition-colors">
                   Donate to Projects
                 </Link>
               </li>
@@ -144,12 +144,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/volunteer" className="text-gray-400 hover:text-red-600 transition-colors">
+                <Link href="/support/volunteer" className="text-gray-400 hover:text-red-600 transition-colors">
                   Become a Volunteer
                 </Link>
               </li>
               <li>
-                <Link href="/partnerships" className="text-gray-400 hover:text-red-600 transition-colors">
+                <Link href="/support" className="text-gray-400 hover:text-red-600 transition-colors">
                   Partnership Opportunities
                 </Link>
               </li>

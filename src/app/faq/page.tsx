@@ -314,7 +314,7 @@ export default function FAQPage() {
 
       {/* Hero Section */}
       <section className="bg-gray-50 py-24">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+        <div className="max-w-5xl mx-auto px-4 text-center">
           <div className="mb-6 flex justify-center">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
               <HelpCircle className="text-4xl text-red-500"></HelpCircle>

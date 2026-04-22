@@ -229,7 +229,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
               {supportOpen && (
                 <div className="absolute -right-16 mt-0 w-100 bg-white rounded-2xl shadow-xl border border-gray-100 p-6 top-full z-50">
                   <div className="space-y-8">
-                    <Link href="/sponsor">
+                    <Link href="support/sponsor">
                       <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                         <div className="flex items-center gap-2 mb-1">
                           <Stars className="text-red-600" size={16} />
@@ -241,7 +241,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       </div>
                     </Link>
                     
-                    <Link href="/donate">
+                    <Link href="support/donate">
                       <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                         <div className="flex items-center gap-2 mb-1">
                         <HandHeart className="text-red-600" size={16} />
@@ -253,7 +253,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       </div>
                     </Link>
 
-                    <Link href="/volunteer">
+                    <Link href="support/volunteer">
                       <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                         <div className="flex items-center gap-2 mb-1">
                         <Users2 className="text-red-600" size={16} />
@@ -426,7 +426,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                 {supportOpen && (
                   <div className="border-l-4 border-gray-300 pl-4 space-y-3 py-2">
                     <Link 
-                      href="/sponsor"
+                      href="support/sponsor"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -434,7 +434,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       <span>Sponsor AfriScienceHub</span>
                     </Link>
                     <Link 
-                      href="/donate"
+                      href="support/donate"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -442,7 +442,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       <span>Donate to Projects</span>
                     </Link>
                     <Link 
-                      href="/volunteer"
+                      href="support/volunteer"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >

@@ -102,7 +102,7 @@ export default function Cookies() {
     <div className="min-h-screen bg-gray-50">
       <Header onSearchOpen={handleSearchOpen} />
 
-      <div className="max-w-3xl mx-auto px-4 py-24">
+      <div className="max-w-5xl mx-auto px-4 py-24">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
