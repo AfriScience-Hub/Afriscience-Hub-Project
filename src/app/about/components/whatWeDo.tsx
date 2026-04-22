@@ -7,9 +7,21 @@ import {
   Lightbulb,
   Trophy,
   Medal,
+  LucideIcon,
 } from 'lucide-react';
 
-const sections = [
+interface Section {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  items: ListItem[];
+}
+interface ListItem {
+  label: string;
+  sublabel?: string; // The '?' makes it optional
+}
+
+const sections : Section[] = [
   {
     title: 'Institutes',
     description:
