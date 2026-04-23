@@ -10,12 +10,12 @@ export default function InstitutesHeader() {
 
   return (
     <div className="sticky top-16 z-40 bg-white border-b border-gray-200">
-      <div className="max-w-6xl mx-auto px-4 md:px-8 lg:px-16 py-8 ">
+      <div className="max-w-6xl mx-auto px-4 md:px-8 lg:px-10 py-5 ">
         {/* Header Content */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 mb-5">
           {/* Left Section - Title and Subtitle */}
           <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">
+            <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
               Institutes Directory
             </h1>
             <p className="text-md text-gray-500">
@@ -32,7 +32,7 @@ export default function InstitutesHeader() {
                 placeholder="Search schools, location..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-400"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-400 shadow-sm"
               />
             </div>
           </div>
@@ -42,26 +42,26 @@ export default function InstitutesHeader() {
         <div className="flex gap-1 bg-gray-100 w-fit p-1 rounded-lg">
           <button
             onClick={() => setActiveTab('primary')}
-            className={`flex items-center gap-2 px-6 cursor-pointer py-3 shadow-sm rounded-lg font-semibold transition-colors border ${
+            className={`flex items-center gap-2 px-5 text-sm cursor-pointer py-2 shadow-sm rounded-lg font-semibold transition-colors border ${
               activeTab === 'primary'
                 ? 'bg-white text-red-500 border-white'
                 : 'bg-gray-200 text-gray-500 border-gray-200 hover:border-gray-300'
             }`}
           >
-            <MdSchool className="w-5 h-5" />
+            <MdApartment className="w-5 h-5" />
             Primary & Secondary
           </button>
-          <button
+          {/* <button
             onClick={() => setActiveTab('universities')}
-            className={`flex items-center gap-2 px-6 py-3 cursor-pointer shadow-sm rounded-lg font-semibold transition-colors border ${
+            className={`flex items-center gap-2 text-sm px-5 py-2 cursor-pointer shadow-sm rounded-lg font-semibold transition-colors border ${
               activeTab === 'universities'
                 ? 'bg-white text-red-500 border-white'
                 : 'bg-gray-200 text-gray-500 border-gray-200 hover:border-gray-300'
             }`}
           >
-            <MdApartment className="w-5 h-5" />
+            <MdSchool className="w-5 h-5" />
             Universities
-          </button>
+          </button> */}
         </div>
       </div>
     </div>
