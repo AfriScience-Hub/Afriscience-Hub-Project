@@ -5,7 +5,7 @@ import { SlidersHorizontal } from 'lucide-react';
 import Header from '../components/header';
 import SearchModal from '../components/search';
 import Footer from '../components/footer';
-import FilterCards from './components/filterCards';
+import FilterCards from './components/centerCards';
 import FilterSidebar from './components/filterSidebar';
 
 type CenterStatus = 'ONLINE' | 'OFFLINE';

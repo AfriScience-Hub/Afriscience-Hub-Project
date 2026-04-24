@@ -339,7 +339,7 @@ export default function FilterSidebar({
         onToggle={toggleSection}
         badge={selectedFilters.services.length}
       >
-        <div className="max-h-72 space-y-4 overflow-y-auto  scrollbar-hide">
+        <div className="max-h-72 space-y-4 overflow-y-auto scrollbar-hide">
           {services.map((service) => (
             <CheckboxItem
               key={service}
