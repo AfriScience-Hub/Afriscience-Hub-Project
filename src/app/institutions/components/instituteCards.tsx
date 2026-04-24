@@ -1,233 +1,209 @@
 'use client';
 
-import { useState } from 'react';
-import { Share2, Archive, MapPin, CheckCircle2, Star, ThumbsUp, MessageCircle, GitFork } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
+import { Archive, CheckCircle2, ChevronDown, GitFork, MapPin, MessageCircle, Share2, Star, ThumbsUp } from 'lucide-react';
 
-// --- Interface for Institute Data ---
-interface Institute {
+export interface Institute {
   id: number;
   name: string;
   location: {
     city: string;
+    region: string;
     country: string;
   };
   status: 'ONLINE' | 'OFFLINE';
   class: 'Primary' | 'Secondary' | 'Primary & Secondary';
-  ownership: string; // From Filter options (Private, Mission, Govt, etc.)
+  ownership: string;
   gender: 'Female' | 'Male' | 'Mixed' | 'Rather not say';
+  services: string[];
   rating: {
-    stars: number; // e.g., 4.8
-    count: number; // e.g., 156
+    stars: number;
+    count: number;
   };
   stats: {
-    likes: string; // e.g., "4.2k"
-    messages: number; // e.g., 156
-    forks: number; // e.g., 820
+    likes: string;
+    messages: number;
+    forks: number;
   };
-  image: string; // URL to image
+  image: string;
 }
 
-// --- Mock Data: 5 Schools based on the image ---
-const instituteData: Institute[] = [
-  {
-    id: 1,
-    name: "Lagos High School of Science & Tech",
-    location: { city: "Lagos", country: "Nigeria" },
-    status: "ONLINE",
-    class: "Secondary",
-    ownership: "Private",
-    gender: "Mixed",
-    rating: { stars: 4.8, count: 156 },
-    stats: { likes: "4.2k", messages: 156, forks: 820 },
-    image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=600&h=400&auto=format&fit=crop" // Gray building/empty space placeholder
-  },
-  {
-    id: 2,
-    name: "Cape Town Science Academy",
-    location: { city: "Western Cape", country: "South Africa" },
-    status: "OFFLINE",
-    class: "Primary",
-    ownership: "Private",
-    gender: "Mixed",
-    rating: { stars: 4.7, count: 56 },
-    stats: { likes: "1.5k", messages: 56, forks: 180 },
-    image: "https://images.unsplash.com/photo-1605333555239-4d6211832043?q=80&w=600&h=400&auto=format&fit=crop" // Apple on books
-  },
-  {
-    id: 3,
-    name: "St. Mary's Girls Academy",
-    location: { city: "Greater Accra", country: "Ghana" },
-    status: "OFFLINE",
-    class: "Secondary",
-    ownership: "Mission",
-    gender: "Female",
-    rating: { stars: 4.6, count: 112 },
-    stats: { likes: "2.8k", messages: 112, forks: 410 },
-    image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=600&h=400&auto=format&fit=crop" // Kids with backpacks
-  },
-  {
-    id: 4,
-    name: "Cairo International School",
-    location: { city: "Cairo", country: "Egypt" },
-    status: "ONLINE",
-    class: "Secondary",
-    ownership: "International",
-    gender: "Mixed",
-    rating: { stars: 4.9, count: 205 },
-    stats: { likes: "4.1k", messages: 205, forks: 720 },
-    image: "https://images.unsplash.com/photo-1521791136064-7986c292321d?q=80&w=600&h=400&auto=format&fit=crop" // Placeholder image for Cairo
-  },
-  {
-    id: 5,
-    name: "Kigali Boys High",
-    location: { city: "Kigali City", country: "Rwanda" },
-    status: "OFFLINE",
-    class: "Secondary",
-    ownership: "Government | Public",
-    gender: "Male",
-    rating: { stars: 4.4, count: 78 },
-    stats: { likes: "1.8k", messages: 78, forks: 200 },
-    image: "https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=600&h=400&auto=format&fit=crop" // Kigali Boys High Placeholder
-  }
-];
+export type SortOption = 'recommended' | 'most-reviewed' | 'highest-rated';
 
-// --- Institute Card Sub-Component ---
-const InstituteCard = ({ institute }: { institute: Institute }) => (
-  <div className="bg-white border border-gray-100 shadow-sm rounded-3xl overflow-hidden flex flex-col hover:border-red-100 transition-colors group">
-    {/* Image Header with overlays */}
-    <div className="relative aspect-3/2 overflow-hidden">
-      <img 
-        src={institute.image} 
-        alt={institute.name} 
-        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-      />
-      {/* Aspect Ratio Constraint for Image Header */}
-      <div className="absolute inset-0 aspect-[16/9] overflow-hidden">
-        <img 
-          src={institute.image} 
-          alt={institute.name} 
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-      </div>
-
-      {/* Overlays */}
-      <div className="absolute top-4 left-4 flex gap-2">
-        <div className="w-8 h-8 rounded-full bg-[#0F1D33] text-white flex items-center justify-center font-bold text-sm">
-          {institute.id}
-        </div>
-      </div>
-      <div className="absolute top-4 right-4 flex gap-2">
-        <button className="w-8 h-8 rounded-full bg-white text-gray-400 flex items-center justify-center hover:bg-gray-100">
-          <Share2 size={16} />
-        </button>
-        <button className="w-8 h-8 rounded-full bg-white text-gray-400 flex items-center justify-center hover:bg-gray-100">
-          <Archive size={16} />
-        </button>
-      </div>
-
-      {/* Status Badge */}
-      <div className={`absolute bottom-4 left-4 px-3 py-1 rounded text-xs font-bold ${
-        institute.status === 'ONLINE' ? 'bg-red-500 text-white' : 'bg-white text-black'
-      }`}>
-        {institute.status}
-      </div>
-    </div>
-
-    {/* Content Body */}
-    <div className="p-5  flex flex-col grow">
-      {/* Title & Verified Badge */}
-      <div className="flex items-center justify-between gap-3 mb-1.5">
-        <h3 className={`text-md text-black font-bold hover:text-red-500 leading-tight`}>
-          {institute.name}
-        </h3>
-        <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0" />
-      </div>
-
-      {/* Location */}
-      <div className="flex items-center gap-2 text-gray-400 text-xs mb-4">
-        <MapPin size={14} className="shrink-0" />
-        <span>{institute.location.city}, {institute.location.country}</span>
-      </div>
-
-      {/* Data Table */}
-      <div className="bg-gray-50 border border-gray-100 rounded-t-lg py-3 px-4 grid grid-cols-3 gap-x-2 gap-y-1 text-start">
-        <span className="text-xs text-gray-400">Class</span>
-        <span className="text-xs text-gray-400">Ownership</span>
-        <span className="text-xs text-gray-400">Gender</span>
-        <span className="text-xs font-normal text-gray-900 truncate">{institute.class}</span>
-        <span className="text-xs font-normal text-gray-900 truncate">{institute.ownership}</span>
-        <span className="text-xs font-normal text-gray-900 truncate">{institute.gender}</span>
-      </div>
-
-      {/* Rating */}
-      <div className="text-xs text-gray-400 flex flex-col mb-4 bg-gray-50 px-4">
-        <span>Rating</span>
-        <div className="flex items-center gap-1 mt-1.5">
-          <Star size={12} className="text-amber-500 fill-amber-500" />
-          <span className="text-xs font-bold text-amber-500">{institute.rating.stars.toFixed(1)}</span>
-          <span className="text-xs font-semibold text-gray-400">({institute.rating.count} reviews)</span>
-        </div>
-      </div>
-
-      {/* Spacer and Bottom Stats */}
-      <div className="mt-auto border-t px-2 border-gray-100 pt-4 grid grid-cols-3 gap-2 text-xs font-semibold text-gray-400">
-        <div className="flex items-center gap-1.5">
-          <ThumbsUp size={12} className="text-gray-300" />
-          {institute.stats.likes}
-        </div>
-        <div className="flex items-center gap-1.5">
-          <MessageCircle size={12} className="text-gray-300" />
-          {institute.stats.messages}
-        </div>
-        <div className="flex items-center gap-1.5">
-          <GitFork size={12} className="text-gray-300" />
-          {institute.stats.forks}
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="grid grid-cols-2 gap-3 mt-4">
-        <button className="py-2.5 cursor-pointer bg-white text-gray-900 border border-gray-200 rounded-lg text-sm font-bold hover:bg-gray-200">
-          Details
-        </button>
-        <button className="py-2.5 cursor-pointer bg-black text-white rounded-lg text-sm font-bold hover:bg-[#13223f]">
-          Contact
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
-// --- Institutes Results Component (Page-level component to be side-by-side with Filter) ---
-export default function InstitutesResults({ data }: { data: Institute[] }) {
-  const [resultsCount, setResultsCount] = useState(instituteData.length); // Hardcoded to 5 based on data
-
+function InstituteCard({ institute }: { institute: Institute }) {
   return (
-    <main className="p-4 md:p-8 bg-white"> 
-      {/* Sub Header for Sorting & Results */}
-      <div className="flex items-center justify-between mb-8 gap-4 pb-4 border-b border-gray-100">
-        <p className="text-gray-500 text-xs">
-          Showing <span className="font-bold text-gray-900">{resultsCount} results</span>
-        </p>
-        <div className="flex items-center gap-2.5 text-xs text-gray-500">
-          Sort by:
-          <button className="font-bold text-gray-900 flex items-center gap-1">
-            Recommended
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4.5L6 7.5L3 4.5" stroke="#111827" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div className="group flex flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-colors hover:border-red-100">
+      <div className="relative aspect-video overflow-hidden">
+        <Image
+          src={institute.image}
+          alt={institute.name}
+          fill
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+
+        <div className="absolute top-4 left-4 flex gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0F1D33] text-sm font-bold text-white">
+            {institute.id}
+          </div>
+        </div>
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-400 hover:bg-gray-100">
+            <Share2 size={16} />
+          </button>
+          <button className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-400 hover:bg-gray-100">
+            <Archive size={16} />
+          </button>
+        </div>
+
+        <div
+          className={`absolute bottom-4 left-4 rounded px-3 py-1 text-xs font-bold ${
+            institute.status === 'ONLINE' ? 'bg-red-500 text-white' : 'bg-white text-black'
+          }`}
+        >
+          {institute.status}
+        </div>
+      </div>
+
+      <div className="flex grow flex-col p-5">
+        <div className="mb-1.5 flex items-center justify-between gap-3">
+          <h3 className="text-md font-bold leading-tight text-black hover:text-red-500">
+            {institute.name}
+          </h3>
+          <CheckCircle2 className="h-5 w-5 shrink-0 text-blue-500" />
+        </div>
+
+        <div className="mb-4 flex items-center gap-2 text-xs text-gray-400">
+          <MapPin size={14} className="shrink-0" />
+          <span>
+            {institute.location.region}, {institute.location.country}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-3 gap-x-2 gap-y-1 rounded-t-lg border border-gray-100 bg-gray-50 px-4 py-3 text-start">
+          <span className="text-xs text-gray-400">Class</span>
+          <span className="text-xs text-gray-400">Ownership</span>
+          <span className="text-xs text-gray-400">Gender</span>
+          <span className="truncate text-xs font-normal text-gray-900">{institute.class}</span>
+          <span className="truncate text-xs font-normal text-gray-900">{institute.ownership}</span>
+          <span className="truncate text-xs font-normal text-gray-900">{institute.gender}</span>
+        </div>
+
+        <div className="mb-4 flex flex-col bg-gray-50 px-4 text-xs text-gray-400">
+          <span>Rating</span>
+          <div className="mt-1.5 flex items-center gap-1">
+            <Star size={12} className="fill-amber-500 text-amber-500" />
+            <span className="text-xs font-bold text-amber-500">{institute.rating.stars.toFixed(1)}</span>
+            <span className="text-xs font-semibold text-gray-400">({institute.rating.count} reviews)</span>
+          </div>
+        </div>
+
+        <div className="mt-auto grid grid-cols-3 gap-2 border-t border-gray-100 px-2 pt-4 text-xs font-semibold text-gray-400">
+          <div className="flex items-center gap-1.5">
+            <ThumbsUp size={12} className="text-gray-300" />
+            {institute.stats.likes}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <MessageCircle size={12} className="text-gray-300" />
+            {institute.stats.messages}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <GitFork size={12} className="text-gray-300" />
+            {institute.stats.forks}
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <button className="cursor-pointer rounded-lg border border-gray-200 bg-white py-2.5 text-sm font-bold text-gray-900 hover:bg-gray-200">
+            Details
+          </button>
+          <button className="cursor-pointer rounded-lg bg-black py-2.5 text-sm font-bold text-white hover:bg-[#13223f]">
+            Contact
           </button>
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* Grid List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6"> {/* Column grid of 2 for md screens and up */}
-        {instituteData.map((institute) => (
-          <InstituteCard key={institute.id} institute={institute} />
-        ))}
+const sortLabels: Record<SortOption, string> = {
+  recommended: 'Recommended',
+  'most-reviewed': 'Most Reviewed',
+  'highest-rated': 'Highest Rated',
+};
+
+export default function InstitutesResults({
+  data,
+  sortBy,
+  onSortChange,
+}: {
+  data: Institute[];
+  sortBy: SortOption;
+  onSortChange: (value: SortOption) => void;
+}) {
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const sortRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
+        setShowSortMenu(false);
+      }
+    };
+
+    window.addEventListener('mousedown', handleClickOutside);
+    return () => window.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <main className="bg-white p-4 md:p-8">
+      <div className="mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+        <p className="text-xs text-gray-500">
+          Showing <span className="font-bold text-gray-900">{data.length} results</span>
+        </p>
+        <div ref={sortRef} className="relative flex items-center gap-2.5 text-xs text-gray-500">
+          Sort by:
+          <button
+            type="button"
+            onClick={() => setShowSortMenu((current) => !current)}
+            className="flex items-center gap-1 font-bold text-gray-900"
+          >
+            {sortLabels[sortBy]}
+            <ChevronDown size={14} />
+          </button>
+
+          {showSortMenu ? (
+            <div className="absolute right-0 top-full z-10 mt-2 min-w-40 overflow-hidden border border-gray-300 bg-white shadow-lg">
+              {(['recommended', 'most-reviewed', 'highest-rated'] as SortOption[]).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => {
+                    onSortChange(option);
+                    setShowSortMenu(false);
+                  }}
+                  className={`block w-full px-3 py-2 text-left text-xs lg:text-sm ${
+                    sortBy === option ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {sortLabels[option]}
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
 
-      {data.length === 0 && (
-        <div className="text-center py-20 text-gray-500">
-          No institutes match your current filters.
+      {data.length > 0 ? (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {data.map((institute) => (
+            <InstituteCard key={institute.id} institute={institute} />
+          ))}
+        </div>
+      ) : (
+        <div className="py-20 text-center text-gray-500">
+          No institutes match your current search and filters.
         </div>
       )}
     </main>
