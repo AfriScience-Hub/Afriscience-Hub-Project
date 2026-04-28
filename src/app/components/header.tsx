@@ -211,6 +211,13 @@ export default function Header({ onSearchOpen }: HeaderProps) {
               Contact
             </Link>
 
+            <Link
+              href="/impact"
+              className="text-gray-900 hover:text-gray-600 font-medium transition-colors"
+            >
+              Impact
+            </Link>
+
             {/* Support Dropdown */}
             <div 
               className="relative"
@@ -326,6 +333,14 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Contact
+              </Link>
+
+              <Link
+                href="/impact"
+                className="block px-3 py-2 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Impact
               </Link>
 
               {/* Explore Mobile Submenu */}

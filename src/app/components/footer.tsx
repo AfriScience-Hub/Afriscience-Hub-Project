@@ -139,7 +139,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/impact-stories" className="text-gray-400 hover:text-red-600 transition-colors">
+                <Link href="/impact" className="text-gray-400 hover:text-red-600 transition-colors">
                   Impact Stories
                 </Link>
               </li>

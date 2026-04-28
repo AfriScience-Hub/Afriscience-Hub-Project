@@ -157,8 +157,8 @@ function ShareModal({
           <div className="flex items-start gap-4">
             <Share2 className="mt-1 h-5 w-5 text-[#ff3b30]" />
             <div>
-              <h2 className="text-xl font-bold text-[#172235]">Share Voting</h2>
-              <p className="text-sm text-[#97a4b9]">Spread the word and encourage voting</p>
+              <h2 className="text-lg lg:text-xl font-bold text-[#172235]">Share Voting</h2>
+              <p className="text-xs lg:text-sm text-[#97a4b9]">Spread the word and encourage voting</p>
             </div>
           </div>
 
@@ -179,7 +179,7 @@ function ShareModal({
               <button
                 type="button"
                 onClick={() => onSelectMode('link')}
-                className="flex cursor-pointer w-full items-center gap-6 rounded-lg border border-[#d9e1ec] px-6 py-4 text-left transition hover:bg-gray-100"
+                className="flex flex-col lg:flex-row cursor-pointer w-full items-start lg:items-center gap-6 rounded-lg border border-[#d9e1ec] px-6 py-4 text-left transition hover:bg-gray-100"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#dbeaff] text-[#2665f5]">
                   <Copy className="h-5 w-5" />
@@ -193,7 +193,7 @@ function ShareModal({
               <button
                 type="button"
                 onClick={() => onSelectMode('contestant-list')}
-                className="flex w-full items-center gap-6 rounded-lg border border-[#d9e1ec] cursor-pointer px-6 py-4 text-left transition hover:bg-gray-100"
+                className="flex flex-col lg:flex-row w-full items-start lg:items-center gap-6 rounded-lg border border-[#d9e1ec] cursor-pointer px-6 py-4 text-left transition hover:bg-gray-100"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eedfff] text-[#8a23ff]">
                   <Share2 className="h-5 w-5" />
@@ -221,11 +221,11 @@ function ShareModal({
           <>
             <div className="space-y-6 px-6 py-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-[#172235]">Select a Contestant</h3>
+                <h3 className="text-md lg:text-lg font-bold text-[#172235]">Select a Contestant</h3>
                 <button
                   type="button"
                   onClick={() => onSelectMode('choice')}
-                  className="text-md cursor-pointer hover:underline font-medium text-[#ff3b30]"
+                  className="text-sm lg:text-md cursor-pointer hover:underline font-medium text-[#ff3b30]"
                 >
                   Back
                 </button>
@@ -240,7 +240,7 @@ function ShareModal({
                       key={contestant.id}
                       type="button"
                       onClick={() => onSelectContestant(contestant)}
-                      className={`flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition cursor-pointer ${
+                      className={`flex flex-col lg:flex-row w-full items-start lg:items-center gap-3 rounded-lg border px-4 py-3 text-left transition cursor-pointer ${
                         isSelected ? 'border-[#ff4b43]' : 'border-[#d9e1ec]'
                       }`}
                     >
@@ -254,7 +254,7 @@ function ShareModal({
                         />
                       </div>
                       <div>
-                        <h4 className="text-lg font-bold text-[#172235]">{contestant.name}</h4>
+                        <h4 className="text-md lg:text-lg font-bold text-[#172235]">{contestant.name}</h4>
                         <p className="text-sm text-[#697a91]">{contestant.country}</p>
                         <p className="text-sm text-[#97a4b9]">
                           {contestant.competition} • {contestant.category}
@@ -288,7 +288,7 @@ function ShareModal({
                   onClick={() => {
                     onSelectMode('choice');
                   }}
-                  className="text-md hover:underline font-medium text-[#ff3b30]"
+                  className="text-sm lg:text-md hover:underline font-medium text-[#ff3b30]"
                 >
                   Start Over
                 </button>
@@ -296,8 +296,8 @@ function ShareModal({
 
               <div>
                 <p className="mb-3 text-sm text-[#55657b]">Share URL</p>
-                <div className="flex gap-3 justify-between">
-                  <div className="flex items-center px-4 rounded-2xl border border-[#d9e1ec] text-sm text-[#172235]">
+                <div className="flex flex-col lg:flex-row gap-3 justify-between">
+                  <div className="flex items-center px-4 rounded-lg border border-[#d9e1ec] text-sm text-[#172235]">
                     {shareUrl}
                   </div>
                   <button className="items-center justify-center gap-3 rounded-lg flex border border-[#d9e1ec] bg-white px-8 py-5 text-sm cursor-pointer hover:bg-gray-200 font-semibold text-[#172235]">
@@ -395,9 +395,9 @@ export default function VotingCards({
         <button
           type="button"
           onClick={openPageShare}
-          className="inline-flex items-center gap-3 rounded-sm border border-[#ff3b30] bg-white px-3 py-3 text-sm font-semibold text-[#ff3b30]"
+          className="inline-flex items-center gap-1 lg:gap-3 rounded-sm border border-[#ff3b30] bg-white px-2 py-1 lg:px-3 lg:py-3 text-xs lg:text-sm font-semibold text-[#ff3b30]"
         >
-          <Share2 className="h-5 w-5" />
+          <Share2 className="h-3 lg:h-5 w-3 lg:w-5" />
           Share
         </button>
       </div>
