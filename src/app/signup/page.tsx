@@ -18,7 +18,7 @@ export default function SignupPage() {
     <main className="">
       <Header onSearchOpen={handleSearchOpen}/>
       <div className='min-h-screen bg-[#f5f7fb] px-4 py-3 mt-10'>
-        <section className="mx-auto flex min-h-[calc(100vh-1.5rem)] max-w-118 items-center justify-center sm:min-h-[calc(100vh-3rem)]">
+        <section className="mx-auto flex min-h-[calc(100vh-1.5rem)] max-w-110 items-center justify-center">
           <div className="w-full rounded-3xl border border-[#d9e0ea] bg-white px-8 py-10 shadow-[0_2px_10px_rgba(15,23,42,0.06)] sm:px-9 sm:py-11">
             <div className="flex justify-center">
               <Image
@@ -26,13 +26,13 @@ export default function SignupPage() {
                 alt="AfriScience Hub"
                 width={124}
                 height={34}
-                className="h-auto w-31"
+                className="h-auto w-36"
                 priority
               />
             </div>
 
-            <div className="mt-10 text-center">
-              <h1 className="text-[28px] font-bold tracking-tight text-[#1c2434] sm:text-[34px]">
+            <div className="mt-5 text-center">
+            <h1 className="text-[25px] font-bold tracking-tight text-[#1c2434]">
                 Create an account
               </h1>
               <p className="mx-auto mt-3 max-w-90 text-[15px] leading-7 text-[#5a6578] sm:text-[16px]">
@@ -42,7 +42,7 @@ export default function SignupPage() {
 
             <button
               type="button"
-              className="mt-9 flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-[#d8dee8] bg-white text-[15px] font-semibold text-[#525f73]"
+              className="mt-9 flex h-11 w-full items-center justify-center gap-3 cursor-pointer rounded-lg border border-[#d8dee8] bg-white text-[15px] font-semibold text-[#525f73]"
             >
               <FcGoogle className="h-6 w-6" />
               Sign up with Google
@@ -82,11 +82,6 @@ export default function SignupPage() {
               <Field
                 label="Password"
                 icon={<Lock className="h-5 w-5 text-[#98a2b3]" strokeWidth={2} />}
-                endAdornment={
-                  <button type="button" className="text-[#98a2b3]">
-                    <Eye className="h-5 w-5" strokeWidth={2} />
-                  </button>
-                }
               >
                 <input
                   type="password"
@@ -98,11 +93,6 @@ export default function SignupPage() {
               <Field
                 label="Confirm Password"
                 icon={<Lock className="h-5 w-5 text-[#98a2b3]" strokeWidth={2} />}
-                endAdornment={
-                  <button type="button" className="text-[#98a2b3]">
-                    <Eye className="h-5 w-5" strokeWidth={2} />
-                  </button>
-                }
               >
                 <input
                   type="password"
@@ -114,13 +104,13 @@ export default function SignupPage() {
 
             <button
               type="button"
-              className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#0b2342] text-[16px] font-semibold text-white transition hover:bg-[#14345f]"
+              className="mt-6 flex h-12 w-full items-center justify-center gap-2 cursor-pointer rounded-lg bg-[#0b2342] text-[16px] font-semibold text-white transition hover:bg-[#14345f]"
             >
               Sign Up
               <ArrowRight className="h-4 w-4" />
             </button>
 
-            <p className="mx-auto mt-5 max-w-82.5 text-center text-[13px] leading-5 text-[#98a2b3]">
+            <p className="mx-auto mt-5 max-w-82.5 text-center text-xs leading-5 text-[#98a2b3]">
               By clicking &quot;Sign Up&quot;, you agree to our{' '}
               <Link href="/terms" className="underline">
                 Terms of Service
@@ -131,9 +121,9 @@ export default function SignupPage() {
               </Link>
             </p>
 
-            <p className="mt-8 text-center text-[16px] text-[#5c6678]">
+            <p className="mt-5 text-center text-xs text-[#5c6678]">
               Already have an account?{' '}
-              <Link href="/login" className="font-semibold text-[#ff3a34]">
+              <Link href="/login" className="font-semibold text-[#ff3a34] text-sm">
                 Log in
               </Link>
             </p>
