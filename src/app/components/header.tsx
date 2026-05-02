@@ -83,7 +83,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                         KNOWLEDGE & INSTITUTIONS
                       </h3>
                       <div className="space-y-6">
-                        <Link href="institutions" >
+                        <Link href="/institutions" >
                           <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                             <div className="flex items-center gap-2 mb-1">
                             <Building2 className="text-red-600" size={20} />
@@ -96,7 +96,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                         </Link>
 
                         <div>
-                          <Link href="centers" >
+                          <Link href="/centers" >
                             <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                               <div className="flex items-center gap-2 mb-1">
                                 <Microscope className="text-red-600" size={20} />
@@ -114,7 +114,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                         INNOVATION ECOSYSTEM
                       </h3>
                       <div>
-                        <Link href="innovations" >
+                        <Link href="/innovations" >
                           <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                             <div className="flex items-center gap-2 mb-1">
                               <Lightbulb className="text-red-600" size={20} />
@@ -134,7 +134,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                         EXPERTS & PROFESSIONALS
                       </h3>
                       <div className="mb-8">
-                        <Link href="scientists" >
+                        <Link href="/scientists" >
                           <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                             <div className="flex items-center gap-2 mb-1">
                               <Users className="text-red-600" size={20} />
@@ -151,7 +151,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                         PROGRAMS & ENGAGEMENT
                       </h3>
                       <div className="space-y-6">
-                        <Link href="competitions" >
+                        <Link href="/competitions" >
                           <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                             <div className="flex items-center gap-2 mb-1">
                             <Trophy className="text-red-600" size={20} />
@@ -164,7 +164,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                         </Link>
 
                         <div>
-                          <Link href="voting">
+                          <Link href="/voting">
                             <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                               <div className="flex items-center gap-2 mb-1">
                                 <Vote className="text-red-600" size={20} />
@@ -178,7 +178,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                         </div>
 
                         <div>
-                          <Link href="awards">
+                          <Link href="/awards">
                             <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                                <div className="flex items-center gap-2 mb-1">
                                 <Award className="text-red-600" size={20} />
@@ -236,7 +236,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
               {supportOpen && (
                 <div className="absolute -right-16 mt-0 w-100 bg-white rounded-2xl shadow-xl border border-gray-100 p-6 top-full z-50">
                   <div className="space-y-8">
-                    <Link href="support/sponsor">
+                    <Link href="/support/sponsor">
                       <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                         <div className="flex items-center gap-2 mb-1">
                           <Stars className="text-red-600" size={16} />
@@ -248,7 +248,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       </div>
                     </Link>
                     
-                    <Link href="support/donate">
+                    <Link href="/support/donate">
                       <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                         <div className="flex items-center gap-2 mb-1">
                         <HandHeart className="text-red-600" size={16} />
@@ -260,7 +260,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       </div>
                     </Link>
 
-                    <Link href="support/volunteer">
+                    <Link href="/support/volunteer">
                       <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                         <div className="flex items-center gap-2 mb-1">
                         <Users2 className="text-red-600" size={16} />
@@ -358,7 +358,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                 {exploreOpen && (
                   <div className="border-l-4 border-gray-300 pl-4 space-y-3 py-2">
                     <Link 
-                      href="institutions"
+                      href="/institutions"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -366,7 +366,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       <span>Institutes</span>
                     </Link>
                     <Link 
-                      href="centers"
+                      href="/centers"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -377,7 +377,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       Experts & Professionals
                     </div>
                     <Link 
-                      href="scientists"
+                      href="/scientists"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -388,7 +388,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       Innovation Ecosystem
                     </div>
                     <Link 
-                      href="innovations"
+                      href="/innovations"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -399,7 +399,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       Programs & Engagement
                     </div>
                     <Link 
-                      href="competitions"
+                      href="/competitions"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -407,7 +407,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       <span>Competitions</span>
                     </Link>
                     <Link 
-                      href="voting"
+                      href="/voting"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -415,7 +415,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       <span>Voting</span>
                     </Link>
                     <Link 
-                      href="awards"
+                      href="/awards"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -441,7 +441,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                 {supportOpen && (
                   <div className="border-l-4 border-gray-300 pl-4 space-y-3 py-2">
                     <Link 
-                      href="support/sponsor"
+                      href="/support/sponsor"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -449,7 +449,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       <span>Sponsor AfriScienceHub</span>
                     </Link>
                     <Link 
-                      href="support/donate"
+                      href="/support/donate"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -457,7 +457,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       <span>Donate to Projects</span>
                     </Link>
                     <Link 
-                      href="support/volunteer"
+                      href="/support/volunteer"
                       className="flex items-center gap-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
