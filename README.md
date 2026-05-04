@@ -243,6 +243,169 @@ Currently a placeholder donation route outside the `/support` tree.
 
 This appears separate from `/support/donate` and should either be built out or consolidated later.
 
+## User Dashboard Pages
+
+The dashboard provides authenticated users with a personal workspace to manage their profile, listings, services, and account activity.
+
+### Dashboard Navigation Structure
+
+The dashboard uses a persistent sidebar (on desktop) and mobile-friendly menu with the following sections:
+
+- **Overview** - User statistics and recent activity
+- **My Profile** - User profile information and management
+- **My Listings** - Browse and manage created listings
+- **Upload New Listing** - Create new listings and services
+- **My Services** - Manage offered services
+- **Messages** - Inbox and messaging system
+- **Invoices** - Financial records and billing
+- **Notifications** - System notifications and alerts
+- **Reviews** - User ratings and feedback
+- **Verification Status** - Account verification progress
+- **Settings** - Account preferences and configuration
+
+### Dashboard Routes
+
+#### `/dashboard`
+Root dashboard route that redirects to overview.
+
+#### `/dashboard/overview`
+Main dashboard landing page showing:
+
+- Profile completion status with progress tracking
+- Key statistics (views, likes, shares, active listings)
+- Recent activity feed
+- Account status indicators
+
+Purpose:
+
+- provide quick overview of account health and activity
+- show profile completion progress
+- display recent interactions and notifications
+
+#### `/dashboard/my-profile`
+User profile management page.
+
+Purpose:
+
+- edit personal information
+- upload profile photo
+- manage contact details
+- view profile completeness
+
+#### `/dashboard/my-listings`
+Browse and manage all user listings.
+
+Purpose:
+
+- list all created listings
+- filter by status (active, pending, archived)
+- provide quick actions (edit, delete, promote)
+- show listing performance metrics
+
+#### `/dashboard/upload-new-listing`
+Form to create new listings and services.
+
+Purpose:
+
+- collect listing/service details
+- support file uploads (images, documents)
+- provide validation and preview
+- submit to platform
+
+#### `/dashboard/my-services`
+Manage offered services and service details.
+
+Purpose:
+
+- list all active services
+- edit service offerings
+- manage pricing
+- track service requests
+
+#### `/dashboard/messages`
+Inbox and messaging interface.
+
+Purpose:
+
+- display user conversations
+- enable direct messaging with other users
+- show message history
+- manage conversation threads
+
+#### `/dashboard/invoices`
+Financial records and billing history.
+
+Purpose:
+
+- display all invoices and transactions
+- show payment status
+- enable invoice downloads
+- track financial activity
+
+#### `/dashboard/notifications`
+Notifications management page.
+
+Purpose:
+
+- display all system notifications
+- filter notifications by type
+- mark as read/unread
+- manage notification preferences
+
+#### `/dashboard/reviews`
+User ratings and feedback management.
+
+Purpose:
+
+- display received reviews
+- show rating distribution
+- enable response to reviews
+- manage review reputation
+
+#### `/dashboard/verification-status`
+Account verification progress tracking.
+
+Purpose:
+
+- show verification requirements
+- display verification progress
+- provide verification status updates
+- show required documents
+
+#### `/dashboard/settings`
+Account preferences and configuration.
+
+Purpose:
+
+- manage account settings
+- update security preferences
+- configure notifications
+- manage privacy settings
+
+### Header Updates
+
+The application header now includes:
+
+- **Notification Icon** - With dropdown showing recent notifications and link to full notifications page
+- **Profile Dropdown** - Shows user info and quick links to profile, dashboard, and settings
+- Maintains existing navigation for non-authenticated state
+
+### Dashboard Layout Components
+
+#### Sidebar Component (`/dashboard/components/sidebar.tsx`)
+Persistent sidebar navigation:
+
+- Lists all dashboard sections with icons
+- Highlights current active page
+- Responsive behavior (hidden on mobile, toggled via button)
+- Smooth transitions and hover states
+
+Features:
+- Icon + label for each section
+- Active state styling with red highlight and border
+- Mobile menu toggle button (fixed position on mobile)
+- Overlay when mobile menu is open
+
 ### Engagement / Trust / Utility Pages
 
 #### `/contact`
@@ -305,7 +468,7 @@ They appear to duplicate top-level content pages and may be leftovers, temporary
 
 Some important shared components in `src/app/components`:
 
-- `header.tsx`: global top navigation and search trigger
+- `header.tsx`: global top navigation with search, notifications dropdown, and profile dropdown (authenticated state)
 - `footer.tsx`: global footer
 - `search.tsx`: sitewide search modal shell
 - `hero.tsx`: home page hero
@@ -315,6 +478,10 @@ Some important shared components in `src/app/components`:
 - `centers.tsx`: home page featured centers
 - `programs.tsx`: home page programs section
 - `partners.tsx`: home page partners section
+
+Dashboard-specific components in `src/app/dashboard/components`:
+
+- `sidebar.tsx`: persistent sidebar navigation with all dashboard sections, responsive mobile toggle, and active page highlighting
 
 ## Current Data Model Reality
 
