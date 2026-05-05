@@ -100,11 +100,11 @@ export default async function NotificationsPage({
 
   return (
     <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <div className="flex items-start justify-between border-b border-gray-200 px-6 py-6">
+      <div className="flex items-start justify-between border-b border-gray-200 px-6 py-6 flex-col lg:flex-row gap-3 lg:gap-0">
         <div>
           <div className="flex items-center gap-3 lg:hidden">
             <Bell size={22} className="text-red-500" />
-            <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+            <h1 className="text-xl font-bold text-gray-900">Notifications</h1>
           </div>
           <h1 className="hidden text-2xl font-bold text-gray-900 lg:block">Notifications</h1>
           <p className="mt-1 text-sm text-gray-400">3 unread notifications</p>
@@ -124,11 +124,11 @@ export default async function NotificationsPage({
               key={`${notification.title}-${notification.time}`}
               className="relative flex gap-4 border-b border-gray-200 px-6 py-5 last:border-b-0"
             >
-              <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${notification.style}`}>
+              <div className={`hidden lg:grid h-12 w-12 shrink-0 place-items-center rounded-full ${notification.style}`}>
                 <Icon size={24} strokeWidth={1.9} />
               </div>
               <div className="min-w-0 flex-1 pt-1">
-                <h2 className={`text-base ${notification.unread ? 'font-bold text-gray-900' : 'font-medium text-gray-600'}`}>
+                <h2 className={`text-sm lg:text-md ${notification.unread ? 'font-bold text-gray-900' : 'font-medium text-gray-600'}`}>
                   {notification.title}
                 </h2>
                 <p className="mt-1 text-sm leading-snug text-gray-400">{notification.body}</p>

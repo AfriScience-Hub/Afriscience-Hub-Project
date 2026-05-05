@@ -31,37 +31,37 @@ const messages = [
 
 export default function MessagesPage() {
   return (
-    <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <div className="border-b border-gray-200 px-5 py-7 lg:px-8">
-        <h1 className="text-2xl font-bold text-gray-950 lg:text-3xl">Messages</h1>
-        <p className="mt-2 text-sm text-gray-400 lg:text-base">View and manage your conversations</p>
+    <section className="overflow-hidden rounded-2xl border border-gray-200 max-w-fit bg-white shadow-sm">
+      <div className="border-b border-gray-200 p-5">
+        <h1 className="text-xl font-bold text-gray-950 lg:text-2xl">Messages</h1>
+        <p className="mt-0 lg:mt-2 text-xs text-gray-400 lg:text-base">View and manage your conversations</p>
       </div>
 
       <div>
         {messages.map((message) => (
           <button
             key={message.name}
-            className="flex w-full cursor-pointer items-center gap-4 border-b border-gray-200 px-5 py-6 text-left last:border-b-0 hover:bg-gray-50 lg:px-8"
+            className="flex lg:w-full cursor-pointer items-center gap-4 border-b border-gray-200 px-3 py-4 text-left last:border-b-0 hover:bg-gray-50"
           >
             {message.avatar ? (
-              <span className={`h-14 w-14 shrink-0 rounded-full bg-gradient-to-br ${message.avatar}`} />
+              <span className={`h-12 lg:h-14 w-12 lg:w-14 shrink-0 rounded-fullbg-linear-to-br ${message.avatar}`} />
             ) : (
               <Image
                 src="/dashboard-avatar.png"
                 alt="AfriScience Hub Team"
                 width={56}
                 height={56}
-                className="h-14 w-14 shrink-0 rounded-full object-cover grayscale"
+                className="h-12 lg:h-14 w-12 lg:w-14 shrink-0 rounded-full object-cover grayscale"
               />
             )}
             <span className="min-w-0 flex-1">
-              <span className="block text-lg font-bold text-gray-950 lg:text-xl">{message.name}</span>
-              <span className="mt-1 block text-base font-semibold text-gray-950 lg:text-lg">{message.subject}</span>
-              <span className="mt-1 block truncate text-sm text-gray-400 lg:text-base">{message.preview}</span>
+              <span className="text-sm font-bold text-gray-950 lg:text-lg">{message.name}</span>
+              <span className="mt-1 block text-xs font-semibold text-gray-950 lg:text-md">{message.subject}</span>
+              <span className="mt-1 block lg:truncate text-xs text-gray-400 lg:text-sm">{message.preview}</span>
             </span>
-            <span className="flex shrink-0 items-center gap-6">
-              <span className="text-sm text-gray-400 lg:text-base">{message.time}</span>
-              {message.unread && <span className="h-4 w-4 rounded-full bg-red-500" />}
+            <span className="flex shrink-0 items-center gap-3 lg:gap-6">
+              <span className="text-xs text-gray-400 lg:text-sm">{message.time}</span>
+              {message.unread && <span className="h-3 w-3 rounded-full bg-red-500" />}
             </span>
           </button>
         ))}

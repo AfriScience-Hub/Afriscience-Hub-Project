@@ -46,7 +46,7 @@ export default function MyProfilePage() {
   };
 
   return (
-    <div className="p-6 md:p-8 max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       {/* Profile Header */}
       <div className="bg-linear-to-r from-slate-900 to-slate-700 rounded-2xl p-8 mb-8 text-white relative">
         <div className="flex items-end gap-6">

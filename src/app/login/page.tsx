@@ -1,26 +1,62 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Eye, Mail, Lock, Phone } from 'lucide-react';
+import { Mail, Lock, Phone } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import SearchModal from '../components/search';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [usePhone, setUsePhone] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   
-    const handleSearchOpen = () => setSearchOpen(true);
+  const handleSearchOpen = () => setSearchOpen(true);
+
+  const handleSignIn = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const identifier = usePhone ? phone : email;
+
+      // Validation
+      if (!identifier.trim() || !password.trim()) {
+        setError('Please fill in all fields');
+        setLoading(false);
+        return;
+      }
+
+      // Store user info in localStorage
+      localStorage.setItem('userLogin', 'true');
+      localStorage.setItem('userEmail', usePhone ? 'user@example.com' : email);
+      localStorage.setItem('userPhone', usePhone ? phone : '+254 700 000 000');
+      localStorage.setItem('userName', 'Wisdomcezeh');
+
+      // Redirect to dashboard
+      router.push('/dashboard/overview');
+    } catch (err) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main >
         <Header onSearchOpen={handleSearchOpen}/>
-      <div className="min-h-screen bg-[#f5f7fb] px-4 py-3 sm:px-6 sm:py-6">          
+      <div className="min-h-screen bg-[#f5f7fb] px-4 pb-10 pt-20 ">          
         <section className="mx-auto flex min-h-[calc(100vh-1.5rem)] max-w-110 items-center justify-center~">
-          <div className="w-full rounded-[25px] border border-[#d9e0ea] bg-white px-9 py-12 shadow-md">
+          <div className="w-full rounded-[25px] border border-[#d9e0ea] bg-white px-4 lg:px-9 py-12 shadow-md">
             <div className="flex justify-center">
               <Image
                 src="/logo.png"
@@ -33,29 +69,29 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-5 text-center">
-            <h1 className="text-[25px] font-bold tracking-tight text-[#1c2434]">
+            <h1 className="text-lg lg:text-[25px] font-bold tracking-tight text-[#1c2434]">
                 Welcome back
               </h1>
-              <p className="mx-auto mt-4 max-w-105 text-[17px] leading-8 text-[#5a6578]">
+              <p className="mx-auto lg:mt-4 max-w-105 text-xs lg:text-[17px] lg:leading-8 text-[#5a6578]">
                 Sign in to access your dashboard and connect with the ecosystem.
               </p>
             </div>
 
             <button
               type="button"
-              className="mt-8 flex h-13 w-full items-center justify-center gap-4 rounded-[10px] border border-[#d8dee8] bg-white text-[16px] cursor-pointer font-semibold text-[#525f73]"
+              className="mt-4 lg:mt-8 flex h-13 w-full items-center justify-center gap-4 rounded-[10px] border border-[#d8dee8] bg-white text-md lg:text-[16px] cursor-pointer font-semibold text-[#525f73]"
             >
               <FcGoogle className="h-7 w-7" />
-              Continue with Google
+              <span className="hidden lg:flex">Continue with Google</span>
             </button>
 
-            <div className="mt-8 flex items-center gap-4 text-[#a0aabc]">
+            <div className="mt-4 lg:mt-8 flex items-center gap-4 text-[#a0aabc]">
               <div className="h-px flex-1 bg-[#d8dee8]" />
               <span className="text-sm">Or continue with</span>
               <div className="h-px flex-1 bg-[#d8dee8]" />
             </div>
 
-            <div className="mt-10">
+            <div className="mt-7 lg:mt-10">
               <div className="flex items-center justify-between gap-4">
                 <label className="text-xs lg:text-md font-semibold text-[#202938]">
                   {usePhone ? 'Phone Number' : 'Email Address'}
@@ -78,7 +114,9 @@ export default function LoginPage() {
                 <input
                   type={usePhone ? 'tel' : 'email'}
                   placeholder={usePhone ? '+254 700 000 000' : 'you@example.com'}
-                  className="h-full flex-1 border-0 bg-transparent text-[16px] text-[#1f2937] placeholder:text-[#98a2b3] outline-none"
+                  value={usePhone ? phone : email}
+                  onChange={(e) => usePhone ? setPhone(e.target.value) : setEmail(e.target.value)}
+                  className="h-full flex-1 border-0 bg-transparent lg:text-[16px] text-[#1f2937] placeholder:text-[#98a2b3] outline-none"
                 />
               </div>
             </div>
@@ -90,15 +128,17 @@ export default function LoginPage() {
                 <input
                   type="password"
                   placeholder="Enter anything"
-                  className="h-full flex-1 border-0 bg-transparent text-[16px] text-[#1f2937] placeholder:text-[#98a2b3] outline-none"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-full flex-1 border-0 bg-transparent lg:text-[16px] text-[#1f2937] placeholder:text-[#98a2b3] outline-none"
                 />
                 <button type="button" className="text-[#98a2b3]">
                 </button>
               </div>
             </div>
 
-            <div className="mt-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-              <label className="flex items-center gap-3 text-[15px] font-semibold text-[#566275]">
+            <div className="mt-3 lg:mt-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+              <label className="flex items-center gap-3 text-xs lg:text-[15px] font-semibold text-[#566275]">
                 <input type="checkbox" className="h-4 w-4 rounded-[3px] accent-[#3d3d3d]" />
                 Remember me
               </label>
@@ -108,14 +148,22 @@ export default function LoginPage() {
               </Link>
             </div>
 
+            {error && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {error}
+              </div>
+            )}
+
             <button
               type="button"
-              className="mt-8 h-12 w-full rounded-lg bg-[#0b2342] text-[18px] font-semibold text-white shadow-none transition hover:bg-[#14345f] cursor-pointer"
+              onClick={handleSignIn}
+              disabled={loading}
+              className="mt-8 h-10 lg:h-12 w-full rounded-lg bg-[#0b2342] text-sm lg:text-[18px] font-semibold text-white shadow-none transition hover:bg-[#14345f] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign in
+              {loading ? 'Signing in...' : 'Sign in'}
             </button>
 
-            <p className="mt-8 text-center text-xs text-[#5c6678]">
+            <p className="mt-4 lg:mt-8 text-center text-xs text-[#5c6678]">
               Don&apos;t have an account?{' '}
               <Link href="/signup" className="font-semibold text-[#ff3a34] text-sm">
                 Sign up

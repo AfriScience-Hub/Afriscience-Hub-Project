@@ -327,7 +327,7 @@ function ListingForm({ type, onChangeCategory }: { type: ListingType; onChangeCa
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-4 shadow-sm">
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-0 items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-4 shadow-sm">
         <div className="flex items-center gap-3">
           <Icon size={20} className="text-red-500" />
           <div>
@@ -381,10 +381,10 @@ export default function UploadNewListingPage() {
   }
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm lg:p-10">
+    <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-950 lg:text-3xl">Upload New Listing</h1>
-        <p className="mt-3 text-sm text-gray-400 lg:text-base">
+        <h1 className="text-xl font-bold text-gray-950 lg:text-2xl">Upload New Listing</h1>
+        <p className="mt-0 lg:mt-3 text-xs text-gray-400 lg:text-base">
           Select the category that best describes what you&apos;d like to list on AfriScience Hub.
         </p>
       </div>

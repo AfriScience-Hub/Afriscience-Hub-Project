@@ -36,6 +36,15 @@ export default function Header({ onSearchOpen }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !!localStorage.getItem('userLogin');
+    }
+    return false;
+  });
+  const userName = typeof window !== 'undefined' ? (localStorage.getItem('userName') || 'User') : 'User';
+  const userEmail = typeof window !== 'undefined' ? (localStorage.getItem('userEmail') || 'user@example.com') : 'user@example.com';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-md border-b border-gray-200 mb-32 md:mb-5">
@@ -299,121 +308,145 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
               <div className="h-8 w-px bg-gray-200" />
 
-              {/* Notifications Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setNotificationOpen(!notificationOpen)}
-                  className="relative cursor-pointer p-2 text-gray-700 transition-colors hover:text-gray-900"
-                >
-                  <Bell size={22} />
-                  <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">6</span>
-                </button>
+              {/* Notifications Dropdown - only show if logged in */}
+              {isLoggedIn && (
+                <div className="relative">
+                  <button
+                    onClick={() => setNotificationOpen(!notificationOpen)}
+                    className="relative cursor-pointer p-2 text-gray-700 transition-colors hover:text-gray-900"
+                  >
+                    <Bell size={22} />
+                    <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">6</span>
+                  </button>
 
-                {notificationOpen && (
-                  <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
-                    <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <Bell size={20} className="text-red-600" />
-                        <h3 className="text-base font-semibold text-gray-900">Recent Activity</h3>
-                      </div>
-                      <Link
-                        href="/dashboard/notifications?filter=all"
-                        className="cursor-pointer text-sm font-semibold text-red-600"
-                        onClick={() => setNotificationOpen(false)}
-                      >
-                        View All
-                      </Link>
-                    </div>
-                    <div>
-                      {[
-                        ['New message from Dr. Wanjiku Muthoni', '2 hours ago'],
-                        ['Invoice #INV-2024-0045 received from TechConsult Services', '3 hours ago'],
-                        ['New service booking request received', '5 hours ago'],
-                        ['Your SolaPump Pro listing reached 12k views', '1 day ago'],
-                      ].map(([title, time]) => (
+                  {notificationOpen && (
+                    <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
+                      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <Bell size={20} className="text-red-600" />
+                          <h3 className="text-base font-semibold text-gray-900">Recent Activity</h3>
+                        </div>
                         <Link
-                          key={title}
-                          href="/dashboard/notifications"
+                          href="/dashboard/notifications?filter=all"
+                          className="cursor-pointer text-sm font-semibold text-red-600"
                           onClick={() => setNotificationOpen(false)}
-                          className="block cursor-pointer border-b border-gray-100 px-4 py-3 hover:bg-gray-50"
                         >
-                          <p className="text-sm font-medium text-gray-700">{title}</p>
-                          <p className="mt-1 text-xs text-gray-500">{time}</p>
+                          View All
                         </Link>
-                      ))}
+                      </div>
+                      <div>
+                        {[
+                          ['New message from Dr. Wanjiku Muthoni', '2 hours ago'],
+                          ['Invoice #INV-2024-0045 received from TechConsult Services', '3 hours ago'],
+                          ['New service booking request received', '5 hours ago'],
+                          ['Your SolaPump Pro listing reached 12k views', '1 day ago'],
+                        ].map(([title, time]) => (
+                          <Link
+                            key={title}
+                            href="/dashboard/notifications"
+                            onClick={() => setNotificationOpen(false)}
+                            className="block cursor-pointer border-b border-gray-100 px-4 py-3 hover:bg-gray-50"
+                          >
+                            <p className="text-sm font-medium text-gray-700">{title}</p>
+                            <p className="mt-1 text-xs text-gray-500">{time}</p>
+                          </Link>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
 
-              {/* Profile Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setProfileOpen(!profileOpen)}
-                  className="cursor-pointer rounded-full p-1 transition-colors hover:bg-gray-100"
+              {/* Profile Dropdown - only show if logged in */}
+              {isLoggedIn && (
+                <div className="relative">
+                  <button
+                    onClick={() => setProfileOpen(!profileOpen)}
+                    className="cursor-pointer rounded-full p-1 transition-colors hover:bg-gray-100"
+                  >
+                    <Image
+                      src="/dashboard-avatar.png"
+                      alt="Wisdomcezeh"
+                      width={40}
+                      height={40}
+                      className={`h-10 w-10 rounded-full border-2 object-cover grayscale ${
+                        profileOpen ? 'border-red-500 ring-4 ring-red-500/20' : 'border-slate-200'
+                      }`}
+                    />
+                  </button>
+
+                  {profileOpen && (
+                    <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
+                      <div className="border-b border-gray-100 p-3">
+                        <p className="text-sm font-semibold text-gray-900">{userName}</p>
+                        <p className="text-xs text-gray-600">{userEmail}</p>
+                      </div>
+                      <div className="space-y-1 p-2">
+                        <Link
+                          href="/dashboard/my-profile"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-1 text-gray-700 transition-colors hover:bg-gray-100"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          <User size={18} />
+                          <span className="text-sm">My Profile</span>
+                        </Link>
+                        <Link
+                          href="/dashboard/overview"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-1 text-gray-700 transition-colors hover:bg-gray-100"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          <LayoutDashboard size={18} />
+                          <span className="text-sm">My Dashboard</span>
+                        </Link>
+                        <Link
+                          href="/dashboard/settings"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-1 text-gray-700 transition-colors hover:bg-gray-100"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          <Settings size={18} />
+                          <span className="text-sm">Settings</span>
+                        </Link>
+                      </div>
+                      <div className="border-t border-gray-100 p-2">
+                        <Link
+                          href="/support"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-1 text-gray-700 transition-colors hover:bg-gray-100"
+                        >
+                          <Heart size={18} />
+                          <span className="text-sm">Support AfriScienceHub</span>
+                        </Link>
+                      </div>
+                      <div className="border-t border-gray-100 p-2">
+                        <button 
+                          onClick={() => {
+                            localStorage.removeItem('userLogin');
+                            localStorage.removeItem('userName');
+                            localStorage.removeItem('userEmail');
+                            localStorage.removeItem('userPhone');
+                            setIsLoggedIn(false);
+                            setProfileOpen(false);
+                            window.location.href = '/';
+                          }}
+                          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-1 font-medium text-red-600 transition-colors hover:bg-red-50">
+                          <LogOut size={18} />
+                          <span className="text-sm">Log Out</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Login Button - only show if not logged in */}
+              {!isLoggedIn && (
+                <Link 
+                  href="/login"
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors text-sm"
                 >
-                  <Image
-                    src="/dashboard-avatar.png"
-                    alt="Wisdomcezeh"
-                    width={40}
-                    height={40}
-                    className={`h-10 w-10 rounded-full border-2 object-cover grayscale ${
-                      profileOpen ? 'border-red-500 ring-4 ring-red-500/20' : 'border-slate-200'
-                    }`}
-                  />
-                </button>
-
-                {profileOpen && (
-                  <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
-                    <div className="border-b border-gray-100 p-4">
-                      <p className="text-sm font-semibold text-gray-900">Wisdomcezeh</p>
-                      <p className="text-xs text-gray-600">wisdomcezeh@gmail.com</p>
-                    </div>
-                    <div className="space-y-1 p-2">
-                      <Link
-                        href="/dashboard/my-profile"
-                        className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-2 text-gray-700 transition-colors hover:bg-gray-100"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        <User size={18} />
-                        <span className="text-sm">My Profile</span>
-                      </Link>
-                      <Link
-                        href="/dashboard/overview"
-                        className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-2 text-gray-700 transition-colors hover:bg-gray-100"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        <LayoutDashboard size={18} />
-                        <span className="text-sm">My Dashboard</span>
-                      </Link>
-                      <Link
-                        href="/dashboard/settings"
-                        className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-2 text-gray-700 transition-colors hover:bg-gray-100"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        <Settings size={18} />
-                        <span className="text-sm">Settings</span>
-                      </Link>
-                    </div>
-                    <div className="border-t border-gray-100 p-2">
-                      <Link
-                        href="/support"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-2 text-gray-700 transition-colors hover:bg-gray-100"
-                      >
-                        <Heart size={18} />
-                        <span className="text-sm">Support AfriScienceHub</span>
-                      </Link>
-                    </div>
-                    <div className="border-t border-gray-100 p-2">
-                      <button className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-2 font-medium text-red-600 transition-colors hover:bg-red-50">
-                        <LogOut size={18} />
-                        <span className="text-sm">Log Out</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+                  Login
+                </Link>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -590,27 +623,113 @@ export default function Header({ onSearchOpen }: HeaderProps) {
               {/* Divider */}
               <div className="border-t border-gray-200"></div>
 
-              {/* Mobile Search & Login */}
-              <div className="space-y-2">
-                <button 
-                  onClick={() => {
-                    onSearchOpen();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 cursor-pointer text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <Search size={18} />
-                  <span>Search</span>
-                </button>
-                
-                <Link 
-                  href="/login"
-                  className="w-full block text-center bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 rounded-lg transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Login
-                </Link>
-              </div>
+              {/* Mobile Profile Section - only show if logged in */}
+              {isLoggedIn && (
+                <div className="space-y-3 py-2">
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2.5">
+                    <Image
+                      src="/dashboard-avatar.png"
+                      alt={userName}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full border-2 border-slate-200 object-cover grayscale"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-900">{userName}</p>
+                      <p className="text-xs text-gray-600">{userEmail}</p>
+                    </div>
+                  </div>
+
+                  <button 
+                    className="flex w-full cursor-pointer items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                    onClick={() => setMobileProfileOpen(!mobileProfileOpen)}
+                  >
+                    <span>Menu</span>
+                    <ChevronDown 
+                      size={18} 
+                      className={`transition-transform ${mobileProfileOpen ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+
+                  {mobileProfileOpen && (
+                    <div className="border-l-4 border-gray-300 pl-4 space-y-2 py-1">
+                      <Link
+                        href="/dashboard/my-profile"
+                        className="flex items-center gap-3 px-2 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          setMobileProfileOpen(false);
+                        }}
+                      >
+                        <User size={18} className="text-gray-600" />
+                        <span className="text-sm">My Profile</span>
+                      </Link>
+                      <Link
+                        href="/dashboard/overview"
+                        className="flex items-center gap-3 px-2 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          setMobileProfileOpen(false);
+                        }}
+                      >
+                        <LayoutDashboard size={18} className="text-gray-600" />
+                        <span className="text-sm">My Dashboard</span>
+                      </Link>
+                      <Link
+                        href="/dashboard/settings"
+                        className="flex items-center gap-3 px-2 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          setMobileProfileOpen(false);
+                        }}
+                      >
+                        <Settings size={18} className="text-gray-600" />
+                        <span className="text-sm">Settings</span>
+                      </Link>
+                      <button 
+                        onClick={() => {
+                          localStorage.removeItem('userLogin');
+                          localStorage.removeItem('userName');
+                          localStorage.removeItem('userEmail');
+                          localStorage.removeItem('userPhone');
+                          setIsLoggedIn(false);
+                          setMobileMenuOpen(false);
+                          setMobileProfileOpen(false);
+                          
+                        }}
+                        className="flex w-full items-center gap-3 px-2 py-2 text-red-600 hover:text-red-700 transition-colors"
+                      >
+                        <LogOut size={18} />
+                        <span className="text-sm">Log Out</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Mobile Search & Login - only show if not logged in */}
+              {!isLoggedIn && (
+                <div className="space-y-2">
+                  <button 
+                    onClick={() => {
+                      onSearchOpen();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2.5 cursor-pointer text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <Search size={18} />
+                    <span>Search</span>
+                  </button>
+                  
+                  <Link 
+                    href="/login"
+                    className="w-full block text-center bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 rounded-lg transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         )}

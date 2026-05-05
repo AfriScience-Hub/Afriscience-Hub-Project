@@ -41,13 +41,13 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-6 md:p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Account Settings</h1>
+    <div className="max-w-4xl mx-auto">
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-8">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 space-y-8">
+      <h1 className="text-xl lg:text-2xl font-bold text-gray-900 mb-8">Account Settings</h1>
         {/* Avatar Section */}
         <div className="flex items-center gap-6 pb-8 border-b border-gray-200">
-          <div className="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full flex items-center justify-center text-white text-3xl font-bold flex-shrink-0">
+          <div className="w-20 h-20 bg-linear-to-br from-gray-700 to-gray-900 rounded-full flex items-center justify-center text-white text-3xl font-bold shrink-0">
             W
           </div>
           <div>

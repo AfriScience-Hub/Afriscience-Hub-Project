@@ -35,27 +35,27 @@ export default function VerificationStatusPage() {
   ];
 
   return (
-    <div className="p-6 md:p-8 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Verification Status</h1>
+    <div className="max-w-6xl mx-auto">
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 lg:p-8">
+      <h1 className="text-xl lg:text-2xl font-bold text-gray-900 mb-8">Verification Status</h1>
         {/* Verification Items */}
         <div className="space-y-4 mb-8">
           {verifications.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-300 transition-colors"
+              className="flex items-center justify-between p-3 lg:p-4 border border-gray-200 rounded-xl hover:border-gray-300 transition-colors"
             >
               <div className="flex items-center gap-4">
                 {/* Image/Icon */}
-                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-3xl flex-shrink-0">
+                <div className="hidden lg:flex w-16 h-16 bg-gray-100 rounded-lg items-center justify-center text-3xl shrink-0">
                   {item.image}
                 </div>
 
                 {/* Content */}
                 <div>
                   <h3 className="font-semibold text-gray-900">{item.name}</h3>
-                  <p className="text-sm text-gray-600">{item.category}</p>
+                  <p className="text-xs lg:text-sm text-gray-600">{item.category}</p>
                 </div>
               </div>
 
@@ -78,39 +78,39 @@ export default function VerificationStatusPage() {
         {/* How Verification Works */}
         <div className="bg-blue-50 border-l-4 border-blue-600 rounded-lg p-6 mt-8">
           <div className="flex items-start gap-3 mb-4">
-            <ShieldCheck size={24} className="text-blue-600 flex-shrink-0 mt-0.5" />
+            <ShieldCheck className="text-blue-600 shrink-0 mt-0.5" />
             <h3 className="text-lg font-bold text-gray-900">How Verification Works</h3>
           </div>
 
-          <p className="text-sm text-gray-700 mb-4">
+          <p className="text-xs lg:text-sm text-gray-700 mb-4">
             Profiles are verified after review by the AfriScience Hub team. Once verified, your profile will display a{' '}
             <span className="font-semibold">Verified Badge</span> and become publicly trusted on the platform.
           </p>
 
           <ol className="space-y-3">
             <li className="flex items-start gap-3">
-              <span className="flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full flex-shrink-0">
+              <span className="flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full shrink-0">
                 1
               </span>
-              <span className="text-sm text-gray-700">Submit your listing with complete information</span>
+              <span className="text-xs lg:text-sm text-gray-700">Submit your listing with complete information</span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full flex-shrink-0">
+              <span className="flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full shrink-0">
                 2
               </span>
-              <span className="text-sm text-gray-700">Our team reviews the accuracy and quality of your submission</span>
+              <span className="text-xs lg:text-sm text-gray-700">Our team reviews the accuracy and quality of your submission</span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full flex-shrink-0">
+              <span className="flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full shrink-0">
                 3
               </span>
-              <span className="text-sm text-gray-700">Once approved, a Verified badge appears on your profile</span>
+              <span className="text-xs lg:text-sm text-gray-700">Once approved, a Verified badge appears on your profile</span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full flex-shrink-0">
+              <span className="flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full shrink-0">
                 4
               </span>
-              <span className="text-sm text-gray-700">Verified listings rank higher in search results</span>
+              <span className="text-xs lg:text-sm text-gray-700">Verified listings rank higher in search results</span>
             </li>
           </ol>
         </div>

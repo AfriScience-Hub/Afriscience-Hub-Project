@@ -56,7 +56,7 @@ export default function Sidebar() {
 
   const asideContent = (
     <>
-      <div className="bg-[#082947] px-6 py-6 text-white">
+      <div className="bg-[#082947] px-5 py-5 text-white">
         <div className="flex items-center gap-3">
           <Image
             src="/dashboard-avatar.png"

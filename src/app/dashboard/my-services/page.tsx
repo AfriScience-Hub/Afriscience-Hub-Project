@@ -37,15 +37,15 @@ export default function MyServicesPage() {
   const [showForm, setShowForm] = useState(false);
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:p-8">
-      <div className="mb-8 flex items-start justify-between gap-4">
+    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-950 lg:text-3xl">My Services</h1>
-          <p className="mt-2 text-sm text-gray-400 lg:text-base">Manage the services you offer across your listings.</p>
+          <h1 className="text-xl font-bold text-gray-950 lg:text-xl">My Services</h1>
+          <p className="mt-0 lg:mt-2 text-xs text-gray-400 lg:text-base">Manage the services you offer across your listings.</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-red-500 px-4 py-3 text-sm font-bold text-white hover:bg-red-600 lg:px-6 lg:text-base"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-red-500 px-2 py-2 lg:py-3 text-xs font-bold text-white hover:bg-red-600 lg:px-4 lg:text-sm"
         >
           <Plus size={20} />
           Add Service
@@ -53,7 +53,7 @@ export default function MyServicesPage() {
       </div>
 
       {showForm && (
-        <div className="mb-7 rounded-2xl border-2 border-dashed border-gray-950 p-5 lg:p-8">
+        <div className="mb-7 rounded-2xl border-2 border-dashed border-gray-950 p-5 lg:p-6">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-950 lg:text-2xl">Add New Service</h2>
             <button onClick={() => setShowForm(false)} className="cursor-pointer text-gray-400 hover:text-gray-700">

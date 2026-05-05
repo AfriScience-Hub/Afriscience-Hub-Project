@@ -41,15 +41,15 @@ export default function ReviewsPage() {
   ).toFixed(1);
 
   return (
-    <div className="p-6 md:p-8 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Reviews</h1>
+    <div className="max-w-6xl mx-auto">
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Reviews</h1>
         {/* Rating Summary */}
-        <div className="flex items-start gap-8 mb-8 pb-8 border-b border-gray-200">
+        <div className="flex flex-col lg:flex-row items-center bg-yellow-50 gap-8 mb-8 pb-8 py-3 px-2 rounded-md">
           {/* Average Rating */}
           <div className="text-center">
-            <div className="text-5xl font-bold text-gray-900 mb-2">{averageRating}</div>
+            <div className="text-3xl font-bold text-gray-900 mb-2 h-full">{averageRating}</div>
             <div className="flex items-center justify-center gap-1 mb-3">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -70,7 +70,7 @@ export default function ReviewsPage() {
                   {[...Array(item.stars)].map((_, i) => (
                     <Star
                       key={i}
-                      size={14}
+                      size={12}
                       className="fill-orange-400 text-orange-400"
                     />
                   ))}
@@ -97,7 +97,7 @@ export default function ReviewsPage() {
             <div key={review.id} className="pb-6 border-b border-gray-200 last:border-b-0 last:pb-0">
               <div className="flex items-start gap-4">
                 {/* Avatar */}
-                <div className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full flex-shrink-0" />
+                <div className="hidden lg:flex w-10 h-10 bg-linear-to-br from-gray-700 to-gray-900 rounded-full shrink-0" />
 
                 {/* Review Content */}
                 <div className="flex-1 min-w-0">
@@ -122,7 +122,7 @@ export default function ReviewsPage() {
                   </div>
 
                   {/* Review Text */}
-                  <p className="text-sm text-gray-700">{review.text}</p>
+                  <p className="text-xs lg:text-sm text-gray-700">{review.text}</p>
                 </div>
               </div>
             </div>

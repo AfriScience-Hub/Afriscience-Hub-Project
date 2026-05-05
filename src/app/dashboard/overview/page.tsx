@@ -37,28 +37,28 @@ export default function OverviewPage() {
   ];
 
   return (
-    <div className="p-6 md:p-8 max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       {/* Welcome Section */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {user.name}!</h1>
-        <p className="text-gray-600">Here&apos;s what&apos;s happening with your listings and activity.</p>
+      <div className="mb-6 lg:mb-8 bg-white shadow-sm border border-gray-200 rounded-2xl p-4 lg:p-6">
+        <h1 className="text-lg lg:text-2xl font-black text-gray-900 mb-2">Welcome back, {user.name}!</h1>
+        <p className="text-sm lg:text-base text-gray-600">Here&apos;s what&apos;s happening with your listings and activity.</p>
       </div>
 
       {/* Profile Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 lg:p-6 mb-8">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-gray-900 to-gray-700 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+            <div className="w-10 lg:w-16 h-10 lg:h-16 bg-linear-to-br from-gray-900 to-gray-700 rounded-full flex items-center justify-center text-white text-lg lg:text-2xl font-bold">
               W
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
-              <p className="text-gray-600 text-sm">{user.email}</p>
+              <h2 className="text-sm lg:text-xl font-bold text-gray-900">{user.name}</h2>
+              <p className="text-gray-600 text-xs lg:text-sm">{user.email}</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-600">Profile Completion</p>
-            <p className="text-3xl font-bold text-red-600">{user.profileCompletion}%</p>
+            <p className="text-xs lg:text-sm text-gray-600">Profile Completion</p>
+            <p className="text-lg lg:text-3xl font-bold text-red-600">{user.profileCompletion}%</p>
           </div>
         </div>
 
@@ -87,7 +87,7 @@ export default function OverviewPage() {
                   </svg>
                 )}
               </div>
-              <span className={`text-sm ${task.completed ? 'text-gray-600 line-through' : 'text-gray-900 font-medium'}`}>
+              <span className={`text-xs lg:text-sm ${task.completed ? 'text-gray-600 line-through' : 'text-gray-900 font-medium'}`}>
                 {task.label}
               </span>
             </div>
@@ -96,16 +96,16 @@ export default function OverviewPage() {
       </div>
 
       {/* Statistics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {stats.map((stat, idx) => {
           const Icon = stat.icon;
           return (
             <div key={idx} className={`${stat.bgColor} rounded-2xl p-6 border border-gray-200`}>
               <div className="flex items-start justify-between mb-4">
-                <Icon className={`${stat.color}`} size={32} />
+                <Icon className={`${stat.color}`}/>
                 <span className="text-green-600 text-sm font-semibold">{stat.change}</span>
               </div>
-              <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
+              <p className="text-xl font-bold text-gray-900 mb-1">{stat.value}</p>
               <p className="text-sm text-gray-600">{stat.label}</p>
             </div>
           );
@@ -114,36 +114,36 @@ export default function OverviewPage() {
 
       {/* Listing Status Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-green-50 rounded-2xl p-6 border border-green-200 text-center">
-          <p className="text-4xl font-bold text-green-600 mb-2">3</p>
+        <div className="bg-green-50 rounded-2xl p-6 border border-green-200 text-start lg:text-center">
+          <p className="text-2xl lg:text-4xl font-bold text-green-600 mb-2">3</p>
           <p className="text-gray-700 font-medium">Active Listings</p>
         </div>
-        <div className="bg-yellow-50 rounded-2xl p-6 border border-yellow-200 text-center">
-          <p className="text-4xl font-bold text-yellow-600 mb-2">1</p>
+        <div className="bg-yellow-50 rounded-2xl p-6 border border-yellow-200 text-start lg:text-center">
+          <p className="text-2xl lg:text-4xl font-bold text-yellow-600 mb-2">1</p>
           <p className="text-gray-700 font-medium">Pending Verification</p>
         </div>
-        <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200 text-center">
-          <p className="text-4xl font-bold text-gray-600 mb-2">2</p>
+        <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200 text-start lg:text-center">
+          <p className="text-2xl lg:text-4xl font-bold text-gray-600 mb-2">2</p>
           <p className="text-gray-700 font-medium">Archived Listings</p>
         </div>
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-lg lg:rounded-2xl shadow-sm border border-gray-200 p-4 lg:p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Clock size={24} className="text-red-600" />
+            <Clock className="text-red-600 h-5 w-5" />
             Recent Activity
           </h3>
-          <Link href="/dashboard/notifications" className="text-red-600 font-semibold text-sm hover:text-red-700">
+          <Link href="/dashboard/notifications" className="text-red-600 font-semibold text-xs lg:text-sm hover:text-red-700">
             View All
           </Link>
         </div>
 
         <div className="space-y-4">
           {recentActivity.map((activity, idx) => (
-            <div key={idx} className="flex items-start gap-4 p-4 hover:bg-gray-50 rounded-lg transition-colors border-l-4 border-transparent hover:border-red-600">
-              <div className="flex-shrink-0">
+            <div key={idx} className="flex items-start gap-4 p-2 lg:p-4 hover:bg-gray-50 rounded-lg transition-colors border-l-4 border-transparent hover:border-red-600">
+              <div className="shrink-0">
                 {activity.icon === 'message' && (
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                     <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">

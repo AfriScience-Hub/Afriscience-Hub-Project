@@ -79,9 +79,9 @@ function badgeClass(status: string) {
 
 function InvoiceModal({ onClose }: { onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-black/60 px-4 py-5 lg:py-8">
+    <div className="fixed inset-0 z-70 flex items-start justify-center overflow-y-auto bg-black/60 p-5">
       <div className="w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-2xl">
-        <div className="flex items-start justify-between bg-[#082947] px-5 py-5 text-white lg:px-6">
+        <div className="flex items-start justify-between bg-[#082947] p-5 text-white ">
           <div>
             <h2 className="text-lg font-bold lg:text-xl">Create Invoice</h2>
             <p className="mt-1 text-xs text-slate-200 lg:text-sm">Generate an invoice for your client</p>
@@ -161,7 +161,7 @@ function InvoiceModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-3 border-t border-gray-200 pt-4 lg:grid-cols-2">
-            <button onClick={onClose} className="cursor-pointer rounded-md border border-gray-200 px-4 py-3 text-sm font-medium hover:bg-gray-50">Cancel</button>
+            <button onClick={onClose} className="cursor-pointer rounded-md border border-gray-200 px-4 py-3 text-sm text-black font-medium hover:bg-gray-50">Cancel</button>
             <button className="cursor-pointer rounded-md bg-red-500 px-4 py-3 text-sm font-bold text-white hover:bg-red-600">
               <Send size={15} className="mr-2 inline" />
               Send Invoice
@@ -181,26 +181,26 @@ export default function InvoicesPage() {
   return (
     <>
       <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:p-8">
-        <div className="mb-8 flex items-start justify-between gap-4">
+        <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-950 lg:text-3xl">Invoices</h1>
+            <h1 className="text-xl font-bold text-gray-950 lg:text-2xl">Invoices</h1>
             <p className="mt-2 text-sm text-gray-400 lg:text-base">Manage your service invoices and payments</p>
           </div>
           <button
             onClick={() => setModalOpen(true)}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[#082947] px-4 py-3 text-sm font-bold text-white hover:bg-slate-900 lg:px-6 lg:text-base"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[#082947] px-3 py-3 text-sm font-bold text-white hover:bg-slate-900 lg:px-4 lg:text-md"
           >
             <Plus size={20} />
             Create Invoice
           </button>
         </div>
 
-        <div className="mb-7 flex flex-wrap gap-3">
+        <div className="mb-7 flex flex-wrap gap-3 mt-7">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`cursor-pointer rounded-xl px-5 py-3 text-sm font-bold lg:px-6 lg:text-base ${
+              className={`cursor-pointer rounded-md px-3 py-2 text-xs font-bold lg:px-3 lg:text-md ${
                 activeTab === tab.id ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -211,7 +211,7 @@ export default function InvoicesPage() {
 
         <div className="space-y-5">
           {currentInvoices.map((invoice) => (
-            <article key={invoice.invoice} className="rounded-xl border border-gray-200 p-5 lg:p-6">
+            <article key={invoice.invoice} className="rounded-xl border border-gray-200 p-4 lg:p-6">
               <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_auto_auto] lg:items-center">
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
@@ -219,20 +219,20 @@ export default function InvoicesPage() {
                     <span className={`rounded-full px-3 py-1 text-xs font-bold ${badgeClass(invoice.badge)}`}>{invoice.badge}</span>
                   </div>
                   <p className="mt-2 text-sm text-gray-400 lg:text-base">Invoice: {invoice.invoice}</p>
-                  <div className="mt-3 grid grid-cols-2 gap-3 text-sm text-gray-400 lg:grid-cols-4 lg:text-base">
+                  <div className="mt-3 grid grid-cols-1 gap-3 text-sm text-gray-400 lg:text-base">
                     <span>Provider: {invoice.provider}</span>
                     <span>Client: {invoice.client}</span>
                     <span>Due: {invoice.due}</span>
                     {'paid' in invoice && <span className="text-green-600">Paid: {invoice.paid}</span>}
                   </div>
                 </div>
-                <p className="text-2xl font-bold text-[#082947]">{invoice.amount}</p>
+                <p className="text-lg font-bold text-[#082947]">{invoice.amount}</p>
                 <div className="flex flex-wrap gap-3">
-                  <button className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 text-sm font-bold text-gray-900 hover:bg-gray-50">
+                  <button className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-xs font-bold text-gray-900 hover:bg-gray-50">
                     <Eye size={16} /> View
                   </button>
                   {activeTab === 'pending' && (
-                    <button className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-red-500 px-4 py-3 text-sm font-bold text-white hover:bg-red-600">
+                    <button className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-xs font-bold text-white hover:bg-red-600">
                       $ Pay
                     </button>
                   )}

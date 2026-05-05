@@ -40,7 +40,7 @@ const listings = [
 
 export default function MyListingsPage() {
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:p-6">
+    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-gray-950 lg:text-2xl">My Listings</h1>
