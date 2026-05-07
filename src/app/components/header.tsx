@@ -66,7 +66,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
           </div>
 
           {/* Navigation - Desktop Only */}
-          <nav className="hidden md:flex items-center gap-8 text-sm">
+          <nav className="hidden lg:flex items-center gap-8 text-sm">
             
             <Link 
               href="/" 
@@ -384,7 +384,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       <div className="space-y-1 p-2">
                         <Link
                           href="/dashboard/my-profile"
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-1 text-gray-700 transition-colors hover:bg-gray-100"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-2 text-gray-700 transition-colors hover:bg-gray-100 hover:text-red-600"
                           onClick={() => setProfileOpen(false)}
                         >
                           <User size={18} />
@@ -392,7 +392,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                         </Link>
                         <Link
                           href="/dashboard/overview"
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-1 text-gray-700 transition-colors hover:bg-gray-100"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-2 text-gray-700 hover:text-red-600 transition-colors hover:bg-gray-100"
                           onClick={() => setProfileOpen(false)}
                         >
                           <LayoutDashboard size={18} />
@@ -400,7 +400,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                         </Link>
                         <Link
                           href="/dashboard/settings"
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-1 text-gray-700 transition-colors hover:bg-gray-100"
+                          className="flex cursor-pointer items-center hover:text-red-600 gap-3 rounded-lg px-4 py-2 text-gray-700 transition-colors hover:bg-gray-100"
                           onClick={() => setProfileOpen(false)}
                         >
                           <Settings size={18} />
@@ -411,7 +411,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                         <Link
                           href="/support"
                           onClick={() => setProfileOpen(false)}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-4 py-1 text-gray-700 transition-colors hover:bg-gray-100"
+                          className="flex cursor-pointer items-center hover:text-red-600 gap-3 rounded-lg px-4 py-2 text-gray-700 transition-colors hover:bg-gray-100"
                         >
                           <Heart size={18} />
                           <span className="text-sm">Support AfriScienceHub</span>
@@ -451,7 +451,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
             {/* Mobile Menu Button */}
             <button 
-              className="cursor-pointer p-2 text-gray-700 transition-colors hover:text-gray-900 md:hidden"
+              className="cursor-pointer p-2 text-gray-700 transition-colors hover:text-gray-900 lg:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
