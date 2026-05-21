@@ -24,7 +24,7 @@ const donations = [
     id: 'DON-2025-014',
     program: 'Research Support',
     description: 'Financial aid for African researchers accessing materials and equipment for scientific and technological studies.',
-    amount: 2400,
+    amount: 2500,
     currency: 'USD',
     date: '2025-11-03',
     year: '2025',
