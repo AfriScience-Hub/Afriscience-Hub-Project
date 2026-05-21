@@ -377,9 +377,9 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
                   {profileOpen && (
                     <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
-                      <div className="border-b border-gray-100 p-3">
-                        <p className="text-sm font-semibold text-gray-900">{userName}</p>
-                        <p className="text-xs text-gray-600">{userEmail}</p>
+                      <div className="border-b border-gray-100 p-2">
+                        <p className="text-sm font-semibold text-gray-900 px-3">{userName}</p>
+                        <p className="text-xs text-gray-600 px-3">{userEmail}</p>
                       </div>
                       <div className="space-y-1 p-2">
                         <Link

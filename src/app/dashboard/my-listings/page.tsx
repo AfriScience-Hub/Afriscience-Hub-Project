@@ -58,7 +58,7 @@ export default function MyListingsPage() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {listings.map((listing) => (
           <article key={listing.title} className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className={`relative h-36 bg-gradient-to-r ${listing.image}`}>
+            <div className={`relative h-36 bg-linear-to-r ${listing.image}`}>
               <div className="absolute inset-0 bg-black/10" />
               <span className={`absolute right-3 top-3 rounded-full px-3 py-1 text-[10px] font-bold ${listing.tone}`}>
                 {listing.status}
