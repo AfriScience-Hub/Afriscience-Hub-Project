@@ -135,7 +135,7 @@ export default function DashboardDonationsPage() {
               key={donation.id}
               className={`${donation.cardClass} flex flex-col rounded-3xl border-2 p-6 transition-shadow hover:shadow-md`}
             >
-              <div className="mb-5 flex items-start gap-4">
+              <div className="mb-5 flex flex-col lg:flex-row items-start gap-4">
                 <div className={`rounded-xl p-3 ${donation.iconBgClass}`}>
                   <Icon className={`h-6 w-6 ${donation.iconTextClass}`} />
                 </div>
@@ -151,7 +151,7 @@ export default function DashboardDonationsPage() {
               </div>
 
               <div className="mt-auto space-y-4">
-                <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-center gap-3 text-sm">
                   <div className="rounded-xl bg-white/70 p-3">
                     <p className="text-xs font-semibold text-gray-400">Amount</p>
                     <p className="mt-1 font-black text-gray-950">
@@ -167,7 +167,7 @@ export default function DashboardDonationsPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedDonation(donation)}
-                  className="w-full cursor-pointer rounded-lg border border-gray-200 bg-white py-3 text-sm font-semibold text-black transition-colors hover:border-gray-400 hover:bg-gray-100"
+                  className="w-full cursor-pointer rounded-lg border border-gray-200 bg-white py-3 text-sm font-semibold text-black transition-colors hover:border-gray-400 hover:bg-gray-100 text-start lg:text-center px-3 lg:px-0"
                 >
                   View details
                 </button>
