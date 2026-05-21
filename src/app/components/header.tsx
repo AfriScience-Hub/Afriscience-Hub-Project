@@ -91,22 +91,22 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
               {/* Explore Dropdown */}
               {exploreOpen && (
-                <div className="absolute -left-16 mt-0 w-180 bg-white rounded-2xl shadow-xl border border-gray-100 p-8 top-full z-50">
+                <div className="absolute -left-24 mt-0 w-160 bg-white rounded-md border border-black shadow-md p-6 top-8 z-50">
                   <div className="grid grid-cols-2 gap-x-12 gap-y-8">
                     
                     {/* Left Column */}
                     <div>
-                      <h3 className="text-red-600 font-bold text-xs uppercase tracking-wide mb-4">
+                      <h3 className="text-red-600 font-bold text-[10px] uppercase tracking-wide mb-4">
                         KNOWLEDGE & INSTITUTIONS
                       </h3>
-                      <div className="space-y-6">
+                      <div className="space-y-4">
                         <Link href="/institutions" >
                           <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                             <div className="flex items-center gap-2 mb-1">
                             <Building2 className="text-red-600" size={20} />
-                            <h4 className="font-semibold text-gray-900">Institutes</h4>
+                            <h4 className="font-semibold text-gray-900 text-sm">Institutes</h4>
                             </div>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs text-gray-600">
                               Find top African research institutes and universities.
                             </p>
                           </div>                          
@@ -117,9 +117,9 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                             <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                               <div className="flex items-center gap-2 mb-1">
                                 <Microscope className="text-red-600" size={20} />
-                                <h4 className="font-semibold text-gray-900">Specialist Centers</h4>
+                                <h4 className="font-semibold text-gray-900 text-sm">Specialist Centers</h4>
                               </div>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-xs text-gray-600">
                                 Discover specialized hubs for advanced research.
                               </p>
                             </div>
@@ -127,7 +127,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                         </div>
                       </div>
 
-                      <h3 className="text-red-600 font-bold text-xs uppercase tracking-wide mb-4 mt-8">
+                      <h3 className="text-red-600 font-bold text-[10px] uppercase tracking-wide mb-4 mt-8">
                         INNOVATION ECOSYSTEM
                       </h3>
                       <div>
@@ -135,9 +135,9 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                           <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                             <div className="flex items-center gap-2 mb-1">
                               <Lightbulb className="text-red-600" size={20} />
-                              <h4 className="font-semibold text-gray-900">Afro-Innovations</h4>
+                              <h4 className="font-semibold text-gray-900 text-sm">Afro-Innovations</h4>
                             </div>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs text-gray-600">
                               Explore groundbreaking innovations from Africa.
                             </p>
                           </div>
@@ -147,24 +147,24 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
                     {/* Right Column */}
                     <div>
-                      <h3 className="text-red-600 font-bold text-xs uppercase tracking-wide mb-4">
+                      <h3 className="text-red-600 font-bold text-[10px] uppercase tracking-wide mb-4">
                         EXPERTS & PROFESSIONALS
                       </h3>
-                      <div className="mb-8">
+                      <div className="mb-26">
                         <Link href="/scientists" >
                           <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                             <div className="flex items-center gap-2 mb-1">
                               <Users className="text-red-600" size={20} />
-                              <h4 className="font-semibold text-gray-900">Scientists & Technologists</h4>
+                              <h4 className="font-semibold text-gray-900 text-sm">Scientists & Technologists</h4>
                             </div>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs text-gray-600">
                               Connect with leading experts across various fields.
                             </p>
                           </div>
                         </Link>                        
                       </div>
 
-                      <h3 className="text-red-600 font-bold text-xs uppercase tracking-wide mb-4">
+                      <h3 className="text-red-600 font-bold text-[10px] uppercase tracking-wide mb-4">
                         PROGRAMS & ENGAGEMENT
                       </h3>
                       <div className="space-y-6">
@@ -172,9 +172,9 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                           <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                             <div className="flex items-center gap-2 mb-1">
                             <Trophy className="text-red-600" size={20} />
-                            <h4 className="font-semibold text-gray-900">Competitions</h4>
+                            <h4 className="font-semibold text-gray-900 text-sm">Competitions</h4>
                           </div>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-xs text-gray-600">
                             Participate in challenges and win awards.
                           </p>
                           </div>
@@ -185,9 +185,9 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                             <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                               <div className="flex items-center gap-2 mb-1">
                                 <Vote className="text-red-600" size={20} />
-                                <h4 className="font-semibold text-gray-900">Voting</h4>
+                                <h4 className="font-semibold text-gray-900 text-sm">Voting</h4>
                               </div>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-xs text-gray-600">
                                 Vote for competition finalists across Africa.
                               </p>
                             </div>
@@ -199,9 +199,9 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                             <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                                <div className="flex items-center gap-2 mb-1">
                                 <Award className="text-red-600" size={20} />
-                                <h4 className="font-semibold text-gray-900">Awards</h4>
+                                <h4 className="font-semibold text-gray-900 text-sm">Awards</h4>
                               </div>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-xs text-gray-600">
                                 Celebrating excellence in African science and innovation.
                               </p>
                             </div>
@@ -251,15 +251,15 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
               {/* Support Dropdown */}
               {supportOpen && (
-                <div className="absolute -right-16 mt-0 w-100 bg-white rounded-2xl shadow-xl border border-gray-100 p-6 top-full z-50">
+                <div className="absolute -right-24 mt-0 w-90 bg-white rounded-md shadow-md border border-black p-5 top-8 z-50">
                   <div className="space-y-8">
                     <Link href="/support/sponsor">
                       <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                         <div className="flex items-center gap-2 mb-1">
                           <Stars className="text-red-600" size={16} />
-                          <h4 className="font-semibold text-gray-900">Sponsor AfriScienceHub</h4>
+                          <h4 className="font-semibold text-gray-900 text-sm">Sponsor AfriScienceHub</h4>
                         </div>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs text-gray-600">
                           Support the platform&apos;s overall mission and development.
                         </p>
                       </div>
@@ -269,9 +269,9 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                         <div className="flex items-center gap-2 mb-1">
                         <HandHeart className="text-red-600" size={16} />
-                        <h4 className="font-semibold text-gray-900">Donate to Projects</h4>
+                        <h4 className="font-semibold text-gray-900 text-sm">Donate to Projects</h4>
                       </div>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs text-gray-600">
                         Support specific initiatives like competitions and research.
                       </p>
                       </div>
@@ -281,9 +281,9 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
                         <div className="flex items-center gap-2 mb-1">
                         <Users2 className="text-red-600" size={16} />
-                        <h4 className="font-semibold text-gray-900">Become a Volunteer</h4>
+                        <h4 className="font-semibold text-gray-900 text-sm">Become a Volunteer</h4>
                       </div>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs text-gray-600">
                         Contribute time and expertise to grow the ecosystem.
                       </p>
                       </div>
