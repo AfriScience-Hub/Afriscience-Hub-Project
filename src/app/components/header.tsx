@@ -77,7 +77,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
             {/* Explore Dropdown */}
             <div 
-              className="relative"
+              className="relative py-3"
               onMouseEnter={() => setExploreOpen(true)}
               onMouseLeave={() => setExploreOpen(false)}
             >
@@ -91,7 +91,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
               {/* Explore Dropdown */}
               {exploreOpen && (
-                <div className="absolute -left-24 mt-0 w-160 bg-white rounded-md border border-black shadow-md p-6 top-8 z-50">
+                <div className="absolute -left-24 mt-0 w-160 bg-white rounded-md border border-black shadow-md p-6 top-10 z-50">
                   <div className="grid grid-cols-2 gap-x-12 gap-y-8">
                     
                     {/* Left Column */}
@@ -237,7 +237,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
             {/* Support Dropdown */}
             <div 
-              className="relative"
+              className="relative py-3"
               onMouseEnter={() => setSupportOpen(true)}
               onMouseLeave={() => setSupportOpen(false)}
             >
@@ -251,7 +251,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
               {/* Support Dropdown */}
               {supportOpen && (
-                <div className="absolute -right-24 mt-0 w-90 bg-white rounded-md shadow-md border border-black p-5 top-8 z-50">
+                <div className="absolute -right-24 mt-0 w-90 bg-white rounded-md shadow-md border border-black p-5 top-10 z-50">
                   <div className="space-y-8">
                     <Link href="/support/sponsor">
                       <div className='my-2 p-2 rounded-sm hover:bg-gray-100'>
