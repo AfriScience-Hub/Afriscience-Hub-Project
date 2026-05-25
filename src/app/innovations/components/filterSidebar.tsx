@@ -223,7 +223,7 @@ function CheckboxItem({
           {tooltipPosition
             ? createPortal(
                 <span
-                  className="pointer-events-none fixed z-[9999] w-64 rounded-md bg-[#1f2a3d] px-3 py-2 text-xs font-medium leading-5 text-white shadow-lg"
+                  className="pointer-events-none fixed z-9999 w-64 rounded-md bg-[#1f2a3d] px-3 py-2 text-xs font-medium leading-5 text-white shadow-lg"
                   style={{
                     left: tooltipPosition.left,
                     top: tooltipPosition.top,
