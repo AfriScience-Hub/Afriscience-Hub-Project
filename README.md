@@ -60,7 +60,7 @@ Shared interaction pattern:
 - client-side dummy/mock dataset stored in the page component
 - `useState` for search and filters
 - `useMemo` or inline filtering for computed results
-- left filter sidebar with reset action
+- left filter sidebar with reset action and accordion section behavior
 - responsive card grids
 
 This is one of the strongest current UI conventions in the codebase and should stay consistent as more directory-style pages are added.
@@ -118,8 +118,15 @@ Innovation showcase for African-built products and solutions.
 Purpose:
 
 - display inventions and applied solutions
-- support discovery by field, interest type, ownership, SDGs, and country
+- support discovery by field, interest type, ownership, development stage, SDGs, and country
 - highlight creators and innovation metadata
+
+Notable UI behavior:
+
+- filter sidebar uses accordion behavior, so opening one filter section collapses the others
+- fields and ownership filters are single-select
+- interests, stage, and SDGs support multiple selections
+- interest and stage options include hover tooltips for explanation
 
 #### `/centers`
 Specialist center directory.
@@ -312,6 +319,20 @@ Purpose:
 - provide validation and preview
 - submit to platform
 
+Current implementation:
+
+- starts with a six-category picker: Institute, Scientist / Technologist, Specialist Center, Afro-Innovation, Competition, and Award
+- each category renders through its own file in `src/app/dashboard/upload-new-listing/components`
+- the non-Afro-Innovation categories currently share the original scaffolded form layout
+- the Afro-Innovation listing form has its own dedicated component folder and is being customized section by section
+
+Afro-Innovation form status:
+
+- `Innovation Identity`: profile image upload, innovation name, Africa-only searchable country input, and 500-word short bio
+- `Innovation Details`: field, interests, ownership, stage, SDGs, specifications, user groups, applications/impact, recommendations, cautions, document uploads, awards uploads, and media gallery uploads
+- `Inventor's Information`: inventor name, phone, email, optional website, and social media handles
+- interest and stage option descriptions use body-level portal tooltips so they do not shift layout or get clipped by containers
+
 #### `/dashboard/my-services`
 Manage offered services and service details.
 
@@ -483,6 +504,14 @@ Dashboard-specific components in `src/app/dashboard/components`:
 
 - `sidebar.tsx`: persistent sidebar navigation with all dashboard sections, responsive mobile toggle, and active page highlighting
 
+Upload listing components in `src/app/dashboard/upload-new-listing/components`:
+
+- `listingTypes.ts`: listing category metadata and shared listing types
+- `listingFormScaffold.tsx`: shared temporary scaffold used by the non-customized listing categories
+- `instituteListingForm.tsx`, `scientistListingForm.tsx`, `centerListingForm.tsx`, `competitionListingForm.tsx`, and `awardListingForm.tsx`: category-specific entry points that currently render the shared scaffold
+- `afroInnovationListingForm.tsx`: small wrapper that renders the customized Afro-Innovation form
+- `afroInnovationListing/`: focused components for the Afro-Innovation listing flow, split into constants, shared fields, select controls, repeatable upload/list inputs, sections, and the form shell
+
 ## Current Data Model Reality
 
 At the moment, most major listing pages are powered by hardcoded sample arrays inside the route component.
@@ -532,6 +561,7 @@ src/app/
   scientists/              # scientist directory
   support/                 # support hub + subpages
   voting/                  # finalist voting flow
+  dashboard/               # authenticated workspace and listing upload flow
   privacy/                 # privacy policy
   terms/                   # terms of service
   cookies/                 # cookie policy
@@ -542,6 +572,12 @@ Most feature directories follow this pattern:
 - `page.tsx`
 - `components/filterSidebar.tsx`
 - `components/*Cards.tsx`
+
+The upload listing flow follows a slightly different pattern:
+
+- `dashboard/upload-new-listing/page.tsx` handles category selection
+- `dashboard/upload-new-listing/components/*ListingForm.tsx` contains one entry point per listing category
+- `dashboard/upload-new-listing/components/afroInnovationListing/` contains the split Afro-Innovation form implementation
 
 ## What Is Already Strong
 
