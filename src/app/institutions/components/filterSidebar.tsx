@@ -111,15 +111,19 @@ export default function FilterSidebar({
     gender: false,
     services: false,
     status: false,
-    location: true,
+    location: false,
   });
 
   const toggleSection = (id: string) => {
-    setOpenSections((current) => ({ ...current, [id]: !current[id] }));
+    setOpenSections((current) =>
+      Object.fromEntries(
+        Object.keys(current).map((key) => [key, key === id ? !current[id] : false])
+      )
+    );
   };
 
   return (
-    <aside className="scrollbar-hide sticky top-24 max-h-[40rem] w-full overflow-y-auto rounded-xl border border-gray-800 bg-white shadow-md">
+    <aside className="scrollbar-hide sticky top-24 max-h-160 w-full overflow-y-auto rounded-xl border border-gray-800 bg-white shadow-md">
       <div className="flex items-center justify-between px-4 pt-4">
         <div className="flex items-center gap-2 font-bold text-black">
           <Filter size={14} className="text-red-500" />

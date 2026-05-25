@@ -203,7 +203,7 @@ export default function InstitutionsPage() {
       <Header onSearchOpen={() => setSearchOpen(true)} />
       <InstitutesHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
-      <section className="mx-auto mt-10 max-w-6xl px-4 pb-16">
+      <section className="mx-auto mt-10 max-w-5xl px-4 pb-16">
         <button
           type="button"
           onClick={() => setShowMobileFilters((current) => !current)}

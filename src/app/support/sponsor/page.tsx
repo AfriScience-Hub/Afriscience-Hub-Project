@@ -18,7 +18,7 @@ export default function SponsorPage() {
 
       {/* Hero Section - Dark Background */}
       <section className="relative bg-[#0A1428] text-white py-28 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
+        <div className="max-w-5xl mx-auto px-6 relative z-10">
 
          <div className='flex flex-col items-start'>
             {/* Back Button */}
@@ -96,7 +96,7 @@ export default function SponsorPage() {
 
       {/* Sponsorship Tiers */}
       <section id="tiers" className="py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-3">Sponsorship Tiers</h2>
             <p className="text-gray-600">Choose the level that best fits your organization.</p>
@@ -204,7 +204,7 @@ export default function SponsorPage() {
 
       {/* Corporate Sponsorship Banner */}
       <section className="py-20 text-white mb-5">
-        <div className="max-w-6xl mx-auto px-3 lg:px-6">
+        <div className="max-w-5xl mx-auto px-3 lg:px-6">
           <div className="bg-[#0F1A33] rounded-xl p-6 lg:p-8 flex flex-col lg:flex-row gap-12 items-center">
             <div className="flex-1">
               <h2 className="text-xl font-bold mb-6">Corporate Sponsorship</h2>

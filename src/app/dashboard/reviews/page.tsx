@@ -41,7 +41,7 @@ export default function ReviewsPage() {
   ).toFixed(1);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-5xl mx-auto">
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Reviews</h1>

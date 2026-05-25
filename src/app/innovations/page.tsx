@@ -19,6 +19,7 @@ type InnovationFilters = {
   fields: string[];
   interests: InterestOption[];
   ownership: string[];
+  stage: string[];
   sdgs: string[];
   country: string;
 };
@@ -30,6 +31,7 @@ export interface InnovationItem {
   field: string;
   interests: InterestOption[];
   ownership: string;
+  stage: string;
   sdgs: string[];
   creator: string;
   country: string;
@@ -50,6 +52,7 @@ const innovationData: InnovationItem[] = [
     field: 'Energy & Power',
     interests: ['Investment | Partnership', 'Purchase | Trade', 'Marketing'],
     ownership: 'Private',
+    stage: 'Commercialization',
     sdgs: ['Affordable & Clean Energy', 'Zero Hunger', 'Climate Action'],
     creator: 'GreenRise Labs',
     country: 'Nigeria',
@@ -64,6 +67,7 @@ const innovationData: InnovationItem[] = [
     field: 'Medical',
     interests: ['Investment | Partnership', 'Training | Mentorship', 'Sensitization'],
     ownership: 'Academic',
+    stage: 'Prototype',
     sdgs: ['Good Health & Well-Being', 'Quality Education', 'Reduced Inequalities'],
     creator: 'MedVision Africa',
     country: 'Kenya',
@@ -78,6 +82,7 @@ const innovationData: InnovationItem[] = [
     field: 'Environmental',
     interests: ['Purchase | Trade', 'Investment | Partnership', 'Marketing'],
     ownership: 'Corporate',
+    stage: 'Scale-Up',
     sdgs: ['Responsible Consumption & Production', 'Sustainable Cities & Communities', 'Climate Action'],
     creator: 'UrbanCycle Works',
     country: 'Ghana',
@@ -92,6 +97,7 @@ const innovationData: InnovationItem[] = [
     field: 'Agriculture',
     interests: ['Investment | Partnership', 'Training | Mentorship', 'Purchase | Trade'],
     ownership: 'Private',
+    stage: 'MVP',
     sdgs: ['Zero Hunger', 'Industry, Innovation & Infrastructure', 'Climate Action'],
     creator: 'CropSight Africa',
     country: 'Rwanda',
@@ -106,6 +112,7 @@ const innovationData: InnovationItem[] = [
     field: 'Environmental',
     interests: ['Investment | Partnership', 'Sensitization', 'Purchase | Trade'],
     ownership: 'NGO | Charity',
+    stage: 'Research & Development',
     sdgs: ['Clean Water & Sanitation', 'Good Health & Well-Being', 'Life on Land'],
     creator: 'BlueSource Initiative',
     country: 'Tanzania',
@@ -120,6 +127,7 @@ const innovationData: InnovationItem[] = [
     field: 'Energy & Power',
     interests: ['Purchase | Trade', 'Marketing', 'Sensitization'],
     ownership: 'Mission',
+    stage: 'Ideation',
     sdgs: ['Affordable & Clean Energy', 'Climate Action', 'No Poverty'],
     creator: 'EcoHeat Cooperative',
     country: 'Uganda',
@@ -134,6 +142,7 @@ const innovationData: InnovationItem[] = [
     field: 'Pharmaceutical',
     interests: ['Investment | Partnership', 'Marketing', 'Training | Mentorship'],
     ownership: 'Government | Public',
+    stage: 'MVP',
     sdgs: ['Good Health & Well-Being', 'Industry, Innovation & Infrastructure', 'Peace, Justice & Strong Institutions'],
     creator: 'Nile Health Systems',
     country: 'Egypt',
@@ -148,6 +157,7 @@ const innovationData: InnovationItem[] = [
     field: 'Astronomy & Space',
     interests: ['Training | Mentorship', 'Purchase | Trade', 'Sensitization'],
     ownership: 'Other',
+    stage: 'Prototype',
     sdgs: ['Quality Education', 'Industry, Innovation & Infrastructure', 'Partnerships for the Goals'],
     creator: 'SkyLab Youth Works',
     country: 'South Africa',
@@ -161,6 +171,7 @@ const defaultFilters: InnovationFilters = {
   fields: [],
   interests: [],
   ownership: [],
+  stage: [],
   sdgs: [],
   country: '',
 };
@@ -172,14 +183,18 @@ export default function InnovationsPage() {
   const [filters, setFilters] = useState<InnovationFilters>(defaultFilters);
 
   const toggleArrayFilter = (
-    key: 'fields' | 'interests' | 'ownership' | 'sdgs',
+    key: 'fields' | 'interests' | 'ownership' | 'stage' | 'sdgs',
     value: string,
     checked: boolean
   ) => {
+    const singleSelectFilters = ['fields', 'ownership'];
+
     setFilters((current) => ({
       ...current,
       [key]: checked
-        ? [...current[key], value]
+        ? singleSelectFilters.includes(key)
+          ? [value]
+          : [...current[key], value]
         : current[key].filter((item) => item !== value),
     }));
   };
@@ -207,6 +222,7 @@ export default function InnovationsPage() {
         innovation.creator,
         innovation.country,
         innovation.ownership,
+        innovation.stage,
         ...innovation.interests,
         ...innovation.sdgs,
       ]
@@ -221,25 +237,28 @@ export default function InnovationsPage() {
       filters.interests.some((interest) => innovation.interests.includes(interest));
     const ownershipMatch =
       filters.ownership.length === 0 || filters.ownership.includes(innovation.ownership);
+    const stageMatch =
+      filters.stage.length === 0 || filters.stage.includes(innovation.stage);
     const sdgsMatch =
       filters.sdgs.length === 0 ||
       filters.sdgs.some((sdg) => innovation.sdgs.includes(sdg));
     const countryMatch =
       !filters.country || innovation.country === filters.country;
 
-    return searchMatch && fieldsMatch && interestsMatch && ownershipMatch && sdgsMatch && countryMatch;
+    return searchMatch && fieldsMatch && interestsMatch && ownershipMatch && stageMatch && sdgsMatch && countryMatch;
   });
 
   const activeTags = [
     ...filters.fields.map((value) => ({ group: 'fields' as const, value, label: value })),
     ...filters.interests.map((value) => ({ group: 'interests' as const, value, label: value })),
     ...filters.ownership.map((value) => ({ group: 'ownership' as const, value, label: value })),
+    ...filters.stage.map((value) => ({ group: 'stage' as const, value, label: value })),
     ...filters.sdgs.map((value) => ({ group: 'sdgs' as const, value, label: value })),
     ...(filters.country ? [{ group: 'country' as const, value: filters.country, label: filters.country }] : []),
   ];
 
   const removeTag = (
-    group: 'fields' | 'interests' | 'ownership' | 'sdgs' | 'country',
+    group: 'fields' | 'interests' | 'ownership' | 'stage' | 'sdgs' | 'country',
     value?: string
   ) => {
     setFilters((current) => {
@@ -258,12 +277,12 @@ export default function InnovationsPage() {
     <div className="min-h-screen bg-[#f7f9fc]">
       <Header onSearchOpen={() => setSearchOpen(true)} />
 
-      <section className="mx-auto max-w-6xl px-4 pb-16 pt-24 lg:px-8">
-        <div className="mb-10 max-w-5xl">
+      <section className="mx-auto max-w-5xl px-4 pb-16 pt-24 lg:px-8">
+        <div className="mb-10 lg:mt-2 max-w-5xl">
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-[#0f1d33]">
             Afro-Innovations
           </h1>
-          <p className="mt-4 text-sm text-[#51637f] lg:text-md">
+          <p className="mt-2 text-sm text-[#51637f] lg:text-md">
             Discover ground-breaking solutions developed by African minds to solve global challenges. Search, filter, and connect with innovators.
           </p>
           <button
@@ -276,7 +295,7 @@ export default function InnovationsPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[300px_1fr]">
           <div className={`${showMobileFilters ? 'block' : 'hidden'} lg:block`}>
             <FilterSidebar
               selectedFilters={filters}

@@ -73,7 +73,7 @@ const actionItems = [
 export default function Purpose() {
   return (
     <section className="py-20 bg-gray-100">
-      <div className="max-w-6xl mx-auto px-8">
+      <div className="max-w-5xl mx-auto px-8">
         {/* Header */}
         <div className="text-center mb-16">
           <p className="text-red-600 font-semibold text-sm uppercase tracking-wider mb-2">

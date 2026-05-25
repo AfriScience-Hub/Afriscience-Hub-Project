@@ -228,7 +228,7 @@ export default function ImpactPage() {
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-12" />
         <div className="absolute inset-0 bg-[#0a2342]/90" />
 
-        <div className="relative mx-auto max-w-6xl px-4 lg:px-8">
+        <div className="relative mx-auto max-w-5xl px-4 lg:px-8">
           <div className="max-w-4xl">
             <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-emerald-500/20 text-emerald-400 px-5 py-3 text-sm font-semibold">
               <HandHelping className="h-5 w-5" />
@@ -252,7 +252,7 @@ export default function ImpactPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-16 pt-8 lg:px-8">
+      <section className="mx-auto max-w-5xl px-4 pb-16 pt-8 lg:px-8">
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
           <div className={`${showMobileFilters ? 'block' : 'hidden'} lg:block`}>

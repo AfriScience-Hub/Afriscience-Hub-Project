@@ -17,7 +17,7 @@ export default function DashboardShell({
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header onSearchOpen={() => setSearchOpen(true)} />
       <div className="pt-24 pb-9">
-        <div className="mx-auto flex w-full max-w-6xl flex-col lg:items-start gap-6 px-4 lg:flex-row lg:px-8">
+        <div className="mx-auto flex w-full max-w-5xl flex-col lg:items-start gap-6 px-4 lg:flex-row lg:px-8">
           <Suspense fallback={<div className="hidden w-72 shrink-0 lg:block" />}>
             <Sidebar />
           </Suspense>

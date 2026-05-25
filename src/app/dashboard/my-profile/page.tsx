@@ -88,7 +88,7 @@ export default function MyProfilePage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto lg:px-8">
+    <div className="max-w-5xl mx-auto lg:px-8">
       <ProfileHeader
         fullName={profileData.fullName}
         governmentId={profileData.governmentId}

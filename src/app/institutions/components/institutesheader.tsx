@@ -14,7 +14,7 @@ export default function InstitutesHeader({
 }: InstitutesHeaderProps) {
   return (
     <div className="sticky top-16 z-40 border-b border-gray-200 bg-white">
-      <div className="mx-auto max-w-6xl px-4 py-3 md:px-8 lg:px-10">
+      <div className="mx-auto max-w-5xl px-4 py-3 md:px-8 lg:px-10">
         <div className="mb-5 flex flex-col gap-3 lg:gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
             <h1 className="text-lg font-semibold text-gray-900 md:text-2xl">

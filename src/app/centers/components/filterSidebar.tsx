@@ -239,12 +239,12 @@ export default function FilterSidebar({
 }: FilterSidebarProps) {
   const [openSections, setOpenSections] = useState({
     fields: true,
-    categories: true,
+    categories: false,
     services: false,
     ownership: false,
-    status: true,
-    country: true,
-    region: true,
+    status: false,
+    country: false,
+    region: false,
   });
 
   const activeCount = countActiveFilters(selectedFilters);
@@ -256,10 +256,14 @@ export default function FilterSidebar({
     : [];
 
   const toggleSection = (sectionKey: string) => {
-    setOpenSections((current) => ({
-      ...current,
-      [sectionKey]: !current[sectionKey as keyof typeof current],
-    }));
+    setOpenSections((current) =>
+      Object.fromEntries(
+        Object.keys(current).map((key) => [
+          key,
+          key === sectionKey ? !current[sectionKey as keyof typeof current] : false,
+        ])
+      ) as typeof current
+    );
   };
 
   return (

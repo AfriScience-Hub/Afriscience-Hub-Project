@@ -59,7 +59,7 @@ export default function VolunteerPage() {
 
       {/* Hero Section */}
       <section className="relative bg-[#0A1428] text-white py-28 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
+        <div className="max-w-5xl mx-auto px-6 relative z-10">
           <div className='flex flex-col items-start'>
             <Link href="/support" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-5">
               <ArrowLeft className="w-4 h-4" /> Back to Support
@@ -94,7 +94,7 @@ export default function VolunteerPage() {
 
       {/* Why Volunteer Section */}
       <section className="py-20">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Volunteer With Us?</h2>
             <p className="text-gray-500 max-w-2xl mx-auto">
@@ -120,7 +120,7 @@ export default function VolunteerPage() {
 
       {/* Volunteer Roles Section */}
       <section className="py-20">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Volunteer Roles</h2>
             <p className="text-gray-500">Choose how you&apos;d like to contribute to the ecosystem.</p>

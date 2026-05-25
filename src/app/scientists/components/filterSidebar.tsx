@@ -199,18 +199,22 @@ export default function FilterSidebar({
 }: FilterSidebarProps) {
   const [openSections, setOpenSections] = useState({
     fields: true,
-    professions: true,
-    services: true,
-    status: true,
-    country: true,
-    region: true,
+    professions: false,
+    services: false,
+    status: false,
+    country: false,
+    region: false,
   });
 
   const toggleSection = (sectionKey: string) => {
-    setOpenSections((current) => ({
-      ...current,
-      [sectionKey]: !current[sectionKey as keyof typeof current],
-    }));
+    setOpenSections((current) =>
+      Object.fromEntries(
+        Object.keys(current).map((key) => [
+          key,
+          key === sectionKey ? !current[sectionKey as keyof typeof current] : false,
+        ])
+      ) as typeof current
+    );
   };
 
   const sortedCountries = Object.keys(countryRegions).sort((a, b) => a.localeCompare(b));

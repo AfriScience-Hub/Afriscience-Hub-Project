@@ -114,16 +114,20 @@ export default function FilterSidebar({
   const [openSections, setOpenSections] = useState({
     type: false,
     competition: true,
-    category: true,
-    year: true,
-    country: true,
+    category: false,
+    year: false,
+    country: false,
   });
 
   const toggleSection = (sectionKey: string) => {
-    setOpenSections((current) => ({
-      ...current,
-      [sectionKey]: !current[sectionKey as keyof typeof current],
-    }));
+    setOpenSections((current) =>
+      Object.fromEntries(
+        Object.keys(current).map((key) => [
+          key,
+          key === sectionKey ? !current[sectionKey as keyof typeof current] : false,
+        ])
+      ) as typeof current
+    );
   };
 
   return (

@@ -2,7 +2,8 @@
 
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Filter as FilterIcon } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { ChevronDown, ChevronUp, Info } from 'lucide-react';
 
 type InterestOption =
   | 'Investment | Partnership'
@@ -15,6 +16,7 @@ interface InnovationFilters {
   fields: string[];
   interests: InterestOption[];
   ownership: string[];
+  stage: string[];
   sdgs: string[];
   country: string;
 }
@@ -22,7 +24,7 @@ interface InnovationFilters {
 interface FilterSidebarProps {
   selectedFilters: InnovationFilters;
   onToggleFilter: (
-    key: 'fields' | 'interests' | 'ownership' | 'sdgs',
+    key: 'fields' | 'interests' | 'ownership' | 'stage' | 'sdgs',
     value: string,
     checked: boolean
   ) => void;
@@ -31,11 +33,11 @@ interface FilterSidebarProps {
 }
 
 const fieldOptions = [
+  'Hybrid',
   'Medical',
   'Engineering',
   'Pharmaceutical',
   'Computer & ICT',
-  'Hybrid',
   'Veterinary',
   'Agriculture',
   'Food & Nutrition',
@@ -57,6 +59,19 @@ const interestOptions: { label: InterestOption; icon: string }[] = [
   { label: 'Sensitization', icon: '🗣️' },
 ];
 
+const interestTooltips: Record<InterestOption, string> = {
+  'Investment | Partnership':
+    'Inventor wishes to work with individuals/brands that can invest into their innovation.',
+  'Purchase | Trade':
+    'Inventor wishes to work with individuals/brands that can directly purchase and sell their innovative product.',
+  Marketing:
+    'Inventor wishes to work with individuals/brands that can link them to potential markets for their innovation.',
+  'Training | Mentorship':
+    'Inventor wishes to work with individuals/brands that can advance their knowledge further in the innovation.',
+  Sensitization:
+    'Inventor wishes to work with individuals/brands that can help create targeted awareness of their innovation.',
+};
+
 const ownershipOptions = [
   'Private',
   'Government | Public',
@@ -67,6 +82,26 @@ const ownershipOptions = [
   'NGO | Charity',
   'Other',
 ];
+
+const stageOptions = [
+  'Ideation',
+  'Research & Development',
+  'Prototype',
+  'MVP',
+  'Scale-Up',
+  'Commercialization',
+];
+
+const stageTooltips: Record<string, string> = {
+  Ideation: 'Innovation only exists as an idea or concept.',
+  'Research & Development':
+    'Innovative idea is under scientific experimentation and technical development.',
+  Prototype: 'A working model of innovation is created and ready for testing and validation.',
+  MVP: 'A validated and useable version of the innovation is currently available to users.',
+  'Scale-Up': 'Innovation is validated and ready for mass-production.',
+  Commercialization:
+    'Innovation is ready to be introduced and distributed in suitable markets.',
+};
 
 const sdgOptions = [
   'No Poverty',
@@ -115,7 +150,7 @@ function Section({
   const isOpen = openSections[sectionKey];
 
   return (
-    <div className="border-t border-[#d9e1ec] py-5">
+    <div className="py-2">
       <button
         type="button"
         onClick={() => onToggle(sectionKey)}
@@ -138,12 +173,33 @@ function CheckboxItem({
   checked,
   onChange,
   icon,
+  tooltip,
 }: {
   label: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
   icon?: string;
+  tooltip?: string;
 }) {
+  const [tooltipPosition, setTooltipPosition] = useState<{ left: number; top: number } | null>(
+    null
+  );
+
+  const showTooltip = (element: HTMLElement) => {
+    const rect = element.getBoundingClientRect();
+    const tooltipWidth = 256;
+    const tooltipGap = 10;
+    const viewportPadding = 12;
+
+    setTooltipPosition({
+      left: Math.min(
+        rect.right + tooltipGap,
+        window.innerWidth - tooltipWidth - viewportPadding
+      ),
+      top: Math.max(viewportPadding, rect.top - 12),
+    });
+  };
+
   return (
     <label className="flex cursor-pointer items-center gap-2 text-[#51637f]">
       <input
@@ -154,6 +210,32 @@ function CheckboxItem({
       />
       {icon ? <span className="text-2xl leading-none">{icon}</span> : null}
       <span className="text-sm font-medium">{label}</span>
+      {tooltip ? (
+        <span
+          className="inline-flex cursor-help items-center"
+          onMouseEnter={(event) => showTooltip(event.currentTarget)}
+          onMouseLeave={() => setTooltipPosition(null)}
+          onFocus={(event) => showTooltip(event.currentTarget)}
+          onBlur={() => setTooltipPosition(null)}
+          tabIndex={0}
+        >
+          <Info className="h-3.5 w-3.5 text-[#91a3bf]" aria-hidden="true" />
+          {tooltipPosition
+            ? createPortal(
+                <span
+                  className="pointer-events-none fixed z-[9999] w-64 rounded-md bg-[#1f2a3d] px-3 py-2 text-xs font-medium leading-5 text-white shadow-lg"
+                  style={{
+                    left: tooltipPosition.left,
+                    top: tooltipPosition.top,
+                  }}
+                >
+                  {tooltip}
+                </span>,
+                document.body
+              )
+            : null}
+        </span>
+      ) : null}
     </label>
   );
 }
@@ -166,32 +248,37 @@ export default function FilterSidebar({
 }: FilterSidebarProps) {
   const [openSections, setOpenSections] = useState({
     fields: true,
-    interests: true,
-    ownership: true,
-    sdgs: true,
-    country: true,
+    interests: false,
+    ownership: false,
+    stage: false,
+    sdgs: false,
+    country: false,
   });
 
   const toggleSection = (sectionKey: string) => {
-    setOpenSections((current) => ({
-      ...current,
-      [sectionKey]: !current[sectionKey as keyof typeof current],
-    }));
+    setOpenSections((current) =>
+      Object.fromEntries(
+        Object.keys(current).map((key) => [
+          key,
+          key === sectionKey ? !current[sectionKey as keyof typeof current] : false,
+        ])
+      ) as typeof current
+    );
   };
 
   return (
-    <aside className="h-fit max-h-130 overflow-y-auto rounded-2xl border border-[#d8dfeb] bg-white px-6 py-5 shadow-md scrollbar-hide lg:sticky lg:top-24">
-      <div className="flex items-center justify-between gap-2 pb-5">
+    <aside className="scrollbar-hide max-h-130 overflow-y-auto rounded-2xl border border-[#d8dfeb] bg-white px-4 py-5 shadow-md lg:sticky lg:top-24">
+      <div className="flex items-center justify-between gap-2 pb-2">
         <div className="flex items-center gap-3">
           <span className="text-md font-bold tracking-tight text-[#1a2538]">Filters</span>
         </div>
         <button
           type="button"
           onClick={onReset}
-          className="inline-flex items-center gap-2 text-sm cursor-pointer hover:underline font-semibold text-black transition hover:opacity-80"
+          className="inline-flex items-center gap-2 text-sm cursor-pointer hover:underline font-semibold text-red-600 transition hover:opacity-80"
           aria-label="Reset filters"
         >
-          <FilterIcon className="h-5 w-5" />
+          <p  className="text-xs text-red-600"> Reset All</p>
         </button>
       </div>
 
@@ -201,7 +288,7 @@ export default function FilterSidebar({
         openSections={openSections}
         onToggle={toggleSection}
       >
-        <div className="scrollbar-hide max-h-72 space-y-4 overflow-y-auto">
+        <div className="scrollbar-hide max-h-72 space-y-2 overflow-y-auto">
           {fieldOptions.map((field) => (
             <CheckboxItem
               key={field}
@@ -219,12 +306,13 @@ export default function FilterSidebar({
         openSections={openSections}
         onToggle={toggleSection}
       >
-        <div className="space-y-4">
+        <div className="scrollbar-hide max-h-60 space-y-2 overflow-y-auto">
           {interestOptions.map((interest) => (
             <CheckboxItem
               key={interest.label}
               label={interest.label}
               icon={interest.icon}
+              tooltip={interestTooltips[interest.label]}
               checked={selectedFilters.interests.includes(interest.label)}
               onChange={(checked) => onToggleFilter('interests', interest.label, checked)}
             />
@@ -238,7 +326,7 @@ export default function FilterSidebar({
         openSections={openSections}
         onToggle={toggleSection}
       >
-        <div className="scrollbar-hide max-h-60 space-y-4 overflow-y-auto">
+        <div className="space-y-2">
           {ownershipOptions.map((ownership) => (
             <CheckboxItem
               key={ownership}
@@ -251,12 +339,31 @@ export default function FilterSidebar({
       </Section>
 
       <Section
+        title="Stage"
+        sectionKey="stage"
+        openSections={openSections}
+        onToggle={toggleSection}
+      >
+        <div className="space-y-2">
+          {stageOptions.map((stage) => (
+            <CheckboxItem
+              key={stage}
+              label={stage}
+              tooltip={stageTooltips[stage]}
+              checked={selectedFilters.stage.includes(stage)}
+              onChange={(checked) => onToggleFilter('stage', stage, checked)}
+            />
+          ))}
+        </div>
+      </Section>
+
+      <Section
         title="SDGs"
         sectionKey="sdgs"
         openSections={openSections}
         onToggle={toggleSection}
       >
-        <div className="scrollbar-hide max-h-72 space-y-4 overflow-y-auto">
+        <div className="scrollbar-hide max-h-72 space-y-3 overflow-y-auto">
           {sdgOptions.map((sdg) => (
             <CheckboxItem
               key={sdg}
@@ -288,14 +395,13 @@ export default function FilterSidebar({
         </select>
       </Section>
 
-      <style jsx>{`
+       <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
-        }
-
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
         }
       `}</style>
     </aside>

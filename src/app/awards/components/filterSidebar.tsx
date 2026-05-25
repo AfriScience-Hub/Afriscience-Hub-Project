@@ -129,29 +129,32 @@ export default function FilterSidebar({
 }: FilterSidebarProps) {
   const [openSections, setOpenSections] = useState({
     type: true,
-    category: true,
-    level: true,
-    year: true,
-    country: true,
+    category: false,
+    level: false,
+    year: false,
+    country: false,
   });
 
   const levelEnabled = Boolean(selectedFilters.category);
 
   const toggleSection = (sectionKey: string) => {
-    setOpenSections((current) => ({
-      ...current,
-      [sectionKey]: !current[sectionKey as keyof typeof current],
-    }));
+    setOpenSections((current) =>
+      Object.fromEntries(
+        Object.keys(current).map((key) => [
+          key,
+          key === sectionKey ? !current[sectionKey as keyof typeof current] : false,
+        ])
+      ) as typeof current
+    );
   };
 
   const handleCategorySelect = (value: string) => {
     onCategoryChange(value);
 
     if (value) {
-      setOpenSections((current) => ({
-        ...current,
-        level: true,
-      }));
+      setOpenSections((current) =>
+        Object.fromEntries(Object.keys(current).map((key) => [key, key === 'level'])) as typeof current
+      );
     }
   };
 

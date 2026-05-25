@@ -61,7 +61,7 @@ export default function DonatePage() {
 
       {/* Hero Section - Patterned after Sponsor Page */}
       <section className="relative bg-[#0A1428] text-white py-28 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
+        <div className="max-w-5xl mx-auto px-6 relative z-10">
           <div className="flex flex-col items-start">
             {/* Back Button */}
             <Link href="/support" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-5">
@@ -97,7 +97,7 @@ export default function DonatePage() {
 
       {/* Current Causes Section - Progress Bars */}
       <section className="py-20">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Current Programs</h2>
             <p className="text-gray-600">Select a program to support. Every contribution counts.</p>

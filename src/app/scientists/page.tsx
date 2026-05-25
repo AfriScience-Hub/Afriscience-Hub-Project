@@ -268,7 +268,7 @@ export default function ScientistsPage() {
     <div className="min-h-screen bg-white">
       <Header onSearchOpen={() => setSearchOpen(true)} />
 
-      <section className="mx-auto max-w-6xl px-4 pb-16 pt-24 lg:px-8">
+      <section className="mx-auto max-w-5xl px-4 pb-16 pt-24 lg:px-8">
         <div className="mb-10 max-w-5xl">
           <h1 className="text-2xl font-bold tracking-tight text-[#0f1d33] sm:text-3xl">
             Find Scientists & Technologists

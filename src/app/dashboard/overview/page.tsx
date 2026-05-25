@@ -37,7 +37,7 @@ export default function OverviewPage() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       {/* Welcome Section */}
       <div className="mb-6 lg:mb-8 bg-white shadow-sm border border-gray-200 rounded-2xl p-4 lg:p-6">
         <h1 className="text-lg lg:text-2xl font-black text-gray-900 mb-2">Welcome back, {user.name}!</h1>

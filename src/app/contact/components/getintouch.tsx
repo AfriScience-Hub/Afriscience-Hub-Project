@@ -29,7 +29,7 @@ export default function GetInTouch() {
 
   return (
     <section className="bg-gray-50 py-16 px-4 md:px-8 lg:px-16">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Left Column - Contact Information */}
           <div className="space-y-8">

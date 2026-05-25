@@ -41,7 +41,7 @@ const teamMembers = [
 export default function Team() {
   return (
     <section className="py-20 bg-white">
-      <div className="max-w-6xl mx-auto px-8">
+      <div className="max-w-5xl mx-auto px-8">
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-4">
