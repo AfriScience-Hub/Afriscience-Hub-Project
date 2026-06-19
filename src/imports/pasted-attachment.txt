@@ -1,0 +1,257 @@
+Best parent label:
+
+Support Afrisciencehub
+
+Inside it you place:
+
+Sponsor
+
+Donate
+
+Become a Volunteer
+
+This keeps the interface clean and communicates the bigger mission.
+
+2️⃣ Footer Placement (Best Structure)
+
+You already have:
+
+Quick Links
+
+Support
+
+So add a new footer column called:
+
+Support Afrisciencehub
+
+Under it place:
+
+Sponsor Afrisciencehub
+
+Donate to Projects
+
+Become a Volunteer
+
+Optional extra:
+
+Partnership Opportunities
+
+This section explains the mission support side of the platform.
+
+3️⃣ Logged-In Profile Dropdown
+
+Yes — these should appear here too.
+
+Structure:
+
+Profile Icon → Dropdown
+
+My Profile
+
+My Dashboard
+
+Settings
+
+— divider —
+
+Support Afrisciencehub
+
+— divider —
+
+Logout
+
+When Support Afrisciencehub is clicked → open a page showing the three options.
+
+This prevents the dropdown from becoming too long.
+
+4️⃣ Navigation Bar Option
+
+Instead of putting all three in the nav bar, use:
+
+Support ▾
+
+Dropdown:
+
+Sponsor Afrisciencehub
+
+Donate to Projects
+
+Become a Volunteer
+
+This keeps navigation simple but still visible.
+
+5️⃣ Page Structure for Each Option
+
+Each option leads to a dedicated explanation page.
+
+Sponsor Page
+
+Purpose: Support the platform’s overall mission.
+
+Sections:
+
+Why sponsor Afrisciencehub
+
+Impact of sponsorship
+
+What sponsorship funds support
+
+Sponsorship tiers (optional)
+
+Payment details / bank / gateway
+
+Corporate sponsorship option
+
+Donate Page
+
+Purpose: Support specific initiatives.
+
+Sections:
+
+Current causes
+
+Competition Awards
+
+Innovation Development
+
+Research Support
+
+Student Programs
+
+Each cause should have:
+
+description
+
+target amount
+
+donate button
+
+Volunteer Page
+
+Purpose: Community contribution.
+
+Sections:
+
+Why volunteer
+
+Volunteer roles
+
+Eligibility
+
+Application form
+
+Examples of roles:
+
+Competition judges
+
+Research mentors
+
+Event volunteers
+
+Platform moderators
+
+
+
+
+
+
+
+
+Use this to modify the design you already generated.
+
+Prompt
+
+Update the existing AFRISCIENCEHUB website design to include a new ecosystem support system called “Support Afrisciencehub.”
+
+The platform should provide three ways for users or organizations to support the ecosystem:
+
+Sponsor Afrisciencehub
+
+Donate to Projects
+
+Become a Volunteer
+
+These options must be integrated into the existing design in three areas.
+
+1. Navigation Bar
+
+Add a new navigation item called:
+
+Support
+
+This should be a dropdown containing:
+
+Sponsor Afrisciencehub
+
+Donate to Projects
+
+Become a Volunteer
+
+The dropdown should be clean, minimal, and consistent with the existing navigation style.
+
+2. Footer Section
+
+Create a new footer column titled:
+
+Support Afrisciencehub
+
+Include the following links:
+
+Sponsor Afrisciencehub
+
+Donate to Projects
+
+Become a Volunteer
+
+The footer column should appear alongside the existing Quick Links and Support columns.
+
+3. Logged-In User Profile Menu
+
+When a user is logged in and clicks the profile icon, update the dropdown menu to include:
+
+My Profile
+
+My Dashboard
+
+Settings
+
+Divider
+
+Support Afrisciencehub
+
+Divider
+
+Logout
+
+Clicking Support Afrisciencehub should lead to a page showing the three support options.
+
+4. Support Landing Page
+
+Create a simple page introducing the three support options.
+
+Page title: Support Afrisciencehub
+
+Display three cards:
+
+Sponsor Afrisciencehub
+Support the overall mission and development of the platform.
+
+Donate to Projects
+Support specific initiatives such as competitions, innovation development, and awards.
+
+Become a Volunteer
+Contribute time, knowledge, or expertise to help grow the ecosystem.
+
+Each card should include a short description and a Learn More button.
+
+5. Individual Pages
+
+Create three separate pages:
+
+Sponsor Afrisciencehub
+Donate to Projects
+Become a Volunteer
+
+Each page should contain an explanation section and a call-to-action for participation.
+
+Maintain the same design language as the rest of the website.
