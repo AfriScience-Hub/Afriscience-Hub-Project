@@ -41,8 +41,8 @@ export function DonateCauses({ onDonate }: DonateCausesProps) {
                   </div>
                 </div>
               </div>
-              <Button onClick={() => onDonate(cause.id)} variant="outline" className="w-full">
-                Donate to this Cause
+              <Button onClick={() => onDonate(cause.id)} className="w-full h-11 bg-brand-red-600 hover:bg-brand-red-700 text-white font-bold shadow-sm">
+                Donate to this Program
               </Button>
             </div>
           );

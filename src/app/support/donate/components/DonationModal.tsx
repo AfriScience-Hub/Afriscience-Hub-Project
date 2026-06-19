@@ -15,20 +15,21 @@ interface DonationModalProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
+const generateRefNo = () => {
+  const year = new Date().getFullYear();
+  const num = String(Math.floor(Math.random() * 99999)).padStart(5, '0');
+  return `DON-${year}-${num}`;
+};
+
 export function DonationModal({
-  show,
-  selectedCause,
-  setSelectedCause,
-  formData,
-  setFormData,
-  isAuthenticated,
-  onClose,
-  onSubmit,
+  show, selectedCause, setSelectedCause, formData, setFormData,
+  isAuthenticated, onClose, onSubmit,
 }: DonationModalProps) {
   if (!show) return null;
 
   const selectedCurrency = CURRENCIES.find(c => c.code === formData.currency);
   const selectedCauseData = selectedCause ? CAUSES.find(c => c.id === selectedCause) : null;
+  const referenceNo = generateRefNo();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -50,7 +51,7 @@ export function DonationModal({
         <form onSubmit={onSubmit} className="p-6 space-y-5">
           {!selectedCause && (
             <div>
-              <label className="block text-sm font-medium text-slate-600 mb-1.5">Select a Cause (Optional)</label>
+              <label className="block text-sm font-medium text-slate-600 mb-1.5">Select a Program (Optional)</label>
               <select
                 value={selectedCause || ''}
                 onChange={(e) => setSelectedCause(e.target.value || null)}
@@ -63,6 +64,17 @@ export function DonationModal({
               </select>
             </div>
           )}
+
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">Reference No</label>
+            <input
+              type="text"
+              value={referenceNo}
+              disabled
+              className="w-full rounded-xl border border-neutral-gray-light px-4 py-3 text-sm bg-brand-red-50 text-brand-red-700 font-semibold cursor-not-allowed"
+            />
+            <p className="text-xs text-slate-500 mt-1">Reference No is automatically generated and registered on our database.</p>
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-600 mb-1.5">Name</label>
@@ -123,6 +135,7 @@ export function DonationModal({
                 className="w-full rounded-xl border border-neutral-gray-light pl-12 pr-4 py-3 text-neutral-black focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600"
               />
             </div>
+            <p className="text-xs text-red-700 mt-1">Donations of $500+ will be featured in our &quot;Annual Donor Magazine&quot;</p>
           </div>
 
           <Button
@@ -148,7 +161,7 @@ export function DonationModal({
           </div>
 
           <p className="text-xs text-slate-400 text-center">
-            All donations are tax-deductible where applicable.
+            All donations are tax-deductible where applicable. 30% of donations will be used by the network to internally facilitate the execution of these programs.
           </p>
         </form>
       </div>

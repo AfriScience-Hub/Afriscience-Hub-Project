@@ -15,7 +15,7 @@ interface CollapsibleSectionProps {
 export default function CollapsibleSection({ title, icon, children, defaultOpen = true, badge }: CollapsibleSectionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
-    <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}

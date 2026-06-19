@@ -1,7 +1,7 @@
-import { LayoutDashboard, User, ListChecks, UploadCloud, Briefcase, MessageCircle, FileText, Bell, Star, ShieldCheck, Settings, Eye, ThumbsUp, Share2, Clock, ArrowUpRight, CalendarCheck, Users, Trophy, Award } from 'lucide-react';
+import { LayoutDashboard, User, ListChecks, UploadCloud, Briefcase, MessageCircle, FileText, Bell, Star, ShieldCheck, Settings, Eye, ThumbsUp, Share2, Clock, ArrowUpRight, CalendarCheck, Users, Trophy, Award, HandCoins } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-export type SidebarTab = 'overview' | 'profile' | 'listings' | 'upload' | 'services' | 'messages' | 'invoices' | 'notifications' | 'reviews' | 'verification' | 'settings';
+export type SidebarTab = 'overview' | 'profile' | 'listings' | 'upload' | 'services' | 'messages' | 'invoices' | 'notifications' | 'reviews' | 'verification' | 'settings' | 'donations';
 
 export const SIDEBAR_ITEMS: { key: SidebarTab; label: string; icon: LucideIcon }[] = [
   { key: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -15,6 +15,7 @@ export const SIDEBAR_ITEMS: { key: SidebarTab; label: string; icon: LucideIcon }
   { key: 'reviews', label: 'Reviews', icon: Star },
   { key: 'verification', label: 'Verification Status', icon: ShieldCheck },
   { key: 'settings', label: 'Settings', icon: Settings },
+  { key: 'donations', label: 'Donations', icon: HandCoins },
 ];
 
 export const TAB_TO_PATH: Record<SidebarTab, string> = {
@@ -29,6 +30,7 @@ export const TAB_TO_PATH: Record<SidebarTab, string> = {
   reviews: '/dashboard/reviews',
   verification: '/dashboard/verification-status',
   settings: '/dashboard/settings',
+  donations: '/dashboard/donations',
 };
 
 export const PATH_TO_TAB: Record<string, SidebarTab> = {
@@ -43,6 +45,7 @@ export const PATH_TO_TAB: Record<string, SidebarTab> = {
   '/dashboard/reviews': 'reviews',
   '/dashboard/verification-status': 'verification',
   '/dashboard/settings': 'settings',
+  '/dashboard/donations': 'donations',
 };
 
 export const SUMMARY_CARDS = [
@@ -189,3 +192,25 @@ export const COST_RANGES = [
   '₦10 – ₦50', '₦50 – ₦100', '₦100 – ₦150', '₦150 – ₦200',
   '₦200 – ₦500', '₦500 – ₦1,000', '₦1,000+'
 ];
+
+export interface Donation {
+  id: string;
+  referenceNo: string;
+  program: string;
+  amount: string;
+  currency: string;
+  date: string;
+  status: 'Completed' | 'Pending' | 'Failed';
+}
+
+export const MOCK_DONATIONS: Donation[] = [
+  { id: '1', referenceNo: 'DON-2026-00001', program: 'General Support', amount: '250.00', currency: 'USD', date: '2026-03-15', status: 'Completed' },
+  { id: '2', referenceNo: 'DON-2026-00002', program: 'Competition Support', amount: '100.00', currency: 'USD', date: '2026-02-20', status: 'Completed' },
+  { id: '3', referenceNo: 'DON-2026-00003', program: 'Educational Scholarships (Tertiary)', amount: '500.00', currency: 'USD', date: '2026-01-10', status: 'Completed' },
+  { id: '4', referenceNo: 'DON-2025-00004', program: 'Research Support', amount: '75.00', currency: 'EUR', date: '2025-12-05', status: 'Completed' },
+  { id: '5', referenceNo: 'DON-2025-00005', program: 'Career Support', amount: '150.00', currency: 'USD', date: '2025-11-18', status: 'Completed' },
+  { id: '6', referenceNo: 'DON-2025-00006', program: 'General Support', amount: '50.00', currency: 'GBP', date: '2025-10-22', status: 'Failed' },
+];
+
+export const DONATION_PROGRAMS = ['All Programs', 'General Support', 'Competition Support', 'Career Support', 'Research Support', 'Educational Scholarships (Tertiary)'];
+export const DONATION_YEARS = ['All Years', '2026', '2025'];

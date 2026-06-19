@@ -8,6 +8,7 @@ import { LISTING_TYPES, AFRICAN_COUNTRIES, GALLERY_CATEGORIES, type ListingType,
 import ListingTypeSelector from './components/ListingTypeSelector';
 import BasicProfileSection from './components/BasicProfileSection';
 import CategorySpecificSection from './components/CategorySpecificSection';
+import AfroInnovationListing from './components/afro-innovation-listing/afro-innovation-listing';
 import ContactSection from './components/ContactSection';
 import ServicesSection from './components/ServicesSection';
 import MediaGallerySection from './components/MediaGallerySection';
@@ -28,6 +29,8 @@ export default function UploadNewListing() {
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [socialLinks, setSocialLinks] = useState({ twitter: '', linkedin: '', facebook: '', instagram: '' });
+  const [innovatorName, setInnovatorName] = useState('');
+  const [altPhone, setAltPhone] = useState('');
 
   const [services, setServices] = useState<ServiceEntry[]>([]);
   const [newService, setNewService] = useState<ServiceEntry>({ id: '', name: '', description: '', costRange: '' });
@@ -47,6 +50,21 @@ export default function UploadNewListing() {
 
   const [innovCategory, setInnovCategory] = useState('');
   const [innovStage, setInnovStage] = useState('');
+
+  const [innovFields, setInnovFields] = useState<string[]>([]);
+  const [innovInterests, setInnovInterests] = useState<string[]>([]);
+  const [innovOwnership, setInnovOwnership] = useState('');
+  const [innovSdgs, setInnovSdgs] = useState<string[]>([]);
+  const [innovMaterials, setInnovMaterials] = useState<string[]>([]);
+  const [innovDimensions, setInnovDimensions] = useState({ length: '', width: '', height: '', unit: 'cm' });
+  const [innovWeight, setInnovWeight] = useState({ value: '', unit: 'kg' });
+  const [innovUserGroups, setInnovUserGroups] = useState<string[]>([]);
+  const [innovApplications, setInnovApplications] = useState<string[]>([]);
+  const [innovRecommendations, setInnovRecommendations] = useState<string[]>([]);
+  const [innovCautions, setInnovCautions] = useState<string[]>([]);
+  const [innovLicenses, setInnovLicenses] = useState<{ name: string; file: string }[]>([]);
+  const [innovAwards, setInnovAwards] = useState<{ name: string; file: string }[]>([]);
+  const [innovGallery, setInnovGallery] = useState<{ category: string; type: 'image' | 'video'; name: string; caption: string }[]>([]);
 
   const [compType, setCompType] = useState('');
   const [compDeadline, setCompDeadline] = useState('');
@@ -81,6 +99,13 @@ export default function UploadNewListing() {
     setBio(''); setPhone(''); setEmail(''); setWebsite('');
     setSocialLinks({ twitter: '', linkedin: '', facebook: '', instagram: '' });
     setServices([]); setGalleryImages([]); setCertifications([]); setPolicies('');
+    setInnovFields([]); setInnovInterests([]); setInnovOwnership('');
+    setInnovStage(''); setInnovSdgs([]); setInnovMaterials([]);
+    setInnovDimensions({ length: '', width: '', height: '', unit: 'cm' });
+    setInnovWeight({ value: '', unit: 'kg' }); setInnovUserGroups([]);
+    setInnovApplications([]); setInnovRecommendations([]); setInnovCautions([]);
+    setInnovLicenses([]); setInnovAwards([]); setInnovGallery([]);
+    setInnovatorName(''); setAltPhone('');
   };
 
   if (step === 'select') {
@@ -106,59 +131,96 @@ export default function UploadNewListing() {
         </div>
       </div>
 
-      <BasicProfileSection
-        selectedType={selectedType!}
-        name={name} setName={setName}
-        profileImage={profileImage} setProfileImage={setProfileImage}
-        country={country} setCountry={setCountry}
-        stateRegion={stateRegion} setStateRegion={setStateRegion}
-        bio={bio} setBio={setBio}
-        instMotto={instMotto} setInstMotto={setInstMotto}
-        handleProfileImageUpload={handleProfileImageUpload}
-        AFRICAN_COUNTRIES={AFRICAN_COUNTRIES}
-      />
+      {selectedType === 'innovation' ? (
+        <AfroInnovationListing
+          name={name} setName={setName}
+          profileImage={profileImage} setProfileImage={setProfileImage}
+          country={country} setCountry={setCountry}
+          bio={bio} setBio={setBio}
+          AFRICAN_COUNTRIES={AFRICAN_COUNTRIES}
+          innovFields={innovFields} setInnovFields={setInnovFields}
+          innovInterests={innovInterests} setInnovInterests={setInnovInterests}
+          innovOwnership={innovOwnership} setInnovOwnership={setInnovOwnership}
+          innovStage={innovStage} setInnovStage={setInnovStage}
+          innovSdgs={innovSdgs} setInnovSdgs={setInnovSdgs}
+          innovMaterials={innovMaterials} setInnovMaterials={setInnovMaterials}
+          innovDimensions={innovDimensions} setInnovDimensions={setInnovDimensions}
+          innovWeight={innovWeight} setInnovWeight={setInnovWeight}
+          innovUserGroups={innovUserGroups} setInnovUserGroups={setInnovUserGroups}
+          innovApplications={innovApplications} setInnovApplications={setInnovApplications}
+          innovRecommendations={innovRecommendations} setInnovRecommendations={setInnovRecommendations}
+          innovCautions={innovCautions} setInnovCautions={setInnovCautions}
+          innovLicenses={innovLicenses} setInnovLicenses={setInnovLicenses}
+          innovAwards={innovAwards} setInnovAwards={setInnovAwards}
+          innovGallery={innovGallery} setInnovGallery={setInnovGallery}
+          innovatorName={innovatorName} setInnovatorName={setInnovatorName}
+          phone={phone} setPhone={setPhone}
+          altPhone={altPhone} setAltPhone={setAltPhone}
+          email={email} setEmail={setEmail}
+          website={website} setWebsite={setWebsite}
+          socialLinks={socialLinks} setSocialLinks={setSocialLinks}
+        />
+      ) : (
+        <>
+          <BasicProfileSection
+            selectedType={selectedType!}
+            name={name} setName={setName}
+            profileImage={profileImage} setProfileImage={setProfileImage}
+            country={country} setCountry={setCountry}
+            stateRegion={stateRegion} setStateRegion={setStateRegion}
+            bio={bio} setBio={setBio}
+            instMotto={instMotto} setInstMotto={setInstMotto}
+            handleProfileImageUpload={handleProfileImageUpload}
+            AFRICAN_COUNTRIES={AFRICAN_COUNTRIES}
+          />
 
-      <CategorySpecificSection
-        selectedType={selectedType!}
-        instClass={instClass} setInstClass={setInstClass}
-        instOwnership={instOwnership} setInstOwnership={setInstOwnership}
-        instGender={instGender} setInstGender={setInstGender}
-        sciFields={sciFields} setSciFields={setSciFields}
-        sciProfession={sciProfession} setSciProfession={setSciProfession}
-        sciDegrees={sciDegrees} setSciDegrees={setSciDegrees}
-        innovCategory={innovCategory} setInnovCategory={setInnovCategory}
-        innovStage={innovStage} setInnovStage={setInnovStage}
-        compType={compType} setCompType={setCompType}
-        compDeadline={compDeadline} setCompDeadline={setCompDeadline}
-        compFee={compFee} setCompFee={setCompFee}
-        awardType={awardType} setAwardType={setAwardType}
-      />
+          <CategorySpecificSection
+            selectedType={selectedType!}
+            instClass={instClass} setInstClass={setInstClass}
+            instOwnership={instOwnership} setInstOwnership={setInstOwnership}
+            instGender={instGender} setInstGender={setInstGender}
+            sciFields={sciFields} setSciFields={setSciFields}
+            sciProfession={sciProfession} setSciProfession={setSciProfession}
+            sciDegrees={sciDegrees} setSciDegrees={setSciDegrees}
+            innovCategory={innovCategory} setInnovCategory={setInnovCategory}
+            innovStage={innovStage} setInnovStage={setInnovStage}
+            compType={compType} setCompType={setCompType}
+            compDeadline={compDeadline} setCompDeadline={setCompDeadline}
+            compFee={compFee} setCompFee={setCompFee}
+            awardType={awardType} setAwardType={setAwardType}
+          />
 
-      <ContactSection
-        phone={phone} setPhone={setPhone}
-        email={email} setEmail={setEmail}
-        website={website} setWebsite={setWebsite}
-        socialLinks={socialLinks} setSocialLinks={setSocialLinks}
-      />
+          <ContactSection
+            phone={phone} setPhone={setPhone}
+            email={email} setEmail={setEmail}
+            website={website} setWebsite={setWebsite}
+            socialLinks={socialLinks} setSocialLinks={setSocialLinks}
+          />
+        </>
+      )}
 
-      <ServicesSection
-        services={services} setServices={setServices}
-        newService={newService} setNewService={setNewService}
-      />
+      {selectedType !== 'innovation' && (
+        <>
+          <ServicesSection
+            services={services} setServices={setServices}
+            newService={newService} setNewService={setNewService}
+          />
 
-      <MediaGallerySection
-        galleryImages={galleryImages}
-        handleAddGalleryImage={handleAddGalleryImage}
-        GALLERY_CATEGORIES={GALLERY_CATEGORIES}
-      />
+          <MediaGallerySection
+            galleryImages={galleryImages}
+            handleAddGalleryImage={handleAddGalleryImage}
+            GALLERY_CATEGORIES={GALLERY_CATEGORIES}
+          />
 
-      <DocumentsSection
-        certifications={certifications}
-        setCertifications={setCertifications}
-        handleAddCertification={handleAddCertification}
-      />
+          <DocumentsSection
+            certifications={certifications}
+            setCertifications={setCertifications}
+            handleAddCertification={handleAddCertification}
+          />
 
-      <PoliciesSection policies={policies} setPolicies={setPolicies} />
+          <PoliciesSection policies={policies} setPolicies={setPolicies} />
+        </>
+      )}
 
       <FormActions
         onCancel={() => { setStep('select'); setSelectedType(null); }}

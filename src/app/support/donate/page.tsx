@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { DonateHero } from './components/DonateHero';
 import { DonateCauses } from './components/DonateCauses';
-import { DonateImpact } from './components/DonateImpact';
 import { DonationModal } from './components/DonationModal';
 import { ThankYouModal } from './components/ThankYouModal';
 
@@ -59,7 +58,6 @@ export default function Donate() {
     <div className="pb-16">
       <DonateHero onDonate={() => openDonationModal()} />
       <DonateCauses onDonate={openDonationModal} />
-      <DonateImpact />
       <DonationModal
         show={showModal}
         selectedCause={selectedCause}
