@@ -15,11 +15,12 @@ interface BoostVotesModalProps {
 }
 
 const BOOST_PACKAGES = [
-  { id: 'boost-10', votes: 10, price: 5, popular: false },
-  { id: 'boost-50', votes: 50, price: 20, popular: true },
-  { id: 'boost-100', votes: 100, price: 35, popular: false },
-  { id: 'boost-250', votes: 250, price: 80, popular: false },
-  { id: 'boost-500', votes: 500, price: 150, popular: false },
+  { id: 'boost-10', votes: 10, price: 1, popular: false },
+  { id: 'boost-50', votes: 50, price: 5, popular: false },
+  { id: 'boost-100', votes: 100, price: 10, popular: false },
+  { id: 'boost-200', votes: 200, price: 20, popular: false },
+  { id: 'boost-550', votes: 550, price: 50, popular: true },
+  { id: 'boost-1200', votes: 1200, price: 100, popular: false },
 ];
 
 export function BoostVotesModal({

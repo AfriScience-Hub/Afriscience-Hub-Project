@@ -5,17 +5,15 @@ import { Search } from 'lucide-react';
 import {
   VOTING_FINALISTS,
   COMPETITION_TYPES,
-  COMPETITION_CATEGORIES,
   VOTING_YEARS
 } from '../data/mockData';
 import { Button } from '../components/ui/Button';
-import { cn } from '../../lib/utils';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import { ShareVotingModal } from '../components/modals/ShareVotingModal';
 import { BoostVotesModal } from '../components/modals/BoostVotesModal';
 import { ViewWorkModal } from '../components/modals/ViewWorkModal';
-import { getVoteCategoryKey } from './data';
+import { getVoteCategoryKey, COMPETITION_CATEGORY_MAP } from './data';
 import FilterSidebar from './components/FilterSidebar';
 import VotingHeader from './components/VotingHeader';
 import VotingBanner from './components/VotingBanner';
@@ -24,7 +22,7 @@ import FinalistCard from './components/FinalistCard';
 export default function Voting() {
   const { isAuthenticated } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCompetition, setSelectedCompetition] = useState<string[]>([]);
+  const [selectedCompetition, setSelectedCompetition] = useState<string | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>('2026');
   const [selectedCountry, setSelectedCountry] = useState('');
@@ -67,22 +65,17 @@ export default function Voting() {
   const toggleSection = (key: string) =>
     setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
 
-  const hostCountries = useMemo(() => {
-    const countries = new Set(VOTING_FINALISTS.map(f => f.country));
-    return Array.from(countries).sort();
-  }, []);
-
-  const availableCategories = useMemo(() => {
-    const cats = new Set(VOTING_FINALISTS.map(f => f.category));
-    return COMPETITION_CATEGORIES.filter(c => cats.has(c));
-  }, []);
-
   const filteredFinalists = useMemo(() => {
     return VOTING_FINALISTS.filter(f => {
+      const term = searchTerm.toLowerCase();
       const matchesSearch =
-        f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        f.competition.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCompetition = selectedCompetition.length === 0 || selectedCompetition.includes(f.competition);
+        !term ||
+        f.name.toLowerCase().includes(term) ||
+        f.competition.toLowerCase().includes(term) ||
+        f.country.toLowerCase().includes(term) ||
+        f.year.toString().includes(term) ||
+        f.category.toLowerCase().includes(term);
+      const matchesCompetition = !selectedCompetition || f.competition === selectedCompetition;
       const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(f.category);
       const matchesYear = !selectedYear || f.year.toString() === selectedYear;
       const matchesCountry = !selectedCountry || f.country === selectedCountry;
@@ -115,18 +108,14 @@ export default function Voting() {
     return result;
   }, [filteredFinalists, voteIncrements]);
 
-  const toggleFilter = (item: string, current: string[], set: (val: string[]) => void) => {
-    set(current.includes(item) ? current.filter(i => i !== item) : [...current, item]);
-  };
-
   const resetFilters = () => {
-    setSelectedCompetition([]);
+    setSelectedCompetition(null);
     setSelectedCategories([]);
     setSelectedYear('2026');
     setSelectedCountry('');
   };
 
-  const activeFilterCount = selectedCompetition.length + selectedCategories.length + (selectedCountry ? 1 : 0);
+  const activeFilterCount = (selectedCompetition ? 1 : 0) + selectedCategories.length + (selectedCountry ? 1 : 0);
 
   const handleVote = useCallback((finalist: typeof VOTING_FINALISTS[0]) => {
     if (!isAuthenticated) {
@@ -137,7 +126,7 @@ export default function Voting() {
     const catKey = getVoteCategoryKey(finalist.competition, finalist.category);
 
     if (votedCategories[catKey]) {
-      toast.error(`You have already voted in ${finalist.competition} – ${finalist.category}. Votes cannot be reversed.`);
+      toast.error(`You have already voted in ${finalist.competition} \u2013 ${finalist.category}. Votes cannot be reversed.`);
       return;
     }
 
@@ -184,8 +173,8 @@ export default function Voting() {
             selectedCategories={selectedCategories}
             selectedYear={selectedYear}
             selectedCountry={selectedCountry}
-            availableCategories={availableCategories}
-            hostCountries={hostCountries}
+            availableCategories={[]}
+            hostCountries={[]}
             activeFilterCount={activeFilterCount}
             showFilters={showFilters}
             collapsedSections={collapsedSections}
@@ -194,7 +183,6 @@ export default function Voting() {
             setSelectedYear={setSelectedYear}
             setSelectedCountry={setSelectedCountry}
             toggleSection={toggleSection}
-            toggleFilter={toggleFilter}
             resetFilters={resetFilters}
           />
 
@@ -203,7 +191,7 @@ export default function Voting() {
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-gray-medium" />
               <input
                 type="text"
-                placeholder="Search finalists by name or competition..."
+                placeholder="Search finalist by name, competition, year, country or keyword"
                 className="w-full rounded-xl border border-neutral-gray-light pl-12 pr-4 py-3 shadow-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

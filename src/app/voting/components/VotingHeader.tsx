@@ -22,8 +22,10 @@ export default function VotingHeader({
         <div className="flex items-center gap-3">
           <Vote className="h-8 w-8 text-brand-red-600" />
           <div>
-            <h1 className="text-3xl font-bold text-neutral-black">Voting</h1>
-            <p className="text-sm text-neutral-gray-medium">Top 10 Competition Finalists</p>
+            <h1 className="text-3xl font-bold text-neutral-black">Vote for your favorite finalist.</h1>
+            <p className="text-sm text-neutral-gray-medium">
+              Each voter gets one free vote per category. Boost votes are available to show extra support. Positions are updated automatically based on total number of votes.
+            </p>
           </div>
         </div>
 
@@ -36,10 +38,6 @@ export default function VotingHeader({
           Share
         </Button>
       </div>
-
-      <p className="text-neutral-gray-dark max-w-3xl">
-        Vote for your favorite finalists! Each user gets <strong>one free vote</strong> per category. Boost votes are available to show extra support. Positions update dynamically based on total votes.
-      </p>
 
       <Button
         variant="outline"

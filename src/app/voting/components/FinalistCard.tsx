@@ -1,6 +1,6 @@
 "use client"
 
-import { Vote, Eye, Archive, Zap, Search } from 'lucide-react';
+import { Vote, Eye, Archive, Zap, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/Button';
 import { getCompetitionColor, getPositionStyle, getPositionLabel } from '../data';
@@ -34,6 +34,8 @@ export default function FinalistCard({
   onViewWork,
   onBoost,
 }: FinalistCardProps) {
+  const canBoost = alreadyVotedThisCategory;
+
   return (
     <div
       className={cn(
@@ -61,9 +63,16 @@ export default function FinalistCard({
           <Archive className="h-4 w-4" />
         </button>
 
-        {/* Position Badge (Dynamic - based on votes) */}
+        {/* Competition Badge (now on left) */}
+        <div className="absolute bottom-3 left-3">
+          <span className={cn("px-2 py-1 rounded-full text-[9px] font-bold uppercase border backdrop-blur-sm", getCompetitionColor(finalist.competition))}>
+            {finalist.competition}
+          </span>
+        </div>
+
+        {/* Position Badge (now on right) */}
         {finalist.liveVotes > 0 && (
-          <div className="absolute bottom-3 left-3">
+          <div className="absolute bottom-3 right-3">
             <span className={cn(
               "flex items-center justify-center h-10 w-10 rounded-full text-sm font-black shadow-xl",
               getPositionStyle(finalist.livePosition)
@@ -72,13 +81,6 @@ export default function FinalistCard({
             </span>
           </div>
         )}
-
-        {/* Competition Badge */}
-        <div className="absolute bottom-3 right-3">
-          <span className={cn("px-2 py-1 rounded-full text-[9px] font-bold uppercase border backdrop-blur-sm", getCompetitionColor(finalist.competition))}>
-            {finalist.competition}
-          </span>
-        </div>
       </div>
 
       {/* Body */}
@@ -86,7 +88,10 @@ export default function FinalistCard({
         {/* Name & Country */}
         <div className="mb-4">
           <h3 className="text-lg font-bold text-neutral-black mb-1 leading-tight">{finalist.name}</h3>
-          <p className="text-sm text-neutral-gray-medium">{finalist.country}</p>
+          <p className="text-sm text-neutral-gray-medium flex items-center gap-1">
+            <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+            {finalist.country}
+          </p>
           <p className="text-xs text-neutral-gray-medium mt-0.5">{finalist.category}</p>
         </div>
 
@@ -137,8 +142,14 @@ export default function FinalistCard({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onBoost(finalist.id, finalist.name)}
-              className="w-full text-xs border-amber-500 text-amber-600 hover:bg-amber-50"
+              onClick={() => canBoost ? onBoost(finalist.id, finalist.name) : undefined}
+              className={cn(
+                "w-full text-xs",
+                canBoost
+                  ? "border-amber-500 text-amber-600 hover:bg-amber-50"
+                  : "border-slate-200 text-slate-400 cursor-not-allowed"
+              )}
+              disabled={!canBoost}
             >
               <Zap className="h-3.5 w-3.5 mr-1" />
               Boost

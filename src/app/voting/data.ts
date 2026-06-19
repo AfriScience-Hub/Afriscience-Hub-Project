@@ -28,3 +28,22 @@ export const getPositionLabel = (pos: number) => {
   if (pos === 3) return '3rd';
   return `${pos}th`;
 };
+
+export const COMPETITION_CATEGORY_MAP: Record<string, string[]> = {
+  'Afri – Anime': ['General (18+)'],
+  'Afri – Presentations': ['Lower Primary', 'Upper Primary', 'Junior Secondary', 'Senior Secondary', 'Undergraduates', 'Postgraduates'],
+  'Afri – Memes': ['General (18+)'],
+  'Afri – MySpace': ['General (18+)'],
+};
+
+export const VOTING_DEADLINES: Record<string, string> = {
+  'Afri – Anime': 'August 15, 2026',
+  'Afri – Presentations': 'August 30, 2026',
+  'Afri – Memes': 'September 15, 2026',
+  'Afri – MySpace': 'September 30, 2026',
+};
+
+export const shouldHideSocialHandles = (category: string) => {
+  const lower = category.toLowerCase();
+  return lower.includes('primary') || lower.includes('secondary');
+};

@@ -1,7 +1,7 @@
-import { LayoutDashboard, User, ListChecks, UploadCloud, Briefcase, MessageCircle, FileText, Bell, Star, ShieldCheck, Settings, Eye, ThumbsUp, Share2, Clock, ArrowUpRight, CalendarCheck, Users, Trophy, Award, HandCoins } from 'lucide-react';
+import { LayoutDashboard, User, ListChecks, UploadCloud, Briefcase, MessageCircle, FileText, Bell, Star, ShieldCheck, Settings, Eye, ThumbsUp, Share2, Clock, ArrowUpRight, CalendarCheck, Users, Trophy, Award, HandCoins, Archive } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-export type SidebarTab = 'overview' | 'profile' | 'listings' | 'upload' | 'services' | 'messages' | 'invoices' | 'notifications' | 'reviews' | 'verification' | 'settings' | 'donations';
+export type SidebarTab = 'overview' | 'profile' | 'listings' | 'upload' | 'services' | 'messages' | 'invoices' | 'notifications' | 'reviews' | 'verification' | 'settings' | 'donations' | 'archive' | 'awards';
 
 export const SIDEBAR_ITEMS: { key: SidebarTab; label: string; icon: LucideIcon }[] = [
   { key: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -16,6 +16,8 @@ export const SIDEBAR_ITEMS: { key: SidebarTab; label: string; icon: LucideIcon }
   { key: 'verification', label: 'Verification Status', icon: ShieldCheck },
   { key: 'settings', label: 'Settings', icon: Settings },
   { key: 'donations', label: 'Donations', icon: HandCoins },
+  { key: 'archive', label: 'Archive', icon: Archive },
+  { key: 'awards', label: 'Awards', icon: Award },
 ];
 
 export const TAB_TO_PATH: Record<SidebarTab, string> = {
@@ -31,6 +33,8 @@ export const TAB_TO_PATH: Record<SidebarTab, string> = {
   verification: '/dashboard/verification-status',
   settings: '/dashboard/settings',
   donations: '/dashboard/donations',
+  archive: '/dashboard/archive',
+  awards: '/dashboard/awards',
 };
 
 export const PATH_TO_TAB: Record<string, SidebarTab> = {
@@ -46,6 +50,8 @@ export const PATH_TO_TAB: Record<string, SidebarTab> = {
   '/dashboard/verification-status': 'verification',
   '/dashboard/settings': 'settings',
   '/dashboard/donations': 'donations',
+  '/dashboard/archive': 'archive',
+  '/dashboard/awards': 'awards',
 };
 
 export const SUMMARY_CARDS = [

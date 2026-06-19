@@ -9,7 +9,7 @@ export default function VotingBanner() {
       <div>
         <p className="text-sm text-blue-800 font-medium">Voting Rules</p>
         <p className="text-xs text-blue-700 mt-0.5">
-          Each user can vote <strong>once for free</strong> per category. Boost votes available for extra support. Positions update in real-time based on total votes (50% judges + 50% audience).
+          Each user can vote <strong>once for free</strong> per category. Boost votes available for extra support. Positions update in real-time based on total votes.
         </p>
       </div>
     </div>
