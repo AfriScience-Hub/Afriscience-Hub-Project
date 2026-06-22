@@ -41,7 +41,7 @@ export const INSTITUTES = [
     bookingsCount: 845,
     image: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
     description: 'Leading research university focusing on sustainable development and technology.',
-    services: ['Undergraduate Programs', 'Postgraduate Research', 'Innovation Hub', 'Conferences', 'Scholarships'],
+    services: ['Undergraduate Programs', 'Graduate Research', 'Innovation Hub', 'Conferences', 'Scholarships'],
     scopes: ['Sustainable Energy', 'Biotechnology', 'Data Science'],
     email: 'info@pau-science.org',
     phone: '+254 700 123 456',
@@ -55,7 +55,7 @@ export const INSTITUTES = [
       'Post-UTME': ['Screening for all candidates scoring 200+'],
       'Pre-Sciences': ['Remedial courses for science students'],
       'Undergraduate': ['B.Sc. Computer Science', 'B.Eng. Civil Engineering'],
-      'Postgraduate': ['M.Sc. Data Science', 'Ph.D. Renewable Energy'],
+      'Graduate': ['M.Sc. Data Science', 'Ph.D. Renewable Energy'],
       'Part-Time': ['Weekend classes for working professionals']
     },
     ranking: [
@@ -64,7 +64,7 @@ export const INSTITUTES = [
     ],
     tuitionFees: [
       { level: 'Undergraduate', range: '₦50,000 - ₦100,000' },
-      { level: 'Postgraduate', range: '₦100,000 - ₦200,000' },
+      { level: 'Graduate', range: '₦100,000 - ₦200,000' },
       { level: 'PhD', range: '₦200,000 - ₦300,000' }
     ],
     otherFees: [
@@ -1078,7 +1078,7 @@ export const COMPETITIONS = [
     deadline: '2026-07-15',
     image: 'https://images.unsplash.com/photo-1764874299006-bf4266427ec9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     introNote: 'Present a research-backed solution to a pressing African challenge. Demonstrate integrated knowledge across multiple science fields to arrive at a meaningful conclusion.',
-    description: 'Afri \u2013 Presentations challenges undergraduates and postgraduates to present video research presentations that address pressing problems common across the African continent. Presentations should demonstrate applied scopes where integrated knowledge of different science fields is required.',
+    description: 'Afri \u2013 Presentations challenges undergraduates and Graduates to present video research presentations that address pressing problems common across the African continent. Presentations should demonstrate applied scopes where integrated knowledge of different science fields is required.',
     registrationRequirements: ['Must be a registered AfriScience Hub member', 'Must be currently enrolled as an undergraduate student', 'Institutional verification letter or student ID required', 'Registration fee of $5 must be paid before the deadline'],
     rules: ['Screen time of 5 minutes max.', 'Presentations must be delivered in English with clear audio.', 'All claims must be supported by referenced scientific literature.', 'Use of visual aids (slides, diagrams) is strongly encouraged.', 'Plagiarism will result in immediate disqualification.', 'Presenter must appear on camera for at least 50% of the presentation.'],
     selectionScreening: 'Entries reviewed by academic panel. Scored on research depth (30%), clarity of presentation (25%), cross-disciplinary integration (25%), and practical applicability (20%). Semi-finalists present live at a virtual symposium.',
@@ -1154,16 +1154,16 @@ export const COMPETITIONS = [
   },
   {
     id: 'comp-6',
-    title: 'Afri \u2013 Presentations: Postgraduate Innovation Forum',
+    title: 'Afri \u2013 Presentations: Graduate Innovation Forum',
     type: 'Afri \u2013 Presentations',
-    category: 'Postgraduates',
+    category: 'Graduates',
     country: 'Kenya',
     registrationFee: '$5',
     deadline: '2026-08-31',
     image: 'https://images.unsplash.com/photo-1655102718560-19dd4971f87b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     introNote: 'Present a research-backed solution to a pressing African challenge. Demonstrate integrated knowledge across multiple science fields to arrive at a meaningful conclusion.',
-    description: 'The Postgraduate Innovation Forum challenges masters and doctoral students to present advanced research that addresses continental challenges with cross-disciplinary integration.',
-    registrationRequirements: ['Must be a registered AfriScience Hub member', 'Must be enrolled in a postgraduate programme (Masters/PhD)', 'Supervisor endorsement letter required', 'Registration fee of $5 must be paid before the deadline'],
+    description: 'The Graduate Innovation Forum challenges masters and doctoral students to present advanced research that addresses continental challenges with cross-disciplinary integration.',
+    registrationRequirements: ['Must be a registered AfriScience Hub member', 'Must be enrolled in a Graduate programme (Masters/PhD)', 'Supervisor endorsement letter required', 'Registration fee of $5 must be paid before the deadline'],
     rules: ['Screen time of 5 minutes max.', 'All research claims must be peer-reviewable.', 'Visual aids and data visualizations required.', 'Must cite at least 5 scholarly references.', 'Presenter must appear on screen.'],
     selectionScreening: 'Academic review board evaluates entries on research rigor (35%), innovation (25%), cross-disciplinary integration (25%), and presentation quality (15%).',
     consent: 'By applying, you grant AfriScience Hub the right to publish your abstract and presentation excerpts. Full research remains your intellectual property.',
@@ -1219,7 +1219,7 @@ export const COMPETITIONS = [
 
 export const COMPETITION_TYPES = ['Afri \u2013 Anime', 'Afri \u2013 Presentations', 'Afri \u2013 Memes', 'Afri \u2013 MySpace'];
 
-export const COMPETITION_CATEGORIES = ['General (18+)', 'Lower Primary', 'Upper Primary', 'Junior Secondary', 'Senior Secondary', 'Undergraduates', 'Postgraduates'];
+export const COMPETITION_CATEGORIES = ['General (18+)', 'Lower Primary', 'Upper Primary', 'Junior Secondary', 'Senior Secondary', 'Undergraduates', 'Graduates'];
 
 export const VOTING_FINALISTS = [
   {
@@ -1339,7 +1339,7 @@ export const VOTING_FINALISTS = [
     name: 'Hassan Mwangi',
     type: "Competition's Finalists",
     competition: 'Afri \u2013 Presentations',
-    category: 'Postgraduates',
+    category: 'Graduates',
     year: 2026,
     country: 'Kenya',
     image: 'https://images.unsplash.com/photo-1768489038212-3202a936734f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
@@ -1381,7 +1381,7 @@ export const VOTING_FINALISTS = [
     name: 'Kofi Mensah',
     type: "Competition's Finalists",
     competition: 'Afri \u2013 Presentations',
-    category: 'Postgraduates',
+    category: 'Graduates',
     year: 2026,
     country: 'Ghana',
     image: 'https://images.unsplash.com/photo-1655720357761-f18ea9e5e7e6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
@@ -1707,7 +1707,7 @@ export const AWARD_WINNERS = [
     name: 'Hassan Mwangi',
     type: 'Competitions Award',
     competition: 'Afri \u2013 Presentations',
-    category: 'Postgraduates',
+    category: 'Graduates',
     position: 1,
     image: 'https://images.unsplash.com/photo-1768489038212-3202a936734f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     country: 'Kenya',

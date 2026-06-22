@@ -8,12 +8,12 @@ interface DonateCausesProps {
   onDonate: (causeId: string) => void;
 }
 
-export function DonateCauses({ onDonate }: DonateCausesProps) {
+export function DonatePrograms({ onDonate }: DonateCausesProps) {
   return (
     <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="text-center mb-12">
-        <h2 className="text-2xl font-bold text-neutral-black mb-2">Current Causes</h2>
-        <p className="text-slate-500">Select a cause to support. Every contribution counts.</p>
+        <h2 className="text-2xl font-bold text-neutral-black mb-2">Current Programs</h2>
+        <p className="text-slate-500">Select a program to support. Every contribution counts.</p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">

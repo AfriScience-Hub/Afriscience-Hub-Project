@@ -31,7 +31,7 @@ export const getPositionLabel = (pos: number) => {
 
 export const COMPETITION_CATEGORY_MAP: Record<string, string[]> = {
   'Afri – Anime': ['General (18+)'],
-  'Afri – Presentations': ['Lower Primary', 'Upper Primary', 'Junior Secondary', 'Senior Secondary', 'Undergraduates', 'Postgraduates'],
+  'Afri – Presentations': ['Lower Primary', 'Upper Primary', 'Junior Secondary', 'Senior Secondary', 'Undergraduates', 'Graduates'],
   'Afri – Memes': ['General (18+)'],
   'Afri – MySpace': ['General (18+)'],
 };

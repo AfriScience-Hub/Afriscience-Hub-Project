@@ -37,11 +37,27 @@ export const CAUSES = [
   },
 ];
 
-export const CURRENCIES = [
-  { code: 'USD', name: 'US Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: '€' },
-  { code: 'CNY', name: 'Chinese Yuan (RMB)', symbol: '¥' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
-  { code: 'GBP', name: 'British Pound', symbol: '£' },
-  { code: 'LOCAL', name: "Country's Local Currency", symbol: '¤' },
-];
+type CurrencyInfo = { code: string; name: string; symbol: string };
+
+function detectLocalCurrency(): CurrencyInfo {
+  try {
+    const locale = typeof navigator !== 'undefined' ? navigator.language : 'en-US';
+    const region = new Intl.Locale(locale).region;
+    if (!region) return { code: 'USD', name: 'US Dollar', symbol: '$' };
+    const parts = new Intl.NumberFormat(locale, { style: 'currency', currencyDisplay: 'code' }).formatToParts(0);
+    const code = parts.find(p => p.type === 'currency')?.value || 'USD';
+    const display = new Intl.DisplayNames([locale], { type: 'currency' }).of(code) || code;
+    const sym = new Intl.NumberFormat(locale, { style: 'currency', currency: code, currencyDisplay: 'symbol' })
+      .formatToParts(0).find(p => p.type === 'currency')?.value || code;
+    return { code, name: display, symbol: sym };
+  } catch {
+    return { code: 'USD', name: 'US Dollar', symbol: '$' };
+  }
+}
+
+export function getDonationCurrencies(): CurrencyInfo[] {
+  const local = detectLocalCurrency();
+  const usd: CurrencyInfo = { code: 'USD', name: 'US Dollar', symbol: '$' };
+  if (local.code === 'USD') return [usd];
+  return [usd, local];
+}

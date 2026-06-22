@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { DonateHero } from '../support/donate/components/DonateHero';
-import { DonateCauses } from '../support/donate/components/DonateCauses';
+import { DonatePrograms } from '../support/donate/components/DonateProgram';
 import { DonationModal } from '../support/donate/components/DonationModal';
 import { ThankYouModal } from '../support/donate/components/ThankYouModal';
 
@@ -57,7 +57,7 @@ export default function Donate() {
   return (
     <div className="pb-16">
       <DonateHero onDonate={() => openDonationModal()} />
-      <DonateCauses onDonate={openDonationModal} />
+      <DonatePrograms onDonate={openDonationModal} />
       <DonationModal
         show={showModal}
         selectedCause={selectedCause}

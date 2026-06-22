@@ -2,7 +2,7 @@
 
 import { X } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
-import { CAUSES, CURRENCIES } from '../data';
+import { CAUSES, getDonationCurrencies } from '../data';
 
 interface DonationModalProps {
   show: boolean;
@@ -15,21 +15,15 @@ interface DonationModalProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-const generateRefNo = () => {
-  const year = new Date().getFullYear();
-  const num = String(Math.floor(Math.random() * 99999)).padStart(5, '0');
-  return `DON-${year}-${num}`;
-};
-
 export function DonationModal({
   show, selectedCause, setSelectedCause, formData, setFormData,
   isAuthenticated, onClose, onSubmit,
 }: DonationModalProps) {
   if (!show) return null;
 
-  const selectedCurrency = CURRENCIES.find(c => c.code === formData.currency);
+  const currencies = getDonationCurrencies();
+  const selectedCurrency = currencies.find(c => c.code === formData.currency);
   const selectedCauseData = selectedCause ? CAUSES.find(c => c.id === selectedCause) : null;
-  const referenceNo = generateRefNo();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -66,17 +60,6 @@ export function DonationModal({
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1.5">Reference No</label>
-            <input
-              type="text"
-              value={referenceNo}
-              disabled
-              className="w-full rounded-xl border border-neutral-gray-light px-4 py-3 text-sm bg-brand-red-50 text-brand-red-700 font-semibold cursor-not-allowed"
-            />
-            <p className="text-xs text-slate-500 mt-1">Reference No is automatically generated and registered on our database.</p>
-          </div>
-
-          <div>
             <label className="block text-sm font-medium text-slate-600 mb-1.5">Name</label>
             <input
               type="text"
@@ -109,7 +92,7 @@ export function DonationModal({
               onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
               className="w-full rounded-xl border border-neutral-gray-light px-4 py-3 text-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600 bg-white"
             >
-              {CURRENCIES.map((curr) => (
+              {currencies.map((curr) => (
                 <option key={curr.code} value={curr.code}>
                   {curr.code} - {curr.name} ({curr.symbol})
                 </option>

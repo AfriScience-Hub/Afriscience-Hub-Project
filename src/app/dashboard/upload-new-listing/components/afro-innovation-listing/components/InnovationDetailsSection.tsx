@@ -69,9 +69,10 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
     else if (arr.length < max) { updater(p => [...p, val]); }
   };
 
-  const chipGroup = (label: string, options: string[], selected: string[], updater: (v: string[] | ((p: string[]) => string[])) => void, max: number) => (
+  const chipGroup = (label: string, options: string[], selected: string[], updater: (v: string[] | ((p: string[]) => string[])) => void, max: number, description?: string) => (
     <div>
       <label className="block text-sm font-medium text-neutral-black mb-1">{label} <span className="text-neutral-gray-medium font-normal">({selected.length}/{max} max.)</span></label>
+      {description && <p className="text-xs text-neutral-gray-medium mb-2">{description}</p>}
       <div className="flex flex-wrap gap-2">
         {options.map(opt => {
           const on = selected.includes(opt);
@@ -111,12 +112,13 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
     </div>
   );
 
-  const bulletList = (label: string, items: string[], setItems: (v: string[] | ((p: string[]) => string[])) => void, placeholder: string) => {
+  const bulletList = (label: string, items: string[], setItems: (v: string[] | ((p: string[]) => string[])) => void, placeholder: string, description?: string) => {
     const [val, setVal] = useState('');
     const add = () => { const t = val.trim(); if (t) { setItems(p => [...p, t]); setVal(''); } };
     return (
       <div>
         <label className="block text-sm font-medium text-neutral-black mb-2">{label}</label>
+        {description && <p className="text-xs text-neutral-gray-medium mb-2">{description}</p>}
         {items.length > 0 && (
           <ul className="mb-3 space-y-1.5">
             {items.map((item, i) => (
@@ -221,7 +223,7 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
 
       {radioGroup('Stage', INNOVATION_STAGES, props.innovStage, props.setInnovStage, STAGE_DESCRIPTIONS, '')}
 
-      {chipGroup('SDGs', INNOVATION_SDGS, props.innovSdgs, props.setInnovSdgs, 5)}
+      {chipGroup('SDGs', INNOVATION_SDGS, props.innovSdgs, props.setInnovSdgs, 5, 'Select appropriate sustainable development goals your innovation address.')}
 
       <hr className="border-neutral-gray-light" />
 
@@ -351,9 +353,11 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
         </div>
       </div>
 
-      {bulletList('Applications & Impact', props.innovApplications, props.setInnovApplications, 'e.g. Deployed across 12 states...')}
-      {bulletList('Recommendations', props.innovRecommendations, props.setInnovRecommendations, 'e.g. Ideal for farms up to 5 hectares')}
-      {bulletList('Cautions', props.innovCautions, props.setInnovCautions, 'e.g. Not suitable for saltwater environments')}
+      {bulletList('Applications & Impact', props.innovApplications, props.setInnovApplications, 'e.g. Deployed across 12 states...', 'In what areas can your innovation be used and what impacts can it bring about?')}
+
+      {bulletList('Recommendations', props.innovRecommendations, props.setInnovRecommendations, 'e.g. Ideal for farms up to 5 hectares', 'How can users get the best out of your innovation?')}
+
+      {bulletList('Cautions', props.innovCautions, props.setInnovCautions, 'e.g. Not suitable for saltwater environments', 'What important notes should users be aware of when using innovation to prevent hazards and malfunction?')}
 
       <hr className="border-neutral-gray-light" />
 

@@ -32,7 +32,10 @@ export function DonateHero({ onDonate }: DonateHeroProps) {
             Donate
           </h1>
           <p className="text-slate-300 text-lg leading-relaxed mb-8">
-            Your donations help us maintain our network's internal framework and facilitate our enlightenment programs across the African continent. We deeply appreciate and recognize your support towards our mission to propel the continent to greater heights.
+            Your donations help us achieve our set commonly service goals across the African
+            continent. We intend addressing important developmental and humanitarian programs
+            with donation funds, and we deeply appreciate/recognize your support towards our
+            vision to propel the continent to greater heights.
           </p>
           <Button
             size="lg"

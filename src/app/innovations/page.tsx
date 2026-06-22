@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import { createPortal } from 'react-dom';
 import {
   Search, Eye, ThumbsUp, Share2, Archive, ArchiveX,
-  MapPin, ChevronDown, X, SlidersHorizontal
+  MapPin, ChevronDown, X, SlidersHorizontal, Info
 } from 'lucide-react';
 import {
   INNOVATIONS,
@@ -38,6 +39,45 @@ function InterestEmoji({ interest }: { interest: string }) {
         <span className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-brand-navy-900 px-2 py-1 text-[10px] text-white shadow-lg z-20 pointer-events-none">
           {data.label}
         </span>
+      )}
+    </span>
+  );
+}
+
+/* ─── Per-option Info Tooltip ─── */
+function InfoTooltip({ content }: { content: string }) {
+  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+
+  const show = useCallback((e: React.MouseEvent | React.FocusEvent) => {
+    const el = e.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    const tooltipW = 256;
+    const gap = 10;
+    const pad = 12;
+    setPos({
+      left: Math.min(rect.right + gap, window.innerWidth - tooltipW - pad),
+      top: Math.max(pad, rect.top - 12),
+    });
+  }, []);
+
+  return (
+    <span
+      className="ml-auto inline-flex h-5 w-5 shrink-0 cursor-help items-center justify-center"
+      onMouseEnter={show}
+      onMouseLeave={() => setPos(null)}
+      onFocus={show}
+      onBlur={() => setPos(null)}
+      tabIndex={0}
+    >
+      <Info className="h-4 w-4 text-neutral-gray-dark font-black" />
+      {pos && createPortal(
+        <span
+          className="pointer-events-none fixed z-[9999] w-64 rounded-md bg-brand-navy-900 px-3 py-2 text-xs font-medium leading-5 text-white shadow-lg"
+          style={{ left: pos.left, top: pos.top }}
+        >
+          {content}
+        </span>,
+        document.body
       )}
     </span>
   );
@@ -214,6 +254,13 @@ export default function Innovations() {
                             className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
                           <span className="text-lg mr-1">{INNOVATION_INTERESTS_EMOJI[i]?.emoji}</span>
                           <span className="text-xs text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{i}</span>
+                          <InfoTooltip content={
+                            i === 'Investment | Partnership' ? 'Inventor wishes to work with individuals/brands that can invest into their innovation.' :
+                            i === 'Purchase | Trade' ? 'Inventor wishes to work with individuals/brands that can directly purchase and sell their innovative product.' :
+                            i === 'Marketing' ? 'Inventor wishes to work with individuals/brands that can link them to potential markets for their innovation.' :
+                            i === 'Training | Mentorship' ? 'Inventor wishes to work with individuals/brands that can advance their knowledge further in the innovation.' :
+                            'Inventor wishes to work with individuals/brands that can help create targeted awareness of their innovation.'
+                          } />
                         </label>
                       ))}
                     </div>
@@ -238,6 +285,14 @@ export default function Innovations() {
                           <input type="radio" name="stage-filter" checked={selectedStages === s} onChange={() => setSelectedStages(prev => prev === s ? '' : s)}
                             className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
                           <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{s}</span>
+                          <InfoTooltip content={
+                            s === 'Ideation' ? 'Innovation only exists as an idea or concept.' :
+                            s === 'Research & Development' ? 'Innovative idea is under scientific experimentation and technical development.' :
+                            s === 'Prototype' ? 'A working model of innovation is created and ready for testing and validation.' :
+                            s === 'MVP' ? 'A validated and useable version of the innovation is currently available to users.' :
+                            s === 'Scale-Up' ? 'Innovation is validated and ready for mass-production.' :
+                            'Innovation is ready to be introduced and distributed in suitable markets.'
+                          } />
                         </label>
                       ))}
                     </div>

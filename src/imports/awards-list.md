@@ -34,7 +34,7 @@ Upper Primary
 Junior Secondary
 Senior Secondary
 Undergraduates
-Postgraduates
+Graduates
 Year
 2026
 Country
@@ -76,4 +76,4 @@ should enlarge certificate display
 
 other suggestions
 other suggestions
-
+

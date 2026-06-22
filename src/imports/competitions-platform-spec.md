@@ -27,7 +27,7 @@ Upper Primary
 Junior Secondary
 Senior Secondary
 Undergraduates
-Postgraduates
+Graduates
 Country
 list only the African countries that Competitions are hosted in
 Search
@@ -104,7 +104,7 @@ Topics
 3 topics max. that contestants can choose from
 topic listing is only applicable to “Afri – Presentations”
 topics should address problems that is common across the African continent
-undergraduate & postgraduate presentations should have applied scopes where integrated knowledge of different science fields is required to arrive to a meaningful conclusion 
+undergraduate & Graduate presentations should have applied scopes where integrated knowledge of different science fields is required to arrive to a meaningful conclusion 
 “Apply” button 
 should automatically take the user to payment gateway
 once payment goes through, a prompt should display on the screen indicating a successful payment 
@@ -182,4 +182,4 @@ a prompt should pop-up to indicate a successful submission
 until deadline, users can submit more recent works to overwrite previous submissions
 other suggestions
 other suggestions
-
+
