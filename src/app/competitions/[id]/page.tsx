@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -15,6 +16,7 @@ import { useAuth } from '@/app/context/AuthContext';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import PaymentModal from './components/PaymentModal';
+import { AfriAnimeDetails } from './components/AfriAnimeDetails';
 
 export default function CompetitionDetails() {
   const { id } = useParams<{ id: string }>();
@@ -82,7 +84,7 @@ export default function CompetitionDetails() {
   return (
     <div className="min-h-screen bg-neutral-bg-light pb-12">
       <div className="relative h-64 md:h-80 bg-brand-navy-900 overflow-hidden">
-        <img src={comp.image} alt={comp.title} className="absolute inset-0 h-full w-full object-cover opacity-30" />
+        <Image src={comp.image} alt={comp.title} fill className="object-cover opacity-30" sizes="100vw" />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900 via-brand-navy-900/70 to-transparent" />
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-end pb-8">
           <Link href="/competitions" className="flex items-center gap-2 text-white/70 hover:text-white mb-4 transition-colors text-sm">
@@ -110,122 +112,133 @@ export default function CompetitionDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <section className="bg-white rounded-xl shadow-sm border border-neutral-gray-light overflow-hidden">
-              <img src={comp.image} alt={comp.title} className="w-full h-64 md:h-80 object-cover" />
+              <Image src={comp.image} alt={comp.title} width={0} height={0} sizes="100vw" className="w-full h-64 md:h-80 object-cover" />
             </section>
 
-            <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-              <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
-                <FileText className="h-5 w-5 text-brand-navy-900" /> Competition Description
-              </h3>
-              <p className="text-neutral-gray-dark leading-relaxed">{comp.description}</p>
-            </section>
+            {comp.type === 'Afri \u2013 Anime' ? (
+              <AfriAnimeDetails
+                comp={comp}
+                undertakingChecked={undertakingChecked}
+                onUndertakingChange={setUndertakingChecked}
+                onApply={() => handleApplyClick()}
+              />
+            ) : (
+              <>
+                <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+                  <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-brand-navy-900" /> Competition Description
+                  </h3>
+                  <p className="text-neutral-gray-dark leading-relaxed">{comp.description}</p>
+                </section>
 
-            <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-              <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
-                <ClipboardCheck className="h-5 w-5 text-brand-red-600" /> Registration Requirements
-              </h3>
-              <ul className="space-y-2">
-                {comp.registrationRequirements.map((req, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-sm text-neutral-gray-dark">
-                    <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                    {req}
-                  </li>
-                ))}
-              </ul>
-            </section>
+                <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+                  <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
+                    <ClipboardCheck className="h-5 w-5 text-brand-red-600" /> Registration Requirements
+                  </h3>
+                  <ul className="space-y-2">
+                    {comp.registrationRequirements.map((req, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-sm text-neutral-gray-dark">
+                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                        {req}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
 
-            <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-              <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
-                <ListChecks className="h-5 w-5 text-brand-navy-900" /> Rules
-              </h3>
-              <ol className="space-y-2 list-decimal list-inside">
-                {comp.rules.map((rule, idx) => (
-                  <li key={idx} className="text-sm text-neutral-gray-dark">{rule}</li>
-                ))}
-              </ol>
-            </section>
+                <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+                  <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
+                    <ListChecks className="h-5 w-5 text-brand-navy-900" /> Rules
+                  </h3>
+                  <ol className="space-y-2 list-decimal list-inside">
+                    {comp.rules.map((rule, idx) => (
+                      <li key={idx} className="text-sm text-neutral-gray-dark">{rule}</li>
+                    ))}
+                  </ol>
+                </section>
 
-            <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-              <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-brand-navy-900" /> Selection & Screening
-              </h3>
-              <p className="text-sm text-neutral-gray-dark leading-relaxed">{comp.selectionScreening}</p>
-            </section>
+                <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+                  <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
+                    <ShieldCheck className="h-5 w-5 text-brand-navy-900" /> Selection & Screening
+                  </h3>
+                  <p className="text-sm text-neutral-gray-dark leading-relaxed">{comp.selectionScreening}</p>
+                </section>
 
-            <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-              <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
-                <Scale className="h-5 w-5 text-neutral-gray-dark" /> Consent
-              </h3>
-              <p className="text-sm text-neutral-gray-dark leading-relaxed">{comp.consent}</p>
-            </section>
+                <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+                  <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
+                    <Scale className="h-5 w-5 text-neutral-gray-dark" /> Consent
+                  </h3>
+                  <p className="text-sm text-neutral-gray-dark leading-relaxed">{comp.consent}</p>
+                </section>
 
-            <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-              <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
-                <Gift className="h-5 w-5 text-amber-500" /> Reward
-              </h3>
-              <p className="text-sm text-neutral-gray-dark leading-relaxed">{comp.reward}</p>
-            </section>
+                <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+                  <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
+                    <Gift className="h-5 w-5 text-amber-500" /> Reward
+                  </h3>
+                  <p className="text-sm text-neutral-gray-dark leading-relaxed">{comp.reward}</p>
+                </section>
 
-            <section className="bg-brand-red-50 rounded-xl p-6 shadow-sm border border-brand-red-200">
-              <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-brand-red-600" /> Undertaking Remark
-              </h3>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={undertakingChecked}
-                  onChange={(e) => setUndertakingChecked(e.target.checked)}
-                  className="mt-1 rounded border-brand-red-300 text-brand-red-600 focus:ring-brand-red-600"
-                />
-                <span className="text-sm text-neutral-gray-dark leading-relaxed">{comp.undertakingRemark}</span>
-              </label>
-            </section>
+                <section className="bg-brand-red-50 rounded-xl p-6 shadow-sm border border-brand-red-200">
+                  <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-brand-red-600" /> Undertaking Remark
+                  </h3>
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={undertakingChecked}
+                      onChange={(e) => setUndertakingChecked(e.target.checked)}
+                      className="mt-1 rounded border-brand-red-300 text-brand-red-600 focus:ring-brand-red-600"
+                    />
+                    <span className="text-sm text-neutral-gray-dark leading-relaxed">{comp.undertakingRemark}</span>
+                  </label>
+                </section>
 
-            {hasTopics && (
-              <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-                <h3 className="text-lg font-bold text-neutral-black mb-2 flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-brand-navy-900" /> Topics
-                </h3>
-                <p className="text-xs text-neutral-gray-medium mb-4">Choose one of the following topics to base your presentation on. Maximum 3 topics available.</p>
-                <div className="space-y-4">
-                  {comp.topics.map((topic, idx) => (
-                    <div key={idx} className="rounded-lg border border-neutral-gray-light p-5 bg-neutral-bg-light/50 hover:border-brand-red-200 transition-colors">
-                      <div className="flex items-start gap-3">
-                        <div className="flex items-center justify-center h-8 w-8 rounded-full bg-brand-navy-900 text-white text-sm font-bold flex-shrink-0">
-                          {idx + 1}
+                {hasTopics && (
+                  <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+                    <h3 className="text-lg font-bold text-neutral-black mb-2 flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 text-brand-navy-900" /> Topics
+                    </h3>
+                    <p className="text-xs text-neutral-gray-medium mb-4">Choose one of the following topics to base your presentation on. Maximum 3 topics available.</p>
+                    <div className="space-y-4">
+                      {comp.topics.map((topic, idx) => (
+                        <div key={idx} className="rounded-lg border border-neutral-gray-light p-5 bg-neutral-bg-light/50 hover:border-brand-red-200 transition-colors">
+                          <div className="flex items-start gap-3">
+                            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-brand-navy-900 text-white text-sm font-bold flex-shrink-0">
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm text-neutral-black font-medium leading-relaxed">{topic}</p>
+                              <Button
+                                size="sm"
+                                className="mt-3 bg-brand-red-600 hover:bg-brand-red-700"
+                                disabled={!undertakingChecked}
+                                onClick={() => handleApplyClick(topic)}
+                              >
+                                Apply for this Topic <ChevronRight className="h-3 w-3 ml-1" />
+                              </Button>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm text-neutral-black font-medium leading-relaxed">{topic}</p>
-                          <Button
-                            size="sm"
-                            className="mt-3 bg-brand-red-600 hover:bg-brand-red-700"
-                            disabled={!undertakingChecked}
-                            onClick={() => handleApplyClick(topic)}
-                          >
-                            Apply for this Topic <ChevronRight className="h-3 w-3 ml-1" />
-                          </Button>
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {!hasTopics && (
-              <div className="pt-2">
-                <Button
-                  size="lg"
-                  className="w-full bg-brand-red-600 hover:bg-brand-red-700 py-6 text-lg"
-                  disabled={!undertakingChecked}
-                  onClick={() => handleApplyClick()}
-                >
-                  <Trophy className="h-5 w-5 mr-2" /> Apply Now ({comp.registrationFee})
-                </Button>
-                {!undertakingChecked && (
-                  <p className="text-xs text-brand-red-600 text-center mt-2">Please accept the Undertaking Remark above to enable the Apply button.</p>
+                  </section>
                 )}
-              </div>
+
+                {!hasTopics && (
+                  <div className="pt-2">
+                    <Button
+                      size="lg"
+                      className="w-full bg-brand-red-600 hover:bg-brand-red-700 py-6 text-lg"
+                      disabled={!undertakingChecked}
+                      onClick={() => handleApplyClick()}
+                    >
+                      <Trophy className="h-5 w-5 mr-2" /> Apply Now ({comp.registrationFee})
+                    </Button>
+                    {!undertakingChecked && (
+                      <p className="text-xs text-brand-red-600 text-center mt-2">Please accept the Undertaking Remark above to enable the Apply button.</p>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
 

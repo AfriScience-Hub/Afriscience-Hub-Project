@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { FileText, ShieldCheck, Award, ImageIcon, MapPin, ShoppingBag } from 'lucide-react';
 import { MOCK_SPONSOR } from '../data';
 
@@ -117,15 +118,17 @@ export function MediaGallery({ onImageClick }: { onImageClick: (url: string) => 
         {s.mediaGallery.map((media, idx) => (
           <div key={idx} className="relative aspect-square rounded-lg overflow-hidden bg-neutral-bg-light group cursor-pointer">
             {media.type === 'image' ? (
-              <img
+              <Image
                 src={media.url}
                 alt={`Gallery ${idx + 1}`}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                fill
+                className="object-cover group-hover:scale-110 transition-transform"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 onClick={() => onImageClick(media.url)}
               />
             ) : (
               <div className="relative w-full h-full">
-                <img src={media.thumbnail} alt={`Video ${idx + 1}`} className="w-full h-full object-cover" />
+                {media.thumbnail && <Image src={media.thumbnail} alt={`Video ${idx + 1}`} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />}
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                   <svg className="h-12 w-12 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                 </div>

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   Search, MapPin, Filter, Star, CheckCircle, GraduationCap,
   Eye, ThumbsUp, Share2, Archive, ArchiveX,
@@ -354,7 +355,7 @@ export default function Scientists() {
                   
                   {/* Card Header / Image */}
                   <div className="relative h-48 bg-brand-navy-900 overflow-hidden">
-                    <img src={sci.image} alt={sci.name} className="h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" />
+                    <Image src={sci.image} alt={sci.name} fill className="object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     
                     {/* Index badge (top-left) */}

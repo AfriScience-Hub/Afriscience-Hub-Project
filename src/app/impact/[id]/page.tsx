@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft, MapPin, Calendar, Users, DollarSign, Share2,
   CheckCircle, TrendingUp, Target
@@ -56,7 +57,7 @@ export default function ImpactDetails() {
         <div className="rounded-2xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden mb-8">
 
           <div className="relative h-80 bg-neutral-bg-light overflow-hidden">
-            <img src={story.image} alt={story.title} className="w-full h-full object-cover" />
+            <Image src={story.image} alt={story.title} fill className="object-cover" sizes="100vw" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">

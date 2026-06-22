@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   MapPin, Star, CheckCircle, Eye, ThumbsUp, Share2, Archive, ArchiveX
 } from 'lucide-react';
@@ -33,7 +34,7 @@ export default function CenterCard({ center, archivedIds, onToggleArchive }: Cen
   return (
     <div className="group flex flex-col rounded-xl border border-neutral-gray-light bg-white shadow-sm transition-all hover:shadow-md hover:border-brand-red-100 overflow-hidden">
       <div className="relative h-40 bg-brand-navy-900 overflow-hidden">
-        <img src={center.image} alt={center.name} className="h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" />
+        <Image src={center.image} alt={center.name} fill className="object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute top-3 right-3 flex gap-1.5">
           <button

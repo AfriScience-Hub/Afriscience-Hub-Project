@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 import { Linkedin, Facebook, Twitter, Youtube, Instagram } from 'lucide-react';
@@ -61,7 +62,7 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center">
               <div className="bg-white p-2.5 rounded-xl shadow-sm">
-                <img src={footerLogoSrc.src} alt="AFRISCIENCE HUB" className="h-14 w-auto" />
+                <Image src={footerLogoSrc.src} alt="AFRISCIENCE HUB" width={0} height={0} sizes="100vw" className="h-14 w-auto" />
               </div>
             </div>
             <p className="text-sm text-slate-400">

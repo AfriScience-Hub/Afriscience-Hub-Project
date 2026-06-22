@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -214,7 +215,7 @@ export default function CompetitionSubmission() {
                           <Video className="h-12 w-12 text-green-600 mx-auto mb-3" />
                         ) : (
                           previewUrl ? (
-                            <img src={previewUrl} alt="Preview" className="h-32 w-auto mx-auto rounded-lg mb-3 object-cover" />
+                            <Image src={previewUrl} alt="Preview" width={0} height={0} sizes="100vw" className="h-32 w-auto mx-auto rounded-lg mb-3 object-cover" />
                           ) : (
                             <ImageIcon className="h-12 w-12 text-green-600 mx-auto mb-3" />
                           )

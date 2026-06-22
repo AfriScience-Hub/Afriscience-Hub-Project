@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { User, Mail, Phone, Lock, Save } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import type { User as UserType } from '../../../context/AuthContext';
@@ -22,7 +23,7 @@ export default function SettingsForm({
   return (
     <form onSubmit={onSave} className="space-y-6 max-w-lg">
       <div className="flex items-center gap-4">
-        <img src={user.avatar} alt={user.name} className="h-16 w-16 rounded-full object-cover border-2 border-brand-navy-100" />
+        <Image src={user.avatar} alt={user.name} width={64} height={64} className="rounded-full object-cover border-2 border-brand-navy-100" />
         <div>
           <p className="text-sm font-bold text-neutral-black">{user.name}</p>
           <button type="button" className="text-xs text-brand-red-600 hover:underline font-medium mt-0.5">Change Avatar</button>

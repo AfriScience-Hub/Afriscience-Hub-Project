@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   MapPin, Star, Share2, CheckCircle, GraduationCap,
   Eye, ThumbsUp, MessageCircle, Archive, ArchiveX,
@@ -95,7 +96,7 @@ export default function ScientistDetails() {
 
             <div className="flex-shrink-0 flex flex-col items-center">
               <div className="h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
-                <img src={scientist.image} alt={scientist.name} className="h-full w-full object-cover" />
+                <Image src={scientist.image} alt={scientist.name} fill className="object-cover" sizes="160px" />
               </div>
               <div className="flex items-center gap-1 mt-3">
                 <div className="flex gap-0.5">

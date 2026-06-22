@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { ArrowRight, Star, Trophy, Users, Zap, Calendar, Award, Vote, Building2, Microscope, Lightbulb, GraduationCap, Beaker, MapPin, Handshake, X, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './components/ui/Button';
@@ -266,10 +267,12 @@ export default function HomePage() {
                 >
                   {/* Image Section */}
                   <div className="relative h-32 bg-neutral-bg-light overflow-hidden">
-                    <img 
+                    <Image 
                       src={categoryImages[index] || categoryImages[0]} 
                       alt={cat.name}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-110"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900/80 via-brand-navy-900/40 to-transparent" />
                     
@@ -311,7 +314,7 @@ export default function HomePage() {
             {INSTITUTES.slice(0, 3).map((inst) => (
               <Link key={inst.id} href={`/institutes/${inst.id}`} className="overflow-hidden rounded-xl bg-white shadow-sm border border-neutral-gray-light hover:shadow-md transition-shadow block">
                 <div className="h-48 bg-slate-200 relative">
-                  <img src={inst.image} alt={inst.name} className="h-full w-full object-cover" />
+                  <Image src={inst.image} alt={inst.name} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                   <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded text-xs font-semibold text-neutral-black">
                     {inst.type}
                   </div>
@@ -408,7 +411,7 @@ export default function HomePage() {
           {SPECIALIST_CENTERS.slice(0, 3).map((center) => (
             <div key={center.id} className="overflow-hidden rounded-xl bg-white shadow-sm border border-neutral-gray-light hover:shadow-md transition-shadow">
               <div className="h-48 bg-slate-200 relative">
-                <img src={center.image} alt={center.name} className="h-full w-full object-cover" />
+                <Image src={center.image} alt={center.name} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                 <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded text-xs font-semibold text-neutral-black">
                   {center.field}
                 </div>
@@ -465,7 +468,7 @@ export default function HomePage() {
                 {COMPETITIONS.slice(0, 4).map((comp) => (
                   <div key={comp.id} className="flex items-start gap-4 rounded-xl bg-white p-2 md:p-4 shadow-sm border border-neutral-gray-light hover:shadow-md transition-all">
                     <div className="h-24 w-28 flex-shrink-0 overflow-hidden rounded-lg bg-slate-200">
-                      <img src={comp.image} alt={comp.title} className="h-full w-full object-cover" />
+                      <Image src={comp.image} alt={comp.title} fill className="object-cover" sizes="112px" />
                     </div>
                     <div className="flex flex-1 flex-col min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-1">
@@ -512,7 +515,7 @@ export default function HomePage() {
                 {AWARD_WINNERS.slice(0, 4).map((winner) => (
                   <div key={winner.id} className="flex items-center gap-4 rounded-xl bg-brand-navy-900 p-4 shadow-sm text-white relative overflow-hidden group hover:shadow-md transition-all">
                     <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-full border-2 border-amber-500/50 relative z-10">
-                      <img src={winner.image} alt={winner.name} className="h-full w-full object-cover" />
+                      <Image src={winner.image} alt={winner.name} fill className="object-cover" sizes="56px" />
                     </div>
                     <div className="relative z-10 flex-1 min-w-0">
                       <h4 className="font-bold text-white truncate">{winner.name}</h4>

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Linkedin, X } from 'lucide-react';
 import { TEAM } from '../data';
 
@@ -15,7 +16,7 @@ export default function TeamSection() {
           {TEAM.map((member) => (
             <div key={member.name} className="group">
               <div className="relative overflow-hidden rounded-2xl bg-neutral-bg-light aspect-[4/5] mb-4">
-                <img src={member.image} alt={member.name} className="h-full w-full object-cover" />
+                <Image src={member.image} alt={member.name} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-brand-navy-900">{member.name}</h3>

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -137,10 +138,12 @@ router.push('/');
         className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-red-600 focus:ring-offset-2"
         aria-label="Profile menu"
       >
-        <img
+        <Image
           src={user.avatar}
           alt={user.name}
-          className="h-9 w-9 rounded-full object-cover border-2 border-brand-navy-100 hover:border-brand-red-600 transition-colors"
+          width={36}
+          height={36}
+          className="rounded-full object-cover border-2 border-brand-navy-100 hover:border-brand-red-600 transition-colors"
         />
       </button>
 
@@ -209,7 +212,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <img src={logoImg.src} alt="AFRISCIENCE HUB" className="h-10 w-auto" />
+              <Image src={logoImg.src} alt="AFRISCIENCE HUB" width={0} height={0} sizes="100vw" className="h-10 w-auto" />
             </Link>
           </div>
 
@@ -382,11 +385,13 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center gap-2">
-            {isAuthenticated && (
-              <img
-                src={user?.avatar}
-                alt={user?.name}
-                className="h-8 w-8 rounded-full object-cover border-2 border-brand-navy-100"
+            {isAuthenticated && user?.avatar && (
+              <Image
+                src={user.avatar}
+                alt={user.name}
+                width={32}
+                height={32}
+                className="rounded-full object-cover border-2 border-brand-navy-100"
               />
             )}
             <Button
@@ -413,7 +418,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
             {/* If authenticated, show user info at top */}
             {isAuthenticated && user && (
               <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-neutral-bg-light rounded-lg">
-                <img src={user.avatar} alt={user.name} className="h-10 w-10 rounded-full object-cover border-2 border-brand-navy-100" />
+                <Image src={user.avatar} alt={user.name} width={40} height={40} className="rounded-full object-cover border-2 border-brand-navy-100" />
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-neutral-black truncate">{user.name}</p>
                   <p className="text-xs text-neutral-gray-medium truncate">{user.email}</p>

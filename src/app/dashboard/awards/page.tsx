@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Image from 'next/image';
 import { Award, MapPin, Calendar, Gift, Search, Trophy, Medal } from 'lucide-react';
 import { AWARD_WINNERS, AWARD_YEARS } from '@/app/data/mockData';
 import { cn } from '@/lib/utils';
@@ -49,7 +50,7 @@ export default function DashboardAwards() {
           return (
             <Link key={award.id} href={`/awards/${award.id}`} className="flex items-center gap-4 p-4 rounded-xl border border-neutral-gray-light bg-white hover:shadow-md hover:border-amber-200 transition-all group">
               <div className="relative h-16 w-16 rounded-xl overflow-hidden flex-shrink-0">
-                <img src={award.image} alt={award.name} className="h-full w-full object-cover" />
+                <Image src={award.image} alt={award.name} fill sizes="33vw" className="object-cover" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-neutral-black group-hover:text-brand-red-600 transition-colors">{award.name}</p>

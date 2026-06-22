@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { X, ImagePlus } from 'lucide-react';
 
 interface InnovationIdentitySectionProps {
@@ -29,7 +30,7 @@ export default function InnovationIdentitySection({
         <div className="flex items-center gap-4">
           {profileImage ? (
             <div className="relative">
-              <img src={profileImage} alt="Profile" className="h-20 w-20 rounded-xl object-cover border border-neutral-gray-light" />
+              <Image src={profileImage} alt="Profile" width={80} height={80} className="rounded-xl object-cover border border-neutral-gray-light" />
               <button onClick={() => setProfileImage(null)} className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-red-500 text-white flex items-center justify-center">
                 <X className="h-3 w-3" />
               </button>

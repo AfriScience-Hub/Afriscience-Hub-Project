@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { X, Send, Phone, MoreVertical } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -78,7 +79,7 @@ export function MessagingModal({
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-white overflow-hidden">
               {providerImage ? (
-                <img src={providerImage} alt={providerName} className="h-full w-full object-cover" />
+                <Image src={providerImage} alt={providerName} fill className="object-cover" sizes="100vw" />
               ) : (
                 <div className="h-full w-full bg-brand-red-100 flex items-center justify-center text-brand-red-600 font-bold">
                   {providerName.charAt(0)}

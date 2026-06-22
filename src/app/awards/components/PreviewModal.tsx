@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { X, Award, Medal, Image as ImageIcon } from 'lucide-react';
 
 type PreviewModalProps = {
@@ -33,7 +34,7 @@ export default function PreviewModal({ isOpen, onClose, imageUrl, title }: Previ
           </button>
         </div>
         <div className="p-4">
-          <img src={imageUrl} alt={title} className="w-full rounded-lg object-contain max-h-[60vh]" />
+          <Image src={imageUrl} alt={title} width={0} height={0} sizes="100vw" className="w-full rounded-lg object-contain max-h-[60vh]" />
         </div>
       </div>
     </div>

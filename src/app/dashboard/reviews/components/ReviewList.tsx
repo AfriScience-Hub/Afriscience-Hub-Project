@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Review } from '../../data';
@@ -24,7 +25,7 @@ export default function ReviewList({ reviews }: ReviewListProps) {
       {reviews.map(review => (
         <div key={review.id} className="p-4 rounded-lg border border-neutral-gray-light">
           <div className="flex items-center gap-3 mb-2">
-            <img src={review.avatar} alt={review.reviewer} className="h-9 w-9 rounded-full object-cover" />
+            <Image src={review.avatar} alt={review.reviewer} width={36} height={36} className="rounded-full object-cover" />
             <div>
               <p className="text-sm font-bold text-neutral-black">{review.reviewer}</p>
               <div className="flex items-center gap-1">

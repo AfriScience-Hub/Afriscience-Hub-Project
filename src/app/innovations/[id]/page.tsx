@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft, MapPin, Eye, Share2, Archive, ArchiveX,
   Award, ShieldCheck, AlertTriangle, ThumbsUp, Users,
@@ -79,11 +80,11 @@ export default function InnovationDetails() {
             {allMediaItems[currentSlide].type === 'video' ? (
               <video src={allMediaItems[currentSlide].url} autoPlay muted loop className="h-full w-full object-cover" />
             ) : (
-              <img src={allMediaItems[currentSlide].url} alt={allMediaItems[currentSlide].caption} className="h-full w-full object-cover opacity-70" />
+              <Image src={allMediaItems[currentSlide].url} alt={allMediaItems[currentSlide].caption} fill sizes="100vw" className="object-cover opacity-70" />
             )}
           </>
         ) : (
-          <img src={innovation.image} alt={innovation.name} className="h-full w-full object-cover opacity-70" />
+          <Image src={innovation.image} alt={innovation.name} fill sizes="100vw" className="object-cover opacity-70" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
@@ -271,7 +272,7 @@ export default function InnovationDetails() {
               <div className="rounded-xl border border-neutral-gray-light bg-white p-5 shadow-sm">
                 <p className="text-xs font-bold text-neutral-gray-medium uppercase mb-3">Innovator</p>
                 <div className="flex items-center gap-3">
-                  <img src={innovation.creatorImage} alt={innovation.creator} className="h-12 w-12 rounded-full object-cover border-2 border-brand-navy-100" />
+                  <Image src={innovation.creatorImage} alt={innovation.creator} width={48} height={48} className="rounded-full object-cover border-2 border-brand-navy-100" />
                   <div>
                     <p className="font-bold text-neutral-black">{innovation.creator}</p>
                     <p className="text-xs text-neutral-gray-medium">{innovation.country}</p>
@@ -322,7 +323,7 @@ export default function InnovationDetails() {
               <div className="space-y-3">
                 {innovation.honoraryAwards.map((award, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-amber-50/50 border border-amber-100">
-                    <img src={award.image} alt={award.title} className="h-12 w-12 rounded-lg object-cover" />
+                    <Image src={award.image} alt={award.title} width={48} height={48} className="rounded-lg object-cover" />
                     <div>
                       <p className="text-sm font-bold text-neutral-black">{award.title}</p>
                       <p className="text-xs text-neutral-gray-medium">{award.organization} &middot; {award.year}</p>
@@ -363,11 +364,11 @@ export default function InnovationDetails() {
                     <div key={i} className="group relative rounded-xl overflow-hidden border border-neutral-gray-light bg-white shadow-sm cursor-pointer"
                       onClick={() => setPreviewImage({ src: item.url, alt: item.caption })}
                     >
-                      <div className="aspect-video overflow-hidden">
+                      <div className="aspect-video relative overflow-hidden">
                         {item.type === 'video' ? (
                           <video src={item.url} controls className="h-full w-full object-cover" />
                         ) : (
-                          <img src={item.url} alt={item.caption} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                          <Image src={item.url} alt={item.caption} fill sizes="33vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
                         )}
                       </div>
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">

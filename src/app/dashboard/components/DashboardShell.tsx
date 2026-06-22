@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { getProfileCompletion, SIDEBAR_ITEMS, PATH_TO_TAB, TAB_TO_PATH, MOCK_NOTIFICATIONS, SidebarTab } from '../data';
@@ -46,7 +47,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
               className="w-full flex items-center justify-between rounded-xl border border-neutral-gray-light bg-white px-4 py-3 shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <img src={user!.avatar} alt={user!.name} className="h-8 w-8 rounded-full object-cover" />
+                <Image src={user!.avatar} alt={user!.name} width={32} height={32} className="rounded-full object-cover" />
                 <span className="text-sm font-bold text-neutral-black">
                   {SIDEBAR_ITEMS.find(i => i.key === activeTab)?.label}
                 </span>

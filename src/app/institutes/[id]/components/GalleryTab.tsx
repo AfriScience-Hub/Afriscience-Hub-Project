@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import {
   Images, ImageIcon, ArrowLeft, PlayCircle
 } from 'lucide-react';
@@ -60,7 +61,7 @@ export default function GalleryTab({
                           <PlayCircle className="h-12 w-12 text-white/60" />
                         </div>
                       ) : (
-                        <img src={cover} alt={label} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <Image src={cover} alt={label} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" />
                       )}
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -114,7 +115,7 @@ export default function GalleryTab({
                     </div>
                   </div>
                 ) : (
-                  <img src={item} alt={`${openAlbum} ${idx + 1}`} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <Image src={item} alt={`${openAlbum} ${idx + 1}`} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                 )}
               </div>
             ))}

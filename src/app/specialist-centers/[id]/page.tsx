@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   MapPin, Star, Share2, ThumbsUp, CheckCircle, Eye, Building2, Phone
 } from 'lucide-react';
@@ -47,7 +48,7 @@ export default function SpecialistCenterDetailsPage() {
     <div className="min-h-screen bg-neutral-bg-light pb-12">
       <div className="bg-white border-b border-neutral-gray-light">
         <div className="h-48 md:h-64 w-full relative overflow-hidden">
-          <img src={center.image} alt={center.name} className="h-full w-full object-cover" />
+          <Image src={center.image} alt={center.name} fill className="object-cover" sizes="100vw" />
           <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900/80 via-brand-navy-900/30 to-transparent" />
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
         </div>
@@ -56,7 +57,7 @@ export default function SpecialistCenterDetailsPage() {
           <div className="flex flex-col lg:flex-row gap-6 -mt-12 relative z-10">
             <div className="flex-shrink-0">
               <div className="h-32 w-32 md:h-40 md:w-40 rounded-xl border-4 border-white bg-white shadow-lg overflow-hidden">
-                <img src={center.image} alt={center.name} className="h-full w-full object-cover" />
+                <Image src={center.image} alt={center.name} fill className="object-cover" sizes="160px" />
               </div>
               <div className="mt-3 flex items-center gap-1.5 justify-center">
                 <div className="flex gap-0.5">

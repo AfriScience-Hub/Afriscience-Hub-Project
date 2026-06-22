@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createPortal } from 'react-dom';
 import {
   Search, Eye, ThumbsUp, Share2, Archive, ArchiveX,
@@ -88,7 +89,7 @@ function ImagePreviewModal({ src, alt, onClose }: { src: string; alt: string; on
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
       <div className="relative max-w-3xl max-h-[90vh]" onClick={e => e.stopPropagation()}>
-        <img src={src} alt={alt} className="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl" />
+        <Image src={src} alt={alt} width={0} height={0} sizes="100vw" className="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl" />
         <button onClick={onClose} className="absolute -top-3 -right-3 rounded-full bg-white p-1.5 shadow-lg hover:bg-neutral-bg-light">
           <X className="h-4 w-4" />
         </button>
@@ -440,7 +441,7 @@ function InnovationCard({
 
       {/* Image */}
       <div className="relative h-48 bg-brand-navy-900 overflow-hidden">
-        <img src={inn.image} alt={inn.name} className="h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" />
+        <Image src={inn.image} alt={inn.name} fill className="object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
         {/* View Icon - Top Left */}

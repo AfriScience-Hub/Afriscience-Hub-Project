@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Users, BookOpen, Award, Clock, Download, FileText,
   ShieldCheck, MapPin, Star
@@ -128,7 +129,7 @@ export default function Sidebar({ institute }: { institute: Institute }) {
           {INSTITUTES.filter((i: any) => i.id !== institute.id && i.class === institute.class).slice(0, 3).map((sim: any) => (
             <Link key={sim.id} href={`/institutes/${sim.id}`} className="flex gap-4 p-3 bg-white rounded-xl border border-neutral-gray-light hover:border-brand-red-600 hover:shadow-md transition-all group">
               <div className="h-16 w-16 rounded-lg overflow-hidden flex-shrink-0">
-                <img src={sim.image} alt={sim.name} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <Image src={sim.image} alt={sim.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" sizes="100vw" />
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="text-sm font-bold text-neutral-black truncate group-hover:text-brand-red-600 transition-colors">{sim.name}</h4>

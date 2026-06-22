@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Folder, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -49,7 +50,7 @@ export default function MediaGallery({ mediaGallery, openFolder, toggleFolder, o
                   {mediaGallery.before.map((media, idx) => (
                     <div key={idx} className="group cursor-pointer" onClick={() => onImageClick(media.url, media.caption)}>
                       <div className="relative rounded-xl overflow-hidden bg-neutral-bg-light h-48 mb-2">
-                        <img src={media.url} alt={media.caption} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <Image src={media.url} alt={media.caption} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                           <ImageIcon className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
@@ -87,7 +88,7 @@ export default function MediaGallery({ mediaGallery, openFolder, toggleFolder, o
                   {mediaGallery.during.map((media, idx) => (
                     <div key={idx} className="group cursor-pointer" onClick={() => onImageClick(media.url, media.caption)}>
                       <div className="relative rounded-xl overflow-hidden bg-neutral-bg-light h-48 mb-2">
-                        <img src={media.url} alt={media.caption} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <Image src={media.url} alt={media.caption} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                           <ImageIcon className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
@@ -125,7 +126,7 @@ export default function MediaGallery({ mediaGallery, openFolder, toggleFolder, o
                   {mediaGallery.after.map((media, idx) => (
                     <div key={idx} className="group cursor-pointer" onClick={() => onImageClick(media.url, media.caption)}>
                       <div className="relative rounded-xl overflow-hidden bg-neutral-bg-light h-48 mb-2">
-                        <img src={media.url} alt={media.caption} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <Image src={media.url} alt={media.caption} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                           <ImageIcon className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, Phone, User, ArrowRight } from 'lucide-react';
 import logoImg from "../../assets/logo.png";
@@ -61,7 +62,7 @@ export default function SignUp() {
       <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl shadow-sm border border-neutral-gray-light">
         <div className="text-center flex flex-col items-center">
           <Link href="/" className="mb-6">
-            <img src={logoImg.src} alt="AFRISCIENCE HUB" className="h-12 w-auto" />
+            <Image src={logoImg.src} alt="AFRISCIENCE HUB" width={0} height={0} sizes="100vw" className="h-12 w-auto" />
           </Link>
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-neutral-black">
             Create an account

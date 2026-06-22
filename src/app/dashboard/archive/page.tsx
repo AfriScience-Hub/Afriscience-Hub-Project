@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Image from 'next/image';
 import { Archive, Search, ChevronDown, Trophy, MapPin, Vote, Eye } from 'lucide-react';
 import { CONCLUDED_VOTING_FINALISTS, COMPETITION_TYPES } from '@/app/data/mockData';
 import { Button } from '@/app/components/ui/Button';
@@ -88,7 +89,7 @@ export default function ArchivePage() {
               <div className="divide-y divide-neutral-gray-light">
                 {finalists.map(f => (
                   <div key={f.id} className="p-4 flex items-center gap-4 hover:bg-neutral-bg-light transition-colors">
-                    <img src={f.image} alt={f.name} className="h-14 w-14 rounded-xl object-cover flex-shrink-0" />
+                    <Image src={f.image} alt={f.name} width={56} height={56} className="rounded-xl object-cover flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-neutral-black">{f.name}</p>
                       <p className="text-xs text-neutral-gray-medium flex items-center gap-1 mt-0.5">

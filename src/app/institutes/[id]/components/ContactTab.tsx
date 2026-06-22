@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import {
   MapPin, Phone, Mail, Globe, Facebook, Twitter, Instagram, Linkedin
@@ -135,7 +136,7 @@ export default function ContactTab({ institute }: { institute: Institute }) {
             <Button variant="outline" size="sm">Open in Google Maps</Button>
           </div>
         </div>
-        <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1200" alt="Map Placeholder" className="w-full h-full object-cover opacity-20" />
+        <Image src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1200" alt="Map Placeholder" width={0} height={0} sizes="100vw" className="w-full h-full object-cover opacity-20" />
       </div>
     </div>
   );

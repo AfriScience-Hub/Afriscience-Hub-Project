@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   MapPin, Star, Share2, CheckCircle, Globe, Phone, MessageCircle,
   Archive, ArchiveX, ThumbsUp, Eye
@@ -63,7 +64,7 @@ export default function InstituteDetails() {
       {/* HEADER */}
       <div className="bg-white border-b border-neutral-gray-light">
         <div className="h-48 md:h-64 w-full bg-brand-navy-900 relative overflow-hidden">
-          <img src={institute.image} alt={institute.name} className="h-full w-full object-cover opacity-80" />
+          <Image src={institute.image} alt={institute.name} fill className="object-cover opacity-80" sizes="100vw" />
           <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900/60 to-transparent" />
         </div>
 
@@ -71,7 +72,7 @@ export default function InstituteDetails() {
           <div className="flex flex-col lg:flex-row gap-6 -mt-12 relative z-10">
             <div className="flex-shrink-0">
               <div className="h-32 w-32 md:h-40 md:w-40 rounded-xl border-4 border-white bg-white shadow-lg overflow-hidden">
-                <img src={institute.image} alt={institute.name} className="h-full w-full object-cover" />
+                <Image src={institute.image} alt={institute.name} fill className="object-cover" sizes="100vw" />
               </div>
               <div className="flex items-center justify-center gap-1.5 mt-3">
                 <div className="flex gap-0.5">

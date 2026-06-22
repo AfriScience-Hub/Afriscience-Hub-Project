@@ -12,6 +12,7 @@ import { INSTITUTES } from '../data/mockData';
 import { Button } from '../components/ui/Button';
 import Link from 'next/link';
 import { cn } from '../../lib/utils';
+import Image from 'next/image';
 import { toast } from 'sonner';
 
 // --- Filter Options Configuration ---
@@ -469,10 +470,12 @@ export default function Institutes() {
                   <div key={inst.id} className="group flex flex-col rounded-xl border bg-white shadow-sm transition-all hover:shadow-md hover:border-brand-red-600/30 overflow-hidden">
                     {/* Thumbnail Image */}
                     <div className="relative h-40 w-full overflow-hidden bg-slate-200">
-                      <img 
+                      <Image 
                         src={inst.image} 
                         alt={inst.name} 
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                        fill 
+                        className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" 
                       />
                       {/* Index badge */}
                       <div className="absolute top-2 left-2 flex items-center justify-center h-6 w-6 rounded-full bg-brand-navy-900/80 text-white text-[10px] font-bold backdrop-blur-sm">

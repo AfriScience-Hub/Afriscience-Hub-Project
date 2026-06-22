@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Eye, Share2, Archive, ArchiveX, MapPin, Phone } from 'lucide-react';
 import { Button } from '../../../../components/ui/Button';
 import type { Sponsor } from '../data';
@@ -16,7 +17,7 @@ export function SponsorCard({ sponsor, isArchived, onToggleArchive, onShare }: S
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative h-48 bg-neutral-bg-light">
-        <img src={sponsor.image} alt={sponsor.name} className="w-full h-full object-cover" />
+        <Image src={sponsor.image} alt={sponsor.name} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
         <Link href={`/support/sponsor/${sponsor.id}`}>
           <button className="absolute top-3 left-3 h-8 w-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
             <Eye className="h-4 w-4 text-neutral-gray-dark" />
