@@ -128,7 +128,7 @@ router.push('/');
   const menuItems = [
     { label: 'My Profile', icon: User, path: '/profile' },
     { label: 'My Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { label: 'Settings', icon: Settings, path: '/dashboard?tab=settings' },
+    { label: 'Settings', icon: Settings, path: '/dashboard/settings' },
   ];
 
   return (
@@ -206,7 +206,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
   const router = useRouter();
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <nav className="sticky top-0 z-50 w-full border-b border-black bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -297,7 +297,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                         <NavigationMenuLink asChild>
                           <Link
                             href="/support/sponsor"
-                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                           >
                             <div className="flex items-center gap-2 text-sm font-medium leading-none">
                               <Sparkles className="h-4 w-4" />
@@ -313,7 +313,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                         <NavigationMenuLink asChild>
                           <Link
                             href="/support/donate"
-                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                           >
                             <div className="flex items-center gap-2 text-sm font-medium leading-none">
                               <HandCoins className="h-4 w-4" />
@@ -329,7 +329,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                         <NavigationMenuLink asChild>
                           <Link
                             href="/support/volunteer"
-                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                           >
                             <div className="flex items-center gap-2 text-sm font-medium leading-none">
                               <UsersIcon className="h-4 w-4" />
@@ -364,9 +364,9 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
               <div className="flex items-center gap-3">
                 <NotificationDropdown
                   categories={[
-                    { id: 'impact', label: 'Impact Applications', icon: UsersIcon, count: 3, path: '/dashboard?tab=notifications&filter=impact' },
-                    { id: 'competitions', label: 'Competition Applications', icon: Trophy, count: 2, path: '/dashboard?tab=notifications&filter=competitions' },
-                    { id: 'awards', label: 'Awards Given', icon: Award, count: 1, path: '/dashboard?tab=notifications&filter=awards' },
+                    { id: 'impact', label: 'Impact Applications', icon: UsersIcon, count: 3, path: '/dashboard/notifications?filter=impact' },
+                    { id: 'competitions', label: 'Competition Applications', icon: Trophy, count: 2, path: '/dashboard/notifications?filter=competitions' },
+                    { id: 'awards', label: 'Awards Given', icon: Award, count: 1, path: '/dashboard/notifications?filter=awards' },
                   ]}
                   totalUnread={6}
                 />
@@ -391,7 +391,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                 alt={user.name}
                 width={32}
                 height={32}
-                className="rounded-full object-cover border-2 border-brand-navy-100"
+                className="rounded-full object-cover border-2 border-brand-navy-100 h-10 w-10"
               />
             )}
             <Button
@@ -418,7 +418,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
             {/* If authenticated, show user info at top */}
             {isAuthenticated && user && (
               <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-neutral-bg-light rounded-lg">
-                <Image src={user.avatar} alt={user.name} width={40} height={40} className="rounded-full object-cover border-2 border-brand-navy-100" />
+                <Image src={user.avatar} alt={user.name} width={40} height={40} className="rounded-full object-cover border-2 border-brand-navy-100 h-10 w-10" />
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-neutral-black truncate">{user.name}</p>
                   <p className="text-xs text-neutral-gray-medium truncate">{user.email}</p>
@@ -514,7 +514,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                 <div className="ml-4 mt-2 space-y-1 border-l-2 border-neutral-gray-light pl-4">
                   <Link
                     href="/support/sponsor"
-                    className="block rounded-md px-3 py-2 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600"
+                    className="block rounded-md px-3 py-2 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2">
@@ -524,7 +524,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                   </Link>
                   <Link
                     href="/support/donate"
-                    className="block rounded-md px-3 py-2 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600"
+                    className="block rounded-md px-3 py-2 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2">
@@ -534,7 +534,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                   </Link>
                   <Link
                     href="/support/volunteer"
-                    className="block rounded-md px-3 py-2 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600"
+                    className="block rounded-md px-3 py-2 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2">
@@ -559,7 +559,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                       <LayoutDashboard className="h-4 w-4" /> My Dashboard
                     </Button>
                   </Link>
-                  <Link href="/dashboard?tab=settings" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/dashboard/settings" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start gap-2">
                       <Settings className="h-4 w-4" /> Settings
                     </Button>

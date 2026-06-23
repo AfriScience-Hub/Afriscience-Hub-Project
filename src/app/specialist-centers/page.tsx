@@ -9,7 +9,6 @@ import {
 import { Button } from '@/app/components/ui/Button';
 import { toast } from 'sonner';
 import FilterSidebar from './components/FilterSidebar';
-import ActiveFilters from './components/ActiveFilters';
 import CenterCard from './components/CenterCard';
 
 export default function SpecialistCentersPage() {
@@ -140,24 +139,6 @@ export default function SpecialistCentersPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-
-            <ActiveFilters
-              selectedField={selectedField}
-              onClearField={() => { setSelectedField(''); setSelectedCategories([]); }}
-              selectedCategories={selectedCategories}
-              onClearCategory={(cat) => toggleFilter(cat, setSelectedCategories)}
-              selectedServices={selectedServices}
-              onClearService={(svc) => toggleFilter(svc, setSelectedServices)}
-              selectedOwnership={selectedOwnership}
-              onClearOwnership={(own) => toggleFilter(own, setSelectedOwnership)}
-              selectedStatus={selectedStatus}
-              onClearStatus={(st) => toggleFilter(st, setSelectedStatus)}
-              selectedCountry={selectedCountry}
-              selectedState={selectedState}
-              onClearLocation={() => { setSelectedCountry(''); setSelectedState(''); }}
-              onClearAll={clearAllFilters}
-              activeFilterCount={activeFilterCount}
-            />
 
             <div className="mb-4 flex items-center justify-between text-sm text-slate-500">
               <span>Showing <strong>{filteredCenters.length}</strong> center{filteredCenters.length !== 1 ? 's' : ''}</span>

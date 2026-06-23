@@ -51,7 +51,7 @@ export function NotificationDropdown({ categories, totalUnread }: NotificationDr
             <h3 className="text-sm font-bold text-neutral-black">Notifications</h3>
             {totalUnread > 0 && (
               <Link
-                href="/dashboard?tab=notifications"
+                href="/dashboard/notifications"
                 onClick={() => setOpen(false)}
                 className="text-xs text-brand-red-600 hover:underline font-medium"
               >
@@ -101,7 +101,7 @@ export function NotificationDropdown({ categories, totalUnread }: NotificationDr
           {/* Footer */}
           <div className="border-t border-neutral-gray-light py-2">
             <Link
-              href="/dashboard?tab=notifications"
+              href="/dashboard/notifications"
               onClick={() => setOpen(false)}
               className="flex items-center justify-center gap-2 px-4 py-2 text-sm text-brand-red-600 hover:bg-brand-red-50 transition-colors font-medium"
             >
