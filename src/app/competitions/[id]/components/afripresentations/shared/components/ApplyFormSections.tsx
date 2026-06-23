@@ -229,15 +229,19 @@ interface SocialHandlesSectionProps {
   onTwitterChange: (v: string) => void;
   onInstagramChange: (v: string) => void;
   onFacebookChange: (v: string) => void;
+  title?: string;
+  subtitle?: string;
 }
 
-export function SocialHandlesSection({ linkedin, twitter, instagram, facebook, onLinkedinChange, onTwitterChange, onInstagramChange, onFacebookChange }: SocialHandlesSectionProps) {
+export function SocialHandlesSection({ linkedin, twitter, instagram, facebook, onLinkedinChange, onTwitterChange, onInstagramChange, onFacebookChange, title, subtitle }: SocialHandlesSectionProps) {
   return (
     <div className="border-t border-neutral-gray-light pt-6">
       <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
-        <LinkIcon className="h-3.5 w-3.5" /> Parent/Guardian&apos;s Social Handles
+        <LinkIcon className="h-3.5 w-3.5" /> {title || 'Parent/Guardian&apos;s Social Handles'}
       </label>
-      <p className="text-[10px] text-neutral-gray-medium mb-3">Only the parent&apos;s or guardian&apos;s social media handles are needed</p>
+      {subtitle !== undefined ? (subtitle ? <p className="text-[10px] text-neutral-gray-medium mb-3">{subtitle}</p> : null) : (
+        <p className="text-[10px] text-neutral-gray-medium mb-3">Only the parent&apos;s or guardian&apos;s social media handles are needed</p>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-xs text-neutral-gray-medium mb-1 block">LinkedIn</label>

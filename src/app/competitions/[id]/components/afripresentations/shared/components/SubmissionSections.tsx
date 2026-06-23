@@ -78,9 +78,10 @@ interface UploadMediaSectionProps {
   onFileChange: (file: File) => void;
   onSubmit: () => void;
   onResubmit: () => void;
+  durationText?: string;
 }
 
-export function UploadMediaSection({ submitted, uploadedFile, previewUrl, submitting, onFileChange, onSubmit, onResubmit }: UploadMediaSectionProps) {
+export function UploadMediaSection({ submitted, uploadedFile, previewUrl, submitting, onFileChange, onSubmit, onResubmit, durationText }: UploadMediaSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +106,7 @@ export function UploadMediaSection({ submitted, uploadedFile, previewUrl, submit
         </p>
       )}
       <p className="text-sm text-neutral-gray-medium mb-4">
-        Upload your presentation video file of <strong>5 minutes screen time max.</strong>
+        Upload your presentation video file of <strong>{durationText || '5 minutes screen time max.'}</strong>
       </p>
       <div
         className={cn(
