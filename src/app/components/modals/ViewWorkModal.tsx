@@ -21,6 +21,7 @@ interface ViewWorkModalProps {
     votes: number;
     views?: number;
     livePosition: number;
+    year?: number;
     socialLinks?: { linkedin?: string; twitter?: string; instagram?: string; facebook?: string };
   };
   liveVotes: number;
@@ -45,7 +46,7 @@ export function ViewWorkModal({ isOpen, onClose, contestant, liveVotes }: ViewWo
               <Eye className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">{workTitle}</h2>
+              <h2 className="text-xl font-bold">{workTitle}{contestant.year ? ` (${contestant.year})` : ''}</h2>
               <p className="text-sm text-slate-200">by {contestant.name}</p>
             </div>
           </div>
