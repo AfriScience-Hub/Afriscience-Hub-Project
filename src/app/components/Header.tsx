@@ -141,9 +141,9 @@ router.push('/');
         <Image
           src={user.avatar}
           alt={user.name}
-          width={36}
-          height={36}
-          className="rounded-full object-cover border-2 border-brand-navy-100 hover:border-brand-red-600 transition-colors"
+          width={40}
+          height={40}
+          className="h-10 w-10 rounded-full object-cover border-2 border-brand-navy-100 hover:border-brand-red-600 transition-colors"
         />
       </button>
 

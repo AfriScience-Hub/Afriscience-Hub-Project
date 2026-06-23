@@ -15,7 +15,6 @@ import { COMPETITIONS } from '@/app/data/mockData';
 import { useAuth } from '@/app/context/AuthContext';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import PaymentModal from './components/PaymentModal';
 import { AfriAnimeDetails } from './components/AfriAnimeDetails';
 
 export default function CompetitionDetails() {
@@ -23,9 +22,6 @@ export default function CompetitionDetails() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
   const [undertakingChecked, setUndertakingChecked] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentProcessing, setPaymentProcessing] = useState(false);
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
 
   const comp = COMPETITIONS.find(c => c.id === id);
 
@@ -64,21 +60,8 @@ export default function CompetitionDetails() {
       toast.error('Please accept the Undertaking Remark before applying.');
       return;
     }
-    if (topic) setSelectedTopic(topic);
-    setShowPaymentModal(true);
-  };
-
-  const handlePayment = () => {
-    setPaymentProcessing(true);
-    setTimeout(() => {
-      setPaymentProcessing(false);
-      setShowPaymentModal(false);
-      toast.success('Payment successful! Redirecting to application form...');
-      const refNo = `ASH-${comp.id.toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
-      sessionStorage.setItem('comp_ref', refNo);
-      sessionStorage.setItem('comp_topic', selectedTopic || '');
-      router.push(`/competitions/${comp.id}/apply`);
-    }, 2000);
+    if (topic) sessionStorage.setItem('comp_topic', topic);
+    router.push(`/competitions/${comp.id}/apply`);
   };
 
   return (
@@ -98,7 +81,7 @@ export default function CompetitionDetails() {
               {comp.category}
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">{comp.title}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">{comp.title}: {comp.country}</h1>
           <div className="flex flex-wrap items-center gap-5 mt-3 text-white/80 text-sm">
             <span className="flex items-center gap-2"><Calendar className="h-4 w-4" /> Deadline: {new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
             <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> {daysLeft} days left</span>
@@ -290,7 +273,7 @@ export default function CompetitionDetails() {
                     disabled={!undertakingChecked}
                     onClick={() => handleApplyClick()}
                   >
-                    Apply Now
+                    Apply Now ({comp.registrationFee})
                   </Button>
                   {!undertakingChecked && (
                     <p className="text-[10px] text-neutral-gray-medium text-center">Accept the Undertaking Remark first</p>
@@ -302,16 +285,6 @@ export default function CompetitionDetails() {
         </div>
       </div>
 
-      {showPaymentModal && (
-        <PaymentModal
-          compTitle={comp.title}
-          registrationFee={comp.registrationFee}
-          selectedTopic={selectedTopic}
-          paymentProcessing={paymentProcessing}
-          onCancel={() => setShowPaymentModal(false)}
-          onProceed={handlePayment}
-        />
-      )}
     </div>
   );
 }

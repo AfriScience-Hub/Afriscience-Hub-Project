@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
-import { ProfileContent } from '../components/ProfileContent';
+import { ProfileContent } from '../dashboard/my-profile/ProfileContent';
 
 export default function Profile() {
   const { user, isAuthenticated } = useAuth();

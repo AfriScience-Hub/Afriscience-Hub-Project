@@ -28,7 +28,7 @@ export default function Sidebar({
       <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
         <div className="p-5 border-b border-neutral-gray-light bg-gradient-to-br from-brand-navy-900 to-brand-navy-800">
           <div className="flex items-center gap-3">
-            <Image src={user.avatar} alt={user.name} width={44} height={44} className="rounded-full object-cover border-2 border-white/30" />
+            <Image src={user.avatar} alt={user.name} width={44} height={44} className="rounded-full object-cover border-2 border-white/30 h-12 w-12" />
             <div className="min-w-0">
               <p className="text-sm font-bold text-white truncate">{user.name}</p>
               <p className="text-[11px] text-white/60 truncate">{user.email}</p>
