@@ -16,6 +16,9 @@ import { useAuth } from '@/app/context/AuthContext';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { AfriAnimeDetails } from './components/AfriAnimeDetails';
+import { AfriMemesDetails } from './components/AfriMemesDetails';
+import { AfriMySpaceDetails } from './components/AfriMySpaceDetails';
+import { getPresentationsDetails } from './components/afripresentations';
 
 export default function CompetitionDetails() {
   const { id } = useParams<{ id: string }>();
@@ -105,7 +108,31 @@ export default function CompetitionDetails() {
                 onUndertakingChange={setUndertakingChecked}
                 onApply={() => handleApplyClick()}
               />
-            ) : (
+            ) : comp.type === 'Afri \u2013 Memes' ? (
+              <AfriMemesDetails
+                comp={comp}
+                undertakingChecked={undertakingChecked}
+                onUndertakingChange={setUndertakingChecked}
+                onApply={() => handleApplyClick()}
+              />
+            ) : comp.type === 'Afri \u2013 MySpace' ? (
+              <AfriMySpaceDetails
+                comp={comp}
+                undertakingChecked={undertakingChecked}
+                onUndertakingChange={setUndertakingChecked}
+                onApply={() => handleApplyClick()}
+              />
+            ) : comp.type === 'Afri \u2013 Presentations' ? (() => {
+              const Comp = getPresentationsDetails(comp);
+              return Comp ? (
+                <Comp
+                  comp={comp}
+                  undertakingChecked={undertakingChecked}
+                  onUndertakingChange={setUndertakingChecked}
+                  onApply={(topic?: string) => handleApplyClick(topic)}
+                />
+              ) : <></>;
+            })() : (
               <>
                 <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
                   <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">

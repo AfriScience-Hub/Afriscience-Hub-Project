@@ -15,6 +15,9 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import PaymentModal from '../components/PaymentModal';
 import { AfriAnimeApply } from '../components/AfriAnimeApply';
+import { AfriMemesApply } from '../components/AfriMemesApply';
+import { AfriMySpaceApply } from '../components/AfriMySpaceApply';
+import { getPresentationsApply } from '../components/afripresentations';
 
 export default function CompetitionApply() {
   const { id } = useParams<{ id: string }>();
@@ -102,7 +105,14 @@ export default function CompetitionApply() {
 
         {comp.type === 'Afri \u2013 Anime' ? (
           <AfriAnimeApply comp={comp} />
-        ) : (
+        ) : comp.type === 'Afri \u2013 Memes' ? (
+          <AfriMemesApply comp={comp} />
+        ) : comp.type === 'Afri \u2013 MySpace' ? (
+          <AfriMySpaceApply comp={comp} />
+        ) : comp.type === 'Afri \u2013 Presentations' ? (() => {
+          const Comp = getPresentationsApply(comp);
+          return Comp ? <Comp comp={comp} /> : <></>;
+        })() : (
           <>
             <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light mb-6">
               <div className="flex items-center gap-3 mb-2">

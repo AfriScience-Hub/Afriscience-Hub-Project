@@ -4,14 +4,14 @@ import { FileText, ClipboardCheck, ListChecks, ShieldCheck, Scale, Gift, AlertTr
 import { Button } from '@/app/components/ui/Button';
 import type { Competition } from '../../data';
 
-interface AfriMemesDetailsProps {
+interface AfriMySpaceDetailsProps {
   comp: Competition;
   undertakingChecked: boolean;
   onUndertakingChange: (v: boolean) => void;
   onApply: () => void;
 }
 
-const DESCRIPTION = 'Show how creative you are with humor, by making a meme from any scientific or technological fact of your choice. Memes crafted by contestants must express originality, scientific accuracy, humor, creativity and concept clarity. Join fellow Africans in this competition for an opportunity to gain global recognition and become a champion of Africa.';
+const DESCRIPTION = 'Afri - MySpace competition aims at globally appreciating African scientists and technologists for their immense contributions towards providing practical solutions to the scientific and technological needs of the continent. Here, contestants are required to snap a picture of themselves in their respective personal workspaces. Pictures are expected to be non-edited, and should represent the actual workspace of the contestant. Join the competition for an opportunity to be recognized globally and become a champion of Africa.';
 
 const REGISTRATION_REQUIREMENTS = [
   'Must be registered with AfriScience Hub',
@@ -20,27 +20,29 @@ const REGISTRATION_REQUIREMENTS = [
 ];
 
 const RULES = [
-  'Image format only (JPEG, PNG, or GIF)',
-  'Must be scientifically relatable',
-  'Meme must be an original work created by the contestant',
-  'Meme contents must not violate any copyright or other third-party rights',
-  'Meme write-up can be in any African-spoken language',
-  'Contents should not be offensive and discriminatory',
-  'Contestants must submit their work before submission deadline',
+  'Photo format only (JPEG, PNG, or GIF)',
+  'Photo must be the actual workspace of the contestant \u2013 no stock photos',
+  'Edited or filtered photos are not allowed',
+  'Space must have a scientific or technological setup',
+  'No identifiable personal documents should be visible in the photo',
+  'Contestants should appear in the photo and must suit up appropriately',
+  'Image must not violate any copyright or other third-party rights',
+  'Image should not be offensive and discriminatory',
+  'Contestants must submit their image before submission deadline',
   'Contestants must consent to the terms of service and undertake to comply with them',
 ];
 
 const CONSENT = 'By applying, you grant AfriScience Hub the right to further modify, publish, and promote your entry across our platforms for educational and outreach purposes. Your personal information will be handled in accordance with our privacy policy.';
 
 const REWARDS = [
-  { position: '1st Position', color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-200', items: ['Gold Medal', '$800 Grand Prize', 'Certificate of Recognition', 'Possible Feature in Hall of Fame', 'Work Publication across AfriScience Hub Platforms'] },
-  { position: '2nd Position', color: 'text-slate-400', bg: 'bg-slate-50', border: 'border-slate-200', items: ['Silver Medal', '$500 Prize Money', 'Certificate of Recognition', 'Work Publication across AfriScience Hub Platforms'] },
-  { position: '3rd Position', color: 'text-amber-700', bg: 'bg-orange-50', border: 'border-orange-200', items: ['Bronze Medal', '$300 Prize Money', 'Certificate of Recognition', 'Work Publication across AfriScience Hub Platforms'] },
+  { position: '1st Position', color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-200', items: ['Gold Medal', '$500 Grand Prize', 'Certificate of Recognition', 'Possible Feature in Hall of Fame', 'Work Publication across AfriScience Hub Platforms'] },
+  { position: '2nd Position', color: 'text-slate-400', bg: 'bg-slate-50', border: 'border-slate-200', items: ['Silver Medal', '$350 Prize Money', 'Certificate of Recognition', 'Work Publication across AfriScience Hub Platforms'] },
+  { position: '3rd Position', color: 'text-amber-700', bg: 'bg-orange-50', border: 'border-orange-200', items: ['Bronze Medal', '$250 Prize Money', 'Certificate of Recognition', 'Work Publication across AfriScience Hub Platforms'] },
 ];
 
-const UNDERTAKING = 'I confirm that the work I will submit is entirely my own original creation, that all scientific contents are relatable to the best of my knowledge, that the work does not violate any copyright or third party rights, and that I accept the terms and conditions of this competition.';
+const UNDERTAKING = 'I confirm that the photo I will submit is my actual workspace, that all scientific representations are accurate, that the work does not violate any copyright or third party rights, and that I accept the terms and conditions of this competition.';
 
-export function AfriMemesDetails({ comp, undertakingChecked, onUndertakingChange, onApply }: AfriMemesDetailsProps) {
+export function AfriMySpaceDetails({ comp, undertakingChecked, onUndertakingChange, onApply }: AfriMySpaceDetailsProps) {
   return (
     <div className="lg:col-span-2 space-y-6">
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
@@ -91,8 +93,8 @@ export function AfriMemesDetails({ comp, undertakingChecked, onUndertakingChange
           <p>All submitted entries will be reviewed and scored by our competition panel in the following areas:</p>
           <ul className="list-disc list-inside pl-4 space-y-1">
             <li>Scientific relatedness</li>
-            <li>Creativity</li>
-            <li>Technical quality</li>
+            <li>Space arrangement</li>
+            <li>Space functionality</li>
           </ul>
           <p>Top 30 finalists will be listed under the &apos;Voting&apos; section of the platform after four (4) weeks of submission deadline.</p>
           <p>Public votes will be used to determine the final performance of finalists.</p>

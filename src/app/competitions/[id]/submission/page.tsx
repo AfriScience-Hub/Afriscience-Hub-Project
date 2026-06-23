@@ -14,6 +14,9 @@ import { useAuth } from '@/app/context/AuthContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { AfriAnimeSubmission } from '../components/AfriAnimeSubmission';
+import { AfriMemesSubmission } from '../components/AfriMemesSubmission';
+import { AfriMySpaceSubmission } from '../components/AfriMySpaceSubmission';
+import { getPresentationsSubmission } from '../components/afripresentations';
 
 function DetailField({ icon: Icon, label, value, mono, highlight, full }: {
   icon: React.ElementType;
@@ -138,7 +141,14 @@ export default function CompetitionSubmission() {
 
         {comp.type === 'Afri \u2013 Anime' ? (
           <AfriAnimeSubmission comp={comp} />
-        ) : (
+        ) : comp.type === 'Afri \u2013 Memes' ? (
+          <AfriMemesSubmission comp={comp} />
+        ) : comp.type === 'Afri \u2013 MySpace' ? (
+          <AfriMySpaceSubmission comp={comp} />
+        ) : comp.type === 'Afri \u2013 Presentations' ? (() => {
+          const Comp = getPresentationsSubmission(comp);
+          return Comp ? <Comp comp={comp} /> : <></>;
+        })() : (
           <>
             {submitted && (
               <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-6 flex items-start gap-4">
