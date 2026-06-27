@@ -36,14 +36,14 @@ export default function BasicProfileSection({
             {profileImage ? (
               <div className="relative">
                 <Image src={profileImage} alt="Profile" width={80} height={80} className="rounded-xl object-cover border border-neutral-gray-light" />
-                <button onClick={() => setProfileImage(null)} className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-red-500 text-white flex items-center justify-center">
+                <button onClick={() => setProfileImage(null)} className="absolute -top-2 -right-2 h-5 w-5 cursor-pointer rounded-full bg-red-500 text-white flex items-center justify-center">
                   <X className="h-3 w-3" />
                 </button>
               </div>
             ) : (
               <button
                 onClick={handleProfileImageUpload}
-                className="flex h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-neutral-gray-light hover:border-brand-red-400 transition-colors"
+                className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-neutral-gray-light hover:border-brand-red-400 transition-colors"
               >
                 <ImagePlus className="h-6 w-6 text-neutral-gray-medium" />
               </button>
@@ -85,7 +85,7 @@ export default function BasicProfileSection({
           <div>
             <label className="block text-sm font-medium text-neutral-black mb-1">Country *</label>
             <select value={country} onChange={e => setCountry(e.target.value)}
-              className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+              className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
               <option value="">Select Country</option>
               {AFRICAN_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>

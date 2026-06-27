@@ -41,7 +41,7 @@ export default function CategorySpecificSection({
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Class / Type *</label>
               <select value={instClass} onChange={e => setInstClass(e.target.value)}
-                className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+                className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
                 <option value="">Select</option>
                 {INSTITUTE_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -49,7 +49,7 @@ export default function CategorySpecificSection({
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Ownership</label>
               <select value={instOwnership} onChange={e => setInstOwnership(e.target.value)}
-                className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+                className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
                 <option value="">Select</option>
                 {INSTITUTE_OWNERSHIP.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
@@ -57,7 +57,7 @@ export default function CategorySpecificSection({
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Gender</label>
               <select value={instGender} onChange={e => setInstGender(e.target.value)}
-                className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+                className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
                 <option value="">Select</option>
                 {INSTITUTE_GENDER.map(g => <option key={g} value={g}>{g}</option>)}
               </select>
@@ -78,7 +78,7 @@ export default function CategorySpecificSection({
                     type="button"
                     onClick={() => setSciFields(prev => prev.includes(field) ? prev.filter(f => f !== field) : [...prev, field])}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+                      "cursor-pointer px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
                       sciFields.includes(field)
                         ? "bg-brand-red-600 text-white border-brand-red-600"
                         : "bg-white text-neutral-gray-dark border-neutral-gray-light hover:border-brand-red-400"
@@ -94,7 +94,7 @@ export default function CategorySpecificSection({
               <div>
                 <label className="block text-sm font-medium text-neutral-black mb-1">Profession</label>
                 <select value={sciProfession} onChange={e => setSciProfession(e.target.value)}
-                  className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+                  className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
                   <option value="">Select</option>
                   {SCIENTIST_PROFESSIONS.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
@@ -102,7 +102,7 @@ export default function CategorySpecificSection({
               <div>
                 <label className="block text-sm font-medium text-neutral-black mb-1">Degrees / Qualifications</label>
                 <input type="text" value={sciDegrees} onChange={e => setSciDegrees(e.target.value)}
-                  className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+                  className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
                   placeholder="e.g. Ph.D. Computer Science, M.Sc. AI" />
               </div>
             </div>
@@ -116,7 +116,7 @@ export default function CategorySpecificSection({
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Innovation Category</label>
               <select value={innovCategory} onChange={e => setInnovCategory(e.target.value)}
-                className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+                className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
                 <option value="">Select</option>
                 {INNOVATION_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -124,7 +124,7 @@ export default function CategorySpecificSection({
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Development Stage</label>
               <select value={innovStage} onChange={e => setInnovStage(e.target.value)}
-                className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+                className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
                 <option value="">Select</option>
                 <option value="Concept">Concept</option>
                 <option value="Prototype">Prototype</option>
@@ -143,7 +143,7 @@ export default function CategorySpecificSection({
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Competition Type</label>
               <select value={compType} onChange={e => setCompType(e.target.value)}
-                className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+                className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
                 <option value="">Select</option>
                 {COMPETITION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
@@ -151,13 +151,13 @@ export default function CategorySpecificSection({
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Registration Fee</label>
               <input type="text" value={compFee} onChange={e => setCompFee(e.target.value)}
-                className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+                className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
                 placeholder="e.g. $5" />
             </div>
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Deadline</label>
               <input type="date" value={compDeadline} onChange={e => setCompDeadline(e.target.value)}
-                className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
+                className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
             </div>
           </div>
         </CollapsibleSection>
@@ -168,7 +168,7 @@ export default function CategorySpecificSection({
           <div>
             <label className="block text-sm font-medium text-neutral-black mb-1">Award Type</label>
             <select value={awardType} onChange={e => setAwardType(e.target.value)}
-              className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+              className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
               <option value="">Select</option>
               {AWARD_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
             </select>

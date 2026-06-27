@@ -53,7 +53,7 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Innovation Details" icon={<Lightbulb className="h-5 w-5 text-brand-red-600" />} badge="Required">
+      <CollapsibleSection title="Innovation Details" icon={<Lightbulb className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
         <InnovationDetailsSection
           innovFields={props.innovFields} setInnovFields={props.setInnovFields}
           innovInterests={props.innovInterests} setInnovInterests={props.setInnovInterests}
@@ -73,7 +73,7 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Innovator's Information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Required">
+      <CollapsibleSection title="Innovator's Information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
         <InnovatorInfoSection
           innovatorName={props.innovatorName} setInnovatorName={props.setInnovatorName}
           phone={props.phone} setPhone={props.setPhone}

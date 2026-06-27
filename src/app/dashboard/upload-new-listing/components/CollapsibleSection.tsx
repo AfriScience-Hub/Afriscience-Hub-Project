@@ -19,7 +19,7 @@ export default function CollapsibleSection({ title, icon, children, defaultOpen 
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-5 hover:bg-neutral-bg-light transition-colors"
+        className="w-full flex cursor-pointer items-center justify-between p-5 hover:bg-neutral-bg-light transition-colors"
       >
         <div className="flex items-center gap-3">
           {icon}

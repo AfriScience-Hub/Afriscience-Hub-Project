@@ -44,7 +44,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
           <div className="lg:hidden">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="w-full flex items-center justify-between rounded-xl border border-neutral-gray-light bg-white px-4 py-3 shadow-sm"
+              className="w-full flex cursor-pointer items-center justify-between rounded-xl border border-neutral-gray-light bg-white px-4 py-3 shadow-sm"
             >
               <div className="flex items-center gap-3">
                 <Image src={user!.avatar} alt={user!.name} width={32} height={32} className="rounded-full object-cover" />

@@ -18,7 +18,7 @@ export default function ListingTypeSelector({ onSelectType }: ListingTypeSelecto
             <button
               key={type.id}
               onClick={() => onSelectType(type.id)}
-              className="group flex flex-col items-center gap-3 rounded-xl border-2 border-neutral-gray-light p-6 text-center transition-all hover:border-brand-red-600 hover:shadow-md focus:border-brand-red-600 focus:outline-none"
+              className="group flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-neutral-gray-light p-6 text-center transition-all hover:border-brand-red-600 hover:shadow-md focus:border-brand-red-600 focus:outline-none"
             >
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-red-50 group-hover:bg-brand-red-100 transition-colors">
                 <type.icon className="h-7 w-7 text-brand-red-600" />

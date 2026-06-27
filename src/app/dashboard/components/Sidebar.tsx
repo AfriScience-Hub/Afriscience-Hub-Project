@@ -56,7 +56,7 @@ export default function Sidebar({
                       setIsNotificationSubmenuOpen(!isNotificationSubmenuOpen);
                     }}
                     className={cn(
-                      "w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                      "w-full flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                       activeTab === item.key
                         ? "bg-brand-red-50 text-brand-red-600"
                         : "text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-navy-900"
@@ -88,7 +88,7 @@ export default function Sidebar({
                             onTabChange('notifications');
                           }}
                           className={cn(
-                            "w-full flex items-center gap-2.5 rounded-md px-3 py-2 text-xs font-medium transition-colors",
+                            "w-full flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-xs font-medium transition-colors",
                             notificationFilter === subItem.key && activeTab === 'notifications'
                               ? "bg-brand-red-50 text-brand-red-600"
                               : "text-neutral-gray-medium hover:bg-neutral-bg-light hover:text-brand-navy-900"
@@ -105,7 +105,7 @@ export default function Sidebar({
                 <button
                   onClick={() => onTabChange(item.key)}
                   className={cn(
-                    "w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                    "w-full flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                     activeTab === item.key
                       ? "bg-brand-red-50 text-brand-red-600"
                       : "text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-navy-900"
