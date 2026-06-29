@@ -13,6 +13,7 @@ import {
 interface Dimensions { length: string; width: string; height: string; unit: string; }
 interface Weight { value: string; unit: string; }
 interface GalleryFile { category: string; type: 'image' | 'video'; name: string; caption: string; }
+interface LicenseDoc { title: string; issuer: string; date: string; file: string; }
 
 interface InnovationDetailsSectionProps {
   innovFields: string[]; setInnovFields: (v: string[] | ((p: string[]) => string[])) => void;
@@ -25,10 +26,11 @@ interface InnovationDetailsSectionProps {
   innovWeight: Weight; setInnovWeight: (v: Weight | ((p: Weight) => Weight)) => void;
   innovUserGroups: string[]; setInnovUserGroups: (v: string[] | ((p: string[]) => string[])) => void;
   innovApplications: string[]; setInnovApplications: (v: string[] | ((p: string[]) => string[])) => void;
+  innovImpact: string[]; setInnovImpact: (v: string[] | ((p: string[]) => string[])) => void;
   innovRecommendations: string[]; setInnovRecommendations: (v: string[] | ((p: string[]) => string[])) => void;
   innovCautions: string[]; setInnovCautions: (v: string[] | ((p: string[]) => string[])) => void;
-  innovLicenses: { name: string; file: string }[]; setInnovLicenses: (v: { name: string; file: string }[] | ((p: { name: string; file: string }[]) => { name: string; file: string }[])) => void;
-  innovAwards: { name: string; file: string }[]; setInnovAwards: (v: { name: string; file: string }[] | ((p: { name: string; file: string }[]) => { name: string; file: string }[])) => void;
+  innovLicenses: LicenseDoc[]; setInnovLicenses: (v: LicenseDoc[] | ((p: LicenseDoc[]) => LicenseDoc[])) => void;
+  innovAwards: LicenseDoc[]; setInnovAwards: (v: LicenseDoc[] | ((p: LicenseDoc[]) => LicenseDoc[])) => void;
   innovGallery: GalleryFile[]; setInnovGallery: (v: GalleryFile[] | ((p: GalleryFile[]) => GalleryFile[])) => void;
 }
 
@@ -67,12 +69,26 @@ const OWNERSHIP_DESCRIPTIONS: Record<string, string> = {
 
 function OptionInfo({ text }: { text: string }) {
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+
+  useEffect(() => {
+    if (!pos) return;
+    const onScroll = () => setPos(null);
+    window.addEventListener('scroll', onScroll, true);
+    return () => window.removeEventListener('scroll', onScroll, true);
+  }, [pos]);
+
+  const toggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (pos) { setPos(null); return; }
+    const r = e.currentTarget.getBoundingClientRect();
+    setPos({ left: Math.min(r.right + 8, window.innerWidth - 236), top: Math.max(8, r.top - 10) });
+  };
+
   return (
     <span className="inline-flex cursor-pointer items-center"
-      onMouseEnter={e => { const r = e.currentTarget.getBoundingClientRect(); setPos({ left: Math.min(r.right + 8, window.innerWidth - 236), top: Math.max(8, r.top - 10) }); }}
-      onMouseLeave={() => setPos(null)}
-      onFocus={e => { const r = e.currentTarget.getBoundingClientRect(); setPos({ left: Math.min(r.right + 8, window.innerWidth - 236), top: Math.max(8, r.top - 10) }); }}
-      onBlur={() => setPos(null)} tabIndex={0}>
+      onClick={toggle}
+      onBlur={() => setPos(null)} tabIndex={0} role="button" aria-label="More info">
       <Info size={14} className="text-blue-400" />
       {pos && createPortal(
         <span className="pointer-events-none fixed z-[9999] w-56 rounded-lg bg-neutral-black px-3 py-2 text-left text-[10px] font-medium leading-4 text-white shadow-lg"
@@ -127,9 +143,9 @@ function MultiSelectField({ label, placeholder, options, value, onChange, max, r
   );
 }
 
-function SingleSelectField({ label, placeholder, options, value, onChange, required, tooltips }: {
+function SingleSelectField({ label, placeholder, options, value, onChange, required, tooltips, descriptions }: {
   label: string; placeholder: string; options: string[]; value: string;
-  onChange: (v: string) => void; required?: boolean; tooltips?: Record<string, string>;
+  onChange: (v: string) => void; required?: boolean; tooltips?: Record<string, string>; descriptions?: Record<string, string>;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -146,9 +162,12 @@ function SingleSelectField({ label, placeholder, options, value, onChange, requi
         <div className="mt-2 max-h-60 overflow-y-auto rounded-lg border border-neutral-gray-light bg-white p-2 shadow-sm">
           {options.map(opt => (
             <button key={opt} type="button" onClick={() => { onChange(opt); setOpen(false); }}
-              className={`flex w-full cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-left hover:bg-brand-red-50 ${value === opt ? 'font-semibold text-brand-red-600' : 'text-neutral-gray-dark'}`}>
-              <span>{opt}</span>
-              {tooltips?.[opt] ? <OptionInfo text={tooltips[opt]} /> : null}
+              className={`flex w-full cursor-pointer flex-col rounded-md px-3 py-2 text-sm text-left hover:bg-brand-red-50 ${value === opt ? 'font-semibold text-brand-red-600' : 'text-neutral-gray-dark'}`}>
+              <span className="flex items-center justify-between gap-3">
+                <span>{opt}</span>
+                {tooltips?.[opt] ? <OptionInfo text={tooltips[opt]} /> : null}
+              </span>
+              {descriptions?.[opt] && <span className="text-[10px] text-neutral-gray-medium font-normal mt-0.5">{descriptions[opt]}</span>}
             </button>
           ))}
         </div>
@@ -165,14 +184,10 @@ function BulletInput({ label, items, setItems, placeholder, description }: {
   const add = () => { const t = input.trim(); if (t) { setItems(p => [...p, t]); setInput(''); } };
   return (
     <div className="rounded-lg border border-dashed border-neutral-gray-light p-4">
-      <div className="mb-2 flex items-center justify-between gap-3">
+      <div className="mb-2">
         <label className="block text-sm font-medium text-neutral-black">
           {label}{description && <span className="ml-1"><OptionInfo text={description} /></span>}
         </label>
-        <button type="button" onClick={add}
-          className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-brand-red-200 px-3 py-1.5 text-[11px] font-semibold text-brand-red-600 hover:bg-brand-red-50">
-          <Plus size={13} /> Add
-        </button>
       </div>
       {items.length > 0 && (
         <div className="mb-3 space-y-1.5">
@@ -191,8 +206,8 @@ function BulletInput({ label, items, setItems, placeholder, description }: {
         <input type="text" value={input} onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
           className="flex-1 rounded-lg border border-neutral-gray-light px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 placeholder:text-neutral-gray-medium" placeholder={placeholder} />
-        <button type="button" onClick={add}
-          className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-red-700">
+        <button type="button" onClick={add} disabled={!input.trim()}
+          className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-red-700 disabled:opacity-40 disabled:cursor-not-allowed">
           <Plus className="h-4 w-4" /> Add
         </button>
       </div>
@@ -202,6 +217,7 @@ function BulletInput({ label, items, setItems, placeholder, description }: {
 
 export default function InnovationDetailsSection(props: InnovationDetailsSectionProps) {
   const [newMaterial, setNewMaterial] = useState('');
+  const [customGroup, setCustomGroup] = useState('');
 
   const addMaterial = () => {
     const t = newMaterial.trim();
@@ -211,13 +227,24 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
     }
   };
 
-  const docUpload = (title: string, items: { name: string; file: string }[], setItems: (v: { name: string; file: string }[] | ((p: { name: string; file: string }[]) => { name: string; file: string }[])) => void, placeholder: string, desc: string) => {
+  function DocSection({ title, items, setItems, desc }: {
+    title: string; items: LicenseDoc[]; setItems: (v: LicenseDoc[] | ((p: LicenseDoc[]) => LicenseDoc[])) => void; desc: string;
+  }) {
     const [docTitle, setDocTitle] = useState('');
+    const [docIssuer, setDocIssuer] = useState('');
+    const [docDate, setDocDate] = useState('');
+    const [docFile, setDocFile] = useState<File | null>(null);
+    const fileRef = useRef<HTMLInputElement>(null);
+
     const handleUpload = () => {
-      const t = docTitle.trim();
-      setItems(p => [...p, { name: t || `Doc_${Date.now()}`, file: 'mock.pdf' }]);
-      setDocTitle('');
+      if (!docTitle.trim() || !docIssuer.trim() || !docDate.trim() || !docFile) return;
+      setItems(p => [...p, { title: docTitle.trim(), issuer: docIssuer.trim(), date: docDate.trim(), file: docFile.name }]);
+      setDocTitle(''); setDocIssuer(''); setDocDate(''); setDocFile(null);
+      if (fileRef.current) fileRef.current.value = '';
     };
+
+    const canUpload = docTitle.trim() && docIssuer.trim() && docDate.trim() && docFile;
+
     return (
       <div>
         <label className="block text-sm font-medium text-neutral-black mb-1">{title}</label>
@@ -226,24 +253,45 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
           <div className="space-y-2 mb-3">
             {items.map((item, i) => (
               <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-neutral-gray-light bg-neutral-bg-light">
-                <div className="flex items-center gap-2"><FileText className="h-4 w-4 text-brand-red-600" /><p className="text-sm text-neutral-black">{item.name}</p></div>
-                <button onClick={() => setItems(p => p.filter((_, j) => j !== i))} className="cursor-pointer text-red-400 hover:text-red-600"><X className="h-4 w-4" /></button>
+                <div className="flex items-center gap-2 min-w-0">
+                  <FileText className="h-4 w-4 text-brand-red-600 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-neutral-black truncate">{item.title}</p>
+                    <p className="text-[11px] text-neutral-gray-medium truncate">{item.issuer} &middot; {item.date}</p>
+                  </div>
+                </div>
+                <button onClick={() => setItems(p => p.filter((_, j) => j !== i))} className="cursor-pointer text-red-400 hover:text-red-600 flex-shrink-0 ml-2">
+                  <X className="h-4 w-4" />
+                </button>
               </div>
             ))}
           </div>
         )}
-        <div className="flex gap-2">
+        <div className="space-y-2 rounded-lg border border-dashed border-neutral-gray-light p-3">
           <input type="text" value={docTitle} onChange={e => setDocTitle(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleUpload(); } }}
-            className="flex-1 rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder={placeholder} />
-          <button type="button" onClick={handleUpload}
-            className="flex cursor-pointer items-center gap-1 rounded-lg border border-dashed border-brand-red-300 px-4 py-2 text-sm font-medium text-brand-red-600 hover:bg-brand-red-50 transition-colors">
-            <Upload className="h-4 w-4" /> Upload
-          </button>
+            className="w-full rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Document title *" />
+          <div className="flex gap-2">
+            <input type="text" value={docIssuer} onChange={e => setDocIssuer(e.target.value)}
+              className="flex-1 rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Issuer *" />
+            <input type="date" value={docDate} onChange={e => setDocDate(e.target.value)}
+              className="w-40 rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
+          </div>
+          <div className="flex gap-2">
+            <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setDocFile(e.target.files?.[0] || null)}
+              className="hidden" id={`file-${title.replace(/\s/g, '')}`} />
+            <button type="button" onClick={() => document.getElementById(`file-${title.replace(/\s/g, '')}`)?.click()}
+              className="flex cursor-pointer items-center gap-1 rounded-lg border border-dashed border-brand-red-300 px-3 py-2 text-xs font-medium text-brand-red-600 hover:bg-brand-red-50 transition-colors flex-1 justify-center">
+              <Upload className="h-3.5 w-3.5" /> {docFile ? docFile.name : 'Select file (PDF, JPG, PNG) *'}
+            </button>
+            <button type="button" onClick={handleUpload} disabled={!canUpload}
+              className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 px-4 py-2 text-xs font-medium text-white hover:bg-brand-red-700 disabled:opacity-40 disabled:cursor-not-allowed">
+              <Upload className="h-3.5 w-3.5" /> Upload
+            </button>
+          </div>
         </div>
       </div>
     );
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -254,7 +302,7 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
         tooltips={INTEREST_DESCRIPTIONS} />
       <SingleSelectField label="Ownership" placeholder="What is the ownership identity of innovation?"
         options={INNOVATION_OWNERSHIP} value={props.innovOwnership} onChange={props.setInnovOwnership} required
-        tooltips={OWNERSHIP_DESCRIPTIONS} />
+        descriptions={OWNERSHIP_DESCRIPTIONS} />
       <SingleSelectField label="Stage" placeholder="Select innovation stage"
         options={INNOVATION_STAGES} value={props.innovStage} onChange={props.setInnovStage} required
         tooltips={STAGE_DESCRIPTIONS} />
@@ -272,9 +320,9 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
             <div className="flex gap-2 mb-2">
               <input type="text" value={newMaterial} onChange={e => setNewMaterial(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addMaterial(); } }}
-                className="flex-1 rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Input materials" />
-              <button type="button" onClick={addMaterial}
-                className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-red-700 transition-colors">
+                className="flex-1 rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="e.g. plastic, aluminum, rubber" />
+              <button type="button" onClick={addMaterial} disabled={!newMaterial.trim()}
+                className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                 <Plus className="h-4 w-4" /> Add
               </button>
             </div>
@@ -358,30 +406,29 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
               ))}
             </div>
             <div className="mt-3 flex gap-2">
-              <input type="text" id="custom-user-group"
+              <input type="text" id="custom-user-group" value={customGroup}
+                onChange={e => setCustomGroup(e.target.value)}
                 onKeyDown={e => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    const input = e.currentTarget;
-                    const val = input.value.trim();
+                    const val = customGroup.trim();
                     if (val && !props.innovUserGroups.includes(val) && props.innovUserGroups.length < 10) {
                       props.setInnovUserGroups(p => [...p, val]);
-                      input.value = '';
+                      setCustomGroup('');
                     }
                   }
                 }}
                 className="flex-1 rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
                 placeholder="Add a custom user group..." />
-              <button type="button"
+              <button type="button" disabled={!customGroup.trim()}
                 onClick={() => {
-                  const input = document.getElementById('custom-user-group') as HTMLInputElement;
-                  const val = input.value.trim();
+                  const val = customGroup.trim();
                   if (val && !props.innovUserGroups.includes(val) && props.innovUserGroups.length < 10) {
                     props.setInnovUserGroups(p => [...p, val]);
-                    input.value = '';
+                    setCustomGroup('');
                   }
                 }}
-                className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-red-700 transition-colors">
+                className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                 <Plus className="h-4 w-4" /> Add
               </button>
             </div>
@@ -389,20 +436,22 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
         </div>
       </div>
 
-      <BulletInput label="Applications & Impact" items={props.innovApplications} setItems={props.setInnovApplications}
-        placeholder="e.g. Deployed across 12 states..." description="In what areas can your innovation be used and what impacts can it bring about?" />
+      <BulletInput label="Applications" items={props.innovApplications} setItems={props.setInnovApplications}
+        placeholder="e.g. Used as a coolant in jet engines" description="In what areas can your innovation be used" />
+      <BulletInput label="Impact" items={props.innovImpact} setItems={props.setInnovImpact}
+        placeholder="e.g. increased yield by 20%" description="What are the positive effects of your innovation" />
       <BulletInput label="Recommendations" items={props.innovRecommendations} setItems={props.setInnovRecommendations}
-        placeholder="e.g. Ideal for farms up to 5 hectares" description="How can users get the best out of your innovation?" />
+        placeholder="e.g. store in a cool dry place" description="How can users get the best out of your innovation?" />
       <BulletInput label="Cautions" items={props.innovCautions} setItems={props.setInnovCautions}
         placeholder="e.g. Not suitable for saltwater environments" description="What important notes should users be aware of when using innovation to prevent hazards and malfunction?" />
 
       <hr className="border-neutral-gray-light" />
 
-      {docUpload('Licenses & Certifications', props.innovLicenses, props.setInnovLicenses, 'Enter certificate title...',
-        'Upload any licenses or certifications that your innovation has (if any). Uploaded documents are securely stored and protected from unauthorized access.')}
+      <DocSection title="Licenses & Certifications" items={props.innovLicenses} setItems={props.setInnovLicenses}
+        desc="To further authenticate your innovation, upload any licenses or certifications that your innovation has (if any). Uploaded documents are securely stored and protected from unauthorized access." />
 
-      {docUpload('Honorary Awards', props.innovAwards, props.setInnovAwards, 'Enter award title...',
-        'Upload any recognition awards that your innovation has received previously (if any). Uploaded documents are securely stored and protected from unauthorized access.')}
+      <DocSection title="Honorary Awards" items={props.innovAwards} setItems={props.setInnovAwards}
+        desc="To further authenticate your innovation, upload any recognition awards that your innovation has received previously (if any). Uploaded documents are securely stored and protected from unauthorized access." />
 
       <div>
         <label className="block text-sm font-medium text-neutral-black mb-2">Media Gallery *</label>
@@ -442,8 +491,16 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
                     })}
                   </div>
                 )}
+                <input type="file" accept="image/*,video/*" className="hidden" id={`gallery-${cat}`}
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file && props.innovGallery.length < 9) {
+                      props.setInnovGallery(p => [...p, { category: cat, type: file.type.startsWith('video') ? 'video' : 'image', name: file.name, caption: '' }]);
+                    }
+                    e.target.value = '';
+                  }} />
                 <button type="button" disabled={files.length >= MAX_GALLERY}
-                  onClick={() => props.setInnovGallery(p => p.length >= 9 ? p : [...p, { category: cat, type: 'image', name: `Media_${Date.now()}.jpg`, caption: '' }])}
+                  onClick={() => document.getElementById(`gallery-${cat}`)?.click()}
                   className="inline-flex cursor-pointer w-full items-center justify-center gap-1 rounded-lg border border-dashed border-brand-red-300 px-3 py-2 text-xs font-medium text-brand-red-600 hover:bg-brand-red-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                   <Upload className="h-3.5 w-3.5" /> Upload File
                 </button>

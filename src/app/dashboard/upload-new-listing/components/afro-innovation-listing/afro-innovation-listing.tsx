@@ -9,6 +9,7 @@ import InnovatorInfoSection from './components/InnovatorInfoSection';
 interface Dimensions { length: string; width: string; height: string; unit: string; }
 interface Weight { value: string; unit: string; }
 interface GalleryFile { category: string; type: 'image' | 'video'; name: string; caption: string; }
+interface LicenseDoc { title: string; issuer: string; date: string; file: string; }
 
 interface AfroInnovationListingProps {
   name: string; setName: (v: string) => void;
@@ -26,10 +27,11 @@ interface AfroInnovationListingProps {
   innovWeight: Weight; setInnovWeight: (v: Weight | ((p: Weight) => Weight)) => void;
   innovUserGroups: string[]; setInnovUserGroups: (v: string[] | ((p: string[]) => string[])) => void;
   innovApplications: string[]; setInnovApplications: (v: string[] | ((p: string[]) => string[])) => void;
+  innovImpact: string[]; setInnovImpact: (v: string[] | ((p: string[]) => string[])) => void;
   innovRecommendations: string[]; setInnovRecommendations: (v: string[] | ((p: string[]) => string[])) => void;
   innovCautions: string[]; setInnovCautions: (v: string[] | ((p: string[]) => string[])) => void;
-  innovLicenses: { name: string; file: string }[]; setInnovLicenses: (v: { name: string; file: string }[] | ((p: { name: string; file: string }[]) => { name: string; file: string }[])) => void;
-  innovAwards: { name: string; file: string }[]; setInnovAwards: (v: { name: string; file: string }[] | ((p: { name: string; file: string }[]) => { name: string; file: string }[])) => void;
+  innovLicenses: LicenseDoc[]; setInnovLicenses: (v: LicenseDoc[] | ((p: LicenseDoc[]) => LicenseDoc[])) => void;
+  innovAwards: LicenseDoc[]; setInnovAwards: (v: LicenseDoc[] | ((p: LicenseDoc[]) => LicenseDoc[])) => void;
   innovGallery: GalleryFile[]; setInnovGallery: (v: GalleryFile[] | ((p: GalleryFile[]) => GalleryFile[])) => void;
   innovatorName: string; setInnovatorName: (v: string) => void;
   phone: string; setPhone: (v: string) => void;
@@ -38,6 +40,8 @@ interface AfroInnovationListingProps {
   website: string; setWebsite: (v: string) => void;
   socialLinks: { linkedin: string; twitter: string; instagram: string; facebook: string };
   setSocialLinks: (v: { linkedin: string; twitter: string; instagram: string; facebook: string } | ((p: { linkedin: string; twitter: string; instagram: string; facebook: string }) => { linkedin: string; twitter: string; instagram: string; facebook: string })) => void;
+  agreed: boolean;
+  setAgreed: (v: boolean) => void;
 }
 
 export default function AfroInnovationListing(props: AfroInnovationListingProps) {
@@ -65,6 +69,7 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
           innovWeight={props.innovWeight} setInnovWeight={props.setInnovWeight}
           innovUserGroups={props.innovUserGroups} setInnovUserGroups={props.setInnovUserGroups}
           innovApplications={props.innovApplications} setInnovApplications={props.setInnovApplications}
+          innovImpact={props.innovImpact} setInnovImpact={props.setInnovImpact}
           innovRecommendations={props.innovRecommendations} setInnovRecommendations={props.setInnovRecommendations}
           innovCautions={props.innovCautions} setInnovCautions={props.setInnovCautions}
           innovLicenses={props.innovLicenses} setInnovLicenses={props.setInnovLicenses}
@@ -81,6 +86,7 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
           email={props.email} setEmail={props.setEmail}
           website={props.website} setWebsite={props.setWebsite}
           socialLinks={props.socialLinks} setSocialLinks={props.setSocialLinks}
+          agreed={props.agreed} setAgreed={props.setAgreed}
         />
       </CollapsibleSection>
     </>

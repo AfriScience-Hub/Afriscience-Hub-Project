@@ -58,7 +58,7 @@ export default function ServicesSection({ services, setServices, newService, set
             value={newService.name}
             onChange={e => setNewService(prev => ({ ...prev, name: e.target.value }))}
             className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-            placeholder="Service Name *"
+            placeholder="Service Name"
           />
           <textarea
             value={newService.description}

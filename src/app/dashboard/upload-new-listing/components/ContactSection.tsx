@@ -48,7 +48,7 @@ export default function ContactSection({ phone, setPhone, email, setEmail, websi
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-neutral-black mb-2">Social Media Links</label>
+          <label className="block text-sm font-medium text-neutral-black mb-2">Social Media Links <span className="text-red-500">*</span> <span className="text-[10px] text-neutral-gray-medium font-normal">(provide at least one)</span></label>
           <div className="grid gap-3 sm:grid-cols-2">
             {(['twitter', 'linkedin', 'facebook', 'instagram'] as const).map(platform => (
               <div key={platform}>

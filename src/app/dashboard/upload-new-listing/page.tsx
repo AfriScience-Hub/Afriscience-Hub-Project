@@ -31,6 +31,7 @@ export default function UploadNewListing() {
   const [socialLinks, setSocialLinks] = useState({ twitter: '', linkedin: '', facebook: '', instagram: '' });
   const [innovatorName, setInnovatorName] = useState('');
   const [altPhone, setAltPhone] = useState('');
+  const [agreed, setAgreed] = useState(false);
 
   const [services, setServices] = useState<ServiceEntry[]>([]);
   const [newService, setNewService] = useState<ServiceEntry>({ id: '', name: '', description: '', costRange: '' });
@@ -60,10 +61,11 @@ export default function UploadNewListing() {
   const [innovWeight, setInnovWeight] = useState({ value: '', unit: 'kg' });
   const [innovUserGroups, setInnovUserGroups] = useState<string[]>([]);
   const [innovApplications, setInnovApplications] = useState<string[]>([]);
+  const [innovImpact, setInnovImpact] = useState<string[]>([]);
   const [innovRecommendations, setInnovRecommendations] = useState<string[]>([]);
   const [innovCautions, setInnovCautions] = useState<string[]>([]);
-  const [innovLicenses, setInnovLicenses] = useState<{ name: string; file: string }[]>([]);
-  const [innovAwards, setInnovAwards] = useState<{ name: string; file: string }[]>([]);
+  const [innovLicenses, setInnovLicenses] = useState<{ title: string; issuer: string; date: string; file: string }[]>([]);
+  const [innovAwards, setInnovAwards] = useState<{ title: string; issuer: string; date: string; file: string }[]>([]);
   const [innovGallery, setInnovGallery] = useState<{ category: string; type: 'image' | 'video'; name: string; caption: string }[]>([]);
 
   const [compType, setCompType] = useState('');
@@ -103,7 +105,7 @@ export default function UploadNewListing() {
     setInnovStage(''); setInnovSdgs([]); setInnovMaterials([]);
     setInnovDimensions({ length: '', width: '', height: '', unit: 'cm' });
     setInnovWeight({ value: '', unit: 'kg' }); setInnovUserGroups([]);
-    setInnovApplications([]); setInnovRecommendations([]); setInnovCautions([]);
+    setInnovApplications([]); setInnovImpact([]); setInnovRecommendations([]); setInnovCautions([]);
     setInnovLicenses([]); setInnovAwards([]); setInnovGallery([]);
     setInnovatorName(''); setAltPhone('');
   };
@@ -113,6 +115,9 @@ export default function UploadNewListing() {
   }
 
   const selectedTypeInfo = LISTING_TYPES.find(t => t.id === selectedType);
+
+  const hasAnySocial = Object.values(socialLinks).some(v => v.trim().length > 0);
+  const isFormValid = agreed && hasAnySocial;
 
   return (
     <div className="space-y-5">
@@ -148,6 +153,7 @@ export default function UploadNewListing() {
           innovWeight={innovWeight} setInnovWeight={setInnovWeight}
           innovUserGroups={innovUserGroups} setInnovUserGroups={setInnovUserGroups}
           innovApplications={innovApplications} setInnovApplications={setInnovApplications}
+          innovImpact={innovImpact} setInnovImpact={setInnovImpact}
           innovRecommendations={innovRecommendations} setInnovRecommendations={setInnovRecommendations}
           innovCautions={innovCautions} setInnovCautions={setInnovCautions}
           innovLicenses={innovLicenses} setInnovLicenses={setInnovLicenses}
@@ -159,6 +165,7 @@ export default function UploadNewListing() {
           email={email} setEmail={setEmail}
           website={website} setWebsite={setWebsite}
           socialLinks={socialLinks} setSocialLinks={setSocialLinks}
+          agreed={agreed} setAgreed={setAgreed}
         />
       ) : (
         <>
@@ -226,6 +233,7 @@ export default function UploadNewListing() {
         onCancel={() => { setStep('select'); setSelectedType(null); }}
         onDraft={() => toast.success('Draft saved!')}
         onSubmit={handleSubmit}
+        disabled={!isFormValid}
       />
     </div>
   );

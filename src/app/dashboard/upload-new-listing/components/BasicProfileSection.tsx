@@ -61,7 +61,7 @@ export default function BasicProfileSection({
               selectedType === 'scientist' ? 'Full Name' :
                 selectedType === 'center' ? 'Center Name' :
                   selectedType === 'innovation' ? 'Innovation Name' :
-                    selectedType === 'competition' ? 'Competition Name' : 'Award Name'} *
+                    selectedType === 'competition' ? 'Competition Name' : 'Award Name'} <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -83,7 +83,7 @@ export default function BasicProfileSection({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-neutral-black mb-1">Country *</label>
+            <label className="block text-sm font-medium text-neutral-black mb-1">Country <span className="text-red-500">*</span></label>
             <select value={country} onChange={e => setCountry(e.target.value)}
               className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
               <option value="">Select Country</option>

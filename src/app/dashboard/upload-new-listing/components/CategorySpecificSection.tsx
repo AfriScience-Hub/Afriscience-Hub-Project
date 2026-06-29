@@ -39,7 +39,7 @@ export default function CategorySpecificSection({
         <CollapsibleSection title="Institute Classification" icon={<Building2 className="h-5 w-5 text-brand-red-600" />}>
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
-              <label className="block text-sm font-medium text-neutral-black mb-1">Class / Type *</label>
+              <label className="block text-sm font-medium text-neutral-black mb-1">Class / Type <span className="text-red-500">*</span></label>
               <select value={instClass} onChange={e => setInstClass(e.target.value)}
                 className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
                 <option value="">Select</option>

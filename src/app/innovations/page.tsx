@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createPortal } from 'react-dom';
@@ -49,7 +49,20 @@ function InterestEmoji({ interest }: { interest: string }) {
 function InfoTooltip({ content }: { content: string }) {
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
 
-  const show = useCallback((e: React.MouseEvent | React.FocusEvent) => {
+  useEffect(() => {
+    if (!pos) return;
+    const onScroll = () => setPos(null);
+    window.addEventListener('scroll', onScroll, true);
+    return () => window.removeEventListener('scroll', onScroll, true);
+  }, [pos]);
+
+  const toggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (pos) {
+      setPos(null);
+      return;
+    }
     const el = e.currentTarget as HTMLElement;
     const rect = el.getBoundingClientRect();
     const tooltipW = 256;
@@ -59,16 +72,16 @@ function InfoTooltip({ content }: { content: string }) {
       left: Math.min(rect.right + gap, window.innerWidth - tooltipW - pad),
       top: Math.max(pad, rect.top - 12),
     });
-  }, []);
+  };
 
   return (
     <span
-      className="ml-auto inline-flex h-5 w-5 shrink-0 cursor-help items-center justify-center"
-      onMouseEnter={show}
-      onMouseLeave={() => setPos(null)}
-      onFocus={show}
+      className="ml-auto inline-flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center"
+      onClick={toggle}
       onBlur={() => setPos(null)}
       tabIndex={0}
+      role="button"
+      aria-label="More info"
     >
       <Info className="h-4 w-4 text-blue-400 font-black" />
       {pos && createPortal(
@@ -471,16 +484,9 @@ function InnovationCard({
           </button>
         </div>
 
-        {/* Interest Emojis Overlay */}
-        <div className="absolute bottom-3 right-3 flex items-center gap-1">
-          {inn.interests.slice(0, 3).map(i => {
-            const data = INNOVATION_INTERESTS_EMOJI[i];
-            return data ? <span key={i} className="text-lg drop-shadow-lg" title={data.label}>{data.emoji}</span> : null;
-          })}
-        </div>
-
         {/* Name & Location Overlay */}
         <div className="absolute bottom-3 left-3 text-white pr-3">
+          <span className="text-[10px] font-semibold bg-white/20 backdrop-blur-sm px-1.5 py-0.5 rounded mb-1 inline-block">{inn.ownership}</span>
           <h3 className="font-bold text-lg leading-tight">{inn.name}</h3>
           <p className="text-xs text-neutral-gray-light flex items-center gap-1 mt-0.5">
             <MapPin className="h-3 w-3" /> {inn.country}
@@ -494,15 +500,18 @@ function InnovationCard({
         {/* Field + Stage */}
         <div className="mb-2 flex items-center gap-1.5 flex-wrap">
           <span className="text-[10px] uppercase font-bold text-brand-navy-900 bg-brand-navy-100 px-1.5 py-0.5 rounded">{inn.field}</span>
-          <span className="text-[10px] uppercase font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">{inn.stage}</span>
+          <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded ml-auto">{inn.stage}</span>
         </div>
 
         {/* ID Tag */}
         <p className="text-[10px] font-mono text-neutral-gray-medium mb-2 tracking-wider">{inn.idTag}</p>
 
-        {/* Ownership */}
-        <div className="mb-2">
-          <span className="text-[10px] uppercase font-bold text-neutral-gray-dark bg-neutral-bg-light px-1.5 py-0.5 rounded">{inn.ownership}</span>
+        {/* Interest Emojis */}
+        <div className="mb-2 flex items-center gap-1">
+          {inn.interests.slice(0, 3).map(i => {
+            const data = INNOVATION_INTERESTS_EMOJI[i];
+            return data ? <span key={i} className="text-base" title={data.label}>{data.emoji}</span> : null;
+          })}
         </div>
 
         {/* Dimensions */}

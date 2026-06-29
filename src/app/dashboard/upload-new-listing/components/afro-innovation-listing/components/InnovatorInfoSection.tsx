@@ -15,16 +15,20 @@ interface InnovatorInfoSectionProps {
   setWebsite: (v: string) => void;
   socialLinks: { linkedin: string; twitter: string; instagram: string; facebook: string };
   setSocialLinks: (v: { linkedin: string; twitter: string; instagram: string; facebook: string } | ((prev: { linkedin: string; twitter: string; instagram: string; facebook: string }) => { linkedin: string; twitter: string; instagram: string; facebook: string })) => void;
+  agreed: boolean;
+  setAgreed: (v: boolean) => void;
 }
 
 export default function InnovatorInfoSection({
   innovatorName, setInnovatorName, phone, setPhone, altPhone, setAltPhone,
-  email, setEmail, website, setWebsite, socialLinks, setSocialLinks,
+  email, setEmail, website, setWebsite, socialLinks, setSocialLinks, agreed, setAgreed,
 }: InnovatorInfoSectionProps) {
+  const hasAnySocial = Object.values(socialLinks).some(v => v.trim().length > 0);
+
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">Innovator's Name *</label>
+        <label className="block text-sm font-medium text-neutral-black mb-1">Innovator's Name <span className="text-red-500">*</span></label>
         <input
           type="text"
           value={innovatorName}
@@ -36,7 +40,7 @@ export default function InnovatorInfoSection({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-neutral-black mb-1">Phone Number *</label>
+          <label className="block text-sm font-medium text-neutral-black mb-1">Phone Number <span className="text-red-500">*</span></label>
           <div className="relative">
             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium pointer-events-none" />
             <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
@@ -56,7 +60,7 @@ export default function InnovatorInfoSection({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">E-mail Address *</label>
+        <label className="block text-sm font-medium text-neutral-black mb-1">E-mail Address <span className="text-red-500">*</span></label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium pointer-events-none" />
           <input type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -76,7 +80,7 @@ export default function InnovatorInfoSection({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-2">Social Media Handles</label>
+        <label className="block text-sm font-medium text-neutral-black mb-2">Social Media Handles <span className="text-red-500">*</span> <span className="text-[10px] text-neutral-gray-medium font-normal">(provide at least one)</span></label>
         <div className="grid gap-3 sm:grid-cols-2">
           {(['linkedin', 'twitter', 'instagram', 'facebook'] as const).map(platform => (
             <div key={platform}>
@@ -89,6 +93,14 @@ export default function InnovatorInfoSection({
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="flex items-start gap-3 p-4 rounded-lg border border-neutral-gray-light bg-neutral-bg-light">
+        <input type="checkbox" id="confirm-agreement" checked={agreed} onChange={e => setAgreed(e.target.checked)}
+          className="mt-0.5 h-4 w-4 rounded accent-brand-red-600" />
+        <label htmlFor="confirm-agreement" className="text-xs text-neutral-gray-dark leading-relaxed cursor-pointer">
+          I confirm that every information provided is accurate, that all uploaded documents are valid and that I accept the terms and conditions of this service.
+        </label>
       </div>
     </div>
   );

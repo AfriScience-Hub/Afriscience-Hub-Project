@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import Link from 'next/link';
-import { Search, Trophy, SlidersHorizontal, Clock, MapPin } from 'lucide-react';
+import { Search, MapPin, SlidersHorizontal } from 'lucide-react';
 import { CONCLUDED_VOTING_FINALISTS, COMPETITION_TYPES, AFRICAN_COUNTRIES } from '@/app/data/mockData';
 import { Button } from '@/app/components/ui/Button';
 import { ViewWorkModal } from '@/app/components/modals/ViewWorkModal';
-import { cn } from '@/lib/utils';
+import { CompetitionsHeader } from '../components/CompetitionsHeader';
 import PastFilterSidebar from './components/PastFilterSidebar';
 import PastFinalistCard, { type ConcludedFinalist } from './components/PastFinalistCard';
 
@@ -108,32 +107,12 @@ export default function PastCompetitions() {
   return (
     <div className="min-h-screen bg-neutral-bg-light py-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Trophy className="h-8 w-8 text-brand-red-600" />
-            <h1 className="text-3xl font-bold text-neutral-black">Competitions</h1>
-          </div>
-          <p className="text-neutral-gray-dark max-w-2xl">
-            Browse through our competition’s records to get more information on previous finalists. Connect and network with them for further partnership opportunities.
-          </p>
-          <div className="flex p-1 bg-slate-100 rounded-lg w-full sm:w-auto mt-6">
-            <Link
-              href="/competitions"
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-sm font-semibold transition-all duration-200 text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
-            >
-              <Trophy className="h-4 w-4" />
-              Current
-            </Link>
-            <Link
-              href="/competitions/pastcompetition"
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-sm font-semibold transition-all duration-200 bg-white text-brand-red-600 shadow-sm ring-1 ring-slate-200"
-            >
-              <Clock className="h-4 w-4" />
-              Past
-            </Link>
-          </div>
-        </div>
+        <CompetitionsHeader
+          activeFilterCount={activeFilterCount}
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+          description="Browse through our competition's records to get more information on previous finalists. Connect and network with them for further partnership opportunities."
+        />
 
         <div className="flex flex-col lg:flex-row gap-8">
           <PastFilterSidebar

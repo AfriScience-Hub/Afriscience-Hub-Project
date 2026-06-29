@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Info } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
@@ -13,13 +13,20 @@ export default function InfoTooltip({ text }: InfoTooltipProps) {
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const btnRef = useRef<HTMLButtonElement>(null);
 
-  const showTooltip = useCallback(() => {
+  useEffect(() => {
+    if (!show) return;
+    const onScroll = () => setShow(false);
+    window.addEventListener('scroll', onScroll, true);
+    return () => window.removeEventListener('scroll', onScroll, true);
+  }, [show]);
+
+  const toggle = () => {
     if (btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect();
       setCoords({ top: rect.top - 8, left: rect.left + rect.width / 2 });
     }
-    setShow(true);
-  }, []);
+    setShow(v => !v);
+  };
 
   return (
     <span className="relative inline-flex">
@@ -27,9 +34,8 @@ export default function InfoTooltip({ text }: InfoTooltipProps) {
         ref={btnRef}
         type="button"
         className="text-blue-400 hover:text-blue-600 transition-colors"
-        onMouseEnter={showTooltip}
-        onMouseLeave={() => setShow(false)}
-        onClick={(e) => { e.preventDefault(); if (show) setShow(false); else showTooltip(); }}
+        onClick={toggle}
+        onBlur={() => setShow(false)}
       >
         <Info className="h-3 w-3" />
       </button>

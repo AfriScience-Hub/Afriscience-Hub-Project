@@ -26,7 +26,7 @@ export default function InnovationIdentitySection({
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-2">Profile Image *</label>
+        <label className="block text-sm font-medium text-neutral-black mb-2">Profile Image <span className="text-red-500">*</span></label>
         <div className="flex items-center gap-4">
           {profileImage ? (
             <div className="relative">
@@ -51,7 +51,7 @@ export default function InnovationIdentitySection({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">Innovation Name *</label>
+        <label className="block text-sm font-medium text-neutral-black mb-1">Innovation Name <span className="text-red-500">*</span></label>
         <input
           type="text"
           value={name}
@@ -62,7 +62,7 @@ export default function InnovationIdentitySection({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">Country *</label>
+        <label className="block text-sm font-medium text-neutral-black mb-1">Country <span className="text-red-500">*</span></label>
         <select
           value={country}
           onChange={e => setCountry(e.target.value)}
@@ -85,7 +85,7 @@ export default function InnovationIdentitySection({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">Short Bio / Description *</label>
+        <label className="block text-sm font-medium text-neutral-black mb-1">Short Bio / Description <span className="text-red-500">*</span></label>
         <textarea
           value={bio}
           onChange={e => setBio(e.target.value)}
