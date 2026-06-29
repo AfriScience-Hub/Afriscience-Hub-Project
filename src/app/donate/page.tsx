@@ -56,7 +56,7 @@ export default function Donate() {
 
   return (
     <div className="pb-16">
-      <DonateHero onDonate={() => openDonationModal()} />
+      <DonateHero />
       <DonatePrograms onDonate={openDonationModal} />
       <DonationModal
         show={showModal}

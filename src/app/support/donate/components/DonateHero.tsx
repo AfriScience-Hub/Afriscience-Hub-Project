@@ -4,11 +4,7 @@ import Link from 'next/link';
 import { ArrowRight, HandCoins } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 
-interface DonateHeroProps {
-  onDonate: () => void;
-}
-
-export function DonateHero({ onDonate }: DonateHeroProps) {
+export function DonateHero() {
   return (
     <section className="relative bg-brand-navy-900 py-20 overflow-hidden">
       <div className="absolute inset-0">
@@ -39,7 +35,7 @@ export function DonateHero({ onDonate }: DonateHeroProps) {
           </p>
           <Button
             size="lg"
-            onClick={onDonate}
+            onClick={() => document.getElementById('current-programs')?.scrollIntoView({ behavior: 'smooth' })}
             className="h-12 px-8 bg-brand-red-600 hover:bg-brand-red-700 text-base"
           >
             Donate to AfriScience Hub Today!

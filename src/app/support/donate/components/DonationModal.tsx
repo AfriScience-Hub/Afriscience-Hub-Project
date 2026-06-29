@@ -27,7 +27,7 @@ export function DonationModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] md:max-h-[70vh] lg:max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-neutral-gray-light px-6 py-4 flex items-center justify-between">
           <div>
             <h3 className="font-bold text-neutral-black">
@@ -43,22 +43,6 @@ export function DonationModal({
         </div>
 
         <form onSubmit={onSubmit} className="p-6 space-y-5">
-          {!selectedCause && (
-            <div>
-              <label className="block text-sm font-medium text-slate-600 mb-1.5">Select a Program (Optional)</label>
-              <select
-                value={selectedCause || ''}
-                onChange={(e) => setSelectedCause(e.target.value || null)}
-                className="w-full rounded-xl border border-neutral-gray-light px-4 py-3 text-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600 bg-white"
-              >
-                <option value="">General Support</option>
-                {CAUSES.map((cause) => (
-                  <option key={cause.id} value={cause.id}>{cause.emoji} {cause.title}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
           <div>
             <label className="block text-sm font-medium text-slate-600 mb-1.5">Name</label>
             <input
@@ -85,7 +69,7 @@ export function DonationModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1.5">Currency *</label>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">Currency <span className="text-red-500">*</span></label>
             <select
               required
               value={formData.currency}
@@ -102,7 +86,7 @@ export function DonationModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1.5">Amount *</label>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">Amount <span className="text-red-500">*</span></label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">
                 {selectedCurrency?.symbol}
@@ -151,3 +135,9 @@ export function DonationModal({
     </div>
   );
 }
+
+{/* TODO:
+  - The currency dropdown should show USD + the user's local currency detected from their browser location (Intl API).
+  - At the top-right inside the amount input, show a live USD equivalence text like "≈ $X.XX USD" when a non-USD currency is selected.
+  - Fetch live exchange rates via API instead of hardcoded values.
+*/}

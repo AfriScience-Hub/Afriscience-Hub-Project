@@ -70,7 +70,7 @@ function InfoTooltip({ content }: { content: string }) {
       onBlur={() => setPos(null)}
       tabIndex={0}
     >
-      <Info className="h-4 w-4 text-neutral-gray-dark font-black" />
+      <Info className="h-4 w-4 text-blue-400 font-black" />
       {pos && createPortal(
         <span
           className="pointer-events-none fixed z-[9999] w-64 rounded-md bg-brand-navy-900 px-3 py-2 text-xs font-medium leading-5 text-white shadow-lg"

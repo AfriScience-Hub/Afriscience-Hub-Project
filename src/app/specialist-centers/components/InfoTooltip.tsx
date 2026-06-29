@@ -26,7 +26,7 @@ export default function InfoTooltip({ text }: InfoTooltipProps) {
       <button
         ref={btnRef}
         type="button"
-        className="text-neutral-gray-medium hover:text-brand-navy-900 transition-colors"
+        className="text-blue-400 hover:text-blue-600 transition-colors"
         onMouseEnter={showTooltip}
         onMouseLeave={() => setShow(false)}
         onClick={(e) => { e.preventDefault(); if (show) setShow(false); else showTooltip(); }}

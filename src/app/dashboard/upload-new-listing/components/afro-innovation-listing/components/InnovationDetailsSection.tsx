@@ -73,7 +73,7 @@ function OptionInfo({ text }: { text: string }) {
       onMouseLeave={() => setPos(null)}
       onFocus={e => { const r = e.currentTarget.getBoundingClientRect(); setPos({ left: Math.min(r.right + 8, window.innerWidth - 236), top: Math.max(8, r.top - 10) }); }}
       onBlur={() => setPos(null)} tabIndex={0}>
-      <Info size={14} className="text-gray-400" />
+      <Info size={14} className="text-blue-400" />
       {pos && createPortal(
         <span className="pointer-events-none fixed z-[9999] w-56 rounded-lg bg-neutral-black px-3 py-2 text-left text-[10px] font-medium leading-4 text-white shadow-lg"
           style={{ left: pos.left, top: pos.top }}>{text}</span>, document.body)}
