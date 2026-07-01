@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { Search } from 'lucide-react';
+import { CalendarDays, Search } from 'lucide-react';
 import {
   VOTING_FINALISTS,
   COMPETITION_TYPES,
@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { ShareVotingModal } from '../components/modals/ShareVotingModal';
 import { BoostVotesModal } from '../components/modals/BoostVotesModal';
 import { ViewWorkModal } from '../components/modals/ViewWorkModal';
-import { getVoteCategoryKey, COMPETITION_CATEGORY_MAP } from './data';
+import { getVoteCategoryKey, COMPETITION_CATEGORY_MAP, VOTING_DEADLINES } from './data';
 import FilterSidebar from './components/FilterSidebar';
 import VotingHeader from './components/VotingHeader';
 import VotingBanner from './components/VotingBanner';
@@ -117,6 +117,10 @@ export default function Voting() {
 
   const activeFilterCount = (selectedCompetition ? 1 : 0) + selectedCategories.length + (selectedCountry ? 1 : 0);
 
+  const votingDeadline = selectedCompetition && VOTING_DEADLINES[selectedCompetition]
+    ? VOTING_DEADLINES[selectedCompetition]
+    : 'August 30, 2026';
+
   const handleVote = useCallback((finalist: typeof VOTING_FINALISTS[0]) => {
     if (!isAuthenticated) {
       toast.error('Please log in to vote.');
@@ -159,10 +163,9 @@ export default function Voting() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
 
         <VotingHeader
-          activeFilterCount={activeFilterCount}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-          onShare={() => setShareModalOpen(true)}
+          showMobileFilters={showFilters}
+          setShowMobileFilters={setShowFilters}
+          openPageShare={() => setShareModalOpen(true)}
         />
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -187,6 +190,13 @@ export default function Voting() {
           />
 
           <div className="flex-1">
+            <div className="mb-3 flex justify-end">
+              <div className="inline-flex flex-wrap items-center gap-2 rounded-md border border-[#ffd1cf] bg-[#fff7f6] px-3 py-2 text-sm font-semibold text-[#304866]">
+                <CalendarDays className="h-4 w-4 text-[#ff3b30]" />
+                <span>Voting deadline:</span>
+                <span className="text-[#ff3b30]">{votingDeadline}</span>
+              </div>
+            </div>
             <div className="mb-6 relative">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-gray-medium" />
               <input

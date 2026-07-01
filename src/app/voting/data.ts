@@ -43,7 +43,4 @@ export const VOTING_DEADLINES: Record<string, string> = {
   'Afri – MySpace': 'September 30, 2026',
 };
 
-export const shouldHideSocialHandles = (category: string) => {
-  const lower = category.toLowerCase();
-  return lower.includes('primary') || lower.includes('secondary');
-};
+export const shouldHideSocialHandles = () => false;

@@ -1,57 +1,54 @@
-"use client"
+'use client';
 
-import { Vote, Share2, SlidersHorizontal } from 'lucide-react';
-import { Button } from '@/app/components/ui/Button';
+import { CheckSquare, Share2, SlidersHorizontal } from 'lucide-react';
 
 type VotingHeaderProps = {
-  activeFilterCount: number;
-  showFilters: boolean;
-  setShowFilters: (val: boolean) => void;
-  onShare: () => void;
+  showMobileFilters: boolean;
+  setShowMobileFilters: (val: boolean) => void;
+  openPageShare: () => void;
 };
 
 export default function VotingHeader({
-  activeFilterCount,
-  showFilters,
-  setShowFilters,
-  onShare,
+  showMobileFilters,
+  setShowMobileFilters,
+  openPageShare,
 }: VotingHeaderProps) {
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <Vote className="h-8 w-8 text-brand-red-600" />
+    <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+      <div className="container">
+        <div className="flex items-center gap-4">
+          <CheckSquare className="h-6 w-6 text-[#ff3b30]" />
           <div>
-            <h1 className="text-3xl font-bold text-neutral-black">Vote for your favorite finalist.</h1>
-            <p className="text-sm text-neutral-gray-medium">
-              Each voter gets one free vote per category. Boost votes are available to show extra support. Positions are updated automatically based on total number of votes.
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight text-[#0f1d33] lg:text-3xl">
+              Voting
+            </h1>
+            <p className="text-md text-[#9aa7bc]">Top 10 Competition Finalists</p>
           </div>
         </div>
-
-        <Button
-          onClick={onShare}
-          variant="outline"
-          className="flex items-center gap-2 border-brand-red-600 text-brand-red-600 hover:bg-brand-red-50"
+        <p className="mt-3 text-md text-gray-800">
+          Vote for your favorite finalists! Each voter gets{' '}
+          <span className="font-bold text-[#304866]">one free vote</span> per category. Boost votes
+          are available to show extra support. Positions are updated automatically based on total
+          number of votes.
+        </p>
+        <button
+          type="button"
+          onClick={() => setShowMobileFilters(!showMobileFilters)}
+          className="mt-6 inline-flex items-center gap-3 rounded-md border-2 border-[#9dafc7] bg-white px-3 py-2 text-sm font-semibold text-[#0f1d33] shadow-sm transition hover:bg-[#f8fbff] lg:hidden"
         >
-          <Share2 className="h-4 w-4" />
-          Share
-        </Button>
+          <SlidersHorizontal className="h-5 w-5" />
+          {showMobileFilters ? 'Hide Filters' : 'Show Filters'}
+        </button>
       </div>
 
-      <Button
-        variant="outline"
-        className="mt-4 lg:hidden flex items-center gap-2"
-        onClick={() => setShowFilters(!showFilters)}
+      <button
+        type="button"
+        onClick={openPageShare}
+        className="cursor-pointer inline-flex w-fit items-center gap-1 rounded-sm border border-[#ff3b30] bg-white px-2 py-1 text-xs font-semibold text-[#ff3b30] transition hover:bg-[#ff3b30]/30 lg:gap-3 lg:px-3 lg:py-3 lg:text-sm"
       >
-        <SlidersHorizontal className="h-4 w-4" />
-        {showFilters ? 'Hide Filters' : 'Show Filters'}
-        {activeFilterCount > 0 && (
-          <span className="flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-brand-red-600 text-white text-[10px] font-bold">
-            {activeFilterCount}
-          </span>
-        )}
-      </Button>
+        <Share2 className="h-3 w-3 lg:h-5 lg:w-5" />
+        Share
+      </button>
     </div>
   );
 }

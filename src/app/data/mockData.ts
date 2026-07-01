@@ -1473,6 +1473,62 @@ export const VOTING_FINALISTS = [
     votes: 1380,
     overallPerformance: 90,
     position: 2
+  },
+  {
+    id: 'vf-13',
+    name: 'Amara Eze',
+    type: "Competition's Finalists",
+    competition: 'Afri \u2013 Presentations',
+    category: 'Lower Primary',
+    year: 2026,
+    country: 'Nigeria',
+    image: 'https://images.unsplash.com/photo-1596464716127-f2a82984de30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
+    afriScienceScore: 85,
+    votes: 920,
+    overallPerformance: 83,
+    position: 1
+  },
+  {
+    id: 'vf-14',
+    name: 'Sofia Wanjiku',
+    type: "Competition's Finalists",
+    competition: 'Afri \u2013 Presentations',
+    category: 'Upper Primary',
+    year: 2026,
+    country: 'Kenya',
+    image: 'https://images.unsplash.com/photo-1594712941268-3e7e0a2e0f6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
+    afriScienceScore: 88,
+    votes: 1050,
+    overallPerformance: 86,
+    position: 1
+  },
+  {
+    id: 'vf-15',
+    name: 'Daniel Osei',
+    type: "Competition's Finalists",
+    competition: 'Afri \u2013 Presentations',
+    category: 'Junior Secondary',
+    year: 2026,
+    country: 'Ghana',
+    image: 'https://images.unsplash.com/photo-1608889175123-8ee362555f8f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
+    afriScienceScore: 90,
+    votes: 1180,
+    overallPerformance: 87,
+    position: 1
+  },
+  {
+    id: 'vf-16',
+    name: 'Priya Nair',
+    type: "Competition's Finalists",
+    competition: 'Afri \u2013 Presentations',
+    category: 'Senior Secondary',
+    year: 2026,
+    country: 'South Africa',
+    image: 'https://images.unsplash.com/photo-1600195077077-7c92c52a6a76?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
+    afriScienceScore: 91,
+    votes: 1320,
+    overallPerformance: 89,
+    position: 1
   }
 ];
 
