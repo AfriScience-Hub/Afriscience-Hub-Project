@@ -38,6 +38,8 @@ const DIMENSION_UNITS = ['mm', 'cm', 'in', 'ft', 'm'];
 const WEIGHT_UNITS = ['mg', 'g', 'oz', 'lb', 'kg', 't'];
 const GALLERY_CATEGORIES = ['Working Materials', 'Work-in-Progress', 'Finished Work'];
 const MAX_GALLERY = 3;
+const CURRENT_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: CURRENT_YEAR - 1900 + 11 }, (_, i) => 1900 + i);
 
 const INTEREST_DESCRIPTIONS: Record<string, string> = {
   'Investment | Partnership': 'Get individuals/brands that can invest into your innovation',
@@ -97,10 +99,10 @@ function OptionInfo({ text }: { text: string }) {
   );
 }
 
-function MultiSelectField({ label, placeholder, options, value, onChange, max, required, tooltips }: {
+function MultiSelectField({ label, placeholder, options, value, onChange, max, required, tooltips, descriptions }: {
   label: string; placeholder: string; options: string[]; value: string[];
   onChange: (v: string[] | ((p: string[]) => string[])) => void; max: number;
-  required?: boolean; tooltips?: Record<string, string>;
+  required?: boolean; tooltips?: Record<string, string>; descriptions?: Record<string, string>;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -128,10 +130,13 @@ function MultiSelectField({ label, placeholder, options, value, onChange, max, r
             const checked = value.includes(opt);
             const disabled = !checked && value.length >= max;
             return (
-              <label key={opt} className={`flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm ${disabled ? 'text-neutral-gray-light' : 'text-neutral-gray-dark hover:bg-brand-red-50'}`}>
-                <span className="flex min-w-0 items-center gap-2">
-                  <input type="checkbox" checked={checked} disabled={disabled} onChange={() => toggle(opt)} className="h-3.5 w-3.5 rounded accent-brand-red-600" />
-                  <span>{opt}</span>
+              <label key={opt} className={`flex cursor-pointer items-start justify-between gap-3 rounded-md px-3 py-2 text-sm ${disabled ? 'text-neutral-gray-light' : 'text-neutral-gray-dark hover:bg-brand-red-50'}`}>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="flex items-center gap-2">
+                    <input type="checkbox" checked={checked} disabled={disabled} onChange={() => toggle(opt)} className="mt-0.5 h-3.5 w-3.5 rounded accent-brand-red-600" />
+                    <span>{opt}</span>
+                  </span>
+                  {descriptions?.[opt] && <span className="ml-5 text-[10px] text-neutral-gray-medium font-normal">{descriptions[opt]}</span>}
                 </span>
                 {tooltips?.[opt] ? <OptionInfo text={tooltips[opt]} /> : null}
               </label>
@@ -243,6 +248,35 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
       if (fileRef.current) fileRef.current.value = '';
     };
 
+    const [yearInput, setYearInput] = useState('');
+    const [yearOpen, setYearOpen] = useState(false);
+    const yearRef = useRef<HTMLDivElement>(null);
+    const filteredYears = YEAR_OPTIONS.filter(y => String(y).startsWith(yearInput)).slice(0, 50);
+
+    useEffect(() => {
+      if (!yearOpen) return;
+      const handler = (e: MouseEvent) => { if (yearRef.current && !yearRef.current.contains(e.target as Node)) setYearOpen(false); };
+      document.addEventListener('mousedown', handler);
+      return () => document.removeEventListener('mousedown', handler);
+    }, [yearOpen]);
+
+    const handleYearSelect = (y: number) => {
+      setDocDate(String(y));
+      setYearInput(String(y));
+      setYearOpen(false);
+    };
+
+    const handleYearChange = (val: string) => {
+      const digits = val.replace(/\D/g, '');
+      setYearInput(digits);
+      if (digits.length === 4) {
+        setDocDate(digits);
+      } else {
+        setDocDate('');
+      }
+      setYearOpen(true);
+    };
+
     const canUpload = docTitle.trim() && docIssuer.trim() && docDate.trim() && docFile;
 
     return (
@@ -273,8 +307,21 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
           <div className="flex gap-2">
             <input type="text" value={docIssuer} onChange={e => setDocIssuer(e.target.value)}
               className="flex-1 rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Issuer *" />
-            <input type="date" value={docDate} onChange={e => setDocDate(e.target.value)}
-              className="w-40 rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
+            <div ref={yearRef} className="relative w-32">
+              <input type="text" value={yearInput} onChange={e => handleYearChange(e.target.value)}
+                onFocus={() => setYearOpen(true)}
+                className="w-full rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Year" />
+              {yearOpen && yearInput.length > 0 && filteredYears.length > 0 && (
+                <div className="absolute left-0 top-full z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-neutral-gray-light bg-white p-1 shadow-sm">
+                  {filteredYears.map(y => (
+                    <button key={y} type="button" onMouseDown={() => handleYearSelect(y)}
+                      className="flex w-full cursor-pointer rounded-md px-3 py-1.5 text-sm text-neutral-gray-dark hover:bg-brand-red-50 text-left">
+                      {y}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
             <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setDocFile(e.target.files?.[0] || null)}
@@ -299,13 +346,13 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
         options={INNOVATION_FIELDS} value={props.innovFields} onChange={props.setInnovFields} max={3} required />
       <MultiSelectField label="Interests" placeholder="Select your interests"
         options={INNOVATION_INTERESTS} value={props.innovInterests} onChange={props.setInnovInterests} max={3} required
-        tooltips={INTEREST_DESCRIPTIONS} />
+        descriptions={INTEREST_DESCRIPTIONS} />
       <SingleSelectField label="Ownership" placeholder="What is the ownership identity of innovation?"
         options={INNOVATION_OWNERSHIP} value={props.innovOwnership} onChange={props.setInnovOwnership} required
         descriptions={OWNERSHIP_DESCRIPTIONS} />
       <SingleSelectField label="Stage" placeholder="Select innovation stage"
         options={INNOVATION_STAGES} value={props.innovStage} onChange={props.setInnovStage} required
-        tooltips={STAGE_DESCRIPTIONS} />
+        descriptions={STAGE_DESCRIPTIONS} />
       <MultiSelectField label="SDGs" placeholder="Select appropriate sustainable development goals your innovation address"
         options={INNOVATION_SDGS} value={props.innovSdgs} onChange={props.setInnovSdgs} max={5} required />
 
@@ -475,17 +522,20 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
                     {files.map((file, i) => {
                       const gi = props.innovGallery.indexOf(file);
                       return (
-                        <div key={i} className="flex items-start gap-2 p-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light">
-                          {file.type === 'video' ? <Film className="h-8 w-8 text-brand-red-600 flex-shrink-0" /> : <ImagePlus className="h-8 w-8 text-brand-red-600 flex-shrink-0" />}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs text-neutral-black truncate">{file.name}</p>
+                        <div key={i} className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light p-2">
+                          <div className="flex items-start gap-2">
+                            {file.type === 'video' ? <Film className="h-8 w-8 text-brand-red-600 flex-shrink-0" /> : <ImagePlus className="h-8 w-8 text-brand-red-600 flex-shrink-0" />}
+                            <p className="flex-1 truncate text-xs text-neutral-black pt-1">{file.name}</p>
+                            <button onClick={() => props.setInnovGallery(p => p.filter((_, j) => j !== gi))} className="cursor-pointer text-red-400 hover:text-red-600 flex-shrink-0">
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                          <div className="mt-2 w-full">
+                            <label className="mb-0.5 block text-[10px] font-semibold text-neutral-gray-dark">CAPTION</label>
                             <input type="text" value={file.caption}
                               onChange={e => props.setInnovGallery(p => p.map((f, j) => j === gi ? { ...f, caption: e.target.value } : f))}
-                              className="w-full mt-1 rounded border border-neutral-gray-light px-2 py-1 text-[11px] focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Add caption..." />
+                              className="w-full rounded-md border border-black bg-white px-2.5 py-1.5 text-[11px] focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Write a caption..." />
                           </div>
-                          <button onClick={() => props.setInnovGallery(p => p.filter((_, j) => j !== gi))} className="cursor-pointer text-red-400 hover:text-red-600 flex-shrink-0">
-                            <X className="h-3.5 w-3.5" />
-                          </button>
                         </div>
                       );
                     })}
