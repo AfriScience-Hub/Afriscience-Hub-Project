@@ -28,7 +28,7 @@ export function DonateHero() {
             Donate
           </h1>
           <p className="text-slate-300 text-lg leading-relaxed mb-8">
-            Your donations help us achieve our set commonly service goals across the African
+            Your donations help us achieve our set service goals across the African
             continent. We intend addressing important developmental and humanitarian programs
             with donation funds, and we deeply appreciate/recognize your support towards our
             vision to propel the continent to greater heights.

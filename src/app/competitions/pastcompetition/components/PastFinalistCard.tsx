@@ -1,6 +1,6 @@
 "use client"
 
-import { Eye, Share2, MapPin, Trophy } from 'lucide-react';
+import { Vote, Eye, Share2, MapPin, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/Button';
 import { getCompetitionColor, getPositionStyle, getPositionLabel } from '@/app/voting/data';
@@ -98,29 +98,25 @@ export default function PastFinalistCard({ finalist, onViewWork }: PastFinalistC
           <p className="text-xs text-neutral-gray-medium mt-0.5">{finalist.category}</p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          <div className="p-2 rounded-lg bg-gradient-to-r from-brand-red-50 to-orange-50 border border-brand-red-200 text-center">
-            <p className="text-[9px] font-medium text-neutral-gray-medium uppercase tracking-wider">Votes</p>
-            <p className="text-sm font-black text-brand-red-600">{finalist.votes.toLocaleString()}</p>
-          </div>
-          <div className="p-2 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 text-center">
-            <p className="text-[9px] font-medium text-neutral-gray-medium uppercase tracking-wider">Score</p>
-            <p className="text-sm font-black text-blue-600">{finalist.afriScienceScore}%</p>
-          </div>
-          <div className="p-2 rounded-lg bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 text-center">
-            <p className="text-[9px] font-medium text-neutral-gray-medium uppercase tracking-wider">Overall</p>
-            <p className="text-sm font-black text-amber-600">{finalist.overallPerformance}%</p>
+        {/* Votes Display */}
+        <div className="mb-4 p-3 rounded-lg bg-gradient-to-r from-brand-red-50 to-orange-50 border border-brand-red-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Vote className="h-4 w-4 text-brand-red-600" />
+              <span className="text-xs font-medium text-neutral-gray-dark">Total Votes</span>
+            </div>
+            <span className="text-xl font-black text-brand-red-600">{finalist.votes.toLocaleString()}</span>
           </div>
         </div>
 
         {/* Action Button */}
         <div className="mt-auto">
           <Button
-            className="w-full bg-brand-navy-900 hover:bg-brand-navy-800 py-2.5"
+            variant="outline"
+            className="w-full text-xs"
             onClick={() => onViewWork(finalist)}
           >
-            <Eye className="h-4 w-4 mr-1.5" />
+            <Eye className="h-3.5 w-3.5 mr-1" />
             View Work
           </Button>
         </div>
