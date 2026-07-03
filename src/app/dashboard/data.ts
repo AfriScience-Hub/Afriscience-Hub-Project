@@ -210,13 +210,13 @@ export interface Donation {
 }
 
 export const MOCK_DONATIONS: Donation[] = [
-  { id: '1', referenceNo: 'DON-2026-00001', program: 'General Support', amount: '250.00', currency: 'USD', date: '2026-03-15', status: 'Completed' },
+  { id: '1', referenceNo: 'DON-2026-00001', program: 'Competition Support', amount: '250.00', currency: 'USD', date: '2026-03-15', status: 'Completed' },
   { id: '2', referenceNo: 'DON-2026-00002', program: 'Competition Support', amount: '100.00', currency: 'USD', date: '2026-02-20', status: 'Completed' },
   { id: '3', referenceNo: 'DON-2026-00003', program: 'Educational Scholarships (Tertiary)', amount: '500.00', currency: 'USD', date: '2026-01-10', status: 'Completed' },
   { id: '4', referenceNo: 'DON-2025-00004', program: 'Research Support', amount: '75.00', currency: 'EUR', date: '2025-12-05', status: 'Completed' },
   { id: '5', referenceNo: 'DON-2025-00005', program: 'Career Support', amount: '150.00', currency: 'USD', date: '2025-11-18', status: 'Completed' },
-  { id: '6', referenceNo: 'DON-2025-00006', program: 'General Support', amount: '50.00', currency: 'GBP', date: '2025-10-22', status: 'Failed' },
+  { id: '6', referenceNo: 'DON-2025-00006', program: 'Career Support', amount: '50.00', currency: 'GBP', date: '2025-10-22', status: 'Failed' },
 ];
 
-export const DONATION_PROGRAMS = ['All Programs', 'General Support', 'Competition Support', 'Career Support', 'Research Support', 'Educational Scholarships (Tertiary)'];
+export const DONATION_PROGRAMS = ['All Programs', 'Competition Support', 'Career Support', 'Research Support', 'Educational Scholarships (Tertiary)'];
 export const DONATION_YEARS = ['All Years', '2026', '2025'];
