@@ -134,54 +134,53 @@ export default function AwardDetail() {
               <p className="text-xs font-bold uppercase tracking-wide text-[#ff3b30]">Honorary Awards</p>
               <div className="mt-3 grid grid-cols-3 gap-4">
                 {award.badgeImage && (
-                  <button
-                    onClick={() => setPreview({ title: isMedal ? 'Medal' : 'Badge', url: award.badgeImage! })}
-                    className="flex flex-col items-center gap-2 p-3 rounded-xl border border-neutral-gray-light hover:border-amber-300 hover:bg-amber-50 transition-colors group"
-                  >
-                    <div className="relative w-20 h-20">
-                      <Image src={award.badgeImage} alt={isMedal ? 'Medal' : 'Badge'} fill className="rounded-full object-cover group-hover:scale-110 transition-transform" />
+                  <div className="flex flex-col items-center gap-2 p-3 rounded-xl border border-neutral-gray-light hover:border-amber-300 hover:bg-amber-50 transition-colors group">
+                    <button
+                      onClick={() => setPreview({ title: isMedal ? 'Medal' : 'Badge', url: award.badgeImage! })}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <div className="relative w-20 h-20">
+                        <Image src={award.badgeImage} alt={isMedal ? 'Medal' : 'Badge'} fill className="rounded-full object-cover group-hover:scale-110 transition-transform" />
+                      </div>
+                      <span className="text-xs font-medium text-neutral-gray-dark">{isMedal ? 'Medal' : 'Badge'}</span>
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <ZoomIn className="h-4 w-4 text-amber-500 cursor-pointer" onClick={() => setPreview({ title: isMedal ? 'Medal' : 'Badge', url: award.badgeImage! })} />
+                      <Download className="h-4 w-4 text-brand-navy-900 cursor-pointer hover:text-brand-red-600 transition-colors" onClick={() => handleDownload(award.badgeImage!, isMedal ? 'Medal' : 'Badge')} />
                     </div>
-                    <span className="text-xs font-medium text-neutral-gray-dark">{isMedal ? 'Medal' : 'Badge'}</span>
-                    <ZoomIn className="h-4 w-4 text-amber-500" />
-                  </button>
-                )}
-                <button
-                  onClick={() => setPreview({ title: 'Certificate of Recognition', url: award.certificate })}
-                  className="flex flex-col items-center gap-2 p-3 rounded-xl border border-neutral-gray-light hover:border-amber-300 hover:bg-amber-50 transition-colors group"
-                >
-                  <div className="relative w-20 h-20">
-                    <Image src={award.certificate} alt="Certificate" fill className="rounded object-cover group-hover:scale-110 transition-transform" />
                   </div>
-                  <span className="text-xs font-medium text-neutral-gray-dark">Certificate</span>
-                  <ZoomIn className="h-4 w-4 text-amber-500" />
-                </button>
-                {showAwardPresentation && award.awardPresentation && (
+                )}
+                <div className="flex flex-col items-center gap-2 p-3 rounded-xl border border-neutral-gray-light hover:border-amber-300 hover:bg-amber-50 transition-colors group">
                   <button
-                    onClick={() => setPreview({ title: 'Award Presentation', url: award.awardPresentation! })}
-                    className="flex flex-col items-center gap-2 p-3 rounded-xl border border-neutral-gray-light hover:border-amber-300 hover:bg-amber-50 transition-colors group"
+                    onClick={() => setPreview({ title: 'Certificate of Recognition', url: award.certificate })}
+                    className="flex flex-col items-center gap-2"
                   >
                     <div className="relative w-20 h-20">
-                      <Image src={award.awardPresentation} alt="Award Presentation" fill className="rounded object-cover group-hover:scale-110 transition-transform" />
+                      <Image src={award.certificate} alt="Certificate" fill className="rounded object-cover group-hover:scale-110 transition-transform" />
                     </div>
-                    <span className="text-xs font-medium text-neutral-gray-dark">Presentation</span>
-                    <ZoomIn className="h-4 w-4 text-amber-500" />
+                    <span className="text-xs font-medium text-neutral-gray-dark">Certificate</span>
                   </button>
-                )}
-              </div>
-              {/* Download buttons for Honorary Awards */}
-              <div className="mt-3 flex flex-wrap gap-3">
-                {award.badgeImage && (
-                  <button onClick={() => handleDownload(award.badgeImage!, isMedal ? 'Medal' : 'Badge')} className="flex items-center gap-1.5 text-xs font-medium text-brand-navy-900 hover:text-brand-red-600 transition-colors">
-                    <Download className="h-3.5 w-3.5" /> Download {isMedal ? 'Medal' : 'Badge'}
-                  </button>
-                )}
-                <button onClick={() => handleDownload(award.certificate, 'Certificate')} className="flex items-center gap-1.5 text-xs font-medium text-brand-navy-900 hover:text-brand-red-600 transition-colors">
-                  <Download className="h-3.5 w-3.5" /> Download Certificate
-                </button>
+                  <div className="flex items-center gap-2">
+                    <ZoomIn className="h-4 w-4 text-amber-500 cursor-pointer" onClick={() => setPreview({ title: 'Certificate of Recognition', url: award.certificate })} />
+                    <Download className="h-4 w-4 text-brand-navy-900 cursor-pointer hover:text-brand-red-600 transition-colors" onClick={() => handleDownload(award.certificate, 'Certificate')} />
+                  </div>
+                </div>
                 {showAwardPresentation && award.awardPresentation && (
-                  <button onClick={() => handleDownload(award.awardPresentation!, 'Award_Presentation')} className="flex items-center gap-1.5 text-xs font-medium text-brand-navy-900 hover:text-brand-red-600 transition-colors">
-                    <Download className="h-3.5 w-3.5" /> Download Presentation
-                  </button>
+                  <div className="flex flex-col items-center gap-2 p-3 rounded-xl border border-neutral-gray-light hover:border-amber-300 hover:bg-amber-50 transition-colors group">
+                    <button
+                      onClick={() => setPreview({ title: 'Award Presentation', url: award.awardPresentation! })}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <div className="relative w-20 h-20">
+                        <Image src={award.awardPresentation} alt="Award Presentation" fill className="rounded object-cover group-hover:scale-110 transition-transform" />
+                      </div>
+                      <span className="text-xs font-medium text-neutral-gray-dark">Presentation</span>
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <ZoomIn className="h-4 w-4 text-amber-500 cursor-pointer" onClick={() => setPreview({ title: 'Award Presentation', url: award.awardPresentation! })} />
+                      <Download className="h-4 w-4 text-brand-navy-900 cursor-pointer hover:text-brand-red-600 transition-colors" onClick={() => handleDownload(award.awardPresentation!, 'Award_Presentation')} />
+                    </div>
+                  </div>
                 )}
               </div>
             </section>
