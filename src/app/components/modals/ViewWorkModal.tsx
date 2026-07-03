@@ -38,6 +38,13 @@ function getPositionLabel(pos: number) {
   return `${pos}th`;
 }
 
+const PRIMARY_SECONDARY_CATEGORIES = [
+  'Lower Primary',
+  'Upper Primary',
+  'Junior Secondary',
+  'Senior Secondary',
+];
+
 export function ViewWorkModal({ isOpen, contestant, onClose }: ViewWorkModalProps) {
   if (!isOpen || !contestant) {
     return null;
@@ -75,7 +82,6 @@ export function ViewWorkModal({ isOpen, contestant, onClose }: ViewWorkModalProp
               />
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-[#ff3b30]">Title</p>
               <h3 className="mt-2 text-2xl font-bold text-[#172235]">{contestant.name}</h3>
               <div className="mt-3 grid gap-2 text-sm text-[#55657b] sm:grid-cols-2">
                 <p>
@@ -99,8 +105,7 @@ export function ViewWorkModal({ isOpen, contestant, onClose }: ViewWorkModalProp
           </section>
 
           <section className="rounded-lg border border-[#d9e1ec] p-4">
-            <p className="text-xs font-bold uppercase tracking-wide text-[#ff3b30]">Work Description</p>
-            <h3 className="mt-2 text-lg font-bold text-[#172235]">Work Summary</h3>
+            <h3 className="text-lg font-bold text-[#172235]">Work Summary</h3>
             <p className="mt-2 text-sm leading-6 text-[#55657b]">
               {contestant.name} is representing {contestant.country} in {contestant.competition}
               , competing in the {contestant.category} category.
@@ -137,7 +142,11 @@ export function ViewWorkModal({ isOpen, contestant, onClose }: ViewWorkModalProp
           </section>
 
           <section className="rounded-lg border border-[#d9e1ec] p-4">
-            <p className="text-xs font-bold uppercase tracking-wide text-[#ff3b30]">Social Handles</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-[#ff3b30]">
+              {contestant.competition === 'Afri \u2013 Presentations' && PRIMARY_SECONDARY_CATEGORIES.includes(contestant.category)
+                ? 'Social Handles (Guardians)'
+                : 'Social Handles'}
+            </p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               {[
                 { label: 'LinkedIn', icon: FaLinkedinIn },

@@ -74,7 +74,8 @@ export default function Voting() {
         f.competition.toLowerCase().includes(term) ||
         f.country.toLowerCase().includes(term) ||
         f.year.toString().includes(term) ||
-        f.category.toLowerCase().includes(term);
+        f.category.toLowerCase().includes(term) ||
+        f.position.toString().includes(term);
       const matchesCompetition = !selectedCompetition || f.competition === selectedCompetition;
       const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(f.category);
       const matchesYear = !selectedYear || f.year.toString() === selectedYear;
@@ -116,10 +117,6 @@ export default function Voting() {
   };
 
   const activeFilterCount = (selectedCompetition ? 1 : 0) + selectedCategories.length + (selectedCountry ? 1 : 0);
-
-  const votingDeadline = selectedCompetition && VOTING_DEADLINES[selectedCompetition]
-    ? VOTING_DEADLINES[selectedCompetition]
-    : 'August 30, 2026';
 
   const handleVote = useCallback((finalist: typeof VOTING_FINALISTS[0]) => {
     if (!isAuthenticated) {
@@ -194,14 +191,18 @@ export default function Voting() {
               <div className="inline-flex flex-wrap items-center gap-2 rounded-md border border-[#ffd1cf] bg-[#fff7f6] px-3 py-2 text-sm font-semibold text-[#304866]">
                 <CalendarDays className="h-4 w-4 text-[#ff3b30]" />
                 <span>Voting deadline:</span>
-                <span className="text-[#ff3b30]">{votingDeadline}</span>
+                <span className="text-[#ff3b30]">
+                  {selectedCompetition && VOTING_DEADLINES[selectedCompetition]
+                    ? VOTING_DEADLINES[selectedCompetition]
+                    : 'Select competition to see deadline'}
+                </span>
               </div>
             </div>
             <div className="mb-6 relative">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-gray-medium" />
               <input
                 type="text"
-                placeholder="Search finalist by name, competition, year, country or keyword"
+                placeholder="Search finalits by name, position or keyword"
                 className="w-full rounded-xl border border-neutral-gray-light pl-12 pr-4 py-3 shadow-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

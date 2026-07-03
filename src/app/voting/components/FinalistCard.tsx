@@ -88,11 +88,11 @@ export default function FinalistCard({
         {/* Name & Country */}
         <div className="mb-4">
           <h3 className="text-lg font-bold text-neutral-black mb-1 leading-tight">{finalist.name}</h3>
-          <p className="text-sm text-neutral-gray-medium flex items-center gap-1">
+          <p className="text-sm text-slate-700 flex items-center gap-1 font-medium">
             <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
             {finalist.country}
           </p>
-          <p className="text-xs text-neutral-gray-medium mt-0.5">{finalist.category}</p>
+          <p className="text-xs text-slate-700 mt-0.5 font-medium">{finalist.category}</p>
         </div>
 
         {/* Votes Display */}
