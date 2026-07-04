@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, Phone } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Phone, Loader2 } from 'lucide-react';
 import littleLogo from "../../assets/littleLogo.png";
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
@@ -15,10 +15,10 @@ export default function Login() {
   const [usePhone, setUsePhone] = useState(false);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // If already logged in, redirect
   useEffect(() => {
     if (isAuthenticated) {
       router.replace('/dashboard');
@@ -29,7 +29,7 @@ export default function Login() {
     return null;
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier.trim()) {
       toast.error('Please enter your email or phone number.');
@@ -39,15 +39,21 @@ export default function Login() {
       toast.error('Please enter your password.');
       return;
     }
-    login(identifier, password);
-    toast.success('Welcome back! You are now logged in.');
-    router.push('/dashboard');
+
+    setLoading(true);
+    try {
+      await login(identifier, password);
+      toast.success('Welcome back! You are now logged in.');
+      router.push('/dashboard');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = () => {
-    login('user@gmail.com', 'google');
-    toast.success('Signed in with Google!');
-    router.push('/dashboard');
+    toast.info('Google login coming soon.');
   };
 
   return (
@@ -66,7 +72,6 @@ export default function Login() {
         </div>
 
         <div className="mt-8 space-y-6">
-          {/* Social Login */}
           <button
             type="button"
             onClick={handleGoogleLogin}
@@ -143,7 +148,7 @@ export default function Login() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     className="block w-full rounded-md border-neutral-gray-light pl-10 pr-10 focus:border-brand-red-600 focus:ring-brand-red-600 sm:text-sm py-2.5 border"
-                    placeholder="Enter anything"
+                    placeholder="Enter password"
                   />
                   <button
                     type="button"
@@ -175,8 +180,9 @@ export default function Login() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full bg-brand-navy-900 hover:bg-brand-navy-800">
-              Sign in
+            <Button type="submit" disabled={loading} className="w-full bg-brand-navy-900 hover:bg-brand-navy-800 flex items-center justify-center gap-2">
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
 

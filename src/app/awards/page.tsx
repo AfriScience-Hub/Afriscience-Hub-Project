@@ -14,7 +14,7 @@ export default function Awards() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedCompetition, setSelectedCompetition] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<string>('2026');
+  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [selectedCountry, setSelectedCountry] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [preview, setPreview] = useState<{ type: 'badge' | 'certificate' | 'presentation'; url: string } | null>(null);
@@ -56,7 +56,7 @@ export default function Awards() {
     setSelectedType(null);
     setSelectedCompetition(null);
     setSelectedLevel(null);
-    setSelectedYear('2026');
+    setSelectedYear(new Date().getFullYear().toString());
     setSelectedCountry('');
   };
 

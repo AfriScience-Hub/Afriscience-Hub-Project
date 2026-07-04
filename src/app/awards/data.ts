@@ -6,7 +6,7 @@ import { COMPETITION_TYPES } from '../data/mockData';
 
 export const COMPETITION_LEVEL_MAP: Record<string, string[]> = {
   'Afri – Anime': ['General (18+)'],
-  'Afri – Presentations': ['Lower Primary', 'Upper Primary', 'Junior Secondary', 'Senior Secondary', 'Undergraduates', 'Graduates'],
+  'Afri – Presentations': ['Lower Primary', 'Upper Primary', 'Junior Secondary', 'Senior Secondary', 'Undergraduates', 'Postgraduates'],
   'Afri – Memes': ['General (18+)'],
   'Afri – MySpace': ['General (18+)'],
 };
@@ -58,6 +58,10 @@ export const shouldHideSocialHandles = (category: string) => {
 };
 
 export const usesMedal = (type: string) => type === 'Competitions Award';
+
+export const isHighTierSponsor = (tier?: string) => {
+  return tier === '3rd Tier' || tier === '4th Tier';
+};
 
 export const SPONSORSHIP_TIER_REWARDS: Record<string, string[]> = {
   '1st Tier': ['AfriScience Hub Sponsorship Badge', 'Certificate of Recognition', 'Web-space Marketing', 'Sponsorship Tier Benefits'],

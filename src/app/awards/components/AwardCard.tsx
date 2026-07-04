@@ -3,7 +3,7 @@
 import { Eye, MapPin, Calendar, Gift, Share2, Archive, ZoomIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/Button';
-import { getTypeColor, getTypeIcon, getPositionStyle, getPositionLabel, usesMedal } from '../data';
+import { getTypeColor, getTypeIcon, getPositionStyle, getPositionLabel, usesMedal, isHighTierSponsor } from '../data';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -23,6 +23,7 @@ type AwardWinner = {
   level?: string;
   position?: number;
   donationAmount?: number;
+  tier?: string;
   socialLinks?: Record<string, string>;
   workSummary?: string;
   workMedia?: string[];
@@ -133,7 +134,7 @@ export default function AwardCard({ award, onPreview }: AwardCardProps) {
             {award.rewards
               .filter(r => {
                 if (isDonation && r === 'Feature in Annual Donor Magazine') return showMagazineFeature;
-                if (isSponsor && r === 'Homepage Feature') return false;
+                if (isSponsor && r === 'Homepage Feature') return isHighTierSponsor(award.tier);
                 return true;
               })
               .map((r, i) => (

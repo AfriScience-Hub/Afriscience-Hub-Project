@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, Phone, User, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Phone, User, ArrowRight, Loader2 } from 'lucide-react';
 import logoImg from "../../assets/logo.png";
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
@@ -18,10 +18,10 @@ export default function SignUp() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const { signup, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // If already logged in, redirect
   useEffect(() => {
     if (isAuthenticated) {
       router.replace('/dashboard');
@@ -32,10 +32,18 @@ export default function SignUp() {
     return null;
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!fullName.trim()) {
+      toast.error('Please enter your full name.');
+      return;
+    }
     if (!email.trim()) {
       toast.error('Please enter your email address.');
+      return;
+    }
+    if (!phone.trim()) {
+      toast.error('Please enter your phone number.');
       return;
     }
     if (!password.trim()) {
@@ -46,15 +54,25 @@ export default function SignUp() {
       toast.error('Passwords do not match.');
       return;
     }
-    signup(fullName, email, phone, password);
-    toast.success('Account created successfully! Welcome to AfriScienceHub.');
-    router.push('/dashboard');
+    if (password.length < 8) {
+      toast.error('Password must be at least 8 characters.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await signup(fullName, email, phone, password);
+      toast.success('Account created! Please verify your email.');
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Signup failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleSignup = () => {
-    signup('Google User', 'user@gmail.com', '', 'google');
-    toast.success('Signed up with Google!');
-    router.push('/dashboard');
+    toast.info('Google sign-up coming soon.');
   };
 
   return (
@@ -73,7 +91,6 @@ export default function SignUp() {
         </div>
 
         <div className="mt-8 space-y-6">
-          {/* Social Login */}
           <button
             type="button"
             onClick={handleGoogleSignup}
@@ -99,7 +116,6 @@ export default function SignUp() {
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
-            {/* Full Name */}
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-neutral-black">
                 Full Name
@@ -120,7 +136,6 @@ export default function SignUp() {
               </div>
             </div>
 
-            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-neutral-black">
                 Email Address
@@ -142,7 +157,6 @@ export default function SignUp() {
               </div>
             </div>
 
-            {/* Phone */}
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-neutral-black">
                 Phone Number
@@ -164,7 +178,6 @@ export default function SignUp() {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-neutral-black">
                 Password
@@ -181,7 +194,7 @@ export default function SignUp() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   className="block w-full rounded-md border-neutral-gray-light pl-10 pr-10 focus:border-brand-red-600 focus:ring-brand-red-600 sm:text-sm py-2.5 border"
-                  placeholder="Enter anything"
+                  placeholder="Min. 8 characters"
                 />
                 <button
                   type="button"
@@ -193,7 +206,6 @@ export default function SignUp() {
               </div>
             </div>
 
-            {/* Confirm Password */}
             <div>
               <label htmlFor="confirm-password" className="block text-sm font-medium text-neutral-black">
                 Confirm Password
@@ -222,8 +234,9 @@ export default function SignUp() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full flex items-center justify-center gap-2 bg-brand-navy-900 hover:bg-brand-navy-800">
-              Sign Up <ArrowRight className="h-4 w-4" />
+            <Button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 bg-brand-navy-900 hover:bg-brand-navy-800">
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+              {loading ? 'Creating account...' : 'Sign Up'}
             </Button>
             
             <p className="text-xs text-center text-neutral-gray-medium mt-4">

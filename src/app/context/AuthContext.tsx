@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { api } from '@/lib/api';
 
 export interface User {
   name: string;
@@ -12,8 +13,9 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => void;
-  signup: (name: string, email: string, phone: string, password: string) => void;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, phone: string, password: string) => Promise<void>;
+  verifyEmail: (email: string, otp: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
 }
@@ -40,32 +42,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  const login = (email: string, _password: string) => {
-    // Accept any credentials — extract a display name from the email
-    const namePart = email.split('@')[0] || 'User';
-    const displayName = namePart
-      .replace(/[._-]/g, ' ')
-      .replace(/\b\w/g, c => c.toUpperCase());
-
-    setUser({
-      name: displayName,
+  const signup = async (name: string, email: string, phone: string, password: string) => {
+    await api.post('/auth/signup', {
+      fullName: name,
       email,
-      phone: '',
-      avatar: DEFAULT_AVATAR,
+      phone,
+      password,
+      confirmPassword: password,
     });
   };
 
-  const signup = (name: string, email: string, phone: string, _password: string) => {
-    setUser({
-      name: name || 'New User',
+  const verifyEmail = async (email: string, otp: string) => {
+    await api.post('/auth/verify', { email, otp });
+  };
+
+  const login = async (email: string, password: string) => {
+    const data = await api.post<{ name?: string; email?: string; phone?: string }>('/auth/login', {
       email,
-      phone,
+      password,
+    });
+
+    if (data.token) {
+      localStorage.setItem('afrisciencehub_token', data.token);
+    }
+
+    setUser({
+      name: data.user?.name || email.split('@')[0] || 'User',
+      email: data.user?.email || email,
+      phone: data.user?.phone || '',
       avatar: DEFAULT_AVATAR,
     });
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('afrisciencehub_token');
   };
 
   const updateUser = (updates: Partial<User>) => {
@@ -73,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, verifyEmail, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

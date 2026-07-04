@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { AWARD_WINNERS } from '@/app/data/mockData';
 import { Button } from '@/app/components/ui/Button';
 import { cn } from '@/lib/utils';
-import { getTypeColor, getTypeIcon, getPositionStyle, getPositionLabel, usesMedal, shouldHideSocialHandles } from '@/app/awards/data';
+import { getTypeColor, getTypeIcon, getPositionStyle, getPositionLabel, usesMedal, shouldHideSocialHandles, isHighTierSponsor } from '@/app/awards/data';
 import PreviewModal from '@/app/awards/components/PreviewModal';
 import { toast } from 'sonner';
 
@@ -118,7 +118,7 @@ export default function AwardDetail() {
                 {award.rewards
                   .filter(r => {
                     if (isDonation && r === 'Feature in Annual Donor Magazine') return showMagazineFeature;
-                    if (isSponsor && r === 'Homepage Feature') return false;
+                    if (isSponsor && r === 'Homepage Feature') return isHighTierSponsor(award.tier);
                     return true;
                   })
                   .map((r, i) => (
@@ -222,7 +222,7 @@ export default function AwardDetail() {
                     { label: 'Instagram', icon: FaInstagram, key: 'instagram' },
                     { label: 'Facebook', icon: FaFacebookF, key: 'facebook' },
                   ].map(({ label, icon: Icon, key }) => {
-                    const url = award.socialLinks?.[key];
+                    const url = (award.socialLinks as Record<string, string> | undefined)?.[key];
                     return url ? (
                       <a
                         key={key}
