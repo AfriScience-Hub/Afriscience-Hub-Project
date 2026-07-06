@@ -61,7 +61,7 @@ export function AfriPresentationsDetails({ comp, undertakingChecked, onUndertaki
       {!hasTopics && (
         <div className="pt-2">
           <Button size="lg" className="w-full bg-brand-red-600 hover:bg-brand-red-700 py-6 text-lg" disabled={!undertakingChecked} onClick={handleApply}>
-            <Trophy className="h-5 w-5 mr-2" /> Apply Now ({comp.registrationFee})
+            <Trophy className="h-5 w-5 mr-2" /> Apply Now
           </Button>
           {!undertakingChecked && (
             <p className="text-xs text-brand-red-600 text-center mt-2">Please accept the Undertaking Remark above to enable the Apply button.</p>

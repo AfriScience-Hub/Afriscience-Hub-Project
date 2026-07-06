@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ash-be-1.onrender.com/api/v1';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface ApiResponse<T = unknown> {
   data?: T;

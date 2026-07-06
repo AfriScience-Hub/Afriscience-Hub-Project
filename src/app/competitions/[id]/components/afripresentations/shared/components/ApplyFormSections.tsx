@@ -2,7 +2,7 @@
 
 import {
   User, Hash, FileText, Calendar, MapPin, Globe, BookOpen, Edit3,
-  Link as LinkIcon, School, ChevronDown
+  Link as LinkIcon, School, ChevronDown, Info
 } from 'lucide-react';
 import type { Competition } from '@/app/competitions/data';
 
@@ -18,7 +18,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <User className="h-3.5 w-3.5" /> Name
+          <User className="h-3.5 w-3.5" /> Name <span className="text-brand-red-600">*</span>
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {user.name}
@@ -27,7 +27,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <Hash className="h-3.5 w-3.5" /> ID Tag
+          <Hash className="h-3.5 w-3.5" /> ID Tag <span className="text-brand-red-600">*</span>
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium font-mono">
           {idTag}
@@ -36,7 +36,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <FileText className="h-3.5 w-3.5" /> Competition Type
+          <FileText className="h-3.5 w-3.5" /> Competition Type <span className="text-brand-red-600">*</span>
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {comp.type}
@@ -45,7 +45,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <FileText className="h-3.5 w-3.5" /> Category
+          <FileText className="h-3.5 w-3.5" /> Category <span className="text-brand-red-600">*</span>
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {comp.category}
@@ -54,7 +54,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <Calendar className="h-3.5 w-3.5" /> Application Date
+          <Calendar className="h-3.5 w-3.5" /> Application Date <span className="text-brand-red-600">*</span>
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -63,7 +63,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <Calendar className="h-3.5 w-3.5" /> Submission Deadline
+          <Calendar className="h-3.5 w-3.5" /> Submission Deadline <span className="text-brand-red-600">*</span>
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -72,7 +72,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <MapPin className="h-3.5 w-3.5" /> Country
+          <MapPin className="h-3.5 w-3.5" /> Country <span className="text-brand-red-600">*</span>
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {comp.country}
@@ -81,7 +81,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <BookOpen className="h-3.5 w-3.5" /> Topic
+          <BookOpen className="h-3.5 w-3.5" /> Topic <span className="text-brand-red-600">*</span>
         </label>
         <div className="w-full rounded-lg border border-blue-200 p-3 text-sm bg-blue-50 text-blue-800 font-medium">
           {topic || 'No topic selected'}
@@ -105,8 +105,14 @@ export function LanguageSection({ language, otherLanguage, onLanguageChange, onO
     <div className="border-t border-neutral-gray-light pt-6">
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <Globe className="h-3.5 w-3.5" /> Language
-        </label>
+          <Globe className="h-3.5 w-3.5" /> Language <span className="text-brand-red-600">*</span>
+          <span className="relative group ml-1">
+            <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+              Select the language of your presentation
+            </span>
+          </span>
+          </label>
         <div className="relative">
           <select
             value={language}
@@ -146,7 +152,7 @@ export function SchoolInfoSection({ schoolName, schoolAddress, onSchoolNameChang
     <>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <School className="h-3.5 w-3.5" /> Name of School/Institute
+          <School className="h-3.5 w-3.5" /> Name of School/Institute <span className="text-brand-red-600">*</span>
         </label>
         <input
           type="text"
@@ -158,7 +164,7 @@ export function SchoolInfoSection({ schoolName, schoolAddress, onSchoolNameChang
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <MapPin className="h-3.5 w-3.5" /> School Address
+          <MapPin className="h-3.5 w-3.5" /> School Address <span className="text-brand-red-600">*</span>
         </label>
         <input
           type="text"
@@ -181,8 +187,9 @@ export function ParentNameSection({ parentName, onParentNameChange }: ParentName
   return (
     <div>
       <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-        <User className="h-3.5 w-3.5" /> Name of Parent/Guardian
+        <User className="h-3.5 w-3.5" /> Name of Parent/Guardian <span className="text-brand-red-600">*</span>
       </label>
+      <p className="text-[10px] text-neutral-gray-medium mb-1">Enter the name of the person that guided you through this competition</p>
       <input
         type="text"
         value={parentName}
@@ -190,7 +197,6 @@ export function ParentNameSection({ parentName, onParentNameChange }: ParentName
         placeholder="Enter your parent or guardian&apos;s name..."
         className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
       />
-      <p className="text-[10px] text-neutral-gray-medium mt-1">Enter the name of the person that guided you through this competition</p>
     </div>
   );
 }
@@ -206,7 +212,13 @@ export function SummarySection({ summary, wordCount, wordLimit, onSummaryChange 
   return (
     <div>
       <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-        <Edit3 className="h-3.5 w-3.5" /> Presentation Summary
+        <Edit3 className="h-3.5 w-3.5" /> Presentation Summary <span className="text-brand-red-600">*</span>
+        <span className="relative group ml-1">
+          <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
+          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+            Briefly describe your presentation topic and key points
+          </span>
+        </span>
       </label>
       <textarea
         value={summary}
@@ -237,10 +249,10 @@ export function SocialHandlesSection({ linkedin, twitter, instagram, facebook, o
   return (
     <div className="border-t border-neutral-gray-light pt-6">
       <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
-        <LinkIcon className="h-3.5 w-3.5" /> {title || 'Parent/Guardian&apos;s Social Handles'}
+        <LinkIcon className="h-3.5 w-3.5" /> {title || 'Parent/Guardian&apos;s Social Handles'} <span className="text-brand-red-600">*</span>
       </label>
       {subtitle !== undefined ? (subtitle ? <p className="text-[10px] text-neutral-gray-medium mb-3">{subtitle}</p> : null) : (
-        <p className="text-[10px] text-neutral-gray-medium mb-3">Only the parent&apos;s or guardian&apos;s social media handles are needed</p>
+        <p className="text-[10px] text-neutral-gray-medium mb-3">Provide at least one social media handle of the parent or guardian</p>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>

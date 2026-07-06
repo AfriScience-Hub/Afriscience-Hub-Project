@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { DollarSign, Calendar, Users, Eye } from 'lucide-react';
+import { DollarSign, Calendar, Users, Eye, Share2, Archive } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { cn } from '../../../lib/utils';
 import type { Competition } from '../data';
+import { toast } from 'sonner';
 
 interface CompetitionCardProps {
   comp: Competition;
@@ -20,20 +21,40 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export function CompetitionCard({ comp, onPreview }: CompetitionCardProps) {
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.origin + '/competitions/' + comp.id);
+    toast.success('Link copied!');
+  };
+
   return (
     <div className="group flex flex-col rounded-xl border border-neutral-gray-light bg-white shadow-sm transition-all hover:shadow-md hover:border-brand-red-100 overflow-hidden">
       <div className="relative h-48 bg-brand-navy-900 overflow-hidden cursor-pointer" onClick={() => onPreview(comp.image)}>
         <Image src={comp.image} alt={comp.title} fill className="object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-        <div className="absolute top-3 left-3">
-          <span className={cn("px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border backdrop-blur-sm", TYPE_COLORS[comp.type] || 'bg-neutral-bg-light text-neutral-gray-dark border-neutral-gray-light')}>{comp.type}</span>
+        {/* Share button - top left */}
+        <button
+          onClick={(e) => { e.stopPropagation(); handleShare(); }}
+          className="absolute top-3 left-3 rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors"
+          title="Share"
+        >
+          <Share2 className="h-3.5 w-3.5" />
+        </button>
+        {/* Archive + Preview - top right */}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5">
+          <button className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white transition-colors" title="Archive">
+            <Archive className="h-3.5 w-3.5" />
+          </button>
+          <span className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 cursor-pointer hover:bg-white transition-colors" onClick={(e) => { e.stopPropagation(); onPreview(comp.image); }} title="Preview">
+            <Eye className="h-3.5 w-3.5" />
+          </span>
         </div>
-        <div className="absolute top-3 right-3">
-          <span className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600"><Eye className="h-3.5 w-3.5" /></span>
+        {/* Type badge - bottom left */}
+        <div className="absolute bottom-3 left-3">
+          <span className={cn("px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border backdrop-blur-sm", TYPE_COLORS[comp.type] || 'bg-neutral-bg-light text-neutral-gray-dark border-neutral-gray-light')}>{comp.type}</span>
         </div>
       </div>
       <div className="flex flex-1 flex-col p-5">
-        <p className="text-xs text-neutral-gray-medium italic mb-3 line-clamp-2">{comp.introNote}</p>
+        <p className="text-xs text-neutral-gray-medium mb-3">{comp.introNote}</p>
         <h3 className="text-lg font-bold text-neutral-black group-hover:text-brand-red-600 transition-colors mb-2 leading-tight">{comp.title}: {comp.country}</h3>
         <div className="mb-3">
           <span className="inline-block text-[10px] font-bold uppercase tracking-wide text-brand-navy-900 bg-brand-navy-100 px-2.5 py-1 rounded-full border border-brand-navy-100">{comp.category}</span>

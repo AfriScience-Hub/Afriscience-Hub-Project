@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   User, Hash, FileText, Calendar, MapPin, BookOpen, Edit3,
-  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown, Briefcase
+  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown, Briefcase, Save, Info
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/context/AuthContext';
@@ -20,6 +20,7 @@ interface AfriMySpaceApplyProps {
 
 const ID_CARD_TYPES = ['National ID Card', "Driver's Licence", 'International Passport', 'Other'];
 const WORD_LIMIT = 500;
+const DRAFT_KEY = 'afrimyspace_apply_draft';
 
 function AutoField({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
   return (
@@ -57,6 +58,33 @@ export function AfriMySpaceApply({ comp }: AfriMySpaceApplyProps) {
   const idTag = useMemo(() => user?.email?.split('@')[0]?.toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(), [user?.email]);
   const wordCount = spaceDescription.trim() ? spaceDescription.trim().split(/\s+/).length : 0;
 
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const draft = JSON.parse(saved);
+        setProfession(draft.profession || '');
+        setSpaceDescription(draft.spaceDescription || '');
+        setLinkedin(draft.linkedin || '');
+        setTwitter(draft.twitter || '');
+        setInstagram(draft.instagram || '');
+        setFacebook(draft.facebook || '');
+        setIdCardType(draft.idCardType || '');
+        setOtherIdCard(draft.otherIdCard || '');
+        toast.info('Draft restored.');
+      }
+    } catch {}
+  }, []);
+
+  const saveDraft = () => {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      profession, spaceDescription,
+      linkedin, twitter, instagram, facebook,
+      idCardType, otherIdCard,
+    }));
+    toast.success('Draft saved!');
+  };
+
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !file.type.startsWith('image/')) { toast.error('Please upload an image file.'); return; }
@@ -75,6 +103,8 @@ export function AfriMySpaceApply({ comp }: AfriMySpaceApplyProps) {
     reader.readAsDataURL(file);
   };
 
+  const allFieldsComplete = !!(profession.trim() && spaceDescription.trim() && wordCount <= WORD_LIMIT && profilePicture && idCardType && (idCardType !== 'Other' || otherIdCard.trim()) && idCardFile && (linkedin || twitter || instagram || facebook));
+
   const validate = () => {
     if (!profession.trim()) { toast.error('Please enter your profession.'); return false; }
     if (!spaceDescription.trim()) { toast.error('Please enter a space description.'); return false; }
@@ -83,10 +113,15 @@ export function AfriMySpaceApply({ comp }: AfriMySpaceApplyProps) {
     if (!idCardType) { toast.error('Please select an ID card type.'); return false; }
     if (idCardType === 'Other' && !otherIdCard.trim()) { toast.error('Please specify your ID card type.'); return false; }
     if (!idCardFile) { toast.error('Please upload your ID card.'); return false; }
+    if (!linkedin && !twitter && !instagram && !facebook) { toast.error('Please provide at least one social handle.'); return false; }
     return true;
   };
 
-  const handleSubmit = () => { if (validate()) setShowPayment(true); };
+  const handleSubmit = () => {
+    if (!validate()) return;
+    localStorage.removeItem(DRAFT_KEY);
+    setShowPayment(true);
+  };
 
   const handlePayment = () => {
     setPaymentProcessing(true);
@@ -154,7 +189,13 @@ export function AfriMySpaceApply({ comp }: AfriMySpaceApplyProps) {
 
         <div className="border-t border-neutral-gray-light pt-6">
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-            <Briefcase className="h-3.5 w-3.5" /> Profession
+            <Briefcase className="h-3.5 w-3.5" /> Profession <span className="text-brand-red-600">*</span>
+            <span className="relative group ml-1">
+              <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                Enter your current profession or field of work
+              </span>
+            </span>
           </label>
           <input type="text" value={profession} onChange={(e) => setProfession(e.target.value)}
             placeholder="Input your profession"
@@ -163,7 +204,13 @@ export function AfriMySpaceApply({ comp }: AfriMySpaceApplyProps) {
 
         <div>
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-            <Edit3 className="h-3.5 w-3.5" /> Space Description
+            <Edit3 className="h-3.5 w-3.5" /> Space Description <span className="text-brand-red-600">*</span>
+            <span className="relative group ml-1">
+              <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                Describe your workspace and the tools/equipment you use
+              </span>
+            </span>
           </label>
           <textarea value={spaceDescription} onChange={(e) => setSpaceDescription(e.target.value)}
             placeholder="Briefly describe your workspace (mention tools and equipment used)"
@@ -174,7 +221,7 @@ export function AfriMySpaceApply({ comp }: AfriMySpaceApplyProps) {
 
         <div className="border-t border-neutral-gray-light pt-6">
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
-            <LinkIcon className="h-3.5 w-3.5" /> Social Handles
+            <LinkIcon className="h-3.5 w-3.5" /> SOCIAL HANDLES (provide at least one) <span className="text-brand-red-600">*</span>
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {socialFields.map((s) => (
@@ -190,7 +237,7 @@ export function AfriMySpaceApply({ comp }: AfriMySpaceApplyProps) {
 
         <div className="border-t border-neutral-gray-light pt-6">
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
-            <Camera className="h-3.5 w-3.5" /> Profile Picture
+            <Camera className="h-3.5 w-3.5" /> Profile Picture <span className="text-brand-red-600">*</span>
           </label>
           <div className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors border-neutral-gray-light hover:border-brand-red-300 hover:bg-brand-red-50/30"
             onClick={() => profilePicRef.current?.click()}>
@@ -217,7 +264,7 @@ export function AfriMySpaceApply({ comp }: AfriMySpaceApplyProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-4">
             <div>
               <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-                <CreditCard className="h-3.5 w-3.5" /> Government ID Card
+                <CreditCard className="h-3.5 w-3.5" /> Government ID Card <span className="text-brand-red-600">*</span>
               </label>
               <div className="relative">
                 <select value={idCardType} onChange={(e) => setIdCardType(e.target.value)}
@@ -257,13 +304,13 @@ export function AfriMySpaceApply({ comp }: AfriMySpaceApplyProps) {
           </div>
         </div>
 
-        <div className="pt-4 border-t border-neutral-gray-light">
-          <Button size="lg" className="w-full bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg" onClick={handleSubmit}>
-            <CheckCircle className="h-5 w-5 mr-2" /> Finalize Application
+        <div className="pt-4 border-t border-neutral-gray-light flex gap-3">
+          <Button variant="outline" size="lg" className="flex-1 border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" onClick={saveDraft}>
+            <Save className="h-5 w-5 mr-2" /> Save as Draft
           </Button>
-          <p className="text-xs text-neutral-gray-medium text-center mt-3">
-            This will register your application. You can then upload your media on the next page.
-          </p>
+          <Button size="lg" className="flex-1 bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg" onClick={handleSubmit} disabled={!allFieldsComplete}>
+            <CheckCircle className="h-5 w-5 mr-2" /> Finalize application ({comp.registrationFee})
+          </Button>
         </div>
       </div>
 

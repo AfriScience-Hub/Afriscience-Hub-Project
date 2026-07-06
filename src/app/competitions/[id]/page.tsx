@@ -84,7 +84,7 @@ export default function CompetitionDetails() {
               {comp.category}
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">{comp.title}: {comp.country}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">{comp.type}: {comp.country}</h1>
           <div className="flex flex-wrap items-center gap-5 mt-3 text-white/80 text-sm">
             <span className="flex items-center gap-2"><Calendar className="h-4 w-4" /> Deadline: {new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
             <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> {daysLeft} days left</span>
@@ -241,7 +241,7 @@ export default function CompetitionDetails() {
                       disabled={!undertakingChecked}
                       onClick={() => handleApplyClick()}
                     >
-                      <Trophy className="h-5 w-5 mr-2" /> Apply Now ({comp.registrationFee})
+                      <Trophy className="h-5 w-5 mr-2" /> Apply Now
                     </Button>
                     {!undertakingChecked && (
                       <p className="text-xs text-brand-red-600 text-center mt-2">Please accept the Undertaking Remark above to enable the Apply button.</p>
@@ -294,18 +294,7 @@ export default function CompetitionDetails() {
                   <span className="text-sm text-neutral-gray-dark font-medium">{comp.participants}</span>
                 </div>
 
-                <div className="pt-4 border-t border-neutral-gray-light">
-                  <Button
-                    className="w-full mb-2 bg-brand-red-600 hover:bg-brand-red-700"
-                    disabled={!undertakingChecked}
-                    onClick={() => handleApplyClick()}
-                  >
-                    Apply Now ({comp.registrationFee})
-                  </Button>
-                  {!undertakingChecked && (
-                    <p className="text-[10px] text-neutral-gray-medium text-center">Accept the Undertaking Remark first</p>
-                  )}
-                </div>
+
               </div>
             </div>
           </div>

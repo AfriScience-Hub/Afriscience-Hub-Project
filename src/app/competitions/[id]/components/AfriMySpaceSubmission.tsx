@@ -166,7 +166,7 @@ export function AfriMySpaceSubmission({ comp }: AfriMySpaceSubmissionProps) {
           className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 resize-y" />
         <div className="flex items-center justify-between mt-2">
           <p className="text-[10px] text-neutral-gray-medium">Can still be edited and saved until deadline.</p>
-          <Button size="sm" variant="outline" onClick={handleDescriptionSave} className="text-xs">Save Description</Button>
+          <Button size="sm" variant="outline" onClick={handleDescriptionSave} className="text-xs">Save Summary</Button>
         </div>
       </div>
 
@@ -180,7 +180,7 @@ export function AfriMySpaceSubmission({ comp }: AfriMySpaceSubmissionProps) {
         </h3>
         {submitted && (
           <p className="text-xs text-green-700 mb-3 flex items-center gap-1">
-            <CheckCircle className="h-3.5 w-3.5" /> Your workspace photo has been submitted. You can replace it below.
+            <CheckCircle className="h-3.5 w-3.5" /> Your workspace photo has been submitted.
           </p>
         )}
         <p className="text-sm text-neutral-gray-medium mb-4">
@@ -215,7 +215,7 @@ export function AfriMySpaceSubmission({ comp }: AfriMySpaceSubmissionProps) {
 
         <div className="mt-6">
           <Button size="lg" className="w-full bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg"
-            onClick={handleSubmit} disabled={!uploadedFile || submitting}>
+            onClick={handleSubmit}             disabled={!uploadedFile || submitting || submitted}>
             {submitting ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

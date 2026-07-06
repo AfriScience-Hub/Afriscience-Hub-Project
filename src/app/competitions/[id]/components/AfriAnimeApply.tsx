@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   User, Hash, FileText, Calendar, MapPin, Globe, BookOpen, Edit3,
-  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown
+  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown, Save, Info
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/context/AuthContext';
@@ -21,6 +21,7 @@ interface AfriAnimeApplyProps {
 const LANGUAGES = ['English', 'French', 'Arabic', 'Portuguese', 'Spanish', 'Afrikaans', 'Other'];
 const ID_CARD_TYPES = ['National ID Card', "Driver's Licence", 'International Passport', 'Other'];
 const WORD_LIMIT = 1000;
+const DRAFT_KEY = 'afrianime_apply_draft';
 
 export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
   const router = useRouter();
@@ -39,6 +40,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
   const [idCardType, setIdCardType] = useState('');
+  const [otherIdCard, setOtherIdCard] = useState('');
   const [idCardFile, setIdCardFile] = useState<File | null>(null);
   const [idCardPreview, setIdCardPreview] = useState<string | null>(null);
   const [showPayment, setShowPayment] = useState(false);
@@ -46,6 +48,35 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
 
   const idTag = useMemo(() => user?.email?.split('@')[0]?.toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(), [user?.email]);
   const wordCount = animationSummary.trim() ? animationSummary.trim().split(/\s+/).length : 0;
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const draft = JSON.parse(saved);
+        setLanguage(draft.language || '');
+        setOtherLanguage(draft.otherLanguage || '');
+        setAnimationTitle(draft.animationTitle || '');
+        setAnimationSummary(draft.animationSummary || '');
+        setLinkedin(draft.linkedin || '');
+        setTwitter(draft.twitter || '');
+        setInstagram(draft.instagram || '');
+        setFacebook(draft.facebook || '');
+        setIdCardType(draft.idCardType || '');
+        setOtherIdCard(draft.otherIdCard || '');
+        toast.info('Draft restored.');
+      }
+    } catch {}
+  }, []);
+
+  const saveDraft = () => {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      language, otherLanguage, animationTitle, animationSummary,
+      linkedin, twitter, instagram, facebook,
+      idCardType, otherIdCard,
+    }));
+    toast.success('Draft saved!');
+  };
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -73,6 +104,8 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
     reader.readAsDataURL(file);
   };
 
+  const allFieldsComplete = !!(language && (language !== 'Other' || otherLanguage.trim()) && animationTitle.trim() && animationSummary.trim() && wordCount <= WORD_LIMIT && profilePicture && idCardType && (idCardType !== 'Other' || otherIdCard.trim()) && idCardFile && (linkedin || twitter || instagram || facebook));
+
   const validate = () => {
     if (!language) { toast.error('Please select a language.'); return false; }
     if (language === 'Other' && !otherLanguage.trim()) { toast.error('Please specify your language.'); return false; }
@@ -81,12 +114,15 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
     if (wordCount > WORD_LIMIT) { toast.error(`Summary exceeds ${WORD_LIMIT} words.`); return false; }
     if (!profilePicture) { toast.error('Please upload a profile picture.'); return false; }
     if (!idCardType) { toast.error('Please select an ID card type.'); return false; }
+    if (idCardType === 'Other' && !otherIdCard.trim()) { toast.error('Please specify your ID card type.'); return false; }
     if (!idCardFile) { toast.error('Please upload your ID card.'); return false; }
+    if (!linkedin && !twitter && !instagram && !facebook) { toast.error('Please provide at least one social handle.'); return false; }
     return true;
   };
 
   const handleSubmit = () => {
     if (!validate()) return;
+    localStorage.removeItem(DRAFT_KEY);
     setShowPayment(true);
   };
 
@@ -145,7 +181,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <User className="h-3.5 w-3.5" /> Name
+              <User className="h-3.5 w-3.5" /> Name <span className="text-brand-red-600">*</span>
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {user.name}
@@ -154,7 +190,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <Hash className="h-3.5 w-3.5" /> ID Tag
+              <Hash className="h-3.5 w-3.5" /> ID Tag <span className="text-brand-red-600">*</span>
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium font-mono">
               {idTag}
@@ -163,7 +199,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <FileText className="h-3.5 w-3.5" /> Competition Type
+              <FileText className="h-3.5 w-3.5" /> Competition Type <span className="text-brand-red-600">*</span>
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {comp.type}
@@ -172,7 +208,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <FileText className="h-3.5 w-3.5" /> Category
+              <FileText className="h-3.5 w-3.5" /> Category <span className="text-brand-red-600">*</span>
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {comp.category}
@@ -181,7 +217,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <Calendar className="h-3.5 w-3.5" /> Application Date
+              <Calendar className="h-3.5 w-3.5" /> Application Date <span className="text-brand-red-600">*</span>
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -190,7 +226,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <Calendar className="h-3.5 w-3.5" /> Submission Deadline
+              <Calendar className="h-3.5 w-3.5" /> Submission Deadline <span className="text-brand-red-600">*</span>
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -199,7 +235,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <MapPin className="h-3.5 w-3.5" /> Country
+              <MapPin className="h-3.5 w-3.5" /> Country <span className="text-brand-red-600">*</span>
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {comp.country}
@@ -211,7 +247,13 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
         <div className="border-t border-neutral-gray-light pt-6">
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <Globe className="h-3.5 w-3.5" /> Language
+              <Globe className="h-3.5 w-3.5" /> Language <span className="text-brand-red-600">*</span>
+              <span className="relative group ml-1">
+                <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  Select the language of your animation
+                </span>
+              </span>
             </label>
             <div className="relative">
               <select
@@ -240,7 +282,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
 
         <div>
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-            <BookOpen className="h-3.5 w-3.5" /> Animation Title
+            <BookOpen className="h-3.5 w-3.5" /> Animation Title <span className="text-brand-red-600">*</span>
           </label>
           <input
             type="text"
@@ -253,7 +295,13 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
 
         <div>
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-            <Edit3 className="h-3.5 w-3.5" /> Animation Summary
+            <Edit3 className="h-3.5 w-3.5" /> Animation Summary <span className="text-brand-red-600">*</span>
+            <span className="relative group ml-1">
+              <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                Briefly describe the science concept in your animation
+              </span>
+            </span>
           </label>
           <textarea
             value={animationSummary}
@@ -267,7 +315,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
 
         <div className="border-t border-neutral-gray-light pt-6">
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
-            <LinkIcon className="h-3.5 w-3.5" /> Social Handles
+            <LinkIcon className="h-3.5 w-3.5" /> SOCIAL HANDLES (provide at least one) <span className="text-brand-red-600">*</span>
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -315,7 +363,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
 
         <div className="border-t border-neutral-gray-light pt-6">
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
-            <Camera className="h-3.5 w-3.5" /> Profile Picture
+            <Camera className="h-3.5 w-3.5" /> Profile Picture <span className="text-brand-red-600">*</span>
           </label>
           <div
             className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors border-neutral-gray-light hover:border-brand-red-300 hover:bg-brand-red-50/30"
@@ -344,7 +392,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-4">
             <div>
               <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-                <CreditCard className="h-3.5 w-3.5" /> Government ID Card
+                <CreditCard className="h-3.5 w-3.5" /> Government ID Card <span className="text-brand-red-600">*</span>
               </label>
               <div className="relative">
                 <select
@@ -359,6 +407,15 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium pointer-events-none" />
               </div>
+              {idCardType === 'Other' && (
+                <input
+                  type="text"
+                  value={otherIdCard}
+                  onChange={(e) => setOtherIdCard(e.target.value)}
+                  placeholder="Specify ID card type..."
+                  className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm mt-2 focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+                />
+              )}
             </div>
           </div>
           <div
@@ -386,13 +443,13 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
           </div>
         </div>
 
-        <div className="pt-4 border-t border-neutral-gray-light">
-          <Button size="lg" className="w-full bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg" onClick={handleSubmit}>
-            <CheckCircle className="h-5 w-5 mr-2" /> Finalize Application
+        <div className="pt-4 border-t border-neutral-gray-light flex gap-3">
+          <Button variant="outline" size="lg" className="flex-1 border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" onClick={saveDraft}>
+            <Save className="h-5 w-5 mr-2" /> Save as Draft
           </Button>
-          <p className="text-xs text-neutral-gray-medium text-center mt-3">
-            This will register your application. You can then upload your media on the next page.
-          </p>
+          <Button size="lg" className="flex-1 bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg" onClick={handleSubmit} disabled={!allFieldsComplete}>
+            <CheckCircle className="h-5 w-5 mr-2" /> Finalize application ({comp.registrationFee})
+          </Button>
         </div>
       </div>
 

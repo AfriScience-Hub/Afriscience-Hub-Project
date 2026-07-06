@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FileText, CheckCircle } from 'lucide-react';
+import { FileText, CheckCircle, Save } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/context/AuthContext';
 import { toast } from 'sonner';
@@ -46,6 +46,40 @@ export function AfriPresentationsApply({ comp }: Props) {
 
   const idTag = useMemo(() => user?.email?.split('@')[0]?.toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(), []);
   const wordCount = summary.trim() ? summary.trim().split(/\s+/).length : 0;
+  const DRAFT_KEY = 'lp_presentations_apply_draft';
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const draft = JSON.parse(saved);
+        setLanguage(draft.language || '');
+        setOtherLanguage(draft.otherLanguage || '');
+        setSchoolName(draft.schoolName || '');
+        setSchoolAddress(draft.schoolAddress || '');
+        setParentName(draft.parentName || '');
+        setSummary(draft.summary || '');
+        setLinkedin(draft.linkedin || '');
+        setTwitter(draft.twitter || '');
+        setInstagram(draft.instagram || '');
+        setFacebook(draft.facebook || '');
+        setGuardianIdType(draft.guardianIdType || '');
+        setOtherIdType(draft.otherIdType || '');
+        toast.info('Draft restored.');
+      }
+    } catch {}
+  }, []);
+
+  const saveDraft = () => {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      language, otherLanguage, schoolName, schoolAddress, parentName, summary,
+      linkedin, twitter, instagram, facebook,
+      guardianIdType, otherIdType,
+    }));
+    toast.success('Draft saved!');
+  };
+
+  const allFieldsComplete = !!(language && (language !== 'Other' || otherLanguage.trim()) && schoolName.trim() && schoolAddress.trim() && parentName.trim() && summary.trim() && wordCount <= 500 && profilePic && contestantId && guardianIdType && (guardianIdType !== 'Other' || otherIdType.trim()) && guardianId && (linkedin || twitter || instagram || facebook));
 
   const handleProfileUpload = (file: File) => {
     const reader = new FileReader();
@@ -78,10 +112,11 @@ export function AfriPresentationsApply({ comp }: Props) {
     if (!guardianIdType) { toast.error('Please select the parent/guardian\'s ID card type.'); return false; }
     if (guardianIdType === 'Other' && !otherIdType.trim()) { toast.error('Please specify the ID card type.'); return false; }
     if (!guardianId) { toast.error('Please upload the parent/guardian\'s ID card.'); return false; }
+    if (!linkedin && !twitter && !instagram && !facebook) { toast.error('Please provide at least one social handle of the parent/guardian.'); return false; }
     return true;
   };
 
-  const handleSubmit = () => { if (validate()) setShowPayment(true); };
+  const handleSubmit = () => { if (validate()) { localStorage.removeItem(DRAFT_KEY); setShowPayment(true); } };
 
   const handlePayment = () => {
     setPaymentProcessing(true);
@@ -151,11 +186,13 @@ export function AfriPresentationsApply({ comp }: Props) {
           onOtherIdTypeChange={setOtherIdType}
           onUpload={handleGuardianIdUpload}
         />
-        <div className="pt-4 border-t border-neutral-gray-light">
-          <Button size="lg" className="w-full bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg" onClick={handleSubmit}>
-            <CheckCircle className="h-5 w-5 mr-2" /> Finalize Application
+        <div className="pt-4 border-t border-neutral-gray-light flex gap-3">
+          <Button variant="outline" size="lg" className="flex-1 border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" onClick={saveDraft}>
+            <Save className="h-5 w-5 mr-2" /> Save as Draft
           </Button>
-          <p className="text-xs text-neutral-gray-medium text-center mt-3">This will register your application. You can then upload your media on the next page.</p>
+          <Button size="lg" className="flex-1 bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg" onClick={handleSubmit} disabled={!allFieldsComplete}>
+            <CheckCircle className="h-5 w-5 mr-2" /> Finalize application ({comp.registrationFee})
+          </Button>
         </div>
       </div>
       {showPayment && (

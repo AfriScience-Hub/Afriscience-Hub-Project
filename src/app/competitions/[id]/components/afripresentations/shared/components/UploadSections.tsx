@@ -23,7 +23,7 @@ export function ProfilePictureSection({ preview, fileName, onUpload }: ProfilePi
   return (
     <div className="border-t border-neutral-gray-light pt-6">
       <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
-        <Camera className="h-3.5 w-3.5" /> Profile Picture
+        <Camera className="h-3.5 w-3.5" /> Profile Picture <span className="text-brand-red-600">*</span>
       </label>
       <p className="text-[10px] text-neutral-gray-medium mb-3">Upload the facial image of the contestant only</p>
       <div
@@ -72,7 +72,7 @@ export function IdCardUploadSection({ label, description, preview, fileName, onU
   return (
     <div className="border-t border-neutral-gray-light pt-6">
       <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
-        <CreditCard className="h-3.5 w-3.5" /> {label}
+        <CreditCard className="h-3.5 w-3.5" /> {label} <span className="text-brand-red-600">*</span>
       </label>
       <p className="text-[10px] text-neutral-gray-medium mb-3">{description}</p>
       <div
@@ -129,7 +129,7 @@ export function GuardianIdSection({ idType, otherIdType, preview, fileName, onId
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-4">
         <div>
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-            <CreditCard className="h-3.5 w-3.5" /> Parent/Guardian&apos;s ID Card
+            <CreditCard className="h-3.5 w-3.5" /> Parent/Guardian&apos;s ID Card <span className="text-brand-red-600">*</span>
           </label>
           <div className="relative">
             <select
@@ -209,7 +209,7 @@ export function GovernmentIdSection({ idType, otherIdType, preview, fileName, on
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-4">
         <div>
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-            <CreditCard className="h-3.5 w-3.5" /> Government ID Card
+            <CreditCard className="h-3.5 w-3.5" /> Government ID Card <span className="text-brand-red-600">*</span>
           </label>
           <div className="relative">
             <select

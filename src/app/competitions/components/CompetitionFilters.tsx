@@ -47,12 +47,27 @@ export function CompetitionFilters({
             </button>
             {!collapsedSections.type && (
               <div className="mt-3 space-y-2 animate-in fade-in duration-200">
-                {COMPETITION_TYPES.map(type => (
-                  <label key={type} className="flex items-center gap-2 cursor-pointer group">
-                    <input type="radio" name="competition-type" checked={selectedType === type} onChange={() => { setSelectedType(type); setSelectedCategory(''); }} className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600" />
-                    <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{type}</span>
-                  </label>
-                ))}
+                    {COMPETITION_TYPES.map(type => {
+                  const cats = categories.length > 0 && type === selectedType ? categories : [];
+                  const singleCat = cats.length === 1;
+                  return (
+                    <label key={type} className="flex items-center gap-2 cursor-pointer group">
+                      <input type="radio" name="competition-type" checked={selectedType === type}
+                        onChange={() => {
+                          setSelectedType(type);
+                          setSelectedCategory('');
+                          const typeCats = COMPETITION_TYPES.includes(type)
+                            ? (type === 'Afri \u2013 Anime' || type === 'Afri \u2013 Memes' || type === 'Afri \u2013 MySpace'
+                              ? ['General (18+)']
+                              : [])
+                            : [];
+                          if (typeCats.length === 1) setSelectedCategory(typeCats[0]);
+                        }}
+                        className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600" />
+                      <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{type}</span>
+                    </label>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -182,7 +182,7 @@ export function AfriMemesSubmission({ comp }: AfriMemesSubmissionProps) {
         </h3>
         {submitted && (
           <p className="text-xs text-green-700 mb-3 flex items-center gap-1">
-            <CheckCircle className="h-3.5 w-3.5" /> Your meme image has been submitted. You can replace it below.
+            <CheckCircle className="h-3.5 w-3.5" /> Your meme image has been submitted.
           </p>
         )}
         <p className="text-sm text-neutral-gray-medium mb-4">
@@ -217,7 +217,7 @@ export function AfriMemesSubmission({ comp }: AfriMemesSubmissionProps) {
 
         <div className="mt-6">
           <Button size="lg" className="w-full bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg"
-            onClick={handleSubmit} disabled={!uploadedFile || submitting}>
+            onClick={handleSubmit}             disabled={!uploadedFile || submitting || submitted}>
             {submitting ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

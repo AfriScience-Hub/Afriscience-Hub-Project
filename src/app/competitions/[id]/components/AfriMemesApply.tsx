@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   User, Hash, FileText, Calendar, MapPin, Globe, BookOpen, Edit3,
-  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown
+  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown, Save, Info
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/context/AuthContext';
@@ -21,56 +21,7 @@ interface AfriMemesApplyProps {
 const LANGUAGES = ['English', 'French', 'Arabic', 'Portuguese', 'Spanish', 'Afrikaans', 'Other'];
 const ID_CARD_TYPES = ['National ID Card', "Driver's Licence", 'International Passport', 'Other'];
 const WORD_LIMIT = 500;
-
-function AutoField({ icon: Icon, label, value, note }: { icon: React.ElementType; label: string; value: string; note?: string }) {
-  return (
-    <div>
-      <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-        <Icon className="h-3.5 w-3.5" /> {label}
-      </label>
-      <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
-        {value}
-      </div>
-      <p className="text-[10px] text-neutral-gray-medium mt-1">{note || 'Automatically filled by platform'}</p>
-    </div>
-  );
-}
-
-function FileDropZone({ label, icon: Icon, ref, accept, preview, file, onChange, children }: {
-  label: string; icon: React.ElementType; ref: React.RefObject<HTMLInputElement | null>;
-  accept: string; preview: string | null; file: File | null;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; children?: React.ReactNode;
-}) {
-  return (
-    <div className="border-t border-neutral-gray-light pt-6">
-      <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
-        <Icon className="h-3.5 w-3.5" /> {label}
-      </label>
-      {children}
-      <div
-        className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors border-neutral-gray-light hover:border-brand-red-300 hover:bg-brand-red-50/30"
-        onClick={() => ref.current?.click()}
-      >
-        <input ref={ref} type="file" accept={accept} onChange={onChange} className="hidden" />
-        {preview ? (
-          <div className="flex flex-col items-center">
-            <div className="relative h-24 w-24 rounded-full overflow-hidden mb-3">
-              <Image src={preview} alt="Preview" fill className="object-cover" sizes="96px" />
-            </div>
-            <p className="font-bold text-green-800">{file?.name}</p>
-            <p className="text-xs text-neutral-gray-medium mt-1">Click to replace</p>
-          </div>
-        ) : (
-          <div>
-            <Camera className="h-10 w-10 text-neutral-gray-light mx-auto mb-2" />
-            <p className="text-sm text-neutral-gray-dark">Upload your facial image only</p>
-            <p className="text-xs text-neutral-gray-medium mt-1">picture / image file formats only</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+const DRAFT_KEY = 'afrimemes_apply_draft';
 
 export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
   const router = useRouter();
@@ -89,6 +40,7 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
   const [idCardType, setIdCardType] = useState('');
+  const [otherIdCard, setOtherIdCard] = useState('');
   const [idCardFile, setIdCardFile] = useState<File | null>(null);
   const [idCardPreview, setIdCardPreview] = useState<string | null>(null);
   const [showPayment, setShowPayment] = useState(false);
@@ -96,6 +48,35 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
 
   const idTag = useMemo(() => user?.email?.split('@')[0]?.toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(), [user?.email]);
   const wordCount = memeSummary.trim() ? memeSummary.trim().split(/\s+/).length : 0;
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const draft = JSON.parse(saved);
+        setLanguage(draft.language || '');
+        setOtherLanguage(draft.otherLanguage || '');
+        setMemeTitle(draft.memeTitle || '');
+        setMemeSummary(draft.memeSummary || '');
+        setLinkedin(draft.linkedin || '');
+        setTwitter(draft.twitter || '');
+        setInstagram(draft.instagram || '');
+        setFacebook(draft.facebook || '');
+        setIdCardType(draft.idCardType || '');
+        setOtherIdCard(draft.otherIdCard || '');
+        toast.info('Draft restored.');
+      }
+    } catch {}
+  }, []);
+
+  const saveDraft = () => {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      language, otherLanguage, memeTitle, memeSummary,
+      linkedin, twitter, instagram, facebook,
+      idCardType, otherIdCard,
+    }));
+    toast.success('Draft saved!');
+  };
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -115,6 +96,8 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
     reader.readAsDataURL(file);
   };
 
+  const allFieldsComplete = !!(language && (language !== 'Other' || otherLanguage.trim()) && memeTitle.trim() && memeSummary.trim() && wordCount <= WORD_LIMIT && profilePicture && idCardType && (idCardType !== 'Other' || otherIdCard.trim()) && idCardFile && (linkedin || twitter || instagram || facebook));
+
   const validate = () => {
     if (!language) { toast.error('Please select a language.'); return false; }
     if (language === 'Other' && !otherLanguage.trim()) { toast.error('Please specify your language.'); return false; }
@@ -123,11 +106,17 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
     if (wordCount > WORD_LIMIT) { toast.error(`Summary exceeds ${WORD_LIMIT} words.`); return false; }
     if (!profilePicture) { toast.error('Please upload a profile picture.'); return false; }
     if (!idCardType) { toast.error('Please select an ID card type.'); return false; }
+    if (idCardType === 'Other' && !otherIdCard.trim()) { toast.error('Please specify your ID card type.'); return false; }
     if (!idCardFile) { toast.error('Please upload your ID card.'); return false; }
+    if (!linkedin && !twitter && !instagram && !facebook) { toast.error('Please provide at least one social handle.'); return false; }
     return true;
   };
 
-  const handleSubmit = () => { if (validate()) setShowPayment(true); };
+  const handleSubmit = () => {
+    if (!validate()) return;
+    localStorage.removeItem(DRAFT_KEY);
+    setShowPayment(true);
+  };
 
   const handlePayment = () => {
     setPaymentProcessing(true);
@@ -157,23 +146,6 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
     );
   }
 
-  const autoFields = [
-    { icon: User, label: 'Name', value: user.name },
-    { icon: Hash, label: 'ID Tag', value: idTag },
-    { icon: FileText, label: 'Competition Type', value: comp.type },
-    { icon: FileText, label: 'Category', value: comp.category },
-    { icon: Calendar, label: 'Application Date', value: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) },
-    { icon: Calendar, label: 'Submission Deadline', value: new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) },
-    { icon: MapPin, label: 'Country', value: comp.country },
-  ];
-
-  const socialFields = [
-    { label: 'LinkedIn', value: linkedin, setter: setLinkedin },
-    { label: 'Twitter', value: twitter, setter: setTwitter },
-    { label: 'Instagram', value: instagram, setter: setInstagram },
-    { label: 'Facebook', value: facebook, setter: setFacebook },
-  ];
-
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
@@ -190,12 +162,70 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {autoFields.map((f) => <AutoField key={f.label} icon={f.icon} label={f.label} value={f.value} />)}
+          <div>
+            <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+              <User className="h-3.5 w-3.5" /> Name <span className="text-brand-red-600">*</span>
+            </label>
+            <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{user.name}</div>
+            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+          </div>
+          <div>
+            <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+              <Hash className="h-3.5 w-3.5" /> ID Tag <span className="text-brand-red-600">*</span>
+            </label>
+            <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium font-mono">{idTag}</div>
+            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+          </div>
+          <div>
+            <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+              <FileText className="h-3.5 w-3.5" /> Competition Type <span className="text-brand-red-600">*</span>
+            </label>
+            <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{comp.type}</div>
+            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+          </div>
+          <div>
+            <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+              <FileText className="h-3.5 w-3.5" /> Category <span className="text-brand-red-600">*</span>
+            </label>
+            <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{comp.category}</div>
+            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+          </div>
+          <div>
+            <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+              <Calendar className="h-3.5 w-3.5" /> Application Date <span className="text-brand-red-600">*</span>
+            </label>
+            <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
+              {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </div>
+            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+          </div>
+          <div>
+            <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+              <Calendar className="h-3.5 w-3.5" /> Submission Deadline <span className="text-brand-red-600">*</span>
+            </label>
+            <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
+              {new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </div>
+            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+          </div>
+          <div>
+            <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+              <MapPin className="h-3.5 w-3.5" /> Country <span className="text-brand-red-600">*</span>
+            </label>
+            <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{comp.country}</div>
+            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+          </div>
         </div>
 
         <div className="border-t border-neutral-gray-light pt-6">
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-            <Globe className="h-3.5 w-3.5" /> Language
+            <Globe className="h-3.5 w-3.5" /> Language <span className="text-brand-red-600">*</span>
+            <span className="relative group ml-1">
+              <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                Select the language of your meme
+              </span>
+            </span>
           </label>
           <div className="relative">
             <select value={language} onChange={(e) => setLanguage(e.target.value)}
@@ -214,7 +244,7 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
 
         <div>
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-            <BookOpen className="h-3.5 w-3.5" /> Meme Title
+            <BookOpen className="h-3.5 w-3.5" /> Meme Title <span className="text-brand-red-600">*</span>
           </label>
           <input type="text" value={memeTitle} onChange={(e) => setMemeTitle(e.target.value)}
             placeholder="Input meme topic or title"
@@ -223,7 +253,13 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
 
         <div>
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-            <Edit3 className="h-3.5 w-3.5" /> Meme Summary
+            <Edit3 className="h-3.5 w-3.5" /> Meme Summary <span className="text-brand-red-600">*</span>
+            <span className="relative group ml-1">
+              <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                Briefly explain the meaning of your meme and the science concept behind it
+              </span>
+            </span>
           </label>
           <textarea value={memeSummary} onChange={(e) => setMemeSummary(e.target.value)}
             placeholder="Briefly explain the meaning of your meme and the science concept behind it"
@@ -234,10 +270,15 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
 
         <div className="border-t border-neutral-gray-light pt-6">
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
-            <LinkIcon className="h-3.5 w-3.5" /> Social Handles
+            <LinkIcon className="h-3.5 w-3.5" /> SOCIAL HANDLES (provide at least one) <span className="text-brand-red-600">*</span>
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {socialFields.map((s) => (
+            {[
+              { label: 'LinkedIn', value: linkedin, setter: setLinkedin },
+              { label: 'Twitter', value: twitter, setter: setTwitter },
+              { label: 'Instagram', value: instagram, setter: setInstagram },
+              { label: 'Facebook', value: facebook, setter: setFacebook },
+            ].map((s) => (
               <div key={s.label}>
                 <label className="text-xs text-neutral-gray-medium mb-1 block">{s.label}</label>
                 <input type="url" value={s.value} onChange={(e) => s.setter(e.target.value)}
@@ -248,14 +289,36 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
           </div>
         </div>
 
-        <FileDropZone label="Profile Picture" icon={Camera} ref={profilePicRef} accept="image/*"
-          preview={profilePicPreview} file={profilePicture} onChange={handleProfilePicChange} />
+        <div className="border-t border-neutral-gray-light pt-6">
+          <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
+            <Camera className="h-3.5 w-3.5" /> Profile Picture <span className="text-brand-red-600">*</span>
+          </label>
+          <div className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors border-neutral-gray-light hover:border-brand-red-300 hover:bg-brand-red-50/30"
+            onClick={() => profilePicRef.current?.click()}>
+            <input ref={profilePicRef} type="file" accept="image/*" onChange={handleProfilePicChange} className="hidden" />
+            {profilePicPreview ? (
+              <div className="flex flex-col items-center">
+                <div className="relative h-24 w-24 rounded-full overflow-hidden mb-3">
+                  <Image src={profilePicPreview} alt="Profile preview" fill className="object-cover" sizes="96px" />
+                </div>
+                <p className="font-bold text-green-800">{profilePicture?.name}</p>
+                <p className="text-xs text-neutral-gray-medium mt-1">Click to replace</p>
+              </div>
+            ) : (
+              <div>
+                <Camera className="h-10 w-10 text-neutral-gray-light mx-auto mb-2" />
+                <p className="text-sm text-neutral-gray-dark">Upload your facial image only</p>
+                <p className="text-xs text-neutral-gray-medium mt-1">picture / image file formats only</p>
+              </div>
+            )}
+          </div>
+        </div>
 
         <div className="border-t border-neutral-gray-light pt-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-4">
             <div>
               <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-                <CreditCard className="h-3.5 w-3.5" /> Government ID Card
+                <CreditCard className="h-3.5 w-3.5" /> Government ID Card <span className="text-brand-red-600">*</span>
               </label>
               <div className="relative">
                 <select value={idCardType} onChange={(e) => setIdCardType(e.target.value)}
@@ -265,6 +328,11 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium pointer-events-none" />
               </div>
+              {idCardType === 'Other' && (
+                <input type="text" value={otherIdCard} onChange={(e) => setOtherIdCard(e.target.value)}
+                  placeholder="Specify ID card type..."
+                  className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm mt-2 focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
+              )}
             </div>
           </div>
           <div className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors border-neutral-gray-light hover:border-brand-red-300 hover:bg-brand-red-50/30"
@@ -290,13 +358,13 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
           </div>
         </div>
 
-        <div className="pt-4 border-t border-neutral-gray-light">
-          <Button size="lg" className="w-full bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg" onClick={handleSubmit}>
-            <CheckCircle className="h-5 w-5 mr-2" /> Finalize Application
+        <div className="pt-4 border-t border-neutral-gray-light flex gap-3">
+          <Button variant="outline" size="lg" className="flex-1 border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" onClick={saveDraft}>
+            <Save className="h-5 w-5 mr-2" /> Save as Draft
           </Button>
-          <p className="text-xs text-neutral-gray-medium text-center mt-3">
-            This will register your application. You can then upload your media on the next page.
-          </p>
+          <Button size="lg" className="flex-1 bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg" onClick={handleSubmit} disabled={!allFieldsComplete}>
+            <CheckCircle className="h-5 w-5 mr-2" /> Finalize application ({comp.registrationFee})
+          </Button>
         </div>
       </div>
 

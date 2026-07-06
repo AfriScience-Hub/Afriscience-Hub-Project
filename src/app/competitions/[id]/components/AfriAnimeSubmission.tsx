@@ -188,7 +188,7 @@ export function AfriAnimeSubmission({ comp }: AfriAnimeSubmissionProps) {
         </h3>
         {submitted && (
           <p className="text-xs text-green-700 mb-3 flex items-center gap-1">
-            <CheckCircle className="h-3.5 w-3.5" /> Your video has been submitted. You can replace it below.
+            <CheckCircle className="h-3.5 w-3.5" /> Your video has been submitted.
           </p>
         )}
         <p className="text-sm text-neutral-gray-medium mb-4">
@@ -230,7 +230,7 @@ export function AfriAnimeSubmission({ comp }: AfriAnimeSubmissionProps) {
             size="lg"
             className="w-full bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg"
             onClick={handleSubmit}
-            disabled={!uploadedFile || submitting}
+            disabled={!uploadedFile || submitting || submitted}
           >
             {submitting ? (
               <span className="flex items-center gap-2">

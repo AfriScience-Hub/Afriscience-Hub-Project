@@ -240,7 +240,7 @@ export function TopicsSection({ topics, selectedTopicIdx, undertakingChecked, on
           disabled={!undertakingChecked || selectedTopicIdx === null}
           onClick={onApply}
         >
-          <Trophy className="h-5 w-5 mr-2" /> Apply for Selected Topic ({fee})
+          <Trophy className="h-5 w-5 mr-2" /> Apply for Selected Topic
         </Button>
         {(!undertakingChecked || selectedTopicIdx === null) && (
           <p className="text-xs text-brand-red-600 text-center mt-2">

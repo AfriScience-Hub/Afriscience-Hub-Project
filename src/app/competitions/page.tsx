@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Clock } from 'lucide-react';
 import { COMPETITIONS } from './data';
 import { CompetitionsHeader } from './components/CompetitionsHeader';
 import { CompetitionFilters } from './components/CompetitionFilters';
@@ -13,6 +13,13 @@ const CATEGORIES_BY_TYPE: Record<string, string[]> = {
   'Afri \u2013 Presentations': ['Lower Primary', 'Upper Primary', 'Junior Secondary', 'Senior Secondary', 'Undergraduates', 'Graduates'],
   'Afri \u2013 Memes': ['General (18+)'],
   'Afri \u2013 MySpace': ['General (18+)'],
+};
+
+const DEADLINES: Record<string, string> = {
+  'Afri \u2013 Anime': 'August 15, 2026',
+  'Afri \u2013 Presentations': 'August 30, 2026',
+  'Afri \u2013 Memes': 'September 15, 2026',
+  'Afri \u2013 MySpace': 'September 30, 2026',
 };
 
 export default function Competitions() {
@@ -31,7 +38,13 @@ export default function Competitions() {
 
   const filteredCompetitions = useMemo(() => {
     return COMPETITIONS.filter(comp => {
-      const matchesSearch = comp.title.toLowerCase().includes(searchTerm.toLowerCase()) || comp.type.toLowerCase().includes(searchTerm.toLowerCase()) || comp.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const term = searchTerm.toLowerCase();
+      const matchesSearch = !term ||
+        comp.title.toLowerCase().includes(term) ||
+        comp.type.toLowerCase().includes(term) ||
+        comp.category.toLowerCase().includes(term) ||
+        comp.country.toLowerCase().includes(term) ||
+        comp.description.toLowerCase().includes(term);
       const matchesType = !selectedType || comp.type === selectedType;
       const matchesCategory = !selectedCategory || comp.category === selectedCategory;
       const matchesCountry = !selectedCountry || comp.country === selectedCountry;
@@ -73,6 +86,12 @@ export default function Competitions() {
               <input type="text" placeholder="Search competitions by name, type, category, country or keyword"
                 className="w-full rounded-xl border border-neutral-gray-light pl-12 pr-4 py-3 text-sm placeholder:text-sm shadow-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600 transition-all"
                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              {selectedType && DEADLINES[selectedType] && (
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-xs font-medium text-brand-red-600 bg-brand-red-50 px-2.5 py-1 rounded-full border border-brand-red-100">
+                  <Clock className="h-3 w-3" />
+                  Deadline: {DEADLINES[selectedType]}
+                </div>
+              )}
             </div>
             <div className="mb-4 flex items-center justify-between text-sm text-slate-500">
               <span>Showing <strong>{filteredCompetitions.length}</strong> competitions</span>
