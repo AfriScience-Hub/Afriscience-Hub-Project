@@ -14,6 +14,7 @@ interface ContestantItem {
   position?: number;
   votes: number;
   livePosition?: number;
+  year?: number;
 }
 
 interface ViewWorkModalProps {
@@ -100,6 +101,12 @@ export function ViewWorkModal({ isOpen, contestant, onClose }: ViewWorkModalProp
                   <MapPin className="h-4 w-4 text-[#91a3bf]" />
                   {contestant.country}
                 </p>
+                {contestant.year && (
+                  <p>
+                    <span className="font-semibold text-[#172235]">Year:</span>{' '}
+                    {contestant.year}
+                  </p>
+                )}
               </div>
             </div>
           </section>
@@ -144,7 +151,7 @@ export function ViewWorkModal({ isOpen, contestant, onClose }: ViewWorkModalProp
           <section className="rounded-lg border border-[#d9e1ec] p-4">
             <p className="text-xs font-bold uppercase tracking-wide text-[#ff3b30]">
               {contestant.competition === 'Afri \u2013 Presentations' && PRIMARY_SECONDARY_CATEGORIES.includes(contestant.category)
-                ? 'Social Handles (Guardians)'
+                ? 'Social Handles (Guardian)'
                 : 'Social Handles'}
             </p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">

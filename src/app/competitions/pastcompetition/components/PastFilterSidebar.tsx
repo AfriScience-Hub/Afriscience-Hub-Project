@@ -57,18 +57,24 @@ export default function PastFilterSidebar({
             </button>
             {!collapsedSections.type && (
               <div className="mt-3 space-y-2 animate-in fade-in duration-200">
-                {competitionTypes.map(type => (
-                  <label key={type} className="flex items-center gap-2 cursor-pointer group">
-                    <input
-                      type="radio"
-                      name="past-type"
-                      checked={selectedType === type}
-                      onChange={() => { setSelectedType(type); setSelectedCategory(''); }}
-                      className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600"
-                    />
-                    <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{type}</span>
-                  </label>
-                ))}
+                {competitionTypes.map(type => {
+                  const singleCat = type === 'Afri \u2013 Anime' || type === 'Afri \u2013 Memes' || type === 'Afri \u2013 MySpace';
+                  return (
+                    <label key={type} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="radio"
+                        name="past-type"
+                        checked={selectedType === type}
+                        onChange={() => {
+                          setSelectedType(type);
+                          setSelectedCategory(singleCat ? 'General (18+)' : '');
+                        }}
+                        className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600"
+                      />
+                      <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{type}</span>
+                    </label>
+                  );
+                })}
               </div>
             )}
           </div>

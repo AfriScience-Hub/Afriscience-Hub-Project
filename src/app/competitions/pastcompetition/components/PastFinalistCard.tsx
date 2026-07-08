@@ -1,6 +1,7 @@
 "use client"
 
-import { Vote, Eye, Share2, MapPin, Trophy } from 'lucide-react';
+import { useState } from 'react';
+import { Vote, Eye, Share2, MapPin, Trophy, Archive } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/Button';
 import { getCompetitionColor, getPositionStyle, getPositionLabel } from '@/app/voting/data';
@@ -28,6 +29,9 @@ type PastFinalistCardProps = {
 };
 
 export default function PastFinalistCard({ finalist, onViewWork }: PastFinalistCardProps) {
+  const [archived, setArchived] = useState(false);
+  const [preview, setPreview] = useState(false);
+
   const handleShare = async () => {
     const url = `${window.location.origin}/competitions/pastcompetition?finalist=${finalist.id}`;
     if (navigator.share) {
@@ -42,10 +46,28 @@ export default function PastFinalistCard({ finalist, onViewWork }: PastFinalistC
     }
   };
 
+  const handleArchive = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setArchived(!archived);
+    toast.success(archived ? 'Removed from archive' : 'Archived successfully');
+  };
+
   return (
-    <div className="group flex flex-col rounded-2xl border border-neutral-gray-light bg-white shadow-sm transition-all hover:shadow-lg hover:border-brand-red-100 overflow-hidden">
+    <div className={cn(
+      "group flex flex-col rounded-2xl border border-neutral-gray-light bg-white shadow-sm transition-all hover:shadow-lg hover:border-brand-red-100 overflow-hidden",
+      archived && "opacity-60"
+    )}>
       {/* Image Container */}
       <div className="relative h-56 bg-brand-navy-900 overflow-hidden">
+        {preview ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setPreview(false)}>
+            <img
+              src={finalist.image}
+              alt={finalist.name}
+              className="max-h-full max-w-full object-contain rounded-lg"
+            />
+          </div>
+        ) : null}
         <img
           src={finalist.image}
           alt={finalist.name}
@@ -53,23 +75,42 @@ export default function PastFinalistCard({ finalist, onViewWork }: PastFinalistC
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-        {/* Top Left - Year */}
-        <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded-full">
-          <Trophy className="h-3 w-3" />
-          {finalist.year}
-        </div>
-
-        {/* Top Right - Share Button */}
+        {/* Share - top left */}
         <button
           onClick={(e) => { e.stopPropagation(); handleShare(); }}
-          className="absolute top-3 right-3 flex items-center justify-center h-8 w-8 rounded-full bg-white/90 backdrop-blur text-slate-600 hover:bg-white hover:text-brand-red-600 transition-all shadow-sm"
+          className="absolute top-3 left-3 rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors"
           title="Share"
         >
-          <Share2 className="h-4 w-4" />
+          <Share2 className="h-3.5 w-3.5" />
         </button>
 
-        {/* Competition Badge */}
-        <div className="absolute bottom-3 left-3">
+        {/* Archive + Preview - top right */}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5">
+          <button
+            onClick={handleArchive}
+            className={cn(
+              "flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur shadow-sm transition-all",
+              archived ? "text-brand-red-600 bg-brand-red-50" : "text-slate-600 hover:bg-white hover:text-brand-red-600"
+            )}
+            title={archived ? "Unarchive" : "Archive"}
+          >
+            <Archive className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); setPreview(true); }}
+            className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white hover:text-brand-red-600 transition-all shadow-sm"
+            title="Preview"
+          >
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        {/* Year + Competition Badge - bottom left */}
+        <div className="absolute bottom-3 left-3 flex flex-col items-start gap-1">
+          <span className="flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <Trophy className="h-3 w-3" />
+            {finalist.year}
+          </span>
           <span className={cn("px-2 py-1 rounded-full text-[9px] font-bold uppercase border backdrop-blur-sm", getCompetitionColor(finalist.competition))}>
             {finalist.competition}
           </span>
@@ -91,11 +132,15 @@ export default function PastFinalistCard({ finalist, onViewWork }: PastFinalistC
         {/* Name & Country */}
         <div className="mb-4">
           <h3 className="text-lg font-bold text-neutral-black mb-1 leading-tight">{finalist.name}</h3>
-          <p className="text-sm text-neutral-gray-medium flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-            {finalist.country}
-          </p>
-          <p className="text-xs text-neutral-gray-medium mt-0.5">{finalist.category}</p>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="flex items-center gap-1 text-sm font-semibold text-neutral-black">
+              <MapPin className="h-4 w-4 text-brand-red-600 flex-shrink-0" />
+              {finalist.country}
+            </span>
+          </div>
+          <span className="inline-block text-[11px] font-bold uppercase tracking-wide text-brand-navy-900 bg-brand-navy-100 px-2.5 py-0.5 rounded-full border border-brand-navy-100">
+            {finalist.category}
+          </span>
         </div>
 
         {/* Votes Display */}

@@ -209,7 +209,7 @@ export default function AwardDetail() {
             <section className="rounded-lg border border-[#d9e1ec] p-4">
               <p className="text-xs font-bold uppercase tracking-wide text-[#ff3b30]">
                 {award.competition === 'Afri \u2013 Presentations' && PRIMARY_SECONDARY.includes(award.category || '')
-                  ? 'Social Handles (Guardians)'
+                  ? 'Social Handles (Guardian)'
                   : 'Social Handles'}
               </p>
               {hideSocial ? (

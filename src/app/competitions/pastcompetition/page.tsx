@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Search, MapPin, SlidersHorizontal } from 'lucide-react';
-import { CONCLUDED_VOTING_FINALISTS, COMPETITION_TYPES, AFRICAN_COUNTRIES } from '@/app/data/mockData';
+import { CONCLUDED_VOTING_FINALISTS, COMPETITION_TYPES, AFRICAN_COUNTRIES as ALL_AFRICAN_COUNTRIES } from '@/app/data/mockData';
 import { Button } from '@/app/components/ui/Button';
 import { ViewWorkModal } from '@/app/components/modals/ViewWorkModal';
 import { CompetitionsHeader } from '../components/CompetitionsHeader';
@@ -39,7 +39,7 @@ export default function PastCompetitions() {
   []);
 
   const countries = useMemo(() =>
-    [...new Set(CONCLUDED_VOTING_FINALISTS.map(f => f.country))].sort(),
+    ALL_AFRICAN_COUNTRIES.sort(),
   []);
 
   const matchesPosition = (pos: number, range: string) => {
@@ -53,13 +53,16 @@ export default function PastCompetitions() {
   const filteredFinalists = useMemo(() => {
     return CONCLUDED_VOTING_FINALISTS.filter(f => {
       const term = searchTerm.toLowerCase();
+      const positionLabel = getPositionLabel(f.position);
       const matchesSearch =
         !term ||
         f.name.toLowerCase().includes(term) ||
         f.competition.toLowerCase().includes(term) ||
         f.category.toLowerCase().includes(term) ||
         f.country.toLowerCase().includes(term) ||
-        f.year.toString().includes(term);
+        f.year.toString().includes(term) ||
+        f.position.toString().includes(term) ||
+        positionLabel.toLowerCase().includes(term);
       const matchesType = !selectedType || f.competition === selectedType;
       const matchesCategory = !selectedCategory || f.category === selectedCategory;
       const matchesPositionFilter = matchesPosition(f.position, selectedPosition);
