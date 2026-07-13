@@ -22,6 +22,7 @@ import {
   navigationMenuTriggerStyle,
 } from "./ui/navigation-menu";
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'sonner';
 import { NotificationDropdown } from './NotificationDropdown';
 import { SearchDirectory } from './SearchDirectory';
 
@@ -122,7 +123,8 @@ function ProfileDropdown() {
   const handleLogout = () => {
     setOpen(false);
     logout();
-router.push('/');
+    toast.success('You have been logged out.');
+    router.push('/');
   };
 
   const menuItems = [
@@ -567,7 +569,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                   <Button
                     variant="ghost"
                     className="w-full justify-start gap-2 text-brand-red-600 hover:text-brand-red-700"
-                    onClick={() => { logout(); router.push('/'); setIsMenuOpen(false); }}
+                    onClick={() => { logout(); toast.success('You have been logged out.'); router.push('/'); setIsMenuOpen(false); }}
                   >
                     <LogOut className="h-4 w-4" /> Log Out
                   </Button>

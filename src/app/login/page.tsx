@@ -100,7 +100,7 @@ export default function Login() {
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label htmlFor="identifier" className="block text-sm font-medium text-neutral-black">
+                  <label htmlFor="identifier" className="block text-xs lg:text-sm font-medium text-neutral-black">
                     {usePhone ? 'Phone Number' : 'Email Address'}
                   </label>
                   <button
@@ -133,7 +133,7 @@ export default function Login() {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-neutral-black">
+                <label htmlFor="password" className="block text-xs lg:text-sm font-medium text-neutral-black">
                   Password
                 </label>
                 <div className="relative mt-1">
@@ -169,7 +169,7 @@ export default function Login() {
                   type="checkbox"
                   className="h-4 w-4 rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-neutral-gray-dark">
+                <label htmlFor="remember-me" className="ml-2 block text-xs lg:text-sm text-neutral-gray-dark">
                   Remember me
                 </label>
               </div>

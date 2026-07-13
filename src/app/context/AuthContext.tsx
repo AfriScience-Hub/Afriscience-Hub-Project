@@ -13,7 +13,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
   signup: (name: string, email: string, phone: string, password: string) => Promise<void>;
   verifyEmail: (email: string, otp: string) => Promise<void>;
   logout: () => void;
@@ -56,20 +56,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await api.post('/auth/verify', { email, otp });
   };
 
-  const login = async (email: string, password: string) => {
-    const data = await api.post<{ name?: string; email?: string; phone?: string }>('/auth/login', {
-      email,
-      password,
-    });
+  const login = async (identifier: string, password: string) => {
+    const isEmail = identifier.includes('@');
+    const payload: Record<string, string> = { password };
+    if (isEmail) {
+      payload.email = identifier;
+    } else {
+      payload.phone = identifier;
+    }
+
+    const data = await api.post<{ name?: string; email?: string; phone?: string }>('/auth/login', payload);
 
     if (data.token) {
       localStorage.setItem('afrisciencehub_token', data.token);
     }
 
     setUser({
-      name: data.user?.name || email.split('@')[0] || 'User',
-      email: data.user?.email || email,
-      phone: data.user?.phone || '',
+      name: data.user?.name || (isEmail ? identifier.split('@')[0] : 'User'),
+      email: data.user?.email || (isEmail ? identifier : ''),
+      phone: data.user?.phone || (!isEmail ? identifier : ''),
       avatar: DEFAULT_AVATAR,
     });
   };
