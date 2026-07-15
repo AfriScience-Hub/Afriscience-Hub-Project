@@ -1,16 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
-import { FileText, ShieldCheck, Award, ImageIcon, MapPin, ShoppingBag } from 'lucide-react';
+import { FileText, ShieldCheck, Award, ImageIcon, MapPin, ShoppingBag, ChevronRight } from 'lucide-react';
 import { MOCK_SPONSOR } from '../data';
-
-function ShoppingBagIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-    </svg>
-  );
-}
 
 export function AboutSection() {
   const s = MOCK_SPONSOR;
@@ -24,20 +17,50 @@ export function AboutSection() {
 
 export function CatalogSection() {
   const s = MOCK_SPONSOR;
+  const [activeIndustry, setActiveIndustry] = useState<string | null>(null);
+
+  const currentIndustry = activeIndustry || s.catalog[0]?.industry;
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-6">
       <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
-        <ShoppingBagIcon className="h-5 w-5 text-brand-red-600" />
+        <ShoppingBag className="h-5 w-5 text-brand-red-600" />
         Products & Services Catalog
       </h3>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {s.catalog.map((item, idx) => (
-          <div key={idx} className="border border-neutral-gray-light rounded-lg p-4 hover:border-brand-red-600 transition-colors">
-            <h4 className="font-semibold text-neutral-black mb-1">{item.name}</h4>
-            <p className="text-sm text-brand-red-600 font-bold">{item.price}</p>
-          </div>
+
+      <div className="flex flex-wrap gap-2 mb-6">
+        {s.catalog.map((group) => (
+          <button
+            key={group.industry}
+            onClick={() => setActiveIndustry(group.industry)}
+            className={`cursor-pointer px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              currentIndustry === group.industry
+                ? 'bg-brand-red-600 text-white'
+                : 'bg-neutral-bg-light text-neutral-gray-dark hover:bg-neutral-gray-light'
+            }`}
+          >
+            {group.industry}
+          </button>
         ))}
       </div>
+
+      {currentIndustry && (() => {
+        const group = s.catalog.find(g => g.industry === currentIndustry);
+        if (!group) return null;
+        return (
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-neutral-gray-medium uppercase mb-3">{group.industry}</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {group.items.map((item, idx) => (
+                <div key={idx} className="border border-neutral-gray-light rounded-lg p-4 hover:border-brand-red-600 transition-colors">
+                  <h4 className="font-semibold text-neutral-black mb-1">{item.name}</h4>
+                  <p className="text-sm text-brand-red-600 font-bold">{item.price}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

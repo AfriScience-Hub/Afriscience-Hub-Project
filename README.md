@@ -54,7 +54,10 @@ npm run build      # Production build
 | `/faq` | Searchable FAQ |
 | `/support` | Support hub |
 | `/support/donate` | Donation flow |
-| `/support/sponsor` | Sponsor opportunities |
+| `/support/sponsor` | Sponsor landing page with tiers, benefits, corporate CTA |
+| `/support/sponsor/all` | Filterable sponsor directory (industry, status, country) |
+| `/support/sponsor/apply` | Multi-section sponsorship application form with tier pre-selection |
+| `/support/sponsor/[id]` | Sponsor detail page (about, catalog by industry, licenses, awards, media, map) |
 | `/support/volunteer` | Volunteer opportunities |
 | `/login` | Login UI |
 | `/signup` | Signup UI |
@@ -91,6 +94,7 @@ npm run build      # Production build
 
 ## Key Features
 
+- **Sponsor module** — Landing page with updated tier pricing ($2.5K–$500K), "Get Started" links pre-select tier on apply form; full application form with auto-populated user info, tier info modals, industry multi-select (capped by tier), product catalog by industry (currency, ASH discount, specs, images), licenses/awards with document upload, undertaking checkbox
 - **Live voting** — Track votes in real time with localStorage persistence, one-vote-per-category enforcement
 - **Competition submission flow** — Multi-step: details → application (with payment modal) → media upload
 - **Afri-Presentations** — Full per-category details, apply, and submission pages with shared components

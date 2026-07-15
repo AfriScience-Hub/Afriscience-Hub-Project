@@ -119,12 +119,12 @@ export default function SupportHub() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/support/sponsor">
-              <Button size="lg" className="bg-white text-brand-red-600 hover:bg-neutral-bg-light">
+              <Button size="lg" className="bg-white text-brand-red-600 hover:bg-white/40">
                 Become a Sponsor
               </Button>
             </Link>
             <Link href="/contact">
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
+              <Button size="lg" variant="outline" className="border-white/30 text-black hover:bg-white/10">
                 Contact Us
               </Button>
             </Link>

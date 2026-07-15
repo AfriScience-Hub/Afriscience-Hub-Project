@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, DollarSign } from 'lucide-react';
@@ -8,50 +8,13 @@ import { Button } from '../../../components/ui/Button';
 import { useAuth } from '../../../context/AuthContext';
 import { toast } from 'sonner';
 import { SponsorshipForm } from './components/SponsorshipForm';
-import { type CatalogItem } from './data';
 
 export default function BecomeASponsor() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  const [formData, setFormData] = useState({
-    fullName: user?.name || '',
-    email: user?.email || '',
-    companyName: '',
-    industry: '',
-    motto: '',
-    description: '',
-    country: '',
-    state: '',
-    address: '',
-    phone: '',
-    website: '',
-    linkedin: '',
-    twitter: '',
-    facebook: '',
-    tier: '',
-    status: 'Online',
-  });
-
-  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([{ name: '', price: '' }]);
-  const [policies, setPolicies] = useState<string[]>(['']);
-  const [displayPicture, setDisplayPicture] = useState<File | null>(null);
-  const [licenses, setLicenses] = useState<File[]>([]);
-  const [mediaGallery, setMediaGallery] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPaystackModal, setShowPaystackModal] = useState(false);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const addCatalogItem = () => setCatalogItems([...catalogItems, { name: '', price: '' }]);
-  const removeCatalogItem = (index: number) => setCatalogItems(catalogItems.filter((_, i) => i !== index));
-  const updateCatalogItem = (index: number, field: 'name' | 'price', value: string) => {
-    const newItems = [...catalogItems];
-    newItems[index] = { ...newItems[index], [field]: value };
-    setCatalogItems(newItems);
-  };
 
   const handleSaveDraft = () => {
     toast.success('Application saved as draft!');
@@ -60,7 +23,6 @@ export default function BecomeASponsor() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated) { toast.error('Please log in first'); return; }
-    if (!formData.tier) { toast.error('Please select a sponsorship tier'); return; }
     setIsSubmitting(true);
     await new Promise(r => setTimeout(r, 1500));
     setShowPaystackModal(true);
@@ -97,32 +59,21 @@ export default function BecomeASponsor() {
               Become a Sponsor
             </h1>
             <p className="text-slate-300 text-lg max-w-2xl mb-8">
-              Fill out the form below to apply for a sponsorship partnership with AfriScience Hub. Our team will review your application and get back to you within 5 business days.
+              Fill out the form below to apply for a sponsorship partnership with AfriScience Hub. Your application will be reviewed by our team and published within 5 business days.
             </p>
           </div>
         </div>
       </section>
 
-      <SponsorshipForm
-        formData={formData}
-        onInputChange={handleInputChange}
-        catalogItems={catalogItems}
-        addCatalogItem={addCatalogItem}
-        removeCatalogItem={removeCatalogItem}
-        updateCatalogItem={updateCatalogItem}
-        policies={policies}
-        setPolicies={setPolicies}
-        displayPicture={displayPicture}
-        setDisplayPicture={setDisplayPicture}
-        licenses={licenses}
-        setLicenses={setLicenses}
-        mediaGallery={mediaGallery}
-        setMediaGallery={setMediaGallery}
-        isAuthenticated={isAuthenticated}
-        isSubmitting={isSubmitting}
-        onSaveDraft={handleSaveDraft}
-        onSubmit={handleSubmit}
-      />
+      <Suspense fallback={<div className="container mx-auto px-4 py-12 text-center text-slate-500">Loading form...</div>}>
+        <SponsorshipForm
+          user={user}
+          isAuthenticated={isAuthenticated}
+          isSubmitting={isSubmitting}
+          onSubmit={handleSubmit}
+          onSaveDraft={handleSaveDraft}
+        />
+      </Suspense>
 
       {showPaystackModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -130,7 +81,7 @@ export default function BecomeASponsor() {
             <DollarSign className="h-16 w-16 text-emerald-600 mx-auto mb-4 bg-emerald-100 rounded-full p-3" />
             <h2 className="text-2xl font-bold text-neutral-black mb-2">Complete Your Sponsorship</h2>
             <p className="text-slate-500 mb-6">
-              You selected the <strong>{formData.tier}</strong> tier. Complete your payment to finalize your sponsorship application.
+              Complete your payment to finalize your sponsorship application.
             </p>
             <div className="flex flex-col gap-3">
               <Button onClick={handlePaystackConfirm} className="w-full h-12 bg-brand-red-600 hover:bg-brand-red-700">

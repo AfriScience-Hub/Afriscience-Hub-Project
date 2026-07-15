@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { SlidersHorizontal, Globe } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
@@ -10,53 +10,36 @@ import { MOCK_SPONSORS, type Sponsor } from './data';
 
 export default function SponsorsListing() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedIndustry, setSelectedIndustry] = useState<string[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+  const [selectedIndustry, setSelectedIndustry] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [showFilters, setShowFilters] = useState(true);
-  const [archivedSponsors, setArchivedSponsors] = useState<number[]>([]);
-  const [industryOpen, setIndustryOpen] = useState(true);
-  const [statusOpen, setStatusOpen] = useState(true);
-  const [countryOpen, setCountryOpen] = useState(true);
 
-  const handleIndustryChange = (industry: string) => {
-    setSelectedIndustry(prev =>
-      prev.includes(industry) ? prev.filter(i => i !== industry) : [...prev, industry]
-    );
-  };
+  const handleIndustryChange = useCallback((industry: string) => {
+    setSelectedIndustry(prev => prev === industry ? '' : industry);
+  }, []);
 
-  const handleStatusChange = (status: string) => {
-    setSelectedStatus(prev =>
-      prev.includes(status) ? prev.filter(s => s !== status) : [...prev, status]
-    );
-  };
+  const handleStatusChange = useCallback((status: string) => {
+    setSelectedStatus(prev => prev === status ? '' : status);
+  }, []);
 
-  const resetFilters = () => {
-    setSelectedIndustry([]);
-    setSelectedStatus([]);
+  const handleCountryChange = useCallback((country: string) => {
+    setSelectedCountry(country);
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setSelectedIndustry('');
+    setSelectedStatus('');
     setSelectedCountry('');
     setSearchTerm('');
-  };
-
-  const toggleArchive = (id: number) => {
-    setArchivedSponsors(prev =>
-      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
-    );
-  };
-
-  const handleShare = (sponsor: Sponsor) => {
-    if (navigator.share) {
-      navigator.share({ title: sponsor.name, text: sponsor.description, url: window.location.href + '/' + sponsor.id });
-    } else {
-      navigator.clipboard.writeText(window.location.href + '/' + sponsor.id);
-      alert('Link copied to clipboard!');
-    }
-  };
+  }, []);
 
   const filteredSponsors = MOCK_SPONSORS.filter(sponsor => {
-    if (searchTerm && !sponsor.name.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-    if (selectedIndustry.length > 0 && !selectedIndustry.includes(sponsor.industry)) return false;
-    if (selectedStatus.length > 0 && !selectedStatus.includes(sponsor.status)) return false;
+    if (searchTerm && !sponsor.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !sponsor.industries.some(i => i.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        !sponsor.country.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+    if (selectedIndustry && !sponsor.industries.includes(selectedIndustry)) return false;
+    if (selectedStatus && sponsor.status !== selectedStatus) return false;
     if (selectedCountry && sponsor.country !== selectedCountry) return false;
     return true;
   });
@@ -75,7 +58,7 @@ export default function SponsorsListing() {
             <span className="text-white">All Sponsors</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2">Our Sponsors</h1>
-          <p className="text-slate-300 text-lg">Browse organizations supporting African science and innovation</p>
+          <p className="text-slate-300 text-lg">Browse organizations, companies and brands powering African science, technology and innovation</p>
         </div>
       </section>
 
@@ -86,11 +69,8 @@ export default function SponsorsListing() {
               searchTerm={searchTerm} onSearchChange={setSearchTerm}
               selectedIndustry={selectedIndustry} onIndustryChange={handleIndustryChange}
               selectedStatus={selectedStatus} onStatusChange={handleStatusChange}
-              selectedCountry={selectedCountry} onCountryChange={setSelectedCountry}
+              selectedCountry={selectedCountry} onCountryChange={handleCountryChange}
               onReset={resetFilters}
-              industryOpen={industryOpen} setIndustryOpen={setIndustryOpen}
-              statusOpen={statusOpen} setStatusOpen={setStatusOpen}
-              countryOpen={countryOpen} setCountryOpen={setCountryOpen}
             />
           </aside>
 
@@ -107,14 +87,11 @@ export default function SponsorsListing() {
               </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
               {filteredSponsors.map(sponsor => (
                 <SponsorCard
                   key={sponsor.id}
                   sponsor={sponsor}
-                  isArchived={archivedSponsors.includes(sponsor.id)}
-                  onToggleArchive={toggleArchive}
-                  onShare={handleShare}
                 />
               ))}
             </div>

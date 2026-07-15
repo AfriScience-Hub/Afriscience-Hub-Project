@@ -10,7 +10,7 @@ interface ImagePreviewModalProps {
 export function ImagePreviewModal({ url, onClose }: ImagePreviewModalProps) {
   if (!url) return null;
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 cursor-pointer" onClick={onClose}>
       <Image src={url} alt="Preview" width={0} height={0} sizes="100vw" className="max-w-full max-h-full rounded-lg" />
     </div>
   );

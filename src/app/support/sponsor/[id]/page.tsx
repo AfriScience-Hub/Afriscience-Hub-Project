@@ -11,7 +11,6 @@ import { MOCK_SPONSOR } from './data';
 
 export default function SponsorDetails() {
   const { id } = useParams();
-  const [isArchived, setIsArchived] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleShare = () => {
@@ -19,7 +18,6 @@ export default function SponsorDetails() {
       navigator.share({ title: MOCK_SPONSOR.name, text: MOCK_SPONSOR.description, url: window.location.href });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
     }
   };
 
@@ -41,8 +39,6 @@ export default function SponsorDetails() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid gap-8 lg:grid-cols-3">
           <SponsorSidebar
-            isArchived={isArchived}
-            onToggleArchive={() => setIsArchived(!isArchived)}
             onShare={handleShare}
             onImageClick={setSelectedImage}
           />

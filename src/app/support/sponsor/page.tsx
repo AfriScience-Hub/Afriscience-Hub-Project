@@ -1,87 +1,105 @@
 'use client';
 
 import Link from 'next/link';
-import { Sparkles, ArrowRight, CheckCircle2, Building2, Globe, TrendingUp, Award, X } from 'lucide-react';
+import { Sparkles, ArrowRight, CheckCircle2, Globe, MapPin, Users, Lightbulb, Wrench, Award } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
-import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
 
 const SPONSOR_TIERS = [
   {
     name: 'Bronze',
-    amount: '$500 / year',
+    amount: '$2,500 / year',
     color: 'border-amber-700',
     badge: '🥉',
     features: [
-      'Logo on AfriScienceHub website',
-      'Social media mention',
-      'Quarterly impact report',
+      'Webspace Marketing',
+      'AfriScience Hub Sponsorship Badge',
       'Certificate of Sponsorship',
+      'Feature in Newsletters',
+      'Invitation to annual Sponsor\'s Networking Events',
+      '15 catalog entries max.',
+      '1 industry selection max.',
     ],
   },
   {
     name: 'Silver',
-    amount: '$2,500 / year',
+    amount: '$10,000 / year',
     color: 'border-slate-400',
     badge: '🥈',
+    popular: true,
     features: [
-      'Everything in Bronze',
-      'Featured partner listing',
+      'Webspace Marketing',
+      'AfriScience Hub Sponsorship Badge',
+      'Certificate of Sponsorship',
+      'Feature in Newsletters',
+      'Invitation to annual Sponsor\'s Networking Events',
+      '60 catalog entries max.',
+      '5 industry selections max.',
+      'Feature across social platforms',
+      'Feature in annual Sponsorship Magazine',
       'Event branding opportunities',
-      'Dedicated sponsor spotlight article',
-      'Priority newsletter placement',
     ],
   },
   {
     name: 'Gold',
-    amount: '$10,000 / year',
+    amount: '$100,000 / year',
     color: 'border-amber-500',
     badge: '🥇',
-    popular: true,
     features: [
-      'Everything in Silver',
-      'Award ceremony naming rights',
-      'Exclusive innovation previews',
-      'Co-branded annual report',
-      'VIP access to all AfriScienceHub events',
-      'Talent pipeline access',
+      'Webspace Marketing',
+      'AfriScience Hub Sponsorship Badge',
+      'Certificate of Sponsorship',
+      'Feature in Newsletters',
+      'Invitation to annual Sponsor\'s Networking Events',
+      'Unlimited catalog entries',
+      'Unlimited industry selections',
+      'Feature across social platforms',
+      'Feature in annual Sponsorship Magazine',
+      'Event branding opportunities',
+      'Logo display on homepage',
+      'Talent pipeline partnerships',
+      'Technical support partnerships',
+      'Champion of African Science & Technology honorary award presentation',
     ],
   },
   {
     name: 'Platinum',
-    amount: '$25,000+ / year',
+    amount: '$500,000 / year',
     color: 'border-brand-navy-900',
     badge: '💎',
     features: [
-      'Everything in Gold',
-      'Strategic partnership council seat',
+      'Webspace Marketing',
+      'AfriScience Hub Sponsorship Badge',
+      'Certificate of Sponsorship',
+      'Feature in Newsletters',
+      'Invitation to annual Sponsor\'s Networking Events',
+      'Unlimited catalog entries',
+      'Unlimited industry selections',
+      'Feature across social platforms',
+      'Feature in annual Sponsorship Magazine',
+      'Event branding opportunities',
+      'Logo display on homepage',
+      'Talent pipeline Access',
+      'Technical support Access',
+      'Innovation Access',
+      'Champion of African Science & Technology honorary award presentation',
       'Custom research collaborations',
-      'White-label innovation challenges',
-      'Direct mentoring match program',
-      'Full analytics dashboard access',
+      'Award ceremony naming rights',
+      'Analytics Access',
+      'VIP access to all AfriScience Hub events',
     ],
   },
 ];
 
-const WHAT_FUNDS_SUPPORT = [
-  { icon: Award, title: 'Annual Awards', desc: 'Recognizing top scientists, innovators, and educators across Africa.' },
-  { icon: Building2, title: 'Platform Development', desc: 'Building tools that connect researchers, labs, and innovators.' },
-  { icon: Globe, title: 'Community Outreach', desc: 'Expanding access to science education in underserved regions.' },
-  { icon: TrendingUp, title: 'Innovation Programs', desc: 'Funding competitions, hackathons, and innovation challenges.' },
+const WHY_SPONSOR = [
+  { icon: Globe, title: 'Continental Reach', desc: 'Access a network spanning across 54 African countries and growing.' },
+  { icon: MapPin, title: 'Brand Visibility', desc: 'Get your logo and brand featured across our platform, events and annual publications.' },
+  { icon: Users, title: 'Talent Pipeline', desc: 'Connect with top scientists, technologists, institutions, researchers, specialists and innovators for collaborations.' },
+  { icon: Lightbulb, title: 'Innovation Access', desc: 'Get early and premium access to groundbreaking African innovations and research.' },
+  { icon: Wrench, title: 'Technical Support', desc: 'Get tailored support from AfriScience Hub in handling some technical demands of your business or organization.' },
+  { icon: Award, title: 'Recognition', desc: 'Be recognized as a "Champion of African Science & Technology" at our annual awards.' },
 ];
 
 export default function Sponsor() {
-  const { user } = useAuth();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
   return (
     <div className="pb-16">
       <section className="relative bg-brand-navy-900 py-20 overflow-hidden">
@@ -106,7 +124,7 @@ export default function Sponsor() {
               Sponsor AfriScience Hub
             </h1>
             <p className="text-slate-300 text-lg max-w-2xl mb-8">
-              Partner with us to fuel Africa's science and innovation revolution. Your sponsorship directly supports the tools, events, and programs that empower thousands of scientists and innovators.
+              Partner with us to drive Africa&apos;s advancement in science and technology. Your sponsorship directly supports our programs and helps us expand our footprint across the African continent &amp; beyond.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/support/sponsor/apply">
@@ -126,31 +144,29 @@ export default function Sponsor() {
 
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-2xl font-bold text-neutral-black mb-2">Why Sponsor AfriScienceHub?</h2>
-          <p className="text-slate-500 max-w-xl mx-auto">Align your brand with Africa's brightest minds and most impactful innovations.</p>
+          <h2 className="text-3xl font-bold text-neutral-black mb-2">Why Sponsor AfriScience Hub?</h2>
+          <p className="text-slate-500 max-w-xl mx-auto">Align your brand with the biggest science and technology network in Africa.</p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            { emoji: '🌍', title: 'Continental Reach', desc: 'Access a network spanning 54 African countries and growing.' },
-            { emoji: '📈', title: 'Brand Visibility', desc: 'Your logo and brand featured across our platform, events, and publications.' },
-            { emoji: '🤝', title: 'Talent Pipeline', desc: 'Connect with top scientists, researchers, and innovators for recruitment.' },
-            { emoji: '💡', title: 'Innovation Access', desc: 'Get early previews of groundbreaking African innovations and research.' },
-            { emoji: '📊', title: 'Impact Reporting', desc: 'Receive detailed reports on how your sponsorship makes a difference.' },
-            { emoji: '🏆', title: 'Recognition', desc: 'Be recognized as a champion of African science at our annual awards.' },
-          ].map((item, idx) => (
-            <div key={idx} className="p-6 rounded-xl bg-neutral-bg-light hover:shadow-md transition-shadow">
-              <div className="text-3xl mb-3">{item.emoji}</div>
-              <h3 className="font-bold text-neutral-black mb-1">{item.title}</h3>
-              <p className="text-sm text-slate-500">{item.desc}</p>
-            </div>
-          ))}
+          {WHY_SPONSOR.map((item, idx) => {
+            const Icon = item.icon;
+            return (
+              <div key={idx} className="p-6 rounded-xl bg-neutral-bg-light hover:shadow-md transition-shadow">
+                <div className="mb-3">
+                  <Icon className="h-8 w-8 text-brand-red-600" />
+                </div>
+                <h3 className="font-bold text-neutral-black mb-1">{item.title}</h3>
+                <p className="text-sm text-slate-500">{item.desc}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-2xl font-bold text-neutral-black mb-2">Sponsorship Tiers</h2>
-          <p className="text-slate-500">Choose the level that best fits your organization.</p>
+          <h2 className="text-3xl font-bold text-neutral-black mb-2">Sponsorship Tiers</h2>
+          <p className="text-slate-500">Choose the sponsorship level that best suits your organization:</p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {SPONSOR_TIERS.map((tier) => (
@@ -176,9 +192,11 @@ export default function Sponsor() {
                   </li>
                 ))}
               </ul>
-              <Button className={`w-full ${tier.popular ? 'bg-brand-red-600 hover:bg-brand-red-700' : ''}`} variant={tier.popular ? 'default' : 'outline'}>
-                Get Started
-              </Button>
+              <Link href={`/support/sponsor/apply?tier=${tier.name}`}>
+                <Button className={`w-full ${tier.popular ? 'bg-brand-red-600 hover:bg-brand-red-700' : 'hover:bg-brand-red-600 hover:text-white hover:border-brand-red-600'}`} variant={tier.popular ? 'default' : 'outline'}>
+                  Get Started
+                </Button>
+              </Link>
             </div>
           ))}
         </div>
@@ -189,7 +207,7 @@ export default function Sponsor() {
           <div className="flex-1 text-white">
             <h2 className="text-2xl font-bold mb-3">Corporate Sponsorship</h2>
             <p className="text-slate-300 mb-6">
-              Looking for a custom sponsorship package tailored to your organization's goals? We work with corporations, foundations, and government agencies to create bespoke partnerships that maximize impact and visibility.
+              Looking for a custom sponsorship package tailored to your organization&apos;s goals? We work with corporations, foundations, and government agencies to create bespoke partnerships that maximize impact and visibility.
             </p>
             <Link href="/contact">
               <Button size="lg" className="bg-brand-red-600 hover:bg-brand-red-700">
@@ -197,40 +215,8 @@ export default function Sponsor() {
               </Button>
             </Link>
           </div>
-          <div className="flex-shrink-0 grid grid-cols-2 gap-4 text-center">
-            {[
-              { val: '50+', label: 'Current Sponsors' },
-              { val: '10M+', label: 'Annual Reach' },
-              { val: '54', label: 'Countries' },
-              { val: '98%', label: 'Renewal Rate' },
-            ].map((s, i) => (
-              <div key={i} className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-                <div className="text-2xl font-extrabold text-white">{s.val}</div>
-                <div className="text-xs text-slate-400">{s.label}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Sponsorship Details</h3>
-              <button className="text-gray-500 hover:text-gray-700" onClick={closeModal}>
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <p className="text-sm text-gray-500">Thank you for your interest in sponsoring AfriScienceHub. Please contact our partnerships team for more details.</p>
-            <Link href="/contact">
-              <Button size="lg" className="bg-brand-red-600 hover:bg-brand-red-700 mt-4">
-                Contact Our Partnerships Team
-              </Button>
-            </Link>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

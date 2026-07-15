@@ -1,25 +1,20 @@
 'use client';
 
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, Search } from 'lucide-react';
+import { useState } from 'react';
 import { Input } from '../../../../components/ui/input';
 import { INDUSTRIES, COUNTRIES } from '../data';
 
 interface SidebarFiltersProps {
   searchTerm: string;
   onSearchChange: (v: string) => void;
-  selectedIndustry: string[];
+  selectedIndustry: string;
   onIndustryChange: (industry: string) => void;
-  selectedStatus: string[];
+  selectedStatus: string;
   onStatusChange: (status: string) => void;
   selectedCountry: string;
   onCountryChange: (country: string) => void;
   onReset: () => void;
-  industryOpen: boolean;
-  setIndustryOpen: (v: boolean) => void;
-  statusOpen: boolean;
-  setStatusOpen: (v: boolean) => void;
-  countryOpen: boolean;
-  setCountryOpen: (v: boolean) => void;
 }
 
 export function SidebarFilters({
@@ -28,44 +23,50 @@ export function SidebarFilters({
   selectedStatus, onStatusChange,
   selectedCountry, onCountryChange,
   onReset,
-  industryOpen, setIndustryOpen,
-  statusOpen, setStatusOpen,
-  countryOpen, setCountryOpen,
 }: SidebarFiltersProps) {
+  const [industryOpen, setIndustryOpen] = useState(true);
+  const [statusOpen, setStatusOpen] = useState(true);
+  const [countryOpen, setCountryOpen] = useState(true);
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-6 sticky top-4">
       <div className="flex items-center justify-between mb-6">
         <h3 className="font-bold text-neutral-black text-lg">Filters</h3>
-        <button onClick={onReset} className="text-sm text-brand-red-600 hover:underline font-medium">
+        <button onClick={onReset} className="cursor-pointer text-sm text-brand-red-600 hover:underline font-medium">
           Reset All
         </button>
       </div>
 
       <div className="mb-6">
         <label className="block text-xs font-bold text-neutral-gray-medium uppercase mb-2">Search</label>
-        <Input
-          placeholder="Search sponsors..."
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-        />
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium" />
+          <Input
+            placeholder="Search sponsors..."
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-10"
+          />
+        </div>
       </div>
 
       <div className="mb-6">
-        <button onClick={() => setIndustryOpen(!industryOpen)} className="w-full flex items-center justify-between text-xs font-bold text-neutral-gray-medium uppercase mb-2">
+        <button onClick={() => setIndustryOpen(!industryOpen)} className="cursor-pointer w-full flex items-center justify-between text-xs font-bold text-neutral-gray-medium uppercase mb-2">
           <span>Industry</span>
           {industryOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </button>
         {industryOpen && (
-          <div className="space-y-2 max-h-64 overflow-y-auto">
+          <div className="space-y-1 max-h-64 overflow-y-auto">
             {INDUSTRIES.map(industry => (
-              <label key={industry} className="flex items-center gap-2 cursor-pointer text-sm">
+              <label key={industry} className={`flex items-center gap-2 cursor-pointer text-sm p-1.5 rounded transition-colors ${selectedIndustry === industry ? 'bg-brand-red-50 text-brand-red-600 font-medium' : 'text-neutral-gray-dark hover:bg-neutral-bg-light'}`}>
                 <input
-                  type="checkbox"
-                  checked={selectedIndustry.includes(industry)}
+                  type="radio"
+                  name="industry"
+                  checked={selectedIndustry === industry}
                   onChange={() => onIndustryChange(industry)}
-                  className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600"
+                  className="text-brand-red-600 focus:ring-brand-red-600"
                 />
-                <span className="text-neutral-gray-dark">{industry}</span>
+                <span>{industry}</span>
               </label>
             ))}
           </div>
@@ -73,21 +74,22 @@ export function SidebarFilters({
       </div>
 
       <div className="mb-6">
-        <button onClick={() => setStatusOpen(!statusOpen)} className="w-full flex items-center justify-between text-xs font-bold text-neutral-gray-medium uppercase mb-2">
+        <button onClick={() => setStatusOpen(!statusOpen)} className="cursor-pointer w-full flex items-center justify-between text-xs font-bold text-neutral-gray-medium uppercase mb-2">
           <span>Status</span>
           {statusOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </button>
         {statusOpen && (
-          <div className="space-y-2">
+          <div className="space-y-1">
             {['Online', 'Offline'].map(status => (
-              <label key={status} className="flex items-center gap-2 cursor-pointer text-sm">
+              <label key={status} className={`flex items-center gap-2 cursor-pointer text-sm p-1.5 rounded transition-colors ${selectedStatus === status ? 'bg-brand-red-50 text-brand-red-600 font-medium' : 'text-neutral-gray-dark hover:bg-neutral-bg-light'}`}>
                 <input
-                  type="checkbox"
-                  checked={selectedStatus.includes(status)}
+                  type="radio"
+                  name="status"
+                  checked={selectedStatus === status}
                   onChange={() => onStatusChange(status)}
-                  className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600"
+                  className="text-brand-red-600 focus:ring-brand-red-600"
                 />
-                <span className="text-neutral-gray-dark">{status}</span>
+                <span>{status}</span>
               </label>
             ))}
           </div>
@@ -95,7 +97,7 @@ export function SidebarFilters({
       </div>
 
       <div className="mb-6">
-        <button onClick={() => setCountryOpen(!countryOpen)} className="w-full flex items-center justify-between text-xs font-bold text-neutral-gray-medium uppercase mb-2">
+        <button onClick={() => setCountryOpen(!countryOpen)} className="cursor-pointer w-full flex items-center justify-between text-xs font-bold text-neutral-gray-medium uppercase mb-2">
           <span>Country</span>
           {countryOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </button>
@@ -103,7 +105,7 @@ export function SidebarFilters({
           <select
             value={selectedCountry}
             onChange={(e) => onCountryChange(e.target.value)}
-            className="w-full rounded-lg border border-neutral-gray-light p-2 text-sm"
+            className="cursor-pointer w-full rounded-lg border border-neutral-gray-light p-2 text-sm"
           >
             <option value="">All Countries</option>
             {COUNTRIES.map(country => (

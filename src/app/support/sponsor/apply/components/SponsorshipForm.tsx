@@ -1,277 +1,265 @@
 'use client';
 
-import { Upload, X, DollarSign, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { Button } from '../../../../components/ui/Button';
-import { Input } from '../../../../components/ui/input';
-import { INDUSTRIES, COUNTRIES, SPONSORSHIP_TIERS, type CatalogItem } from '../data';
+import { YourInfoSection } from './YourInfoSection';
+import { TierSelectionSection } from './TierSelectionSection';
+import { CompanyInfoSection } from './CompanyInfoSection';
+import { LocationContactSection } from './LocationContactSection';
+import { CatalogSection } from './CatalogSection';
+import { LicensesSection } from './LicensesSection';
+import { AwardsSection } from './AwardsSection';
+import { PoliciesSection } from './PoliciesSection';
+import { MediaSection } from './MediaSection';
+import type { User } from '../../../../context/AuthContext';
+import type { CatalogEntry, LicenseEntry, AwardEntry } from '../data';
 
 interface SponsorshipFormProps {
-  formData: any;
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  catalogItems: CatalogItem[];
-  addCatalogItem: () => void;
-  removeCatalogItem: (index: number) => void;
-  updateCatalogItem: (index: number, field: 'name' | 'price', value: string) => void;
-  policies: string[];
-  setPolicies: React.Dispatch<React.SetStateAction<string[]>>;
-  displayPicture: File | null;
-  setDisplayPicture: React.Dispatch<React.SetStateAction<File | null>>;
-  licenses: File[];
-  setLicenses: React.Dispatch<React.SetStateAction<File[]>>;
-  mediaGallery: File[];
-  setMediaGallery: React.Dispatch<React.SetStateAction<File[]>>;
+  user: User | null;
   isAuthenticated: boolean;
   isSubmitting: boolean;
-  onSaveDraft: () => void;
   onSubmit: (e: React.FormEvent) => void;
+  onSaveDraft: () => void;
 }
 
-export function SponsorshipForm({
-  formData, onInputChange,
-  catalogItems, addCatalogItem, removeCatalogItem, updateCatalogItem,
-  policies, setPolicies,
-  displayPicture, setDisplayPicture,
-  licenses, setLicenses,
-  mediaGallery, setMediaGallery,
-  isAuthenticated, isSubmitting,
-  onSaveDraft, onSubmit,
-}: SponsorshipFormProps) {
+const MAX_INDUSTRIES: Record<string, number> = {
+  Bronze: 1,
+  Silver: 5,
+  Gold: Infinity,
+  Platinum: Infinity,
+};
 
-  const handleFileInput = (setter: React.Dispatch<React.SetStateAction<File[]>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setter(prev => [...prev, ...Array.from(e.target.files!)]);
+function createEmptyCatalogEntry(): CatalogEntry {
+  return {
+    productName: '',
+    currency: 'local',
+    price: '',
+    ashDiscountPrice: '',
+    specifications: [],
+    images: [],
+  };
+}
+
+export function SponsorshipForm({ user, isAuthenticated, isSubmitting, onSubmit, onSaveDraft }: SponsorshipFormProps) {
+  const searchParams = useSearchParams();
+  const initialTier = searchParams.get('tier') || '';
+
+  const [tier, setTier] = useState(initialTier);
+  const [companyName, setCompanyName] = useState('');
+  const [companyMotto, setCompanyMotto] = useState('');
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  const [displayPicture, setDisplayPicture] = useState<File | null>(null);
+  const [companyDescription, setCompanyDescription] = useState('');
+  const [address, setAddress] = useState('');
+  const [country, setCountry] = useState('');
+  const [state, setState] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState('');
+  const [linkedin, setLinkedin] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [instagram, setInstagram] = useState('');
+  const [facebook, setFacebook] = useState('');
+  const [catalogByIndustry, setCatalogByIndustry] = useState<Record<string, CatalogEntry[]>>({});
+  const [licenses, setLicenses] = useState<LicenseEntry[]>([]);
+  const [awards, setAwards] = useState<AwardEntry[]>([]);
+  const [policies, setPolicies] = useState<string[]>(['']);
+  const [mediaGallery, setMediaGallery] = useState<File[]>([]);
+  const [undertakingAccepted, setUndertakingAccepted] = useState(false);
+
+  useEffect(() => {
+    if (initialTier) setTier(initialTier);
+  }, [initialTier]);
+
+  const maxIndustries = MAX_INDUSTRIES[tier] || 0;
+
+  const handleIndustryToggle = (industry: string) => {
+    if (selectedIndustries.includes(industry)) {
+      const updated = selectedIndustries.filter(i => i !== industry);
+      setSelectedIndustries(updated);
+      const newCatalog = { ...catalogByIndustry };
+      delete newCatalog[industry];
+      setCatalogByIndustry(newCatalog);
+    } else if (selectedIndustries.length < maxIndustries) {
+      setSelectedIndustries([...selectedIndustries, industry]);
+      if (!catalogByIndustry[industry]) {
+        setCatalogByIndustry({ ...catalogByIndustry, [industry]: [] });
+      }
     }
   };
 
-  const removeFile = (setter: React.Dispatch<React.SetStateAction<File[]>>, index: number) => {
-    setter(prev => prev.filter((_, i) => i !== index));
+  const handleAddCatalogItem = (industry: string) => {
+    const current = catalogByIndustry[industry] || [];
+    setCatalogByIndustry({ ...catalogByIndustry, [industry]: [...current, createEmptyCatalogEntry()] });
+  };
+
+  const handleRemoveCatalogItem = (industry: string, index: number) => {
+    const current = [...(catalogByIndustry[industry] || [])];
+    current.splice(index, 1);
+    setCatalogByIndustry({ ...catalogByIndustry, [industry]: current });
+  };
+
+  const handleUpdateCatalogItem = (industry: string, index: number, field: keyof CatalogEntry, value: any) => {
+    const current = [...(catalogByIndustry[industry] || [])];
+    current[index] = { ...current[index], [field]: value };
+    setCatalogByIndustry({ ...catalogByIndustry, [industry]: current });
+  };
+
+  const handleAddSpecification = (industry: string, itemIndex: number) => {
+    const current = [...(catalogByIndustry[industry] || [])];
+    if (current[itemIndex].specifications.length < 10) {
+      current[itemIndex] = { ...current[itemIndex], specifications: [...current[itemIndex].specifications, ''] };
+      setCatalogByIndustry({ ...catalogByIndustry, [industry]: current });
+    }
+  };
+
+  const handleRemoveSpecification = (industry: string, itemIndex: number, specIndex: number) => {
+    const current = [...(catalogByIndustry[industry] || [])];
+    current[itemIndex] = {
+      ...current[itemIndex],
+      specifications: current[itemIndex].specifications.filter((_, i) => i !== specIndex),
+    };
+    setCatalogByIndustry({ ...catalogByIndustry, [industry]: current });
+  };
+
+  const handleUpdateSpecification = (industry: string, itemIndex: number, specIndex: number, value: string) => {
+    const current = [...(catalogByIndustry[industry] || [])];
+    const specs = [...current[itemIndex].specifications];
+    specs[specIndex] = value;
+    current[itemIndex] = { ...current[itemIndex], specifications: specs };
+    setCatalogByIndustry({ ...catalogByIndustry, [industry]: current });
+  };
+
+  const handleAddCatalogImage = (industry: string, itemIndex: number, files: FileList) => {
+    const current = [...(catalogByIndustry[industry] || [])];
+    const newImages = [...current[itemIndex].images, ...Array.from(files)].slice(0, 5);
+    current[itemIndex] = { ...current[itemIndex], images: newImages };
+    setCatalogByIndustry({ ...catalogByIndustry, [industry]: current });
+  };
+
+  const handleRemoveCatalogImage = (industry: string, itemIndex: number, imageIndex: number) => {
+    const current = [...(catalogByIndustry[industry] || [])];
+    current[itemIndex] = {
+      ...current[itemIndex],
+      images: current[itemIndex].images.filter((_, i) => i !== imageIndex),
+    };
+    setCatalogByIndustry({ ...catalogByIndustry, [industry]: current });
+  };
+
+  const handleAddLicense = () => {
+    setLicenses([...licenses, { name: '', issuedBy: '', year: '', document: null }]);
+  };
+
+  const handleRemoveLicense = (index: number) => {
+    setLicenses(licenses.filter((_, i) => i !== index));
+  };
+
+  const handleUpdateLicense = (index: number, field: keyof LicenseEntry, value: any) => {
+    const updated = [...licenses];
+    updated[index] = { ...updated[index], [field]: value };
+    setLicenses(updated);
+  };
+
+  const handleAddAward = () => {
+    setAwards([...awards, { name: '', awardedBy: '', year: '', document: null }]);
+  };
+
+  const handleRemoveAward = (index: number) => {
+    setAwards(awards.filter((_, i) => i !== index));
+  };
+
+  const handleUpdateAward = (index: number, field: keyof AwardEntry, value: any) => {
+    const updated = [...awards];
+    updated[index] = { ...updated[index], [field]: value };
+    setAwards(updated);
+  };
+
+  const handleAddMedia = (files: FileList) => {
+    const newFiles = [...mediaGallery, ...Array.from(files)].slice(0, 10);
+    setMediaGallery(newFiles);
+  };
+
+  const handleRemoveMedia = (index: number) => {
+    setMediaGallery(mediaGallery.filter((_, i) => i !== index));
   };
 
   return (
     <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="max-w-4xl mx-auto">
         <form onSubmit={onSubmit} className="space-y-8">
-          {/* Company Information */}
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8">
-            <h2 className="text-xl font-bold text-neutral-black mb-6">Company Information</h2>
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Company Name *</label>
-                <Input name="companyName" value={formData.companyName} onChange={onInputChange} placeholder="Enter your company name" required />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Industry *</label>
-                <select name="industry" value={formData.industry} onChange={onInputChange} className="w-full rounded-xl border border-neutral-gray-light px-4 py-3 text-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600 bg-white" required>
-                  <option value="">Select industry</option>
-                  {INDUSTRIES.map(ind => <option key={ind} value={ind}>{ind}</option>)}
-                </select>
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Company Motto</label>
-                <Input name="motto" value={formData.motto} onChange={onInputChange} placeholder="A short tagline for your company" />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Description *</label>
-                <textarea name="description" value={formData.description} onChange={onInputChange} rows={4} className="w-full rounded-xl border border-neutral-gray-light px-4 py-3 text-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600" placeholder="Describe your company's mission and services" required />
-              </div>
-            </div>
-          </div>
+          <YourInfoSection user={user} />
+          <TierSelectionSection selectedTier={tier} onTierChange={setTier} />
+          <CompanyInfoSection
+            companyName={companyName} onCompanyNameChange={setCompanyName}
+            companyMotto={companyMotto} onCompanyMottoChange={setCompanyMotto}
+            selectedIndustries={selectedIndustries} onIndustryToggle={handleIndustryToggle}
+            maxIndustries={maxIndustries}
+            displayPicture={displayPicture} onDisplayPictureChange={setDisplayPicture}
+            companyDescription={companyDescription} onCompanyDescriptionChange={setCompanyDescription}
+          />
+          <LocationContactSection
+            address={address} onAddressChange={setAddress}
+            country={country} onCountryChange={setCountry}
+            state={state} onStateChange={setState}
+            phone={phone} onPhoneChange={setPhone}
+            email={email} onEmailChange={setEmail}
+            website={website} onWebsiteChange={setWebsite}
+            linkedin={linkedin} onLinkedinChange={setLinkedin}
+            twitter={twitter} onTwitterChange={setTwitter}
+            instagram={instagram} onInstagramChange={setInstagram}
+            facebook={facebook} onFacebookChange={setFacebook}
+          />
+          {tier && (
+            <CatalogSection
+              industries={selectedIndustries}
+              catalogByIndustry={catalogByIndustry}
+              onAddCatalogItem={handleAddCatalogItem}
+              onRemoveCatalogItem={handleRemoveCatalogItem}
+              onUpdateCatalogItem={handleUpdateCatalogItem}
+              onAddSpecification={handleAddSpecification}
+              onRemoveSpecification={handleRemoveSpecification}
+              onUpdateSpecification={handleUpdateSpecification}
+              onAddCatalogImage={handleAddCatalogImage}
+              onRemoveCatalogImage={handleRemoveCatalogImage}
+            />
+          )}
+          <LicensesSection
+            licenses={licenses}
+            onAddLicense={handleAddLicense}
+            onRemoveLicense={handleRemoveLicense}
+            onUpdateLicense={handleUpdateLicense}
+          />
+          <AwardsSection
+            awards={awards}
+            onAddAward={handleAddAward}
+            onRemoveAward={handleRemoveAward}
+            onUpdateAward={handleUpdateAward}
+          />
+          <PoliciesSection
+            policies={policies}
+            onAddPolicy={() => setPolicies([...policies, ''])}
+            onRemovePolicy={(idx) => setPolicies(policies.filter((_, i) => i !== idx))}
+            onUpdatePolicy={(idx, val) => {
+              const updated = [...policies];
+              updated[idx] = val;
+              setPolicies(updated);
+            }}
+          />
+          <MediaSection
+            mediaGallery={mediaGallery}
+            onAddMedia={handleAddMedia}
+            onRemoveMedia={handleRemoveMedia}
+            undertakingAccepted={undertakingAccepted}
+            onUndertakingChange={setUndertakingAccepted}
+          />
 
-          {/* Contact Details */}
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8">
-            <h2 className="text-xl font-bold text-neutral-black mb-6">Contact Details</h2>
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Phone *</label>
-                <Input name="phone" value={formData.phone} onChange={onInputChange} placeholder="+234 XXX XXX XXXX" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Website</label>
-                <Input name="website" value={formData.website} onChange={onInputChange} placeholder="www.example.com" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">LinkedIn</label>
-                <Input name="linkedin" value={formData.linkedin} onChange={onInputChange} placeholder="linkedin.com/company/..." />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Twitter</label>
-                <Input name="twitter" value={formData.twitter} onChange={onInputChange} placeholder="@username" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Facebook</label>
-                <Input name="facebook" value={formData.facebook} onChange={onInputChange} placeholder="facebook.com/..." />
-              </div>
-            </div>
-          </div>
-
-          {/* Location */}
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8">
-            <h2 className="text-xl font-bold text-neutral-black mb-6">Location</h2>
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Country *</label>
-                <select name="country" value={formData.country} onChange={onInputChange} className="w-full rounded-xl border border-neutral-gray-light px-4 py-3 text-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600 bg-white" required>
-                  <option value="">Select country</option>
-                  {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">State/Region *</label>
-                <Input name="state" value={formData.state} onChange={onInputChange} placeholder="State or region" required />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Address *</label>
-                <Input name="address" value={formData.address} onChange={onInputChange} placeholder="Street address" required />
-              </div>
-            </div>
-          </div>
-
-          {/* Sponsorship Tier */}
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8">
-            <h2 className="text-xl font-bold text-neutral-black mb-6">Sponsorship Tier *</h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {SPONSORSHIP_TIERS.map(tier => (
-                <label key={tier.name} className={`rounded-xl border-2 p-4 cursor-pointer transition-all ${formData.tier === tier.name ? 'border-brand-red-600 bg-brand-red-50' : 'border-neutral-gray-light hover:border-neutral-gray-medium'}`}>
-                  <input type="radio" name="tier" value={tier.name} checked={formData.tier === tier.name} onChange={onInputChange} className="sr-only" />
-                  <h3 className="font-bold text-neutral-black">{tier.name}</h3>
-                  <p className="text-brand-red-600 font-semibold text-sm mt-1">{tier.amount}</p>
-                  <p className="text-xs text-neutral-gray-medium mt-1">{tier.benefits}</p>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Catalog Items */}
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-neutral-black">Products & Services Catalog</h2>
-              <Button type="button" variant="outline" size="sm" onClick={addCatalogItem} className="flex items-center gap-1">
-                <Plus className="h-4 w-4" /> Add Item
-              </Button>
-            </div>
-            <div className="space-y-4">
-              {catalogItems.map((item, idx) => (
-                <div key={idx} className="flex gap-3 items-start">
-                  <div className="flex-1">
-                    <label className="block text-xs text-neutral-gray-medium mb-1">Service/Product Name</label>
-                    <Input value={item.name} onChange={(e) => updateCatalogItem(idx, 'name', e.target.value)} placeholder="e.g. Software Development" />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-xs text-neutral-gray-medium mb-1">Price</label>
-                    <Input value={item.price} onChange={(e) => updateCatalogItem(idx, 'price', e.target.value)} placeholder="e.g. $5,000" />
-                  </div>
-                  {catalogItems.length > 1 && (
-                    <button type="button" onClick={() => removeCatalogItem(idx)} className="mt-5 text-slate-400 hover:text-red-500">
-                      <X className="h-5 w-5" />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Policies */}
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-neutral-black">Business Policies</h2>
-              <Button type="button" variant="outline" size="sm" onClick={() => setPolicies([...policies, ''])} className="flex items-center gap-1">
-                <Plus className="h-4 w-4" /> Add Policy
-              </Button>
-            </div>
-            <div className="space-y-3">
-              {policies.map((policy, idx) => (
-                <div key={idx} className="flex gap-2 items-start">
-                  <div className="flex-1">
-                    <Input value={policy} onChange={(e) => {
-                      const newPolicies = [...policies];
-                      newPolicies[idx] = e.target.value;
-                      setPolicies(newPolicies);
-                    }} placeholder="Describe a business policy..." />
-                  </div>
-                  {policies.length > 1 && (
-                    <button type="button" onClick={() => setPolicies(policies.filter((_, i) => i !== idx))} className="mt-1 text-slate-400 hover:text-red-500">
-                      <X className="h-5 w-5" />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Uploads */}
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8">
-            <h2 className="text-xl font-bold text-neutral-black mb-6">Media & Documents</h2>
-            <div className="grid gap-8 sm:grid-cols-3">
-              <div>
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Display Picture</label>
-                <div className="border-2 border-dashed border-neutral-gray-light rounded-xl p-6 text-center hover:border-brand-red-600 transition-colors cursor-pointer">
-                  {displayPicture ? (
-                    <div className="flex items-center gap-2 justify-center">
-                      <span className="text-sm text-neutral-gray-dark truncate">{displayPicture.name}</span>
-                      <button type="button" onClick={() => setDisplayPicture(null)} className="text-red-500"><X className="h-4 w-4" /></button>
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer">
-                      <Upload className="h-8 w-8 text-neutral-gray-medium mx-auto mb-2" />
-                      <p className="text-xs text-neutral-gray-medium">Click to upload</p>
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files && setDisplayPicture(e.target.files[0])} />
-                    </label>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Licenses</label>
-                <div className="border-2 border-dashed border-neutral-gray-light rounded-xl p-6 text-center hover:border-brand-red-600 transition-colors cursor-pointer">
-                  {licenses.length > 0 ? (
-                    <div className="space-y-1">
-                      {licenses.map((file, idx) => (
-                        <div key={idx} className="flex items-center gap-2 justify-center text-xs">
-                          <span className="truncate">{file.name}</span>
-                          <button type="button" onClick={() => removeFile(setLicenses, idx)} className="text-red-500"><X className="h-3 w-3" /></button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer">
-                      <Upload className="h-8 w-8 text-neutral-gray-medium mx-auto mb-2" />
-                      <p className="text-xs text-neutral-gray-medium">Click to upload</p>
-                      <input type="file" multiple accept=".pdf,.jpg,.png" className="hidden" onChange={handleFileInput(setLicenses)} />
-                    </label>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Media Gallery</label>
-                <div className="border-2 border-dashed border-neutral-gray-light rounded-xl p-6 text-center hover:border-brand-red-600 transition-colors cursor-pointer">
-                  {mediaGallery.length > 0 ? (
-                    <div className="space-y-1">
-                      {mediaGallery.map((file, idx) => (
-                        <div key={idx} className="flex items-center gap-2 justify-center text-xs">
-                          <span className="truncate">{file.name}</span>
-                          <button type="button" onClick={() => removeFile(setMediaGallery, idx)} className="text-red-500"><X className="h-3 w-3" /></button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer">
-                      <Upload className="h-8 w-8 text-neutral-gray-medium mx-auto mb-2" />
-                      <p className="text-xs text-neutral-gray-medium">Click to upload</p>
-                      <input type="file" multiple accept="image/*,video/*" className="hidden" onChange={handleFileInput(setMediaGallery)} />
-                    </label>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Form Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-end">
             <Button type="button" variant="outline" onClick={onSaveDraft} disabled={isSubmitting} className="h-12 px-8">
               Save as Draft
             </Button>
-            <Button type="submit" disabled={!isAuthenticated || isSubmitting} className="h-12 px-8 bg-brand-red-600 hover:bg-brand-red-700">
+            <Button type="submit" disabled={!isAuthenticated || isSubmitting || !undertakingAccepted} className="h-12 px-8 bg-brand-red-600 hover:bg-brand-red-700">
               {isSubmitting ? 'Submitting...' : isAuthenticated ? 'Submit Application' : 'Log in to Apply'}
             </Button>
           </div>

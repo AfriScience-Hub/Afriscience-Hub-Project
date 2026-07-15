@@ -255,6 +255,22 @@ Searchable FAQ with grouped accordion content.
 
 Hub with subroutes: `/support/donate`, `/support/sponsor`, `/support/volunteer`.
 
+### `/support/sponsor`
+
+**Sponsor landing page** — Hero, "Why Sponsor" (6 benefits), sponsorship tiers ($2.5K–$500K) with "Get Started" linking to apply form with tier pre-selected, Corporate CTA (stats removed per spec).
+
+### `/support/sponsor/all`
+
+**Sponsor directory** — Sidebar filters (Industry radio, Status radio, Country dropdown with full global list), search with icon, responsive grid. Sponsor cards show name+location on image overlay, status badge, industry tags, description.
+
+### `/support/sponsor/apply`
+
+**Sponsorship application form** — 10-section form: YourInfo (auto-populated), TierSelection (radio cards with info modals), CompanyInfo (industry multi-select capped by tier), LocationContact, Catalog (by industry with currency/ASH discount/specs/images), Licenses, Awards, Policies, MediaGallery, Undertaking checkbox.
+
+### `/support/sponsor/[id]`
+
+**Sponsor detail** — Sidebar with industries, status, address/state separated, Preview button on image, interactive Contact Information/Social toggles. Catalog section with clickable industry filter buttons.
+
 ### Legal Pages
 
 `/privacy-policy`, `/terms-of-service`, `/cookie-policy`.
@@ -385,6 +401,42 @@ npm.cmd run start
 Use `npm.cmd` on Windows if `npm.ps1` is blocked by execution policy.
 
 ---
+
+## Sponsor Module Architecture
+
+The sponsor feature under `src/app/support/sponsor/` consists of 4 page routes with 18+ components:
+
+### Page Routes
+| Route | File | Purpose |
+|---|---|---|
+| `/support/sponsor` | `page.tsx` | Marketing landing with tiers and CTA |
+| `/support/sponsor/all` | `all/page.tsx` | Filterable sponsor directory |
+| `/support/sponsor/apply` | `apply/page.tsx` | Sponsorship application form |
+| `/support/sponsor/[id]` | `[id]/page.tsx` | Sponsor detail/profile view |
+
+### Form Structure (`apply/components/`)
+The sponsorship form is split into focused section components (all under 350 lines):
+- `YourInfoSection.tsx` — Auto-populated name, email, ID Tag
+- `TierSelectionSection.tsx` — Radio card selection with info modals showing tier benefits
+- `CompanyInfoSection.tsx` — Name, motto, industry multi-select (capped by tier), display picture, description (1000 words max)
+- `LocationContactSection.tsx` — Address, country (global list), state, phone, email, website, social handles
+- `CatalogSection.tsx` — Product catalog grouped by industry, each entry with currency (local/USD), price, ASH discount price (or N/A), specifications (10 max), images (5 max)
+- `LicensesSection.tsx` — Dynamic license entries with name, issuer, year, document upload
+- `AwardsSection.tsx` — Dynamic award entries with name, org, year, document upload
+- `PoliciesSection.tsx` — Dynamic policy text entries
+- `MediaSection.tsx` — Media gallery upload (10 files max, pics & video), undertaking checkbox, closing remark info
+- `SponsorshipForm.tsx` — Coordinates all sections, manages form state, reads `?tier=` from URL params
+
+### Data Flow
+- `apply/data.ts` — Tier benefits, tier definitions, industries, countries (global), CatalogEntry/LicenseEntry/AwardEntry types
+- `all/data.ts` — Sponsor type with `industries[]`, full country list, mock sponsors
+- `[id]/data.ts` — Mock sponsor detail with catalog grouped by industry
+
+### UI/UX Patterns
+- All interactive elements (buttons, icons, selects, file upload labels) use `cursor-pointer`
+- Tier "Get Started" buttons hover to brand-red-600
+- Sponsor detail: industry filter tabs in catalog, "Contact" toggles contact info panel, "Social Media Handles" toggle
+- Thumbnails: name+location on image overlay (bottom-left), status badge (bottom-right)
 
 ## Known Issues and Cleanup Candidates
 
