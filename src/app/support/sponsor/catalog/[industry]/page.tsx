@@ -1,12 +1,13 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ShoppingBag, Globe } from 'lucide-react';
 import { MOCK_SPONSORS } from '../../all/data';
 
 export default function CatalogByIndustry() {
   const { industry } = useParams<{ industry: string }>();
+  const router = useRouter();
   const decodedIndustry = decodeURIComponent(industry);
 
   const sponsors = MOCK_SPONSORS.filter(s =>
@@ -17,13 +18,13 @@ export default function CatalogByIndustry() {
     <div className="min-h-screen bg-neutral-bg-light pb-16">
       <section className="bg-brand-navy-900 py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/support/sponsor/all"
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm mb-4 transition-colors"
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm mb-4 transition-colors cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to All Sponsors
-          </Link>
+            Back
+          </button>
           <div className="flex items-center gap-3 mb-2">
             <ShoppingBag className="h-7 w-7 text-brand-red-600" />
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white">{decodedIndustry}</h1>

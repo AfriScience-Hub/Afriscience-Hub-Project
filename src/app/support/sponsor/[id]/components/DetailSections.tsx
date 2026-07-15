@@ -25,32 +25,18 @@ export function CatalogSection() {
         Products & Services Catalog
       </h3>
 
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="grid gap-3 sm:grid-cols-2">
         {s.catalog.map((group) => (
           <Link
             key={group.industry}
             href={`/support/sponsor/catalog/${encodeURIComponent(group.industry)}`}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium bg-neutral-bg-light text-neutral-gray-dark hover:bg-brand-red-600 hover:text-white transition-colors"
+            className="flex items-center justify-between p-4 rounded-xl border border-neutral-gray-light bg-neutral-bg-light hover:border-brand-red-600 hover:bg-brand-red-50 transition-colors group"
           >
-            {group.industry}
-            <ExternalLink className="h-3 w-3" />
+            <span className="font-semibold text-neutral-black group-hover:text-brand-red-600 transition-colors">
+              {group.industry}
+            </span>
+            <ExternalLink className="h-4 w-4 text-neutral-gray-medium group-hover:text-brand-red-600 transition-colors flex-shrink-0" />
           </Link>
-        ))}
-      </div>
-
-      <div className="space-y-4">
-        {s.catalog.map((group) => (
-          <div key={group.industry}>
-            <p className="text-xs font-semibold text-neutral-gray-medium uppercase mb-2">{group.industry}</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {group.items.map((item, idx) => (
-                <div key={idx} className="border border-neutral-gray-light rounded-lg p-4 hover:border-brand-red-600 transition-colors">
-                  <h4 className="font-semibold text-neutral-black mb-1">{item.name}</h4>
-                  <p className="text-sm text-brand-red-600 font-bold">{item.price}</p>
-                </div>
-              ))}
-            </div>
-          </div>
         ))}
       </div>
     </div>

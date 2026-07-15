@@ -38,13 +38,9 @@ export function SponsorSidebar({ onShare, onImageClick }: SponsorSidebarProps) {
           </div>
         </div>
         <div className="p-5">
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {s.industries.map((ind, idx) => (
-              <span key={idx} className="text-xs bg-neutral-bg-light text-neutral-gray-dark px-2 py-1 rounded">
-                {ind}
-              </span>
-            ))}
-          </div>
+          <p className="text-xs text-neutral-gray-dark mb-3">
+            {s.industries.join(' | ')}
+          </p>
           <p className="text-xs italic text-neutral-gray-dark mb-4">"{s.motto}"</p>
 
           <div className="space-y-2 text-sm mb-4">
