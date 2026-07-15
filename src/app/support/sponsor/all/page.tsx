@@ -37,7 +37,10 @@ export default function SponsorsListing() {
   const filteredSponsors = MOCK_SPONSORS.filter(sponsor => {
     if (searchTerm && !sponsor.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
         !sponsor.industries.some(i => i.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        !sponsor.country.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+        !sponsor.tier.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !sponsor.country.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !sponsor.description.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !sponsor.motto.toLowerCase().includes(searchTerm.toLowerCase())) return false;
     if (selectedIndustry && !sponsor.industries.includes(selectedIndustry)) return false;
     if (selectedStatus && sponsor.status !== selectedStatus) return false;
     if (selectedCountry && sponsor.country !== selectedCountry) return false;
@@ -90,7 +93,7 @@ export default function SponsorsListing() {
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-gray-medium" />
               <input
                 type="text"
-                placeholder="Search sponsors by name, industry or country..."
+                placeholder="Search sponsors by name, industry, tiers, country or keyword"
                 className="w-full rounded-xl border border-neutral-gray-light pl-12 pr-4 py-3 text-sm shadow-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

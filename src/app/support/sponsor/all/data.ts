@@ -44,6 +44,7 @@ export interface Sponsor {
   image: string;
   industries: string[];
   status: string;
+  tier: string;
   country: string;
   state: string;
   catalog: string[];
@@ -58,6 +59,7 @@ export const MOCK_SPONSORS: Sponsor[] = [
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400',
     industries: ['Technology', 'Telecommunications', 'Artificial Intelligence'],
     status: 'Online',
+    tier: 'Platinum',
     country: 'Nigeria',
     state: 'Lagos',
     catalog: ['Software Development', 'Cloud Solutions', 'AI Integration'],
@@ -70,6 +72,7 @@ export const MOCK_SPONSORS: Sponsor[] = [
     image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400',
     industries: ['Healthcare & Medicals', 'Pharmacy & Drugs'],
     status: 'Online',
+    tier: 'Gold',
     country: 'South Africa',
     state: 'Gauteng',
     catalog: ['Medical Equipment', 'Hospital Supplies', 'Diagnostics'],
@@ -82,6 +85,7 @@ export const MOCK_SPONSORS: Sponsor[] = [
     image: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=400',
     industries: ['Building & Construction', 'Architecture & Designs', 'Roofing & Plasters'],
     status: 'Online',
+    tier: 'Silver',
     country: 'Kenya',
     state: 'Nairobi',
     catalog: ['Construction Services', 'Project Management', 'Green Building'],
@@ -94,6 +98,7 @@ export const MOCK_SPONSORS: Sponsor[] = [
     image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400',
     industries: ['Education', 'Technology'],
     status: 'Online',
+    tier: 'Bronze',
     country: 'Ghana',
     state: 'Greater Accra',
     catalog: ['E-Learning Platforms', 'Educational Software', 'Training Programs'],
@@ -106,6 +111,7 @@ export const MOCK_SPONSORS: Sponsor[] = [
     image: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=400',
     industries: ['Plants & Animals', 'Fishing & Aquaculture', 'Food & Eateries'],
     status: 'Online',
+    tier: 'Silver',
     country: 'Tanzania',
     state: 'Dar es Salaam',
     catalog: ['Agricultural Equipment', 'Seeds & Fertilizers', 'Training'],
@@ -118,6 +124,7 @@ export const MOCK_SPONSORS: Sponsor[] = [
     image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=400',
     industries: ['Electricals & Wiring', 'Equipment & Machineries'],
     status: 'Offline',
+    tier: 'Gold',
     country: 'Egypt',
     state: 'Cairo',
     catalog: ['Electrical Systems', 'Wiring Solutions', 'Power Distribution'],
