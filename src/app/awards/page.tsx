@@ -108,7 +108,7 @@ export default function Awards() {
                 {selectedType && (
                   <span className="inline-flex items-center gap-1 text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
                     {selectedType}
-                    <button onClick={() => { setSelectedType(null); setSelectedCompetition(null); setSelectedLevel(null); }} className="hover:text-brand-red-600"><X className="h-3 w-3" /></button>
+                    <button onClick={() => { setSelectedType(null); setSelectedCompetition(null); setSelectedLevel(null); }} className="hover:text-brand-red-600 cursor-pointer"><X className="h-3 w-3" /></button>
                   </span>
                 )}
               </div>

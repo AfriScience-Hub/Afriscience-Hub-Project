@@ -75,7 +75,7 @@ export default function Login() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="flex w-full items-center justify-center gap-3 rounded-md border border-neutral-gray-light bg-white px-4 py-2.5 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light focus:outline-none focus:ring-2 focus:ring-brand-red-600 focus:ring-offset-2 transition-colors"
+            className="flex w-full items-center justify-center gap-3 rounded-md border border-neutral-gray-light bg-white px-4 py-2.5 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light focus:outline-none focus:ring-2 focus:ring-brand-red-600 focus:ring-offset-2 transition-colors cursor-pointer"
           >
             <svg className="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
               <path d="M12.0003 20.45C16.6493 20.45 20.5504 17.279 21.9698 13.064H12.0003V10.957H23.506C23.6335 11.666 23.7003 12.396 23.7003 13.146C23.7003 19.646 18.4593 24.914 12.0003 24.914C5.33427 24.914 -0.0707016 19.509 -0.0707016 12.843C-0.0707016 6.17697 5.33427 0.771973 12.0003 0.771973C15.1433 0.771973 17.8423 1.87997 19.9304 3.68497L16.8903 6.72497C15.9683 5.86597 14.2883 4.97897 12.0003 4.97897C7.6563 4.97897 4.13527 8.49997 4.13527 12.844C4.13527 17.188 7.6563 20.709 12.0003 20.709Z" fill="#4285F4" />
@@ -106,7 +106,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => setUsePhone(!usePhone)}
-                    className="text-xs text-brand-red-600 hover:text-brand-red-700 font-medium"
+                    className="text-xs text-brand-red-600 hover:text-brand-red-700 font-medium cursor-pointer"
                   >
                     Use {usePhone ? 'Email' : 'Phone'} instead
                   </button>
@@ -153,7 +153,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-gray-medium hover:text-neutral-gray-dark"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-gray-medium hover:text-neutral-gray-dark cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>

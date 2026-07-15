@@ -178,15 +178,15 @@ export default function ScientistDetails() {
                   <Eye className="h-4 w-4" />
                   <span className="font-semibold text-neutral-gray-dark">{scientist.views ? (scientist.views / 1000).toFixed(1) + 'k' : '0'}</span> Views
                 </div>
-                <button onClick={handleLikeToggle} className={cn("flex items-center gap-1.5 transition-colors", isLiked ? "text-brand-red-600" : "hover:text-brand-red-600")}>
+                <button onClick={handleLikeToggle} className={cn("flex items-center gap-1.5 transition-colors cursor-pointer", isLiked ? "text-brand-red-600" : "hover:text-brand-red-600")}>
                   <ThumbsUp className={cn("h-4 w-4", isLiked && "fill-current")} />
                   <span className="font-semibold text-neutral-gray-dark">{(likesCount / 1000).toFixed(1)}k</span> Likes
                 </button>
-                <button onClick={scrollToReviews} className="flex items-center gap-1.5 hover:text-brand-red-600 transition-colors">
+                <button onClick={scrollToReviews} className="flex items-center gap-1.5 hover:text-brand-red-600 transition-colors cursor-pointer">
                   <MessageCircle className="h-4 w-4" />
                   <span className="font-semibold text-neutral-gray-dark">{scientist.reviews || 0}</span> Reviews
                 </button>
-                <button onClick={handleShare} className="flex items-center gap-1.5 hover:text-brand-navy-900 transition-colors">
+                <button onClick={handleShare} className="flex items-center gap-1.5 hover:text-brand-navy-900 transition-colors cursor-pointer">
                   <Share2 className="h-4 w-4" />
                   <span className="font-semibold text-neutral-gray-dark">{sharesCount}</span> Shares
                 </button>

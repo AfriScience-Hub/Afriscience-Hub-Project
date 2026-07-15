@@ -151,7 +151,7 @@ export default function Impact() {
                 </div>
                 <button 
                   onClick={clearAllFilters}
-                  className="text-xs text-brand-red-600 hover:underline font-medium"
+                  className="text-xs text-brand-red-600 hover:underline font-medium cursor-pointer"
                 >
                   Reset All
                 </button>
@@ -161,7 +161,7 @@ export default function Impact() {
 
                 {/* Cause */}
                 <div>
-                  <button onClick={() => toggleSection('cause')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2">
+                  <button onClick={() => toggleSection('cause')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2 cursor-pointer">
                     <span className="flex items-center gap-1.5">
                       Cause
                       {selectedCauses.length > 0 && (
@@ -185,7 +185,7 @@ export default function Impact() {
 
                 {/* Country */}
                 <div>
-                  <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2">
+                  <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2 cursor-pointer">
                     <span className="flex items-center gap-1.5">
                       Country
                       {selectedCountry && (
@@ -212,7 +212,7 @@ export default function Impact() {
 
                 {/* Year */}
                 <div>
-                  <button onClick={() => toggleSection('year')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2">
+                  <button onClick={() => toggleSection('year')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2 cursor-pointer">
                     <span className="flex items-center gap-1.5">
                       Year
                       {selectedYear && (
@@ -243,7 +243,7 @@ export default function Impact() {
               {activeFilterCount > 0 && (
                 <button
                   onClick={clearAllFilters}
-                  className="mt-5 w-full py-2.5 px-4 rounded-lg bg-brand-red-50 text-brand-red-600 text-sm font-bold hover:bg-brand-red-100 transition-colors"
+                  className="mt-5 w-full py-2.5 px-4 rounded-lg bg-brand-red-50 text-brand-red-600 text-sm font-bold hover:bg-brand-red-100 transition-colors cursor-pointer"
                 >
                   Reset All Filters
                 </button>
@@ -295,7 +295,7 @@ export default function Impact() {
                         {/* Top Left - View DP */}
                         <button
                           onClick={() => setPreviewImage({ src: story.image, alt: story.title })}
-                          className="absolute top-3 left-3 h-8 w-8 rounded-full bg-black/60 backdrop-blur-sm hover:bg-black/75 flex items-center justify-center transition-colors shadow-sm"
+                          className="absolute top-3 left-3 h-8 w-8 rounded-full bg-black/60 backdrop-blur-sm hover:bg-black/75 flex items-center justify-center transition-colors shadow-sm cursor-pointer"
                           title="View Image"
                         >
                           <Eye className="h-4 w-4 text-white" />
@@ -305,14 +305,14 @@ export default function Impact() {
                         <div className="absolute top-3 right-3 flex gap-2">
                           <button
                             onClick={() => handleShare(story)}
-                            className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white flex items-center justify-center transition-colors shadow-sm"
+                            className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white flex items-center justify-center transition-colors shadow-sm cursor-pointer"
                             title="Share"
                           >
                             <Share2 className="h-4 w-4 text-neutral-gray-dark" />
                           </button>
                           <button
                             onClick={() => toggleArchive(story.id)}
-                            className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white flex items-center justify-center transition-colors shadow-sm"
+                            className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white flex items-center justify-center transition-colors shadow-sm cursor-pointer"
                             title={isArchived ? 'Unarchive' : 'Archive'}
                           >
                             {isArchived ? (

@@ -137,7 +137,7 @@ export default function AwardDetail() {
                   <div className="flex flex-col items-center gap-2 p-3 rounded-xl border border-neutral-gray-light hover:border-amber-300 hover:bg-amber-50 transition-colors group">
                     <button
                       onClick={() => setPreview({ title: isMedal ? 'Medal' : 'Badge', url: award.badgeImage! })}
-                      className="flex flex-col items-center gap-2"
+                      className="flex flex-col items-center gap-2 cursor-pointer"
                     >
                       <div className="relative w-20 h-20">
                         <Image src={award.badgeImage} alt={isMedal ? 'Medal' : 'Badge'} fill className="rounded-full object-cover group-hover:scale-110 transition-transform" />
@@ -153,7 +153,7 @@ export default function AwardDetail() {
                 <div className="flex flex-col items-center gap-2 p-3 rounded-xl border border-neutral-gray-light hover:border-amber-300 hover:bg-amber-50 transition-colors group">
                   <button
                     onClick={() => setPreview({ title: 'Certificate of Recognition', url: award.certificate })}
-                    className="flex flex-col items-center gap-2"
+                    className="flex flex-col items-center gap-2 cursor-pointer"
                   >
                     <div className="relative w-20 h-20">
                       <Image src={award.certificate} alt="Certificate" fill className="rounded object-cover group-hover:scale-110 transition-transform" />
@@ -169,7 +169,7 @@ export default function AwardDetail() {
                   <div className="flex flex-col items-center gap-2 p-3 rounded-xl border border-neutral-gray-light hover:border-amber-300 hover:bg-amber-50 transition-colors group">
                     <button
                       onClick={() => setPreview({ title: 'Award Presentation', url: award.awardPresentation! })}
-                      className="flex flex-col items-center gap-2"
+                      className="flex flex-col items-center gap-2 cursor-pointer"
                     >
                       <div className="relative w-20 h-20">
                         <Image src={award.awardPresentation} alt="Award Presentation" fill className="rounded object-cover group-hover:scale-110 transition-transform" />

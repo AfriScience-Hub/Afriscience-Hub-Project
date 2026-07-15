@@ -64,7 +64,7 @@ export default function InnovationFilters({
             )}
           </div>
           {activeFilterCount > 0 ? (
-            <button onClick={clearAllFilters} className="text-xs text-brand-red-600 hover:underline font-medium">Reset all</button>
+            <button onClick={clearAllFilters} className="text-xs text-brand-red-600 hover:underline font-medium cursor-pointer">Reset all</button>
           ) : (
             <span className="text-xs text-neutral-gray-light">Reset all</span>
           )}
@@ -73,7 +73,7 @@ export default function InnovationFilters({
         <div className="space-y-5">
           {/* Fields */}
           <div>
-            <button onClick={() => toggleSection('fields')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2">
+            <button onClick={() => toggleSection('fields')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2 cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Fields
                 {selectedField && (
@@ -97,7 +97,7 @@ export default function InnovationFilters({
 
           {/* Interests */}
           <div>
-            <button onClick={() => toggleSection('interests')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2">
+            <button onClick={() => toggleSection('interests')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2 cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Interests
                 {selectedInterests.length > 0 && (
@@ -129,7 +129,7 @@ export default function InnovationFilters({
 
           {/* Stage */}
           <div>
-            <button onClick={() => toggleSection('stage')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2">
+            <button onClick={() => toggleSection('stage')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2 cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Stage
                 {selectedStages && (
@@ -161,7 +161,7 @@ export default function InnovationFilters({
 
           {/* Ownership */}
           <div>
-            <button onClick={() => toggleSection('ownership')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2">
+            <button onClick={() => toggleSection('ownership')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2 cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Ownership
                 {selectedOwnership && (
@@ -185,7 +185,7 @@ export default function InnovationFilters({
 
           {/* SDGs */}
           <div>
-            <button onClick={() => toggleSection('sdgs')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2">
+            <button onClick={() => toggleSection('sdgs')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2 cursor-pointer">
               <span className="flex items-center gap-1.5">
                 SDGs
                 {selectedSDGs.length > 0 && (
@@ -209,7 +209,7 @@ export default function InnovationFilters({
 
           {/* Country */}
           <div>
-            <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2">
+            <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2 cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Country
                 {selectedCountry && (

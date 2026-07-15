@@ -59,7 +59,7 @@ export default function FinalistCard({
         </div>
 
         {/* Top Right - Archive Icon */}
-        <button className="absolute top-3 right-3 flex items-center justify-center h-8 w-8 rounded-full bg-white/90 backdrop-blur text-slate-600 hover:bg-white transition-colors">
+        <button className="absolute top-3 right-3 flex items-center justify-center h-8 w-8 rounded-full bg-white/90 backdrop-blur text-slate-600 hover:bg-white transition-colors cursor-pointer">
           <Archive className="h-4 w-4" />
         </button>
 

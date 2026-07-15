@@ -90,15 +90,15 @@ export default function InnovationDetails() {
 
         {allMediaItems.length > 1 && (
           <>
-            <button onClick={prevSlide} className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm hover:bg-white/40 transition-colors z-10">
+            <button onClick={prevSlide} className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm hover:bg-white/40 transition-colors z-10 cursor-pointer">
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <button onClick={nextSlide} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm hover:bg-white/40 transition-colors z-10">
+            <button onClick={nextSlide} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm hover:bg-white/40 transition-colors z-10 cursor-pointer">
               <ChevronRightIcon className="h-5 w-5" />
             </button>
             <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
               {allMediaItems.map((_, i) => (
-                <button key={i} onClick={() => setCurrentSlide(i)} className={`h-1.5 rounded-full transition-all ${i === currentSlide ? 'w-6 bg-white' : 'w-1.5 bg-white/50'}`} />
+                <button key={i} onClick={() => setCurrentSlide(i)} className={`h-1.5 rounded-full transition-all cursor-pointer ${i === currentSlide ? 'w-6 bg-white' : 'w-1.5 bg-white/50'}`} />
               ))}
             </div>
           </>
@@ -110,7 +110,7 @@ export default function InnovationDetails() {
         </Link>
         <button
           onClick={() => allMediaItems.length > 0 ? setPreviewImage({ src: allMediaItems[currentSlide].url, alt: allMediaItems[currentSlide].caption }) : setPreviewImage({ src: innovation.image, alt: innovation.name })}
-          className="absolute top-4 right-4 sm:top-6 sm:right-6 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm hover:bg-white/30 transition-colors z-10"
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm hover:bg-white/30 transition-colors z-10 cursor-pointer"
           title="Preview image"
         >
           <Maximize2 className="h-5 w-5" />
@@ -170,7 +170,7 @@ export default function InnovationDetails() {
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 className={cn(
-                  "px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+                  "px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap cursor-pointer",
                   activeTab === tab.key
                     ? "border-brand-red-600 text-brand-red-600"
                     : "border-transparent text-neutral-gray-medium hover:text-brand-navy-900 hover:border-neutral-gray-light"
@@ -343,7 +343,7 @@ export default function InnovationDetails() {
                   key={cat.category}
                   onClick={() => setActiveGalleryCategory(cat.category)}
                   className={cn(
-                    "px-4 py-2 rounded-full text-sm font-medium transition-all border",
+                    "px-4 py-2 rounded-full text-sm font-medium transition-all border cursor-pointer",
                     (activeGalleryCategory === cat.category || (!activeGalleryCategory && cat === mediaCategories[0]))
                       ? "bg-brand-red-600 text-white border-brand-red-600"
                       : "bg-white text-neutral-gray-dark border-neutral-gray-light hover:border-brand-red-300"

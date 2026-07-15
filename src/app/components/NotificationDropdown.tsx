@@ -33,7 +33,7 @@ export function NotificationDropdown({ categories, totalUnread }: NotificationDr
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="relative flex items-center justify-center h-9 w-9 rounded-full hover:bg-neutral-bg-light transition-colors focus:outline-none focus:ring-2 focus:ring-brand-red-600 focus:ring-offset-2"
+        className="relative flex items-center justify-center h-9 w-9 rounded-full hover:bg-neutral-bg-light transition-colors focus:outline-none focus:ring-2 focus:ring-brand-red-600 focus:ring-offset-2 cursor-pointer"
         aria-label="Notifications"
       >
         <Bell className="h-5 w-5 text-neutral-gray-dark" />

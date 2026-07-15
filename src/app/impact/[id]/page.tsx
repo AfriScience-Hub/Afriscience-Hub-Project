@@ -88,7 +88,7 @@ export default function ImpactDetails() {
 
             <button
               onClick={handleShare}
-              className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white flex items-center justify-center transition-colors shadow-lg"
+              className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white flex items-center justify-center transition-colors shadow-lg cursor-pointer"
               title="Share"
             >
               <Share2 className="h-5 w-5 text-neutral-gray-dark" />

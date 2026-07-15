@@ -86,7 +86,7 @@ export default function ScientistFilters({
               </span>
             )}
           </div>
-          <button onClick={resetFilters} className="text-xs text-brand-red-600 hover:underline font-medium">
+          <button onClick={resetFilters} className="text-xs text-brand-red-600 hover:underline font-medium cursor-pointer">
             Reset All
           </button>
         </div>
@@ -94,7 +94,7 @@ export default function ScientistFilters({
         <div className="space-y-0 divide-y divide-neutral-gray-light">
           {/* Fields */}
           <div className="py-4 first:pt-0">
-            <button onClick={() => toggleSection('fields')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('fields')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Fields
                 {selectedFields.length > 0 && (
@@ -119,7 +119,7 @@ export default function ScientistFilters({
 
           {/* Profession */}
           <div className="py-4">
-            <button onClick={() => toggleSection('profession')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('profession')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Profession
                 {selectedProfessions.length > 0 && (
@@ -144,7 +144,7 @@ export default function ScientistFilters({
 
           {/* Services */}
           <div className="py-4">
-            <button onClick={() => toggleSection('services')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('services')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Services
                 {selectedServices.length > 0 && (
@@ -169,7 +169,7 @@ export default function ScientistFilters({
 
           {/* Status */}
           <div className="py-4">
-            <button onClick={() => toggleSection('status')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('status')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Status
                 {selectedStatus.length > 0 && (
@@ -194,7 +194,7 @@ export default function ScientistFilters({
 
           {/* Country */}
           <div className="py-4">
-            <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors cursor-pointer">
               Country
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.country && "rotate-180")} />
             </button>
@@ -212,7 +212,7 @@ export default function ScientistFilters({
 
           {/* State / Region */}
           <div className="py-4 last:pb-0">
-            <button onClick={() => toggleSection('state')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('state')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors cursor-pointer">
               State / Region
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.state && "rotate-180")} />
             </button>

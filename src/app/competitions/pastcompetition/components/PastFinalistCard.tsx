@@ -78,7 +78,7 @@ export default function PastFinalistCard({ finalist, onViewWork }: PastFinalistC
         {/* Share - top left */}
         <button
           onClick={(e) => { e.stopPropagation(); handleShare(); }}
-          className="absolute top-3 left-3 rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors"
+          className="absolute top-3 left-3 rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors cursor-pointer"
           title="Share"
         >
           <Share2 className="h-3.5 w-3.5" />
@@ -89,7 +89,7 @@ export default function PastFinalistCard({ finalist, onViewWork }: PastFinalistC
           <button
             onClick={handleArchive}
             className={cn(
-              "flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur shadow-sm transition-all",
+              "flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur shadow-sm transition-all cursor-pointer",
               archived ? "text-brand-red-600 bg-brand-red-50" : "text-slate-600 hover:bg-white hover:text-brand-red-600"
             )}
             title={archived ? "Unarchive" : "Archive"}
@@ -98,7 +98,7 @@ export default function PastFinalistCard({ finalist, onViewWork }: PastFinalistC
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); setPreview(true); }}
-            className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white hover:text-brand-red-600 transition-all shadow-sm"
+            className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white hover:text-brand-red-600 transition-all shadow-sm cursor-pointer"
             title="Preview"
           >
             <Eye className="h-3.5 w-3.5" />

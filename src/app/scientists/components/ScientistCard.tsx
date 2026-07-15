@@ -47,7 +47,7 @@ export default function ScientistCard({ sci, index, archived, onToggleArchive }:
 
         <div className="absolute top-3 right-3 flex gap-1.5">
           <button
-            className="flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur text-slate-600 hover:text-blue-600 shadow-sm transition-colors"
+            className="flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur text-slate-600 hover:text-blue-600 shadow-sm transition-colors cursor-pointer"
             title="Share"
             onClick={async (e) => {
               e.preventDefault();
@@ -61,7 +61,7 @@ export default function ScientistCard({ sci, index, archived, onToggleArchive }:
           </button>
           <button
             className={cn(
-              "flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur shadow-sm transition-colors",
+              "flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur shadow-sm transition-colors cursor-pointer",
               archived ? "text-brand-red-600" : "text-slate-600 hover:text-brand-red-600"
             )}
             title={archived ? "Remove from Archive" : "Add to Archive"}

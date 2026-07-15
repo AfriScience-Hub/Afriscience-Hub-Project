@@ -36,12 +36,12 @@ export function CompetitionFilters({
               <span className="flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-brand-red-600 text-white text-[10px] font-bold">{activeFilterCount}</span>
             )}
           </div>
-          <button onClick={resetFilters} className="text-xs text-brand-red-600 hover:underline font-medium">Reset All</button>
+          <button onClick={resetFilters} className="text-xs text-brand-red-600 hover:underline font-medium cursor-pointer">Reset All</button>
         </div>
         <div className="space-y-0 divide-y divide-neutral-gray-light">
           {/* Type */}
           <div className="py-4 first:pt-0">
-            <button onClick={() => toggleSection('type')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('type')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">Type{selectedType && <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">1</span>}</span>
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.type && "rotate-180")} />
             </button>
@@ -73,7 +73,7 @@ export function CompetitionFilters({
           </div>
           {/* Category */}
           <div className="py-4">
-            <button onClick={() => toggleSection('category')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('category')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">Category{selectedCategory && <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">1</span>}</span>
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.category && "rotate-180")} />
             </button>
@@ -106,7 +106,7 @@ export function CompetitionFilters({
           </div>
           {/* Country */}
           <div className="py-4 last:pb-0">
-            <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               Country
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.country && "rotate-180")} />
             </button>

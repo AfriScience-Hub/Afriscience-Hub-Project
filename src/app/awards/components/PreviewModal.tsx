@@ -29,7 +29,7 @@ export default function PreviewModal({ isOpen, onClose, imageUrl, title }: Previ
             {getIcon()}
             <h3 className="font-bold text-neutral-black">{title}</h3>
           </div>
-          <button onClick={onClose} className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">
+          <button onClick={onClose} className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors cursor-pointer">
             <X className="h-4 w-4" />
           </button>
         </div>

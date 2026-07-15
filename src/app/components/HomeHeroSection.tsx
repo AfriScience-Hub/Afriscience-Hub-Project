@@ -107,7 +107,7 @@ export function HomeHeroSection({ onJoinCommunity }: HeroSectionProps) {
           <div className="flex justify-center gap-3 mt-8">
             {SLIDES.map((_, idx) => (
               <button key={idx} onClick={() => goToSlide(idx)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${currentSlide === idx ? 'w-8 bg-brand-red-600' : 'w-2 bg-neutral-gray-dark hover:bg-neutral-gray-medium'}`}
+                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${currentSlide === idx ? 'w-8 bg-brand-red-600' : 'w-2 bg-neutral-gray-dark hover:bg-neutral-gray-medium'}`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
             ))}

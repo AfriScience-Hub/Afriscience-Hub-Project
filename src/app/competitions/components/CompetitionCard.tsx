@@ -34,14 +34,14 @@ export function CompetitionCard({ comp, onPreview }: CompetitionCardProps) {
         {/* Share button - top left */}
         <button
           onClick={(e) => { e.stopPropagation(); handleShare(); }}
-          className="absolute top-3 left-3 rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors"
+          className="absolute top-3 left-3 rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors cursor-pointer"
           title="Share"
         >
           <Share2 className="h-3.5 w-3.5" />
         </button>
         {/* Archive + Preview - top right */}
         <div className="absolute top-3 right-3 flex items-center gap-1.5">
-          <button className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white transition-colors" title="Archive">
+          <button className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white transition-colors cursor-pointer" title="Archive">
             <Archive className="h-3.5 w-3.5" />
           </button>
           <span className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 cursor-pointer hover:bg-white transition-colors" onClick={(e) => { e.stopPropagation(); onPreview(comp.image); }} title="Preview">

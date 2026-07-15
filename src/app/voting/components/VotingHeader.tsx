@@ -34,7 +34,7 @@ export default function VotingHeader({
         <button
           type="button"
           onClick={() => setShowMobileFilters(!showMobileFilters)}
-          className="mt-6 inline-flex items-center gap-3 rounded-md border-2 border-[#9dafc7] bg-white px-3 py-2 text-sm font-semibold text-[#0f1d33] shadow-sm transition hover:bg-[#f8fbff] lg:hidden"
+          className="mt-6 inline-flex items-center gap-3 rounded-md border-2 border-[#9dafc7] bg-white px-3 py-2 text-sm font-semibold text-[#0f1d33] shadow-sm transition hover:bg-[#f8fbff] lg:hidden cursor-pointer"
         >
           <SlidersHorizontal className="h-5 w-5" />
           {showMobileFilters ? 'Hide Filters' : 'Show Filters'}

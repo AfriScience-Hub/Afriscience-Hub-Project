@@ -38,7 +38,7 @@ export default function CenterCard({ center, archivedIds, onToggleArchive }: Cen
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute top-3 right-3 flex gap-1.5">
           <button
-            className="flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur text-slate-600 hover:text-blue-600 shadow-sm transition-colors"
+            className="flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur text-slate-600 hover:text-blue-600 shadow-sm transition-colors cursor-pointer"
             title="Share"
             onClick={async (e) => {
               e.preventDefault();
@@ -52,7 +52,7 @@ export default function CenterCard({ center, archivedIds, onToggleArchive }: Cen
           </button>
           <button
             className={cn(
-              "flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur shadow-sm transition-colors",
+              "flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur shadow-sm transition-colors cursor-pointer",
               archivedIds.includes(center.id) ? "text-brand-red-600" : "text-slate-600 hover:text-brand-red-600"
             )}
             title={archivedIds.includes(center.id) ? "Remove from Archive" : "Add to Archive"}

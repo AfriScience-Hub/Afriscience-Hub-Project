@@ -63,7 +63,7 @@ export default function FilterSidebar({
           </div>
           <button
             onClick={resetFilters}
-            className="text-xs text-brand-red-600 hover:underline font-medium"
+            className="text-xs text-brand-red-600 hover:underline font-medium cursor-pointer"
           >
             Reset All
           </button>
@@ -73,7 +73,7 @@ export default function FilterSidebar({
 
           {/* 1. Type */}
           <div className="py-4 first:pt-0">
-            <button onClick={() => toggleSection('type')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('type')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">Type</span>
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.type && "rotate-180")} />
             </button>
@@ -94,7 +94,7 @@ export default function FilterSidebar({
 
           {/* 2. Competition */}
           <div className="py-4">
-            <button onClick={() => toggleSection('competition')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('competition')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Competition
                 {selectedCompetition && (
@@ -134,7 +134,7 @@ export default function FilterSidebar({
 
           {/* 3. Category */}
           <div className="py-4">
-            <button onClick={() => toggleSection('category')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('category')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Category
                 {selectedCategories.length > 0 && (
@@ -179,7 +179,7 @@ export default function FilterSidebar({
 
           {/* 4. Year */}
           <div className="py-4">
-            <button onClick={() => toggleSection('year')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('year')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               Year
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.year && "rotate-180")} />
             </button>
@@ -198,7 +198,7 @@ export default function FilterSidebar({
 
           {/* 5. Country */}
           <div className="py-4 last:pb-0">
-            <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               Country
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.country && "rotate-180")} />
             </button>

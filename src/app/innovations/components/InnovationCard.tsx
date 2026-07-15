@@ -25,7 +25,7 @@ export default function InnovationCard({ inn, archived, onToggleArchive, onPrevi
 
         <button
           onClick={() => onPreview(inn.image, inn.name)}
-          className="absolute top-3 left-3 rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors"
+          className="absolute top-3 left-3 rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors cursor-pointer"
           title="View image"
         >
           <Eye className="h-3.5 w-3.5" />
@@ -34,14 +34,14 @@ export default function InnovationCard({ inn, archived, onToggleArchive, onPrevi
         <div className="absolute top-3 right-3 flex items-center gap-1.5">
           <button
             onClick={() => { navigator.clipboard.writeText(window.location.origin + '/innovations/' + inn.id); toast.success('Link copied!'); }}
-            className="rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors"
+            className="rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors cursor-pointer"
             title="Share"
           >
             <Share2 className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={onToggleArchive}
-            className="rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors"
+            className="rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors cursor-pointer"
             title={archived ? "Unarchive" : "Archive"}
           >
             {archived ? <ArchiveX className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}

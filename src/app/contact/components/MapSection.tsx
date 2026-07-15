@@ -258,14 +258,14 @@ export default function MapSection() {
           <div className="flex items-center gap-1 bg-neutral-bg-light p-1 rounded-lg">
             <button
               onClick={() => setTravelMode('driving')}
-              className={`p-1.5 rounded-md transition-all ${travelMode === 'driving' ? 'bg-white shadow-sm text-brand-red-600' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`p-1.5 rounded-md transition-all cursor-pointer ${travelMode === 'driving' ? 'bg-white shadow-sm text-brand-red-600' : 'text-slate-500 hover:text-slate-700'}`}
               title="Driving Directions"
             >
               <Car className="h-4 w-4" />
             </button>
             <button
               onClick={() => setTravelMode('keke')}
-              className={`p-1.5 rounded-md transition-all ${travelMode === 'keke' ? 'bg-white shadow-sm text-brand-red-600' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`p-1.5 rounded-md transition-all cursor-pointer ${travelMode === 'keke' ? 'bg-white shadow-sm text-brand-red-600' : 'text-slate-500 hover:text-slate-700'}`}
               title="Local / Keke Directions"
             >
               <Bus className="h-4 w-4" />

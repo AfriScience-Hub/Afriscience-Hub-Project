@@ -60,14 +60,14 @@ export default function AwardsFilterSidebar({
               </span>
             )}
           </div>
-          <button onClick={resetFilters} className="text-xs text-brand-red-600 hover:underline font-medium">Reset All</button>
+          <button onClick={resetFilters} className="text-xs text-brand-red-600 hover:underline font-medium cursor-pointer">Reset All</button>
         </div>
 
         <div className="space-y-0 divide-y divide-neutral-gray-light">
 
           {/* 1. Type */}
           <div className="py-4 first:pt-0">
-            <button onClick={() => toggleSection('type')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('type')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Type
                 {selectedType && <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">1</span>}
@@ -100,7 +100,7 @@ export default function AwardsFilterSidebar({
 
           {/* 2. Category (Competitions Award only) */}
           <div className="py-4">
-            <button onClick={() => toggleSection('category')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('category')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Category
                 {!isCompetition && selectedType && <span className="text-[9px] text-slate-400 font-normal">(Competitions only)</span>}
@@ -140,7 +140,7 @@ export default function AwardsFilterSidebar({
 
           {/* 3. Level (Competitions Award only) */}
           <div className="py-4">
-            <button onClick={() => toggleSection('level')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('level')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Level
                 {!isCompetition && selectedType && <span className="text-[9px] text-slate-400 font-normal">(Competitions only)</span>}
@@ -181,7 +181,7 @@ export default function AwardsFilterSidebar({
 
           {/* 4. Year */}
           <div className="py-4">
-            <button onClick={() => toggleSection('year')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('year')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               Year
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.year && "rotate-180")} />
             </button>
@@ -200,7 +200,7 @@ export default function AwardsFilterSidebar({
 
           {/* 5. Country */}
           <div className="py-4 last:pb-0">
-            <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors">
+            <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
               Country
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.country && "rotate-180")} />
             </button>

@@ -180,18 +180,18 @@ export default function InstituteDetails() {
                   <Eye className="h-4 w-4" />
                   <span className="font-semibold text-neutral-gray-dark">{institute.views ? (institute.views / 1000).toFixed(1) + 'k' : '0'}</span> Views
                 </div>
-                <button onClick={handleLikeToggle} className={cn("flex items-center gap-1.5 transition-colors", isLiked ? "text-brand-red-600" : "hover:text-brand-red-600")}>
+                <button onClick={handleLikeToggle} className={cn("flex items-center gap-1.5 transition-colors cursor-pointer", isLiked ? "text-brand-red-600" : "hover:text-brand-red-600")}>
                   <ThumbsUp className={cn("h-4 w-4", isLiked && "fill-current")} />
                   <span className={cn("font-semibold", isLiked ? "text-brand-red-600" : "text-neutral-gray-dark")}>{currentLikes ? (currentLikes / 1000).toFixed(1) + 'k' : '0'}</span> Likes
                 </button>
-                <button onClick={() => setActiveTab('reviews')} className="flex items-center gap-1.5 hover:text-brand-red-600 transition-colors">
+                <button onClick={() => setActiveTab('reviews')} className="flex items-center gap-1.5 hover:text-brand-red-600 transition-colors cursor-pointer">
                   <MessageCircle className="h-4 w-4" />
                   <span className="font-semibold text-neutral-gray-dark">{institute.reviews || 0}</span> Reviews
                 </button>
                 <button onClick={async () => {
                   try { await navigator.clipboard.writeText(window.location.href); toast.success('Profile link copied — share it!'); }
                   catch (err) { toast.success('Profile link copied — share it!'); }
-                }} className="flex items-center gap-1.5 hover:text-brand-navy-900 transition-colors">
+                }} className="flex items-center gap-1.5 hover:text-brand-navy-900 transition-colors cursor-pointer">
                   <Share2 className="h-4 w-4" />
                   <span className="font-semibold text-neutral-gray-dark">{institute.shares || 0}</span> Shares
                 </button>
