@@ -1,13 +1,11 @@
 'use client';
 
-import { ChevronUp, ChevronDown, Search } from 'lucide-react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import { Input } from '../../../../components/ui/input';
+import Link from 'next/link';
 import { INDUSTRIES, COUNTRIES } from '../data';
 
 interface SidebarFiltersProps {
-  searchTerm: string;
-  onSearchChange: (v: string) => void;
   selectedIndustry: string;
   onIndustryChange: (industry: string) => void;
   selectedStatus: string;
@@ -18,7 +16,6 @@ interface SidebarFiltersProps {
 }
 
 export function SidebarFilters({
-  searchTerm, onSearchChange,
   selectedIndustry, onIndustryChange,
   selectedStatus, onStatusChange,
   selectedCountry, onCountryChange,
@@ -38,19 +35,6 @@ export function SidebarFilters({
       </div>
 
       <div className="mb-6">
-        <label className="block text-xs font-bold text-neutral-gray-medium uppercase mb-2">Search</label>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium" />
-          <Input
-            placeholder="Search sponsors..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-      </div>
-
-      <div className="mb-6">
         <button onClick={() => setIndustryOpen(!industryOpen)} className="cursor-pointer w-full flex items-center justify-between text-xs font-bold text-neutral-gray-medium uppercase mb-2">
           <span>Industry</span>
           {industryOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -58,16 +42,14 @@ export function SidebarFilters({
         {industryOpen && (
           <div className="space-y-1 max-h-64 overflow-y-auto">
             {INDUSTRIES.map(industry => (
-              <label key={industry} className={`flex items-center gap-2 cursor-pointer text-sm p-1.5 rounded transition-colors ${selectedIndustry === industry ? 'bg-brand-red-50 text-brand-red-600 font-medium' : 'text-neutral-gray-dark hover:bg-neutral-bg-light'}`}>
-                <input
-                  type="radio"
-                  name="industry"
-                  checked={selectedIndustry === industry}
-                  onChange={() => onIndustryChange(industry)}
-                  className="text-brand-red-600 focus:ring-brand-red-600"
-                />
+              <Link
+                key={industry}
+                href={`/support/sponsor/catalog/${encodeURIComponent(industry)}`}
+                className={`flex items-center gap-2 text-sm p-1.5 rounded transition-colors ${selectedIndustry === industry ? 'bg-brand-red-50 text-brand-red-600 font-medium' : 'text-neutral-gray-dark hover:bg-neutral-bg-light'}`}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-red-600 flex-shrink-0" />
                 <span>{industry}</span>
-              </label>
+              </Link>
             ))}
           </div>
         )}

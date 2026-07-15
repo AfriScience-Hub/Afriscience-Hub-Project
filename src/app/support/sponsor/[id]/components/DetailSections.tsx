@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
-import { FileText, ShieldCheck, Award, ImageIcon, MapPin, ShoppingBag, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { FileText, ShieldCheck, Award, ImageIcon, MapPin, ShoppingBag, ExternalLink } from 'lucide-react';
 import { MOCK_SPONSOR } from '../data';
 
 export function AboutSection() {
@@ -17,9 +17,6 @@ export function AboutSection() {
 
 export function CatalogSection() {
   const s = MOCK_SPONSOR;
-  const [activeIndustry, setActiveIndustry] = useState<string | null>(null);
-
-  const currentIndustry = activeIndustry || s.catalog[0]?.industry;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-6">
@@ -30,26 +27,21 @@ export function CatalogSection() {
 
       <div className="flex flex-wrap gap-2 mb-6">
         {s.catalog.map((group) => (
-          <button
+          <Link
             key={group.industry}
-            onClick={() => setActiveIndustry(group.industry)}
-            className={`cursor-pointer px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              currentIndustry === group.industry
-                ? 'bg-brand-red-600 text-white'
-                : 'bg-neutral-bg-light text-neutral-gray-dark hover:bg-neutral-gray-light'
-            }`}
+            href={`/support/sponsor/catalog/${encodeURIComponent(group.industry)}`}
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium bg-neutral-bg-light text-neutral-gray-dark hover:bg-brand-red-600 hover:text-white transition-colors"
           >
             {group.industry}
-          </button>
+            <ExternalLink className="h-3 w-3" />
+          </Link>
         ))}
       </div>
 
-      {currentIndustry && (() => {
-        const group = s.catalog.find(g => g.industry === currentIndustry);
-        if (!group) return null;
-        return (
-          <div className="space-y-1">
-            <p className="text-xs font-semibold text-neutral-gray-medium uppercase mb-3">{group.industry}</p>
+      <div className="space-y-4">
+        {s.catalog.map((group) => (
+          <div key={group.industry}>
+            <p className="text-xs font-semibold text-neutral-gray-medium uppercase mb-2">{group.industry}</p>
             <div className="grid gap-3 sm:grid-cols-2">
               {group.items.map((item, idx) => (
                 <div key={idx} className="border border-neutral-gray-light rounded-lg p-4 hover:border-brand-red-600 transition-colors">
@@ -59,8 +51,8 @@ export function CatalogSection() {
               ))}
             </div>
           </div>
-        );
-      })()}
+        ))}
+      </div>
     </div>
   );
 }

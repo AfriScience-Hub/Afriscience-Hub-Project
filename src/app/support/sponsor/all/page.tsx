@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { SlidersHorizontal, Globe } from 'lucide-react';
+import { Search, SlidersHorizontal, Globe } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { SidebarFilters } from './components/SidebarFilters';
 import { SponsorCard } from './components/SponsorCard';
@@ -13,7 +13,7 @@ export default function SponsorsListing() {
   const [selectedIndustry, setSelectedIndustry] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
 
   const handleIndustryChange = useCallback((industry: string) => {
     setSelectedIndustry(prev => prev === industry ? '' : industry);
@@ -63,10 +63,9 @@ export default function SponsorsListing() {
       </section>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex gap-8">
-          <aside className={`w-80 flex-shrink-0 transition-all duration-300 ${showFilters ? 'block' : 'hidden'}`}>
+        <div className="flex flex-col lg:flex-row gap-8">
+          <aside className={`w-full lg:w-80 flex-shrink-0 transition-all duration-300 ${showFilters ? 'block' : 'hidden lg:block'}`}>
             <SidebarFilters
-              searchTerm={searchTerm} onSearchChange={setSearchTerm}
               selectedIndustry={selectedIndustry} onIndustryChange={handleIndustryChange}
               selectedStatus={selectedStatus} onStatusChange={handleStatusChange}
               selectedCountry={selectedCountry} onCountryChange={handleCountryChange}
@@ -75,9 +74,9 @@ export default function SponsorsListing() {
           </aside>
 
           <div className="flex-1">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
-                <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 lg:hidden">
                   <SlidersHorizontal className="h-4 w-4" />
                   {showFilters ? 'Hide' : 'Show'} Filters
                 </Button>
@@ -87,7 +86,18 @@ export default function SponsorsListing() {
               </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+            <div className="mb-6 relative">
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-gray-medium" />
+              <input
+                type="text"
+                placeholder="Search sponsors by name, industry or country..."
+                className="w-full rounded-xl border border-neutral-gray-light pl-12 pr-4 py-3 text-sm shadow-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600 transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {filteredSponsors.map(sponsor => (
                 <SponsorCard
                   key={sponsor.id}
