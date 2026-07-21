@@ -6,11 +6,12 @@ import { Award, MapPin, Calendar, Eye, Trophy, Medal } from 'lucide-react';
 import { AWARD_WINNERS, AWARD_YEARS, AWARD_TYPES } from '@/app/data/mockData';
 import { cn } from '@/lib/utils';
 import { getTypeColor, getTypeIcon, getPositionStyle, getPositionLabel, usesMedal } from '@/app/awards/data';
-import Link from 'next/link';
+import AwardDetailModal from './components/AwardDetailModal';
 
 export default function DashboardAwards() {
   const [selectedYear, setSelectedYear] = useState<string>('2026');
   const [selectedType, setSelectedType] = useState<string>('');
+  const [selectedAward, setSelectedAward] = useState<typeof AWARD_WINNERS[0] | null>(null);
 
   const userAwards = useMemo(() => {
     return AWARD_WINNERS.filter(a =>
@@ -64,10 +65,10 @@ export default function DashboardAwards() {
           return (
             <div key={award.id} className="p-4 rounded-xl border border-neutral-gray-light bg-white hover:shadow-md hover:border-amber-200 transition-all">
               <div className="flex items-center gap-4">
-                <Link href={`/awards/${award.id}`} className="relative h-16 w-16 rounded-xl overflow-hidden flex-shrink-0">
+                <button onClick={() => setSelectedAward(award)} className="relative h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 cursor-pointer">
                   <Image src={award.image} alt={award.name} fill sizes="33vw" className="object-cover" />
-                </Link>
-                <Link href={`/awards/${award.id}`} className="flex-1 min-w-0">
+                </button>
+                <button onClick={() => setSelectedAward(award)} className="flex-1 min-w-0 text-left cursor-pointer">
                   <p className="font-bold text-neutral-black hover:text-brand-red-600 transition-colors">{award.name}</p>
                   <div className="flex items-center gap-2 text-xs text-neutral-gray-medium mt-0.5">
                     <span className={cn("inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold", getTypeColor(award.type))}>
@@ -81,14 +82,14 @@ export default function DashboardAwards() {
                     <span className="flex items-center gap-0.5"><Calendar className="h-3 w-3" />{award.year}</span>
                     <span className="flex items-center gap-0.5"><MapPin className="h-3 w-3" />{award.country}</span>
                   </div>
-                </Link>
-                <Link
-                  href={`/awards/${award.id}`}
-                  className="flex items-center gap-1 text-amber-600 hover:text-amber-700 transition-colors flex-shrink-0"
+                </button>
+                <button
+                  onClick={() => setSelectedAward(award)}
+                  className="flex items-center gap-1 text-amber-600 hover:text-amber-700 transition-colors flex-shrink-0 cursor-pointer"
                 >
                   <Eye className="h-4 w-4" />
                   <span className="text-[11px] font-bold">View Details</span>
-                </Link>
+                </button>
                 <div className="text-amber-500 flex-shrink-0">
                   {isMedal ? <Medal className="h-5 w-5" /> : <Trophy className="h-5 w-5" />}
                 </div>
@@ -98,6 +99,11 @@ export default function DashboardAwards() {
           })}
         </div>
       )}
+
+      <AwardDetailModal
+        award={selectedAward}
+        onClose={() => setSelectedAward(null)}
+      />
     </div>
   );
 }
