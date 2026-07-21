@@ -639,7 +639,8 @@ export interface Innovation {
   description: string;
   dimensions: { length: string; width: string; height: string; weight: string };
   userGroups: string[];
-  applicationsImpact: string;
+  applications: string[];
+  impact: string[];
   specifications: { materials: string[]; dimensions: string; weight: string };
   licensesCertifications: { name: string; issuer: string; year: number }[];
   recommendations: string[];
@@ -676,7 +677,8 @@ export const INNOVATIONS: Innovation[] = [
     description: 'SolaPump Pro is an automated, solar-powered water pumping and irrigation system designed specifically for smallholder farmers across sub-Saharan Africa. The device uses a 400W monocrystalline solar panel coupled with a brushless DC submersible pump capable of delivering 5,000 litres per hour from boreholes up to 80m deep.',
     dimensions: { length: '120cm', width: '80cm', height: '150cm', weight: '45kg' },
     userGroups: ['Adults', 'Businesses', 'Outdoor', 'Schools', 'Homes'],
-    applicationsImpact: 'Deployed across 12 Nigerian states benefiting over 8,000 farming households. Increased crop yields by 40% on average and reduced water consumption per hectare by 55%.',
+    applications: ['Solar-powered irrigation for smallholder farms', 'Water pumping from boreholes up to 80m deep', 'Drip and sprinkler system integration', 'Off-grid agricultural water supply'],
+    impact: ['Increased crop yields by 40% on average', 'Reduced water consumption per hectare by 55%', 'Benefited over 8,000 farming households across 12 Nigerian states', 'Eliminated dependency on diesel-powered pumps'],
     specifications: { materials: ['Aluminium alloy frame', 'Monocrystalline silicon PV cells', 'Stainless steel pump impeller', 'HDPE piping'], dimensions: '120 x 80 x 150 cm', weight: '45 kg' },
     licensesCertifications: [
       { name: 'SON Product Certification', issuer: 'Standards Organisation of Nigeria', year: 2023 },
@@ -728,7 +730,8 @@ export const INNOVATIONS: Innovation[] = [
     description: 'MalariaScope AI is a smartphone-attachable microscope lens with an AI-powered mobile application that can identify Plasmodium parasites in blood smear samples within 90 seconds. Achieves 97.3% sensitivity and 98.1% specificity.',
     dimensions: { length: '8cm', width: '4cm', height: '3cm', weight: '0.12kg' },
     userGroups: ['Healthcare', 'Adults', 'Children', 'Outdoor', 'Schools'],
-    applicationsImpact: 'Piloted in 45 rural health posts across Kenya and Uganda. Reduced malaria diagnosis turnaround from 2 hours to under 2 minutes. Contributed to a 28% increase in early treatment rates.',
+    applications: ['Malaria parasite detection in blood smear samples', 'Smartphone-attachable microscope lens for field diagnosis', 'AI-powered identification of Plasmodium parasites', 'Rural health post deployment for community screening'],
+    impact: ['Reduced diagnosis turnaround from 2 hours to under 90 seconds', 'Achieved 97.3% sensitivity and 98.1% specificity', 'Contributed to 28% increase in early treatment rates', 'Piloted across 45 rural health posts in Kenya and Uganda'],
     specifications: { materials: ['Optical-grade glass lens', 'ABS plastic housing', 'Silicone universal phone clip', 'Stainless steel focus ring'], dimensions: '8 x 4 x 3 cm', weight: '0.12 kg' },
     licensesCertifications: [
       { name: 'Kenya Bureau of Standards Mark', issuer: 'KEBS', year: 2024 },
@@ -775,7 +778,8 @@ export const INNOVATIONS: Innovation[] = [
     description: 'EcoBrick Builder is a portable hydraulic press machine that converts shredded plastic waste into interlocking construction bricks. Each brick is 5x stronger than traditional cement blocks, waterproof, and 40% lighter.',
     dimensions: { length: '200cm', width: '100cm', height: '180cm', weight: '350kg' },
     userGroups: ['Businesses', 'Adults', 'Homes', 'Schools', 'Outdoor'],
-    applicationsImpact: 'Diverted over 2,000 tonnes of plastic waste from landfills in Accra. Built 45 affordable housing units and 12 school classrooms. Created over 300 direct jobs.',
+    applications: ['Conversion of shredded plastic waste into interlocking bricks', 'Affordable housing construction from recycled materials', 'School classroom building in underserved communities', 'Portable hydraulic press for on-site brick production'],
+    impact: ['Diverted over 2,000 tonnes of plastic waste from landfills in Accra', 'Built 45 affordable housing units and 12 school classrooms', 'Created over 300 direct jobs in recycling and construction', 'Reduced construction costs by 40% compared to cement blocks'],
     specifications: { materials: ['Hydraulic steel press', 'Industrial shredder blades', 'Recycled HDPE/LDPE plastic', 'River sand filler'], dimensions: '200 x 100 x 180 cm', weight: '350 kg' },
     licensesCertifications: [
       { name: 'Ghana Standards Authority Certification', issuer: 'GSA', year: 2023 },
@@ -822,7 +826,8 @@ export const INNOVATIONS: Innovation[] = [
     description: 'AgroDrone Mapper is a precision agriculture drone system with multispectral and thermal imaging cameras for crop health monitoring, pest detection, and yield estimation. 45-minute flight time covering up to 200 hectares.',
     dimensions: { length: '90cm', width: '90cm', height: '35cm', weight: '6.8kg' },
     userGroups: ['Businesses', 'Adults', 'Schools', 'Outdoor'],
-    applicationsImpact: 'Operational across 15,000 hectares in Rwanda, Uganda, and Tanzania. Reduced pesticide use by 35% through targeted spraying recommendations.',
+    applications: ['Multispectral crop health monitoring across large farms', 'Thermal imaging for pest and disease detection', 'Yield estimation and precision mapping', 'Targeted spraying route optimization'],
+    impact: ['Operational across 15,000 hectares in Rwanda, Uganda, and Tanzania', 'Reduced pesticide use by 35% through targeted application', 'Improved crop yield forecasting accuracy by 25%', 'Enabled data-driven farming decisions for over 2,000 farmers'],
     specifications: { materials: ['Carbon fibre frame', 'Multispectral sensor array', 'LiPo battery (22,000mAh)', 'GPS/RTK module'], dimensions: '90 x 90 x 35 cm', weight: '6.8 kg' },
     licensesCertifications: [
       { name: 'Rwanda Civil Aviation Authority Drone License', issuer: 'RCAA', year: 2024 },
@@ -869,7 +874,8 @@ export const INNOVATIONS: Innovation[] = [
     description: 'AquaPure Filter is a gravity-fed, ceramic-membrane water purification unit that removes 99.99% of bacteria and 99.9% of protozoa without electricity or chemical treatment. Produces 3 litres of clean water per hour.',
     dimensions: { length: '30cm', width: '30cm', height: '50cm', weight: '4.5kg' },
     userGroups: ['Homes', 'Children', 'Adults', 'Elderly', 'Schools'],
-    applicationsImpact: 'Distributed to over 50,000 households across rural Tanzania, Mozambique, and Malawi. Reduced waterborne disease incidence by 62%.',
+    applications: ['Gravity-fed ceramic membrane water purification', 'Bacteria and protozoa removal without electricity', 'Household-level clean water production', 'Point-of-use water treatment in off-grid communities'],
+    impact: ['Distributed to over 50,000 households across Tanzania, Mozambique, and Malawi', 'Reduced waterborne disease incidence by 62%', 'Eliminated need for firewood boiling of water', 'Saved families an estimated $15 per month on health costs'],
     specifications: { materials: ['Local clay', 'Rice husk filler', 'Food-grade plastic housing', 'Colloidal silver coating'], dimensions: '30 x 30 x 50 cm', weight: '4.5 kg' },
     licensesCertifications: [
       { name: 'Tanzania Bureau of Standards Approval', issuer: 'TBS', year: 2023 },
@@ -916,7 +922,8 @@ export const INNOVATIONS: Innovation[] = [
     description: 'BioGas SmartStove is a compact, household-scale biogas digester and cookstove system that converts kitchen waste and animal dung into clean cooking gas. Eliminates the need for firewood or charcoal.',
     dimensions: { length: '150cm', width: '80cm', height: '120cm', weight: '65kg' },
     userGroups: ['Homes', 'Adults', 'Elderly', 'Culinary', 'Businesses'],
-    applicationsImpact: 'Installed in 3,200 households across Uganda and Kenya. Reduced indoor air pollution exposure by 85%. Saves families approximately $40/month on fuel costs.',
+    applications: ['Household biogas generation from kitchen and animal waste', 'Clean cooking gas for daily meal preparation', 'Digital pressure monitoring via Bluetooth', 'Scalable system for restaurants and institutions'],
+    impact: ['Installed in 3,200 households across Uganda and Kenya', 'Reduced indoor air pollution exposure by 85%', 'Saves families approximately $40 per month on fuel costs', 'Eliminated reliance on firewood and charcoal for cooking'],
     specifications: { materials: ['Reinforced fibreglass digester tank', 'Stainless steel burner', 'HDPE gas piping', 'Digital pressure gauge with Bluetooth'], dimensions: '150 x 80 x 120 cm', weight: '65 kg' },
     licensesCertifications: [
       { name: 'Uganda National Bureau of Standards Mark', issuer: 'UNBS', year: 2024 },
@@ -963,7 +970,8 @@ export const INNOVATIONS: Innovation[] = [
     description: 'E-Waste Refinery Hub is a modular, containerized electronic waste processing system that safely extracts precious metals from discarded electronics using a hydrometallurgical process that avoids toxic mercury or cyanide leaching.',
     dimensions: { length: '600cm', width: '240cm', height: '260cm', weight: '4500kg' },
     userGroups: ['Businesses', 'Adults', 'Outdoor'],
-    applicationsImpact: 'Operating 5 refinery hubs across Gauteng and Western Cape. Processed over 800 tonnes of e-waste in 2024. Created 120 formal jobs.',
+    applications: ['Hydrometallurgical extraction of precious metals from e-waste', 'Modular containerized processing for urban deployment', 'Safe recycling of circuit boards and electronic components', 'Municipal e-waste programme integration'],
+    impact: ['Operating 5 refinery hubs across Gauteng and Western Cape', 'Processed over 800 tonnes of e-waste in 2024', 'Created 120 formal jobs in the recycling sector', 'Recovered gold, copper, and rare earth elements without toxic chemicals'],
     specifications: { materials: ['Shipping container (modified)', 'Acid-resistant polymer tanks', 'Electrolysis cells', 'HEPA filtration system'], dimensions: '600 x 240 x 260 cm', weight: '4,500 kg' },
     licensesCertifications: [
       { name: 'SABS Approved', issuer: 'South African Bureau of Standards', year: 2023 },
@@ -1010,7 +1018,8 @@ export const INNOVATIONS: Innovation[] = [
     description: 'BioHand Prosthetic is a 3D-printed, myoelectric upper-limb prosthesis that uses surface EMG sensors to detect residual muscle signals and translate them into hand movements. Costs under $300 to produce.',
     dimensions: { length: '22cm', width: '10cm', height: '8cm', weight: '0.38kg' },
     userGroups: ['Adults', 'Adolescents/Teens', 'Children', 'Healthcare', 'Males'],
-    applicationsImpact: 'Fitted 280 patients across Egypt, Ethiopia, and Sudan. Reduced prosthetic cost by 90%. Open-source design downloaded over 15,000 times globally.',
+    applications: ['Myoelectric upper-limb prosthesis for transradial amputees', '3D-printed custom-fit prosthetic hands and arms', 'Surface EMG sensor-controlled hand movements', 'Open-source design for global replication'],
+    impact: ['Fitted 280 patients across Egypt, Ethiopia, and Sudan', 'Reduced prosthetic cost by 90% to under $300 per unit', 'Open-source design downloaded over 15,000 times globally', 'Enabled local production in low-resource clinical settings'],
     specifications: { materials: ['PLA structural filament', 'TPU flexible joints', 'Surface EMG sensors', 'Micro servo motors (6x)', 'Li-ion battery (3.7V, 2000mAh)'], dimensions: '22 x 10 x 8 cm', weight: '0.38 kg' },
     licensesCertifications: [
       { name: 'Egyptian Drug Authority Registration', issuer: 'EDA', year: 2024 },

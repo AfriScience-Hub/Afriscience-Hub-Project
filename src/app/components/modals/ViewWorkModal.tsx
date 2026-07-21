@@ -52,6 +52,7 @@ export function ViewWorkModal({ isOpen, contestant, onClose }: ViewWorkModalProp
   }
 
   const displayPosition = getPositionLabel(contestant.livePosition || contestant.position || 0);
+  const isVideoCompetition = contestant.competition === 'Afri \u2013 Anime' || contestant.competition === 'Afri \u2013 Presentations';
 
   return (
     <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/60 p-4">
@@ -112,14 +113,14 @@ export function ViewWorkModal({ isOpen, contestant, onClose }: ViewWorkModalProp
           </section>
 
           <section className="rounded-lg border border-[#d9e1ec] p-4">
-            <h3 className="text-lg font-bold text-[#172235]">Work Summary</h3>
+            <p className="text-xs font-bold uppercase tracking-wide text-[#ff3b30]">Work Summary</p>
             <p className="mt-2 text-sm leading-6 text-[#55657b]">
               {contestant.name} is representing {contestant.country} in {contestant.competition}
               , competing in the {contestant.category} category.
             </p>
             <button className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-md bg-[#0f2542] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#17355d]">
-              <Play className="h-4 w-4" />
-              View Work Video
+              {isVideoCompetition && <Play className="h-4 w-4" />}
+              View Work
             </button>
           </section>
 

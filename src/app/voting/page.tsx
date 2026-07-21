@@ -68,6 +68,7 @@ export default function Voting() {
   const filteredFinalists = useMemo(() => {
     return VOTING_FINALISTS.filter(f => {
       const term = searchTerm.toLowerCase();
+      const posLabel = f.position === 1 ? '1st' : f.position === 2 ? '2nd' : f.position === 3 ? '3rd' : `${f.position}th`;
       const matchesSearch =
         !term ||
         f.name.toLowerCase().includes(term) ||
@@ -75,7 +76,8 @@ export default function Voting() {
         f.country.toLowerCase().includes(term) ||
         f.year.toString().includes(term) ||
         f.category.toLowerCase().includes(term) ||
-        f.position.toString().includes(term);
+        f.position.toString().includes(term) ||
+        posLabel.includes(term);
       const matchesCompetition = !selectedCompetition || f.competition === selectedCompetition;
       const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(f.category);
       const matchesYear = !selectedYear || f.year.toString() === selectedYear;

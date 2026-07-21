@@ -228,12 +228,22 @@ export default function InnovationDetails() {
                   ))}
                 </div>
               </SectionCard>
-              <SectionCard title="Applications & Impact" icon={<Lightbulb className="h-5 w-5 text-emerald-600" />}>
+              <SectionCard title="Applications" icon={<Wrench className="h-5 w-5 text-blue-600" />}>
                 <ul className="space-y-2">
-                  {innovation.applicationsImpact.split('.').filter(s => s.trim()).map((s, i) => (
+                  {innovation.applications.map((s, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-neutral-gray-dark">
+                      <ChevronRight className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              </SectionCard>
+              <SectionCard title="Impact" icon={<Lightbulb className="h-5 w-5 text-emerald-600" />}>
+                <ul className="space-y-2">
+                  {innovation.impact.map((s, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-neutral-gray-dark">
                       <Lightbulb className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                      {s.trim()}.
+                      {s}
                     </li>
                   ))}
                 </ul>
