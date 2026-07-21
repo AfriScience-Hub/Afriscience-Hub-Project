@@ -181,9 +181,9 @@ function SingleSelectField({ label, placeholder, options, value, onChange, requi
   );
 }
 
-function BulletInput({ label, items, setItems, placeholder, description }: {
+function BulletInput({ label, items, setItems, placeholder, description, required }: {
   label: string; items: string[]; setItems: (v: string[] | ((p: string[]) => string[])) => void;
-  placeholder: string; description?: string;
+  placeholder: string; description?: string; required?: boolean;
 }) {
   const [input, setInput] = useState('');
   const add = () => { const t = input.trim(); if (t) { setItems(p => [...p, t]); setInput(''); } };
@@ -191,7 +191,7 @@ function BulletInput({ label, items, setItems, placeholder, description }: {
     <div className="rounded-lg border border-dashed border-neutral-gray-light p-4">
       <div className="mb-2">
         <label className="block text-sm font-medium text-neutral-black">
-          {label}{description && <span className="ml-1"><OptionInfo text={description} /></span>}
+          {label}{required && <span className="text-red-500 ml-0.5">*</span>}{description && <span className="ml-1"><OptionInfo text={description} /></span>}
         </label>
       </div>
       {items.length > 0 && (
@@ -359,7 +359,7 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
       <hr className="border-neutral-gray-light" />
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">Specifications</label>
+        <label className="block text-sm font-medium text-neutral-black mb-1">Specifications <span className="text-red-500">*</span></label>
         <div className="space-y-4 pl-2 border-l-2 border-brand-red-200">
           <div className="pl-3">
             <label className="block text-sm font-medium text-neutral-black mb-1">Materials</label>
@@ -426,71 +426,71 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="pl-3">
-            <label className="block text-sm font-medium text-neutral-black mb-1">User Groups <span className="text-neutral-gray-medium font-normal">({props.innovUserGroups.length}/10 entries max)</span></label>
-            <p className="text-xs text-neutral-gray-medium mb-2">List possible users of your innovation</p>
-            {props.innovUserGroups.length > 0 && (
-              <ul className="mb-3 space-y-1.5">
-                {props.innovUserGroups.map((g, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-neutral-black">
-                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-red-600 flex-shrink-0" />
-                    <span className="flex-1">{g}</span>
-                    <button type="button" onClick={() => props.setInnovUserGroups(p => p.filter((_, j) => j !== i))} className="cursor-pointer text-red-400 hover:text-red-600 flex-shrink-0">
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div className="flex flex-wrap gap-2">
-              {INNOVATION_USER_GROUPS.filter(g => !props.innovUserGroups.includes(g)).map(group => (
-                <button key={group} type="button"
-                  disabled={props.innovUserGroups.length >= 10}
-                  onClick={() => props.setInnovUserGroups(p => p.length < 10 ? [...p, group] : p)}
-                  className="cursor-pointer px-3 py-1.5 rounded-full text-xs font-medium border border-neutral-gray-light bg-white text-neutral-gray-dark hover:border-brand-red-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >+ {group}</button>
+        <div>
+          <label className="block text-sm font-medium text-neutral-black mb-1">User Groups <span className="text-red-500">*</span> <span className="text-neutral-gray-medium font-normal">({props.innovUserGroups.length}/10 entries max)</span></label>
+          <p className="text-xs text-neutral-gray-medium mb-2">List possible users of your innovation</p>
+          {props.innovUserGroups.length > 0 && (
+            <ul className="mb-3 space-y-1.5">
+              {props.innovUserGroups.map((g, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-neutral-black">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-red-600 flex-shrink-0" />
+                  <span className="flex-1">{g}</span>
+                  <button type="button" onClick={() => props.setInnovUserGroups(p => p.filter((_, j) => j !== i))} className="cursor-pointer text-red-400 hover:text-red-600 flex-shrink-0">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </li>
               ))}
-            </div>
-            <div className="mt-3 flex gap-2">
-              <input type="text" id="custom-user-group" value={customGroup}
-                onChange={e => setCustomGroup(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const val = customGroup.trim();
-                    if (val && !props.innovUserGroups.includes(val) && props.innovUserGroups.length < 10) {
-                      props.setInnovUserGroups(p => [...p, val]);
-                      setCustomGroup('');
-                    }
-                  }
-                }}
-                className="flex-1 rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-                placeholder="Add a custom user group..." />
-              <button type="button" disabled={!customGroup.trim()}
-                onClick={() => {
+            </ul>
+          )}
+          <div className="flex flex-wrap gap-2">
+            {INNOVATION_USER_GROUPS.filter(g => !props.innovUserGroups.includes(g)).map(group => (
+              <button key={group} type="button"
+                disabled={props.innovUserGroups.length >= 10}
+                onClick={() => props.setInnovUserGroups(p => p.length < 10 ? [...p, group] : p)}
+                className="cursor-pointer px-3 py-1.5 rounded-full text-xs font-medium border border-neutral-gray-light bg-white text-neutral-gray-dark hover:border-brand-red-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >+ {group}</button>
+            ))}
+          </div>
+          <div className="mt-3 flex gap-2">
+            <input type="text" id="custom-user-group" value={customGroup}
+              onChange={e => setCustomGroup(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
                   const val = customGroup.trim();
                   if (val && !props.innovUserGroups.includes(val) && props.innovUserGroups.length < 10) {
                     props.setInnovUserGroups(p => [...p, val]);
                     setCustomGroup('');
                   }
-                }}
-                className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                <Plus className="h-4 w-4" /> Add
-              </button>
-            </div>
+                }
+              }}
+              className="flex-1 rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+              placeholder="Add a custom user group..." />
+            <button type="button" disabled={!customGroup.trim()}
+              onClick={() => {
+                const val = customGroup.trim();
+                if (val && !props.innovUserGroups.includes(val) && props.innovUserGroups.length < 10) {
+                  props.setInnovUserGroups(p => [...p, val]);
+                  setCustomGroup('');
+                }
+              }}
+              className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              <Plus className="h-4 w-4" /> Add
+            </button>
           </div>
         </div>
-      </div>
 
       <BulletInput label="Applications" items={props.innovApplications} setItems={props.setInnovApplications}
-        placeholder="e.g. Used as a coolant in jet engines" description="In what areas can your innovation be used" />
+        placeholder="e.g. Used as a coolant in jet engines" description="In what areas can your innovation be used" required />
       <BulletInput label="Impact" items={props.innovImpact} setItems={props.setInnovImpact}
-        placeholder="e.g. increased yield by 20%" description="What are the positive effects of your innovation" />
+        placeholder="e.g. increased yield by 20%" description="What are the positive effects of your innovation" required />
       <BulletInput label="Recommendations" items={props.innovRecommendations} setItems={props.setInnovRecommendations}
-        placeholder="e.g. store in a cool dry place" description="How can users get the best out of your innovation?" />
+        placeholder="e.g. store in a cool dry place" description="How can users get the best out of your innovation?" required />
       <BulletInput label="Cautions" items={props.innovCautions} setItems={props.setInnovCautions}
-        placeholder="e.g. Not suitable for saltwater environments" description="What important notes should users be aware of when using innovation to prevent hazards and malfunction?" />
+        placeholder="e.g. Not suitable for saltwater environments" description="What important notes should users be aware of when using innovation to prevent hazards and malfunction?" required />
 
       <hr className="border-neutral-gray-light" />
 
@@ -501,7 +501,7 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
         desc="To further authenticate your innovation, upload any recognition awards that your innovation has received previously (if any). Uploaded documents are securely stored and protected from unauthorized access." />
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-2">Media Gallery *</label>
+        <label className="block text-sm font-medium text-neutral-black mb-2">Media Gallery <span className="text-red-500">*</span></label>
         <p className="text-xs text-neutral-gray-medium mb-3">Upload media files (image and video format allowed).</p>
         <div className="grid gap-4 sm:grid-cols-3">
           {GALLERY_CATEGORIES.map(cat => {
