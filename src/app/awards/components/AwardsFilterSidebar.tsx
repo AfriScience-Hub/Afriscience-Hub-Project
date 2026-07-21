@@ -3,7 +3,7 @@
 import { Filter, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AWARD_TYPES, COMPETITION_TYPES, AWARD_YEARS, WORLD_COUNTRIES } from '@/app/data/mockData';
-import { getLevelsForCompetition } from '../data';
+import { getLevelsForCompetition, AFRICAN_COUNTRIES } from '../data';
 
 type AwardsFilterSidebarProps = {
   selectedType: string | null;
@@ -41,8 +41,10 @@ export default function AwardsFilterSidebar({
   resetFilters,
 }: AwardsFilterSidebarProps) {
   const isCompetition = selectedType === 'Competitions Award';
+  const isDeveloper = selectedType === 'Developers Award';
   const levels = selectedCompetition ? getLevelsForCompetition(selectedCompetition) : [];
   const isAutoLevel = levels.length === 1;
+  const countryOptions = isCompetition ? AFRICAN_COUNTRIES : WORLD_COUNTRIES;
 
   return (
     <aside className={cn(
@@ -198,25 +200,27 @@ export default function AwardsFilterSidebar({
             )}
           </div>
 
-          {/* 5. Country */}
-          <div className="py-4 last:pb-0">
-            <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
-              Country
-              <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.country && "rotate-180")} />
-            </button>
-            {!collapsedSections.country && (
-              <div className="mt-3 animate-in fade-in duration-200">
-                <select
-                  className="w-full rounded-lg border border-neutral-gray-light text-sm p-2 bg-neutral-bg-light focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-                  value={selectedCountry}
-                  onChange={(e) => setSelectedCountry(e.target.value)}
-                >
-                  <option value="">Select Country</option>
-                  {WORLD_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-            )}
-          </div>
+          {/* 5. Country (not for Developers Award) */}
+          {!isDeveloper && (
+            <div className="py-4 last:pb-0">
+              <button onClick={() => toggleSection('country')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black hover:text-brand-red-600 transition-colors cursor-pointer">
+                Country
+                <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.country && "rotate-180")} />
+              </button>
+              {!collapsedSections.country && (
+                <div className="mt-3 animate-in fade-in duration-200">
+                  <select
+                    className="w-full rounded-lg border border-neutral-gray-light text-sm p-2 bg-neutral-bg-light focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+                    value={selectedCountry}
+                    onChange={(e) => setSelectedCountry(e.target.value)}
+                  >
+                    <option value="">Select Country</option>
+                    {countryOptions.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
 
         </div>
       </div>

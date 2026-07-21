@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, MapPin, Calendar, Gift, Linkedin, Twitter, Instagram, Globe, Eye, Play, ZoomIn, Download, X } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Gift, Linkedin, Twitter, Instagram, ExternalLink, Eye, Play, ZoomIn, X } from 'lucide-react';
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from 'react-icons/fa';
 import Link from 'next/link';
 import { AWARD_WINNERS } from '@/app/data/mockData';
@@ -14,17 +14,6 @@ import PreviewModal from '@/app/awards/components/PreviewModal';
 import { toast } from 'sonner';
 
 const PRIMARY_SECONDARY = ['Lower Primary', 'Upper Primary', 'Junior Secondary', 'Senior Secondary'];
-
-function handleDownload(url: string, filename: string) {
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.target = '_blank';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  toast.success(`${filename} download started`);
-}
 
 export default function AwardDetail() {
   const { id } = useParams();
@@ -42,9 +31,11 @@ export default function AwardDetail() {
     );
   }
 
+  const isDeveloper = award.type === 'Developers Award';
   const isCompetition = award.type === 'Competitions Award';
   const isDonation = award.type === 'Donations Award';
   const isSponsor = award.type === 'Sponsorships Award';
+  const isVideoCompetition = award.competition === 'Afri \u2013 Anime' || award.competition === 'Afri \u2013 Presentations';
   const TypeIcon = getTypeIcon(award.type);
   const isMedal = usesMedal(award.type);
   const hideSocial = shouldHideSocialHandles(award.category || '');
@@ -146,7 +137,6 @@ export default function AwardDetail() {
                     </button>
                     <div className="flex items-center gap-2">
                       <ZoomIn className="h-4 w-4 text-amber-500 cursor-pointer" onClick={() => setPreview({ title: isMedal ? 'Medal' : 'Badge', url: award.badgeImage! })} />
-                      <Download className="h-4 w-4 text-brand-navy-900 cursor-pointer hover:text-brand-red-600 transition-colors" onClick={() => handleDownload(award.badgeImage!, isMedal ? 'Medal' : 'Badge')} />
                     </div>
                   </div>
                 )}
@@ -162,7 +152,6 @@ export default function AwardDetail() {
                   </button>
                   <div className="flex items-center gap-2">
                     <ZoomIn className="h-4 w-4 text-amber-500 cursor-pointer" onClick={() => setPreview({ title: 'Certificate of Recognition', url: award.certificate })} />
-                    <Download className="h-4 w-4 text-brand-navy-900 cursor-pointer hover:text-brand-red-600 transition-colors" onClick={() => handleDownload(award.certificate, 'Certificate')} />
                   </div>
                 </div>
                 {showAwardPresentation && award.awardPresentation && (
@@ -178,29 +167,22 @@ export default function AwardDetail() {
                     </button>
                     <div className="flex items-center gap-2">
                       <ZoomIn className="h-4 w-4 text-amber-500 cursor-pointer" onClick={() => setPreview({ title: 'Award Presentation', url: award.awardPresentation! })} />
-                      <Download className="h-4 w-4 text-brand-navy-900 cursor-pointer hover:text-brand-red-600 transition-colors" onClick={() => handleDownload(award.awardPresentation!, 'Award_Presentation')} />
                     </div>
                   </div>
                 )}
               </div>
             </section>
 
-            {/* Work Summary (for competitions) */}
-            {award.workSummary && (
+            {/* Work Summary (not for Developer Awards) */}
+            {!isDeveloper && award.workSummary && (
               <section className="rounded-lg border border-[#d9e1ec] p-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-[#ff3b30]">Work Summary</p>
                 <p className="mt-2 text-sm leading-6 text-[#55657b]">{award.workSummary}</p>
-                {award.workMedia && award.workMedia.length > 0 && (
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {award.workMedia.map((m, i) => (
-                      <div key={i} className="relative aspect-video rounded-xl overflow-hidden group border border-neutral-gray-light">
-                        <Image src={m} alt={`Work ${i + 1}`} fill sizes="33vw" className="object-cover" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <Button size="sm" className="bg-white/90 text-brand-navy-900 hover:bg-white flex items-center gap-1"><Play className="h-4 w-4" /> View</Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                {isCompetition && (
+                  <button className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-md bg-[#0f2542] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#17355d]">
+                    {isVideoCompetition && <Play className="h-4 w-4" />}
+                    View Work
+                  </button>
                 )}
               </section>
             )}
@@ -235,7 +217,7 @@ export default function AwardDetail() {
                           <Icon className="h-4 w-4 text-[#ff3b30]" />
                           {label}
                         </span>
-                        <Globe className="h-4 w-4 text-[#91a3bf]" />
+                        <ExternalLink className="h-4 w-4 text-[#91a3bf]" />
                       </a>
                     ) : null;
                   })}

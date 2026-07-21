@@ -1,6 +1,6 @@
 'use client';
 
-import { Award, Share2, SlidersHorizontal } from 'lucide-react';
+import { Award, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { Search } from 'lucide-react';
 
@@ -10,7 +10,6 @@ type AwardsHeaderProps = {
   activeFilterCount: number;
   showFilters: boolean;
   setShowFilters: (val: boolean) => void;
-  onShare: () => void;
 };
 
 export default function AwardsHeader({
@@ -19,7 +18,6 @@ export default function AwardsHeader({
   activeFilterCount,
   showFilters,
   setShowFilters,
-  onShare,
 }: AwardsHeaderProps) {
   return (
     <div className="mb-8">
@@ -33,14 +31,6 @@ export default function AwardsHeader({
             </p>
           </div>
         </div>
-        <Button
-          onClick={onShare}
-          variant="outline"
-          className="flex items-center gap-2 border-brand-red-600 text-brand-red-600 hover:bg-brand-red-50"
-        >
-          <Share2 className="h-4 w-4" />
-          Share
-        </Button>
       </div>
 
       <div className="relative mb-4">

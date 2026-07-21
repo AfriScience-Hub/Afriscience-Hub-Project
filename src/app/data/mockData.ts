@@ -1792,7 +1792,7 @@ export const AWARD_WINNERS = [
     name: 'Hassan Mwangi',
     type: 'Competitions Award',
     competition: 'Afri \u2013 Presentations',
-    category: 'Postgraduates',
+    category: 'Graduates',
     position: 1,
     image: 'https://images.unsplash.com/photo-1768489038212-3202a936734f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     country: 'Kenya',

@@ -3,7 +3,7 @@
 import { Eye, MapPin, Calendar, Gift, Share2, Archive, ZoomIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/Button';
-import { getTypeColor, getTypeIcon, getPositionStyle, getPositionLabel, usesMedal, isHighTierSponsor } from '../data';
+import { getTypeColor, getTypeIcon, getPositionStyle, getPositionLabel, getTierBadge, usesMedal, isHighTierSponsor } from '../data';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -89,28 +89,35 @@ export default function AwardCard({ award, onPreview }: AwardCardProps) {
           </div>
         )}
 
-        {/* Share button - top-left (like InnovationCard) */}
+        {/* Preview - top-left */}
         <button
-          onClick={() => { navigator.clipboard.writeText(window.location.origin + '/awards/' + award.id); toast.success('Link copied!'); }}
-          className="absolute top-3 left-3 rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors cursor-pointer"
-          title="Share"
+          className="absolute top-3 left-3 flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white transition-colors cursor-pointer"
+          title="Preview"
+          onClick={(e) => { e.stopPropagation(); onPreview('presentation', award.awardPresentation || award.image); }}
         >
-          <Share2 className="h-3.5 w-3.5" />
+          <ZoomIn className="h-3.5 w-3.5" />
         </button>
 
-        {/* Archive + Preview - top-right */}
+        {/* Share + Archive - top-right */}
         <div className="absolute top-3 right-3 flex items-center gap-1.5">
+          <button
+            onClick={() => { navigator.clipboard.writeText(window.location.origin + '/awards/' + award.id); toast.success('Link copied!'); }}
+            className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white transition-colors cursor-pointer"
+            title="Share"
+          >
+            <Share2 className="h-3.5 w-3.5" />
+          </button>
           <button className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white transition-colors cursor-pointer" title="Archive">
             <Archive className="h-3.5 w-3.5" />
           </button>
-          <button
-            className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white transition-colors cursor-pointer"
-            title="Preview"
-            onClick={(e) => { e.stopPropagation(); onPreview('presentation', award.awardPresentation || award.image); }}
-          >
-            <ZoomIn className="h-3.5 w-3.5" />
-          </button>
         </div>
+
+        {/* Sponsorship Tier Badge - bottom-right */}
+        {isSponsor && award.tier && (
+          <span className="absolute bottom-3 right-3 text-3xl drop-shadow-lg">
+            {getTierBadge(award.tier)}
+          </span>
+        )}
       </div>
 
       {/* Body */}

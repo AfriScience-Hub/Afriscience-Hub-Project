@@ -78,7 +78,6 @@ export default function Awards() {
           activeFilterCount={activeFilterCount}
           showFilters={showFilters}
           setShowFilters={setShowFilters}
-          onShare={() => {}}
         />
 
         <div className="flex flex-col lg:flex-row gap-8">
