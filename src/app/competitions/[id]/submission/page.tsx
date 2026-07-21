@@ -174,7 +174,7 @@ export default function CompetitionSubmission() {
                     <Trophy className="h-6 w-6 text-brand-red-600" />
                     <h1 className="text-2xl font-bold text-neutral-black">Post-Application</h1>
                   </div>
-                  <p className="text-sm text-neutral-gray-dark">{comp.title}</p>
+                  <p className="text-sm text-neutral-gray-dark break-words">{comp.title}</p>
                 </div>
 
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">

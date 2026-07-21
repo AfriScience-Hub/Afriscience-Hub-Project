@@ -46,6 +46,7 @@ export function AfriPresentationsApply({ comp }: Props) {
 
   const idTag = useMemo(() => user?.email?.split('@')[0]?.toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(), []);
   const wordCount = summary.trim() ? summary.trim().split(/\s+/).length : 0;
+  const hasChanges = useMemo(() => language !== '' || otherLanguage !== '' || schoolName !== '' || schoolAddress !== '' || parentName !== '' || summary !== '' || linkedin !== '' || twitter !== '' || instagram !== '' || facebook !== '' || profilePic !== null || contestantId !== null || guardianIdType !== '' || otherIdType !== '' || guardianId !== null, [language, otherLanguage, schoolName, schoolAddress, parentName, summary, linkedin, twitter, instagram, facebook, profilePic, contestantId, guardianIdType, otherIdType, guardianId]);
   const DRAFT_KEY = 'js_presentations_apply_draft';
 
   useEffect(() => {
@@ -187,7 +188,7 @@ export function AfriPresentationsApply({ comp }: Props) {
           onUpload={handleGuardianIdUpload}
         />
         <div className="pt-4 border-t border-neutral-gray-light flex gap-3">
-          <Button variant="outline" size="lg" className="flex-1 border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" onClick={saveDraft}>
+          <Button variant="outline" size="lg" className="flex-1 border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" onClick={saveDraft} disabled={!hasChanges}>
             <Save className="h-5 w-5 mr-2" /> Save as Draft
           </Button>
           <Button size="lg" className="flex-1 bg-brand-red-600 hover:bg-brand-red-700 py-5 text-lg" onClick={handleSubmit} disabled={!allFieldsComplete}>

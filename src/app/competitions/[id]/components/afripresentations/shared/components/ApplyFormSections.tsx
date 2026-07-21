@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   User, Hash, FileText, Calendar, MapPin, Globe, BookOpen, Edit3,
   Link as LinkIcon, School, ChevronDown, Info
@@ -18,7 +19,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <User className="h-3.5 w-3.5" /> Name <span className="text-brand-red-600">*</span>
+          <User className="h-3.5 w-3.5" /> Name
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {user.name}
@@ -27,7 +28,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <Hash className="h-3.5 w-3.5" /> ID Tag <span className="text-brand-red-600">*</span>
+          <Hash className="h-3.5 w-3.5" /> ID Tag
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium font-mono">
           {idTag}
@@ -36,7 +37,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <FileText className="h-3.5 w-3.5" /> Competition Type <span className="text-brand-red-600">*</span>
+          <FileText className="h-3.5 w-3.5" /> Competition Type
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {comp.type}
@@ -45,7 +46,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <FileText className="h-3.5 w-3.5" /> Category <span className="text-brand-red-600">*</span>
+          <FileText className="h-3.5 w-3.5" /> Category
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {comp.category}
@@ -54,7 +55,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <Calendar className="h-3.5 w-3.5" /> Application Date <span className="text-brand-red-600">*</span>
+          <Calendar className="h-3.5 w-3.5" /> Application Date
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -63,7 +64,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <Calendar className="h-3.5 w-3.5" /> Submission Deadline <span className="text-brand-red-600">*</span>
+          <Calendar className="h-3.5 w-3.5" /> Submission Deadline
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -72,7 +73,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <MapPin className="h-3.5 w-3.5" /> Country <span className="text-brand-red-600">*</span>
+          <MapPin className="h-3.5 w-3.5" /> Country
         </label>
         <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
           {comp.country}
@@ -81,7 +82,7 @@ export function AutoFieldsSection({ user, idTag, comp, topic }: AutoFieldsSectio
       </div>
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-          <BookOpen className="h-3.5 w-3.5" /> Topic <span className="text-brand-red-600">*</span>
+          <BookOpen className="h-3.5 w-3.5" /> Topic
         </label>
         <div className="w-full rounded-lg border border-blue-200 p-3 text-sm bg-blue-50 text-blue-800 font-medium">
           {topic || 'No topic selected'}
@@ -101,16 +102,19 @@ interface LanguageSectionProps {
 
 export function LanguageSection({ language, otherLanguage, onLanguageChange, onOtherLanguageChange }: LanguageSectionProps) {
   const LANGUAGES = ['English', 'French', 'Arabic', 'Portuguese', 'Spanish', 'Afrikaans', 'Other'];
+  const [showLangInfo, setShowLangInfo] = useState(false);
   return (
     <div className="border-t border-neutral-gray-light pt-6">
       <div>
         <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
           <Globe className="h-3.5 w-3.5" /> Language <span className="text-brand-red-600">*</span>
-          <span className="relative group ml-1">
-            <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
-            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-              Select the language of your presentation
-            </span>
+          <span className="relative ml-1">
+            <Info className="h-3 w-3 text-blue-500 cursor-pointer" onClick={() => setShowLangInfo(!showLangInfo)} />
+            {showLangInfo && (
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap z-10" onClick={() => setShowLangInfo(false)}>
+                Select the language of your presentation
+              </span>
+            )}
           </span>
           </label>
         <div className="relative">
@@ -209,15 +213,18 @@ interface SummarySectionProps {
 }
 
 export function SummarySection({ summary, wordCount, wordLimit, onSummaryChange }: SummarySectionProps) {
+  const [showSummaryInfo, setShowSummaryInfo] = useState(false);
   return (
     <div>
       <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
         <Edit3 className="h-3.5 w-3.5" /> Presentation Summary <span className="text-brand-red-600">*</span>
-        <span className="relative group ml-1">
-          <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
-          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-            Briefly describe your presentation topic and key points
-          </span>
+        <span className="relative ml-1">
+          <Info className="h-3 w-3 text-blue-500 cursor-pointer" onClick={() => setShowSummaryInfo(!showSummaryInfo)} />
+          {showSummaryInfo && (
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap z-10" onClick={() => setShowSummaryInfo(false)}>
+              Briefly describe your presentation topic and key points
+            </span>
+          )}
         </span>
       </label>
       <textarea
@@ -252,7 +259,7 @@ export function SocialHandlesSection({ linkedin, twitter, instagram, facebook, o
         <LinkIcon className="h-3.5 w-3.5" /> {title || 'Parent/Guardian&apos;s Social Handles'} <span className="text-brand-red-600">*</span>
       </label>
       {subtitle !== undefined ? (subtitle ? <p className="text-[10px] text-neutral-gray-medium mb-3">{subtitle}</p> : null) : (
-        <p className="text-[10px] text-neutral-gray-medium mb-3">Provide at least one social media handle of the parent or guardian</p>
+        <p className="text-[10px] text-neutral-gray-medium mb-3">provide at least one</p>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>

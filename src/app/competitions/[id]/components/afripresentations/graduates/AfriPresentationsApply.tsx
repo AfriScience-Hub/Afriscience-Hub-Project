@@ -137,7 +137,7 @@ export function AfriPresentationsApply({ comp }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <User className="h-3.5 w-3.5" /> Name <span className="text-brand-red-600">*</span>
+              <User className="h-3.5 w-3.5" /> Name
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {user.name}
@@ -146,7 +146,7 @@ export function AfriPresentationsApply({ comp }: Props) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <Hash className="h-3.5 w-3.5" /> ID Tag <span className="text-brand-red-600">*</span>
+              <Hash className="h-3.5 w-3.5" /> ID Tag
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium font-mono">
               {idTag}
@@ -155,7 +155,7 @@ export function AfriPresentationsApply({ comp }: Props) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <FileText className="h-3.5 w-3.5" /> Competition Type <span className="text-brand-red-600">*</span>
+              <FileText className="h-3.5 w-3.5" /> Competition Type
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {comp.type}
@@ -164,7 +164,7 @@ export function AfriPresentationsApply({ comp }: Props) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <FileText className="h-3.5 w-3.5" /> Category <span className="text-brand-red-600">*</span>
+              <FileText className="h-3.5 w-3.5" /> Category
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {comp.category}
@@ -173,7 +173,7 @@ export function AfriPresentationsApply({ comp }: Props) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <Calendar className="h-3.5 w-3.5" /> Application Date <span className="text-brand-red-600">*</span>
+              <Calendar className="h-3.5 w-3.5" /> Application Date
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -182,7 +182,7 @@ export function AfriPresentationsApply({ comp }: Props) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <Calendar className="h-3.5 w-3.5" /> Submission Deadline <span className="text-brand-red-600">*</span>
+              <Calendar className="h-3.5 w-3.5" /> Submission Deadline
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -191,7 +191,7 @@ export function AfriPresentationsApply({ comp }: Props) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <MapPin className="h-3.5 w-3.5" /> Country <span className="text-brand-red-600">*</span>
+              <MapPin className="h-3.5 w-3.5" /> Country
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {comp.country}

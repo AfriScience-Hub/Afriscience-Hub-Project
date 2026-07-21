@@ -103,16 +103,14 @@ export function ScreeningSection({ criteria }: ScreeningSectionProps) {
       <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
         <ShieldCheck className="h-5 w-5 text-brand-navy-900" /> Screening & Selection
       </h3>
-      <div className="space-y-3 text-sm text-neutral-gray-dark leading-relaxed">
-        <p>All submitted entries will be reviewed and scored by our competition panel in the following areas:</p>
-        <ul className="list-disc list-inside pl-4 space-y-1">
-          {criteria.map((c, idx) => <li key={idx}>{c}</li>)}
-        </ul>
-        <p>Top 30 finalists will be listed under the &apos;Voting&apos; section of the platform after four (4) weeks of submission deadline.</p>
-        <p>Public votes will be used to determine the final performance of finalists.</p>
-        <p>At the end of voting sessions, winners will be ranked, announced and rewarded under the &apos;Awards&apos; section of the platform.</p>
-        <p>When a tie exists either in the 1st, 2nd or 3rd positions, it will be resolved by further extending the voting window for affected finalists by 48 hours.</p>
-      </div>
+      <ul className="space-y-2 text-sm text-neutral-gray-dark leading-relaxed list-disc list-inside">
+        <li>All submitted entries will be reviewed and scored by our competition panel in the following areas:</li>
+        {criteria.map((c, idx) => <li key={idx}>{c}</li>)}
+        <li>Top 30 finalists will be listed under the &apos;Voting&apos; section of the platform after four (4) weeks of submission deadline.</li>
+        <li>Public votes will be used to determine the final performance of finalists.</li>
+        <li>At the end of voting sessions, winners will be ranked, announced and rewarded under the &apos;Awards&apos; section of the platform.</li>
+        <li>When a tie exists either in the 1st, 2nd or 3rd positions, it will be resolved by further extending the voting window for affected finalists by 48 hours.</li>
+      </ul>
     </section>
   );
 }
