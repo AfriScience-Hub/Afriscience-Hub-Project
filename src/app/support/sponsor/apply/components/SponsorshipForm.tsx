@@ -211,20 +211,20 @@ export function SponsorshipForm({ user, isAuthenticated, isSubmitting, onSubmit,
             instagram={instagram} onInstagramChange={setInstagram}
             facebook={facebook} onFacebookChange={setFacebook}
           />
-          {tier && (
-            <CatalogSection
-              industries={selectedIndustries}
-              catalogByIndustry={catalogByIndustry}
-              onAddCatalogItem={handleAddCatalogItem}
-              onRemoveCatalogItem={handleRemoveCatalogItem}
-              onUpdateCatalogItem={handleUpdateCatalogItem}
-              onAddSpecification={handleAddSpecification}
-              onRemoveSpecification={handleRemoveSpecification}
-              onUpdateSpecification={handleUpdateSpecification}
-              onAddCatalogImage={handleAddCatalogImage}
-              onRemoveCatalogImage={handleRemoveCatalogImage}
-            />
-          )}
+          <CatalogSection
+            industries={selectedIndustries}
+            catalogByIndustry={catalogByIndustry}
+            onAddCatalogItem={handleAddCatalogItem}
+            onRemoveCatalogItem={handleRemoveCatalogItem}
+            onUpdateCatalogItem={handleUpdateCatalogItem}
+            onAddSpecification={handleAddSpecification}
+            onRemoveSpecification={handleRemoveSpecification}
+            onUpdateSpecification={handleUpdateSpecification}
+            onAddCatalogImage={handleAddCatalogImage}
+            onRemoveCatalogImage={handleRemoveCatalogImage}
+            maxIndustries={maxIndustries}
+            tier={tier}
+          />
           <LicensesSection
             licenses={licenses}
             onAddLicense={handleAddLicense}

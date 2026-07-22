@@ -16,21 +16,24 @@ interface CatalogSectionProps {
   onUpdateSpecification: (industry: string, itemIndex: number, specIndex: number, value: string) => void;
   onAddCatalogImage: (industry: string, itemIndex: number, files: FileList) => void;
   onRemoveCatalogImage: (industry: string, itemIndex: number, imageIndex: number) => void;
+  maxIndustries: number;
+  tier: string;
 }
 
 export function CatalogSection({
-  industries, catalogByIndustry,
+  industries, catalogByIndustry, maxIndustries, tier,
   onAddCatalogItem, onRemoveCatalogItem, onUpdateCatalogItem,
   onAddSpecification, onRemoveSpecification, onUpdateSpecification,
   onAddCatalogImage, onRemoveCatalogImage,
 }: CatalogSectionProps) {
-  if (industries.length === 0) return null;
-
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8">
       <h2 className="text-xl font-bold text-neutral-black mb-2">Product &amp; Service Catalog</h2>
-      <p className="text-xs text-neutral-gray-medium mb-6">Publish your product/service catalog for potential users to access.</p>
-      {industries.map(industry => (
+      <p className="text-xs text-neutral-gray-medium mb-2">Publish your product/service catalog for potential users to access.</p>
+      <p className="text-xs text-brand-red-600 mb-6">Number of possible displayed industries depends on selected sponsorship tier ({industries.length}/{maxIndustries === Infinity ? 'Unlimited' : maxIndustries} selected{tier ? ` for ${tier}` : ''}).</p>
+      {industries.length === 0 ? (
+        <p className="text-sm text-neutral-gray-medium italic">Select industries in the Company Information section above to start adding your product/service catalog.</p>
+      ) : industries.map(industry => (
         <div key={industry} className="mb-8 last:mb-0">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-neutral-black bg-brand-red-50 text-brand-red-600 px-3 py-1 rounded-lg text-sm">{industry}</h3>

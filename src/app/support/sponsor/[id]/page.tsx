@@ -7,15 +7,28 @@ import { ArrowLeft } from 'lucide-react';
 import { SponsorSidebar } from './components/SponsorSidebar';
 import { AboutSection, CatalogSection, LicensesSection, PoliciesSection, AwardsSection, MediaGallery, LocationMap } from './components/DetailSections';
 import { ImagePreviewModal } from './components/ImagePreviewModal';
-import { MOCK_SPONSOR } from './data';
+import { MOCK_SPONSORS } from './data';
 
 export default function SponsorDetails() {
   const { id } = useParams();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const sponsor = MOCK_SPONSORS[Number(id)];
+
+  if (!sponsor) {
+    return (
+      <div className="min-h-screen bg-neutral-bg-light flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-neutral-black mb-2">Sponsor Not Found</h1>
+          <Link href="/support/sponsor/all" className="text-brand-red-600 hover:underline">Back to All Sponsors</Link>
+        </div>
+      </div>
+    );
+  }
+
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({ title: MOCK_SPONSOR.name, text: MOCK_SPONSOR.description, url: window.location.href });
+      navigator.share({ title: sponsor.name, text: sponsor.description, url: window.location.href });
     } else {
       navigator.clipboard.writeText(window.location.href);
     }
@@ -32,25 +45,26 @@ export default function SponsorDetails() {
             <ArrowLeft className="h-4 w-4" />
             Back to All Sponsors
           </Link>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white">{MOCK_SPONSOR.name}</h1>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white">{sponsor.name}</h1>
         </div>
       </section>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid gap-8 lg:grid-cols-3">
           <SponsorSidebar
+            sponsor={sponsor}
             onShare={handleShare}
             onImageClick={setSelectedImage}
           />
 
           <div className="lg:col-span-2 space-y-6">
-            <AboutSection />
-            <CatalogSection />
-            <LicensesSection />
-            <PoliciesSection />
-            <AwardsSection />
-            <MediaGallery onImageClick={setSelectedImage} />
-            <LocationMap />
+            <AboutSection sponsor={sponsor} />
+            <CatalogSection sponsor={sponsor} />
+            <LicensesSection sponsor={sponsor} />
+            <PoliciesSection sponsor={sponsor} />
+            <AwardsSection sponsor={sponsor} />
+            <MediaGallery sponsor={sponsor} onImageClick={setSelectedImage} />
+            <LocationMap sponsor={sponsor} />
           </div>
         </div>
       </div>

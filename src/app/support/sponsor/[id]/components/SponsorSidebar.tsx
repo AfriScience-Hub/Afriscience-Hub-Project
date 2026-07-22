@@ -3,15 +3,15 @@
 import { MapPin, Phone, Share2, MessageCircle, Mail, Globe, Eye } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../../../../components/ui/Button';
-import { MOCK_SPONSOR } from '../data';
+import type { SponsorDetail } from '../data';
 
 interface SponsorSidebarProps {
+  sponsor: SponsorDetail;
   onShare: () => void;
   onImageClick: (url: string) => void;
 }
 
-export function SponsorSidebar({ onShare, onImageClick }: SponsorSidebarProps) {
-  const s = MOCK_SPONSOR;
+export function SponsorSidebar({ sponsor: s, onShare, onImageClick }: SponsorSidebarProps) {
   const [showContact, setShowContact] = useState(false);
   const [showSocial, setShowSocial] = useState(false);
 

@@ -3,10 +3,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { FileText, ShieldCheck, Award, ImageIcon, MapPin, ShoppingBag, ExternalLink } from 'lucide-react';
-import { MOCK_SPONSOR } from '../data';
+import type { SponsorDetail } from '../data';
 
-export function AboutSection() {
-  const s = MOCK_SPONSOR;
+export function AboutSection({ sponsor: s }: { sponsor: SponsorDetail }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-6">
       <h3 className="text-lg font-bold text-neutral-black mb-3">About</h3>
@@ -15,9 +14,7 @@ export function AboutSection() {
   );
 }
 
-export function CatalogSection() {
-  const s = MOCK_SPONSOR;
-
+export function CatalogSection({ sponsor: s }: { sponsor: SponsorDetail }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-6">
       <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
@@ -29,7 +26,7 @@ export function CatalogSection() {
         {s.catalog.map((group) => (
           <Link
             key={group.industry}
-            href={`/support/sponsor/catalog/${encodeURIComponent(group.industry)}`}
+            href={`/support/sponsor/${s.id}/catalog/${encodeURIComponent(group.industry)}`}
             className="flex items-center justify-between p-4 rounded-xl border border-neutral-gray-light bg-neutral-bg-light hover:border-brand-red-600 hover:bg-brand-red-50 transition-colors group"
           >
             <span className="font-semibold text-neutral-black group-hover:text-brand-red-600 transition-colors">
@@ -43,8 +40,7 @@ export function CatalogSection() {
   );
 }
 
-export function LicensesSection() {
-  const s = MOCK_SPONSOR;
+export function LicensesSection({ sponsor: s }: { sponsor: SponsorDetail }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-6">
       <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
@@ -66,8 +62,7 @@ export function LicensesSection() {
   );
 }
 
-export function PoliciesSection() {
-  const s = MOCK_SPONSOR;
+export function PoliciesSection({ sponsor: s }: { sponsor: SponsorDetail }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-6">
       <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
@@ -86,8 +81,7 @@ export function PoliciesSection() {
   );
 }
 
-export function AwardsSection() {
-  const s = MOCK_SPONSOR;
+export function AwardsSection({ sponsor: s }: { sponsor: SponsorDetail }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-6">
       <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
@@ -107,8 +101,7 @@ export function AwardsSection() {
   );
 }
 
-export function MediaGallery({ onImageClick }: { onImageClick: (url: string) => void }) {
-  const s = MOCK_SPONSOR;
+export function MediaGallery({ sponsor: s, onImageClick }: { sponsor: SponsorDetail; onImageClick: (url: string) => void }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-6">
       <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
@@ -142,8 +135,7 @@ export function MediaGallery({ onImageClick }: { onImageClick: (url: string) => 
   );
 }
 
-export function LocationMap() {
-  const s = MOCK_SPONSOR;
+export function LocationMap({ sponsor: s }: { sponsor: SponsorDetail }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-6">
       <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
