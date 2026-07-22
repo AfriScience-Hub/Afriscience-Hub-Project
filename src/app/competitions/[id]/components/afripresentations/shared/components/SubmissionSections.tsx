@@ -1,11 +1,10 @@
 'use client';
 
 import { useRef } from 'react';
-import { CheckCircle, Video, Upload, RefreshCw, Clock } from 'lucide-react';
+import { CheckCircle, Video, Upload, Clock } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
-import { User, Hash, FileText, Calendar, MapPin, Globe, BookOpen, Edit3, School } from 'lucide-react';
+import { User, Hash, FileText, Calendar, MapPin, Globe, BookOpen, Edit3 } from 'lucide-react';
 
 function DetailField({ icon: Icon, label, value, mono, highlight }: {
   icon: React.ElementType; label: string; value: string; mono?: boolean; highlight?: boolean;
@@ -48,9 +47,10 @@ interface SummaryEditSectionProps {
   summary: string;
   onSummaryChange: (v: string) => void;
   onSave: () => void;
+  saveDisabled?: boolean;
 }
 
-export function SummaryEditSection({ summary, onSummaryChange, onSave }: SummaryEditSectionProps) {
+export function SummaryEditSection({ summary, onSummaryChange, onSave, saveDisabled }: SummaryEditSectionProps) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
       <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
@@ -64,7 +64,7 @@ export function SummaryEditSection({ summary, onSummaryChange, onSave }: Summary
       />
       <div className="flex items-center justify-between mt-2">
         <p className="text-[10px] text-neutral-gray-medium">Can still be edited and saved until deadline.</p>
-        <Button size="sm" variant="outline" onClick={onSave} className="text-xs">Save Summary</Button>
+        <Button size="sm" variant="outline" onClick={onSave} className="text-xs" disabled={saveDisabled}>Save Summary</Button>
       </div>
     </div>
   );
@@ -162,10 +162,9 @@ export function UploadMediaSection({ submitted, uploadedFile, previewUrl, submit
 
 interface SubmissionSuccessBannerProps {
   compType: string;
-  onResubmit: () => void;
 }
 
-export function SubmissionSuccessBanner({ compType, onResubmit }: SubmissionSuccessBannerProps) {
+export function SubmissionSuccessBanner({ compType }: SubmissionSuccessBannerProps) {
   return (
     <div className="bg-green-50 border border-green-200 rounded-xl p-6 flex items-start gap-4">
       <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
@@ -174,11 +173,8 @@ export function SubmissionSuccessBanner({ compType, onResubmit }: SubmissionSucc
       <div>
         <h3 className="text-lg font-bold text-green-800">Submission Successful!</h3>
         <p className="text-sm text-green-700 mt-1">
-          Your entry for <strong>{compType}</strong> has been received successfully. You can resubmit a more recent work to overwrite this submission until the deadline.
+          Your entry for <strong>{compType}</strong> has been received successfully. Redirecting to dashboard...
         </p>
-        <Button size="sm" variant="outline" className="mt-3 border-green-300 text-green-700 hover:bg-green-100" onClick={onResubmit}>
-          <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Resubmit New Work
-        </Button>
       </div>
     </div>
   );
@@ -226,11 +222,6 @@ export function DeadlineInfoSection({ deadline, daysLeft, submitted }: DeadlineI
         <p className="text-xs text-neutral-gray-medium">
           <strong>Note:</strong> Until the deadline, you can submit more recent works to overwrite previous submissions.
         </p>
-      </div>
-      <div className="mt-4 pt-4 border-t border-neutral-gray-light">
-        <Link href="/dashboard">
-          <Button variant="outline" className="w-full text-sm">Go to Dashboard</Button>
-        </Link>
       </div>
     </div>
   );

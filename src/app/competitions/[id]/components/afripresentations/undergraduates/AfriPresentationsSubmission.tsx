@@ -19,16 +19,20 @@ interface Props {
 
 export function AfriPresentationsSubmission({ comp }: Props) {
   const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
 
   const savedApp = (() => {
     try { const d = sessionStorage.getItem('comp_application'); return d ? JSON.parse(d) : null; } catch { return null; }
   })();
 
   const [editableSummary, setEditableSummary] = useState(savedApp?.presentationSummary || '');
+  const [savedSummary, setSavedSummary] = useState(savedApp?.presentationSummary || '');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(() => sessionStorage.getItem(`${comp.id}_submitted`) === 'true');
+
+  const isSummaryChanged = editableSummary !== savedSummary;
 
   const refNo = savedApp?.refNo || sessionStorage.getItem('comp_ref') || 'N/A';
   const applicationDate = savedApp?.applicationDate
@@ -44,6 +48,13 @@ export function AfriPresentationsSubmission({ comp }: Props) {
 
   useEffect(() => { return () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }; }, [previewUrl]);
 
+  useEffect(() => {
+    if (submitted) {
+      const timer = setTimeout(() => router.push('/dashboard/submissions'), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted, router]);
+
   const handleFileChange = (file: File) => {
     if (!file.type.startsWith('video/')) { toast.error('Please upload a video file.'); return; }
     setUploadedFile(file);
@@ -53,7 +64,7 @@ export function AfriPresentationsSubmission({ comp }: Props) {
   };
 
   const handleSummarySave = () => {
-    if (savedApp) { savedApp.presentationSummary = editableSummary; sessionStorage.setItem('comp_application', JSON.stringify(savedApp)); toast.success('Summary saved.'); }
+    if (savedApp) { savedApp.presentationSummary = editableSummary; sessionStorage.setItem('comp_application', JSON.stringify(savedApp)); setSavedSummary(editableSummary); toast.success('Summary saved.'); }
   };
 
   const handleSubmit = () => {
@@ -64,11 +75,6 @@ export function AfriPresentationsSubmission({ comp }: Props) {
       sessionStorage.setItem(`${comp.id}_submitted`, 'true');
       toast.success('Submission successful! Your entry has been received.');
     }, 2000);
-  };
-
-  const handleResubmit = () => {
-    setSubmitted(false); setUploadedFile(null); setPreviewUrl(null);
-    sessionStorage.removeItem(`${comp.id}_submitted`);
   };
 
   if (!isAuthenticated || !user) {
@@ -99,7 +105,7 @@ export function AfriPresentationsSubmission({ comp }: Props) {
 
   return (
     <div className="space-y-6">
-      {submitted && <SubmissionSuccessBanner compType={comp.type} onResubmit={handleResubmit} />}
+      {submitted && <SubmissionSuccessBanner compType={comp.type} />}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
         <div className="flex items-center gap-3 mb-1">
           <Trophy className="h-6 w-6 text-brand-red-600" />
@@ -113,8 +119,8 @@ export function AfriPresentationsSubmission({ comp }: Props) {
         </h3>
         <ApplicationDetailsSection details={details} />
       </div>
-      <SummaryEditSection summary={editableSummary} onSummaryChange={setEditableSummary} onSave={handleSummarySave} />
-      <UploadMediaSection submitted={submitted} uploadedFile={uploadedFile} previewUrl={previewUrl} submitting={submitting} onFileChange={handleFileChange} onSubmit={handleSubmit} onResubmit={handleResubmit} durationText="10 minutes screen time max." />
+      <SummaryEditSection summary={editableSummary} onSummaryChange={setEditableSummary} onSave={handleSummarySave} saveDisabled={!isSummaryChanged} />
+      <UploadMediaSection submitted={submitted} uploadedFile={uploadedFile} previewUrl={previewUrl} submitting={submitting} onFileChange={handleFileChange} onSubmit={handleSubmit} onResubmit={() => {}} durationText="10 minutes screen time max." />
       <DeadlineInfoSection deadline={new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} daysLeft={daysLeft} submitted={submitted} />
     </div>
   );

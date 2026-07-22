@@ -1,13 +1,14 @@
-import { LayoutDashboard, User, ListChecks, UploadCloud, Briefcase, MessageCircle, FileText, Bell, Star, ShieldCheck, Settings, Eye, ThumbsUp, Share2, Clock, ArrowUpRight, CalendarCheck, Users, Trophy, Award, HandCoins, Archive } from 'lucide-react';
+import { LayoutDashboard, User, ListChecks, UploadCloud, Briefcase, MessageCircle, FileText, Bell, Star, ShieldCheck, Settings, Eye, ThumbsUp, Share2, Clock, ArrowUpRight, CalendarCheck, Users, Trophy, Award, HandCoins, Archive, ClipboardList } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-export type SidebarTab = 'overview' | 'profile' | 'listings' | 'upload' | 'services' | 'messages' | 'invoices' | 'notifications' | 'reviews' | 'verification' | 'settings' | 'donations' | 'archive' | 'awards';
+export type SidebarTab = 'overview' | 'profile' | 'listings' | 'upload' | 'services' | 'messages' | 'invoices' | 'notifications' | 'reviews' | 'verification' | 'settings' | 'donations' | 'archive' | 'awards' | 'submissions';
 
 export const SIDEBAR_ITEMS: { key: SidebarTab; label: string; icon: LucideIcon }[] = [
   { key: 'overview', label: 'Overview', icon: LayoutDashboard },
   { key: 'profile', label: 'My Profile', icon: User },
   { key: 'listings', label: 'My Listings', icon: ListChecks },
   { key: 'upload', label: 'Upload New Listing', icon: UploadCloud },
+  { key: 'submissions', label: 'Submissions', icon: ClipboardList },
   { key: 'services', label: 'My Services', icon: Briefcase },
   { key: 'messages', label: 'Messages', icon: MessageCircle },
   { key: 'invoices', label: 'Invoices', icon: FileText },
@@ -25,6 +26,7 @@ export const TAB_TO_PATH: Record<SidebarTab, string> = {
   profile: '/dashboard/my-profile',
   listings: '/dashboard/my-listings',
   upload: '/dashboard/upload-new-listing',
+  submissions: '/dashboard/submissions',
   services: '/dashboard/my-services',
   messages: '/dashboard/messages',
   invoices: '/dashboard/invoices',
@@ -42,6 +44,7 @@ export const PATH_TO_TAB: Record<string, SidebarTab> = {
   '/dashboard/my-profile': 'profile',
   '/dashboard/my-listings': 'listings',
   '/dashboard/upload-new-listing': 'upload',
+  '/dashboard/submissions': 'submissions',
   '/dashboard/my-services': 'services',
   '/dashboard/messages': 'messages',
   '/dashboard/invoices': 'invoices',
@@ -220,3 +223,89 @@ export const MOCK_DONATIONS: Donation[] = [
 
 export const DONATION_PROGRAMS = ['All Programs', 'Competition Support', 'Career Support', 'Research Support', 'Educational Scholarships (Tertiary)'];
 export const DONATION_YEARS = ['All Years', '2026', '2025'];
+
+export interface Submission {
+  id: string;
+  compId: string;
+  compTitle: string;
+  compType: string;
+  category: string;
+  country: string;
+  deadline: string;
+  mediaType: 'video' | 'image';
+  refNo: string;
+  applicationDate: string;
+  submissionDate: string;
+  topic?: string;
+  schoolName?: string;
+  schoolAddress?: string;
+  status: 'active' | 'inactive';
+}
+
+export const MOCK_SUBMISSIONS: Submission[] = [
+  {
+    id: 'sub-1',
+    compId: 'comp-1',
+    compTitle: 'Afri – Anime: Malaria Fighters',
+    compType: 'Afri – Anime',
+    category: 'General (18+)',
+    country: 'Nigeria',
+    deadline: '2026-06-30',
+    mediaType: 'video',
+    refNo: 'PS-KF3A-X7B2Q9',
+    applicationDate: '2026-07-15',
+    submissionDate: '2026-07-18',
+    topic: 'Malaria Lifecycle',
+    status: 'active',
+  },
+  {
+    id: 'sub-2',
+    compId: 'comp-3',
+    compTitle: 'Afri – Memes: Science Humor Challenge',
+    compType: 'Afri – Memes',
+    category: 'General (18+)',
+    country: 'South Africa',
+    deadline: '2026-05-31',
+    mediaType: 'image',
+    refNo: 'PS-A2PL-M9KJ3N',
+    applicationDate: '2026-07-10',
+    submissionDate: '2026-07-14',
+    topic: 'DNA Replication Meme',
+    status: 'inactive',
+  },
+  {
+    id: 'sub-3',
+    compId: 'comp-4',
+    compTitle: 'Afri – MySpace: Lab & Study Setup Showcase',
+    compType: 'Afri – MySpace',
+    category: 'General (18+)',
+    country: 'Ghana',
+    deadline: '2026-08-15',
+    mediaType: 'image',
+    refNo: 'PS-Q5WE-R8T6Y1',
+    applicationDate: '2026-07-20',
+    submissionDate: '2026-07-22',
+    topic: '',
+    status: 'active',
+  },
+  {
+    id: 'sub-4',
+    compId: 'comp-6',
+    compTitle: 'Afri – Presentations: Graduate Innovation Forum',
+    compType: 'Afri – Presentations',
+    category: 'Graduates',
+    country: 'Kenya',
+    deadline: '2026-12-31',
+    mediaType: 'video',
+    refNo: 'PS-H2JD-V4N8M0',
+    applicationDate: '2026-07-22',
+    submissionDate: '2026-07-22',
+    topic: 'Applying machine learning and genomic data to predict outbreaks',
+    schoolName: 'University of Nairobi',
+    schoolAddress: 'Nairobi, Kenya',
+    status: 'active',
+  },
+];
+
+export const SUBMISSION_STORAGE_KEY = 'comp_application';
+export const SUBMITTED_PREFIX = '_submitted';

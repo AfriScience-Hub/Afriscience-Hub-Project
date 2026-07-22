@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   CheckCircle, FileText, User, Hash, MapPin, Calendar, Globe, BookOpen,
-  Edit3, Upload, Video, RefreshCw, Trophy, Clock, ArrowLeft
+  Edit3, Upload, Video, Trophy, Clock
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/context/AuthContext';
@@ -34,6 +34,7 @@ function DetailField({ icon: Icon, label, value, mono, highlight }: {
 
 export function AfriAnimeSubmission({ comp }: AfriAnimeSubmissionProps) {
   const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const savedApp = (() => {
@@ -44,10 +45,13 @@ export function AfriAnimeSubmission({ comp }: AfriAnimeSubmissionProps) {
   })();
 
   const [editableSummary, setEditableSummary] = useState(savedApp?.animationSummary || '');
+  const [savedSummary, setSavedSummary] = useState(savedApp?.animationSummary || '');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(() => sessionStorage.getItem(`${comp.id}_submitted`) === 'true');
+
+  const isSummaryChanged = editableSummary !== savedSummary;
 
   const refNo = savedApp?.refNo || sessionStorage.getItem('comp_ref') || 'N/A';
   const applicationDate = savedApp?.applicationDate
@@ -62,6 +66,15 @@ export function AfriAnimeSubmission({ comp }: AfriAnimeSubmissionProps) {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
+
+  useEffect(() => {
+    if (submitted) {
+      const timer = setTimeout(() => {
+        router.push('/dashboard/submissions');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted, router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -80,6 +93,7 @@ export function AfriAnimeSubmission({ comp }: AfriAnimeSubmissionProps) {
     if (savedApp) {
       savedApp.animationSummary = editableSummary;
       sessionStorage.setItem('comp_application', JSON.stringify(savedApp));
+      setSavedSummary(editableSummary);
       toast.success('Summary saved.');
     }
   };
@@ -96,14 +110,6 @@ export function AfriAnimeSubmission({ comp }: AfriAnimeSubmissionProps) {
       sessionStorage.setItem(`${comp.id}_submitted`, 'true');
       toast.success('Submission successful! Your entry has been received.');
     }, 2000);
-  };
-
-  const handleResubmit = () => {
-    setSubmitted(false);
-    setUploadedFile(null);
-    setPreviewUrl(null);
-    sessionStorage.removeItem(`${comp.id}_submitted`);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   if (!isAuthenticated || !user) {
@@ -125,11 +131,8 @@ export function AfriAnimeSubmission({ comp }: AfriAnimeSubmissionProps) {
           <div>
             <h3 className="text-lg font-bold text-green-800">Submission Successful!</h3>
             <p className="text-sm text-green-700 mt-1">
-              Your entry for <strong>{comp.type}</strong> has been received successfully. You can resubmit a more recent work to overwrite this submission until the deadline.
+              Your entry for <strong>{comp.type}</strong> has been received successfully. Redirecting to dashboard...
             </p>
-            <Button size="sm" variant="outline" className="mt-3 border-green-300 text-green-700 hover:bg-green-100" onClick={handleResubmit}>
-              <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Resubmit New Work
-            </Button>
           </div>
         </div>
       )}
@@ -172,7 +175,7 @@ export function AfriAnimeSubmission({ comp }: AfriAnimeSubmissionProps) {
         />
         <div className="flex items-center justify-between mt-2">
           <p className="text-[10px] text-neutral-gray-medium">Can still be edited and saved until deadline.</p>
-          <Button size="sm" variant="outline" onClick={handleSummarySave} className="text-xs">
+          <Button size="sm" variant="outline" onClick={handleSummarySave} className="text-xs" disabled={!isSummaryChanged}>
             Save Summary
           </Button>
         </div>
@@ -283,11 +286,6 @@ export function AfriAnimeSubmission({ comp }: AfriAnimeSubmissionProps) {
           <p className="text-xs text-neutral-gray-medium">
             <strong>Note:</strong> Until the deadline, you can submit more recent works to overwrite previous submissions.
           </p>
-        </div>
-        <div className="mt-4 pt-4 border-t border-neutral-gray-light">
-          <Link href="/dashboard">
-            <Button variant="outline" className="w-full text-sm">Go to Dashboard</Button>
-          </Link>
         </div>
       </div>
     </div>

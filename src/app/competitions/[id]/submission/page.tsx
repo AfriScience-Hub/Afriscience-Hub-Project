@@ -1,12 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useState, useRef, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, CheckCircle, Upload, Video, Image as ImageIcon, FileText,
-  Calendar, MapPin, Hash, User, School, BookOpen, Trophy, Clock, RefreshCw
+  Calendar, MapPin, Hash, User, School, BookOpen, Trophy, Clock
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { COMPETITIONS } from '@/app/data/mockData';
@@ -44,6 +44,7 @@ function DetailField({ icon: Icon, label, value, mono, highlight, full }: {
 
 export default function CompetitionSubmission() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const { user, isAuthenticated } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -60,6 +61,15 @@ export default function CompetitionSubmission() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (submitted) {
+      const timer = setTimeout(() => {
+        router.push('/dashboard/submissions');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted, router]);
 
   if (!comp) {
     return (
@@ -121,13 +131,6 @@ export default function CompetitionSubmission() {
     }, 2000);
   };
 
-  const handleResubmit = () => {
-    setSubmitted(false);
-    setUploadedFile(null);
-    setPreviewUrl(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
   const refNo = savedApp?.refNo || sessionStorage.getItem('comp_ref') || 'N/A';
   const applicationDate = savedApp?.applicationDate ? new Date(savedApp.applicationDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const topic = savedApp?.topic || sessionStorage.getItem('comp_topic') || '';
@@ -158,11 +161,8 @@ export default function CompetitionSubmission() {
                 <div>
                   <h3 className="text-lg font-bold text-green-800">Submission Successful!</h3>
                   <p className="text-sm text-green-700 mt-1">
-                    Your entry for <strong>{comp.title}</strong> has been received successfully. You can resubmit a more recent work to overwrite this submission until the competition deadline.
+                    Your entry for <strong>{comp.title}</strong> has been received successfully. Redirecting to dashboard...
                   </p>
-                  <Button size="sm" variant="outline" className="mt-3 border-green-300 text-green-700 hover:bg-green-100" onClick={handleResubmit}>
-                    <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Resubmit New Work
-                  </Button>
                 </div>
               </div>
             )}
@@ -326,13 +326,6 @@ export default function CompetitionSubmission() {
                     </p>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-neutral-gray-light">
-                    <Link href="/dashboard">
-                      <Button variant="outline" className="w-full text-sm">
-                        Go to Dashboard
-                      </Button>
-                    </Link>
-                  </div>
                 </div>
               </div>
             </div>
