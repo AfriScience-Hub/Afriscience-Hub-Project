@@ -4,8 +4,10 @@ import { Eye, EyeOff, Activity } from 'lucide-react';
 
 interface SystemSecurityTabProps {
   govIdCode: string;
-  password: string; onPasswordChange: (v: string) => void;
-  showPassword: boolean; onShowPasswordChange: (v: boolean) => void;
+  oldPassword: string; onOldPasswordChange: (v: string) => void;
+  newPassword: string; onNewPasswordChange: (v: string) => void;
+  showOldPassword: boolean; onShowOldPasswordChange: (v: boolean) => void;
+  showNewPassword: boolean; onShowNewPasswordChange: (v: boolean) => void;
   securityQuestion: string; onSecurityQuestionChange: (v: string) => void;
   securityAnswer: string; onSecurityAnswerChange: (v: string) => void;
 }
@@ -60,13 +62,24 @@ export function SystemSecurityTab(props: SystemSecurityTabProps) {
 
       <h3 className="text-lg font-bold text-neutral-black pt-4">Security Settings</h3>
 
-      <div>
-        <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Change Password</label>
-        <div className="relative">
-          <input type={props.showPassword ? 'text' : 'password'} value={props.password} onChange={e => props.onPasswordChange(e.target.value)} placeholder="Enter new password" className="w-full px-3 py-2 pr-10 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" />
-          <button type="button" onClick={() => props.onShowPasswordChange(!props.showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-gray-medium hover:text-neutral-black">
-            {props.showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </button>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Old Password</label>
+          <div className="relative">
+            <input type={props.showOldPassword ? 'text' : 'password'} value={props.oldPassword} onChange={e => props.onOldPasswordChange(e.target.value)} placeholder="Enter old password" className="w-full px-3 py-2 pr-10 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" />
+            <button type="button" onClick={() => props.onShowOldPasswordChange(!props.showOldPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-gray-medium hover:text-neutral-black">
+              {props.showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-neutral-gray-dark mb-2">New Password</label>
+          <div className="relative">
+            <input type={props.showNewPassword ? 'text' : 'password'} value={props.newPassword} onChange={e => props.onNewPasswordChange(e.target.value)} placeholder="Enter new password" className="w-full px-3 py-2 pr-10 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" />
+            <button type="button" onClick={() => props.onShowNewPasswordChange(!props.showNewPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-gray-medium hover:text-neutral-black">
+              {props.showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
       </div>
 

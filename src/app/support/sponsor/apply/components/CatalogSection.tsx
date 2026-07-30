@@ -36,7 +36,7 @@ export function CatalogSection({
       ) : industries.map(industry => (
         <div key={industry} className="mb-8 last:mb-0">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-neutral-black bg-brand-red-50 text-brand-red-600 px-3 py-1 rounded-lg text-sm">{industry}</h3>
+            <h3 className="font-semibold text-neutral-black bg-brand-red-50 px-3 py-1 rounded-lg text-sm">{industry}</h3>
             <Button type="button" variant="outline" size="sm" onClick={() => onAddCatalogItem(industry)} className="flex items-center gap-1">
               <Plus className="h-4 w-4" /> Add Entry
             </Button>
