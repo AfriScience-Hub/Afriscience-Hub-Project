@@ -21,7 +21,7 @@ interface CatalogSectionProps {
 }
 
 export function CatalogSection({
-  industries, catalogByIndustry, maxIndustries, tier,
+  industries, catalogByIndustry,
   onAddCatalogItem, onRemoveCatalogItem, onUpdateCatalogItem,
   onAddSpecification, onRemoveSpecification, onUpdateSpecification,
   onAddCatalogImage, onRemoveCatalogImage,
@@ -29,8 +29,7 @@ export function CatalogSection({
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8">
       <h2 className="text-xl font-bold text-neutral-black mb-2">Product &amp; Service Catalog</h2>
-      <p className="text-xs text-neutral-gray-medium mb-2">Publish your product/service catalog for potential users to access.</p>
-      <p className="text-xs text-brand-red-600 mb-6">Number of possible displayed industries depends on selected sponsorship tier ({industries.length}/{maxIndustries === Infinity ? 'Unlimited' : maxIndustries} selected{tier ? ` for ${tier}` : ''}).</p>
+      <p className="text-xs text-neutral-gray-medium mb-6">Publish your product/service catalog under selected industries for potential users to access.</p>
       {industries.length === 0 ? (
         <p className="text-sm text-neutral-gray-medium italic">Select industries in the Company Information section above to start adding your product/service catalog.</p>
       ) : industries.map(industry => (

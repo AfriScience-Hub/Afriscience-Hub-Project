@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Sparkles, ArrowRight, CheckCircle2, Globe, MapPin, Users, Lightbulb, Wrench, Award } from 'lucide-react';
+import { Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { useAuth } from '../../context/AuthContext';
+import { openFeedback } from '@/lib/feedback';
 
 const SPONSOR_TIERS = [
   {
@@ -91,15 +93,16 @@ const SPONSOR_TIERS = [
 ];
 
 const WHY_SPONSOR = [
-  { icon: Globe, title: 'Continental Reach', desc: 'Access a network spanning across 54 African countries and growing.' },
-  { icon: MapPin, title: 'Brand Visibility', desc: 'Get your logo and brand featured across our platform, events and annual publications.' },
-  { icon: Users, title: 'Talent Pipeline', desc: 'Connect with top scientists, technologists, institutions, researchers, specialists and innovators for collaborations.' },
-  { icon: Lightbulb, title: 'Innovation Access', desc: 'Get early and premium access to groundbreaking African innovations and research.' },
-  { icon: Wrench, title: 'Technical Support', desc: 'Get tailored support from AfriScience Hub in handling some technical demands of your business or organization.' },
-  { icon: Award, title: 'Recognition', desc: 'Be recognized as a "Champion of African Science & Technology" at our annual awards.' },
+  { emoji: '🌍', title: 'Continental Reach', desc: 'Access a network spanning across 54 African countries and growing.' },
+  { emoji: '📈', title: 'Brand Visibility', desc: 'Get your logo and brand featured across our platform, events and annual publications.' },
+  { emoji: '🤝', title: 'Talent Pipeline', desc: 'Connect with top scientists, technologists, institutions, researchers, specialists and innovators for collaborations.' },
+  { emoji: '💡', title: 'Innovation Access', desc: 'Get early and premium access to groundbreaking African innovations and research.' },
+  { emoji: '📊', title: 'Technical Support', desc: 'Get tailored support from AfriScience Hub in handling some technical demands of your business or organization.' },
+  { emoji: '🏆', title: 'Recognition', desc: 'Be recognized as a "Champion of African Science & Technology" at our annual awards.' },
 ];
 
 export default function Sponsor() {
+  const { user } = useAuth();
   return (
     <div className="pb-16">
       <section className="relative bg-brand-navy-900 py-20 overflow-hidden">
@@ -148,18 +151,13 @@ export default function Sponsor() {
           <p className="text-slate-500 max-w-xl mx-auto">Align your brand with the biggest science and technology network in Africa.</p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {WHY_SPONSOR.map((item, idx) => {
-            const Icon = item.icon;
-            return (
+          {WHY_SPONSOR.map((item, idx) => (
               <div key={idx} className="p-6 rounded-xl bg-neutral-bg-light hover:shadow-md transition-shadow">
-                <div className="mb-3">
-                  <Icon className="h-8 w-8 text-brand-red-600" />
-                </div>
+                <div className="text-3xl mb-3">{item.emoji}</div>
                 <h3 className="font-bold text-neutral-black mb-1">{item.title}</h3>
                 <p className="text-sm text-slate-500">{item.desc}</p>
               </div>
-            );
-          })}
+            ))}
         </div>
       </section>
 
@@ -209,11 +207,9 @@ export default function Sponsor() {
             <p className="text-slate-300 mb-6">
               Looking for a custom sponsorship package tailored to your organization&apos;s goals? We work with corporations, foundations, and government agencies to create bespoke partnerships that maximize impact and visibility.
             </p>
-            <Link href="/contact">
-              <Button size="lg" className="bg-brand-red-600 hover:bg-brand-red-700">
-                Contact Our Partnerships Team
-              </Button>
-            </Link>
+<Button size="lg" type="button" className="bg-brand-red-600 hover:bg-brand-red-700" onClick={() => openFeedback({ email: user?.email || '', type: 'Sponsorship and Partnership', section: 'Sponsors' })}>
+              Contact Our Partnerships Team
+            </Button>
           </div>
         </div>
       </section>

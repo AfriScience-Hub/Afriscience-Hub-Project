@@ -29,6 +29,8 @@ interface EducationCertTabProps {
 }
 
 export function EducationCertTab(props: EducationCertTabProps) {
+  const noGraduationClass = ['Elementary Degree', 'Junior High School Degree', 'Senior High School Degree'].includes(props.educationLevel);
+
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-bold text-neutral-black">Education & Certifications</h3>
@@ -55,8 +57,8 @@ export function EducationCertTab(props: EducationCertTabProps) {
           )}
         </div>
         <div>
-          <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Graduation Class <span className="text-red-600">*</span></label>
-          <select value={props.graduationClass} onChange={e => props.onGraduationClassChange(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" required>
+          <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Graduation Class {noGraduationClass ? <span className="text-neutral-gray-medium">(N/A)</span> : <span className="text-red-600">*</span>}</label>
+          <select value={props.graduationClass} onChange={e => props.onGraduationClassChange(e.target.value)} disabled={noGraduationClass} className={`w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900 ${noGraduationClass ? 'cursor-not-allowed opacity-50' : ''}`} required={!noGraduationClass}>
             <option value="">Select Graduation Class</option>
             <option value="First Class">First Class</option>
             <option value="Second Class Upper">Second Class Upper</option>

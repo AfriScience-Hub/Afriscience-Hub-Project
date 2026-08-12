@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageSquarePlus, X, Send } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Input } from './ui/input';
@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from './ui/select';
 import { toast } from 'sonner';
+import { OPEN_FEEDBACK_EVENT, type FeedbackPrefill } from '@/lib/feedback';
 
 export function FeedbackWidget() {
   const [open, setOpen] = useState(false);
@@ -30,6 +31,18 @@ export function FeedbackWidget() {
   const [feedback, setFeedback] = useState('');
   const [referenceNo, setReferenceNo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<FeedbackPrefill>).detail || {};
+      if (detail.email !== undefined) setEmail(detail.email);
+      if (detail.type !== undefined) setType(detail.type);
+      if (detail.section !== undefined) setSection(detail.section);
+      setOpen(true);
+    };
+    window.addEventListener(OPEN_FEEDBACK_EVENT, handler);
+    return () => window.removeEventListener(OPEN_FEEDBACK_EVENT, handler);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -75,6 +75,9 @@ export function LocationContactSection({
           <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Website</label>
           <Input value={website} onChange={e => onWebsiteChange(e.target.value)} placeholder="Enter company's website (if any)" />
         </div>
+        <div className="sm:col-span-2">
+          <h3 className="text-sm font-semibold text-neutral-black mt-2 mb-3">Social Media Handles <span className="text-neutral-gray-medium font-normal">(Provide at least one)</span></h3>
+        </div>
         <div>
           <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">LinkedIn *</label>
           <Input value={linkedin} onChange={e => onLinkedinChange(e.target.value)} placeholder="linkedin.com/company/..." required />
@@ -91,7 +94,6 @@ export function LocationContactSection({
           <label className="block text-sm font-medium text-neutral-gray-dark mb-1.5">Facebook *</label>
           <Input value={facebook} onChange={e => onFacebookChange(e.target.value)} placeholder="facebook.com/..." required />
         </div>
-        <p className="text-xs text-neutral-gray-medium sm:col-span-2">Provide at least one social media handle.</p>
       </div>
     </div>
   );

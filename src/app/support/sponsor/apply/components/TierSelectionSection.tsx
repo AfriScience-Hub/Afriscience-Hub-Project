@@ -43,8 +43,9 @@ export function TierSelectionSection({ selectedTier, onTierChange }: TierSelecti
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); setInfoTier(tier.name); }}
-              className="cursor-pointer absolute top-2 right-2 p-1 text-neutral-gray-medium hover:text-brand-red-600 transition-colors"
+              className="cursor-pointer absolute top-2 right-2 p-1.5 rounded-full bg-brand-red-50 text-brand-red-600 hover:bg-brand-red-100 border border-brand-red-200 transition-colors"
               title="View benefits"
+              aria-label={`View ${tier.name} benefits`}
             >
               <Info className="h-4 w-4" />
             </button>
@@ -59,14 +60,14 @@ export function TierSelectionSection({ selectedTier, onTierChange }: TierSelecti
 
       {infoTier && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setInfoTier(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
               <h3 className="text-lg font-bold text-neutral-black">{infoTier} Benefits</h3>
               <button onClick={() => setInfoTier(null)} className="cursor-pointer text-neutral-gray-medium hover:text-neutral-black">
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <ul className="space-y-2.5">
+            <ul className="space-y-2.5 overflow-y-auto min-h-0 pr-1">
               {TIER_BENEFITS[infoTier]?.map((benefit, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-neutral-gray-dark">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
@@ -76,7 +77,7 @@ export function TierSelectionSection({ selectedTier, onTierChange }: TierSelecti
             </ul>
             <button
               onClick={() => { onTierChange(infoTier); setInfoTier(null); }}
-              className="cursor-pointer w-full mt-6 h-11 rounded-xl bg-brand-red-600 text-white font-medium hover:bg-brand-red-700 transition-colors"
+              className="cursor-pointer w-full mt-6 h-11 rounded-xl bg-brand-red-600 text-white font-medium hover:bg-brand-red-700 transition-colors flex-shrink-0"
             >
               Select {infoTier}
             </button>
