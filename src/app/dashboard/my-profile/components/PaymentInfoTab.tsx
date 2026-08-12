@@ -1,11 +1,22 @@
 'use client';
 
-import { CreditCard, MapPin, Clock } from 'lucide-react';
+import { CreditCard, Landmark, Wallet, Smartphone, Clock, CheckCircle2 } from 'lucide-react';
+import { CreditCardPanel, type SavedCard } from './CreditCardPanel';
 
 interface PaymentInfoTabProps {
   paymentMethod: string; onPaymentMethodChange: (v: string) => void;
-  billingAddress: string; onBillingAddressChange: (v: string) => void;
+  cards: SavedCard[];
+  onAddCard: (card: Omit<SavedCard, 'id'>) => void;
+  onUpdateCard: (id: string, card: Omit<SavedCard, 'id'>) => void;
+  onRemoveCard: (id: string) => void;
 }
+
+const PAYMENT_METHODS = [
+  { key: 'Bank Transfer', label: 'Bank Transfer', icon: Landmark },
+  { key: 'Credit / Debit Card', label: 'Credit / Debit Card', icon: CreditCard },
+  { key: 'PayPal', label: 'PayPal', icon: Wallet },
+  { key: 'Mobile Money', label: 'Mobile Money', icon: Smartphone },
+] as const;
 
 export function PaymentInfoTab(props: PaymentInfoTabProps) {
   const transactions = [
@@ -14,30 +25,60 @@ export function PaymentInfoTab(props: PaymentInfoTabProps) {
     { id: '#INV-2026-0029', date: 'March 10, 2026', description: 'Innovation Listing Fee', amount: '₦15,000', status: 'Pending' },
   ];
 
+  const selectedMethod = props.paymentMethod
+    ? PAYMENT_METHODS.find(m => m.key === props.paymentMethod)
+    : undefined;
+
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-bold text-neutral-black">Payment Info</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-neutral-gray-dark mb-2 flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-neutral-gray-medium" /> Payment Methods
-          </label>
-          <select value={props.paymentMethod} onChange={e => props.onPaymentMethodChange(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900">
-            <option value="">Select Payment Method</option>
-            <option value="Bank Transfer">Bank Transfer</option>
-            <option value="Credit / Debit Card">Credit / Debit Card</option>
-            <option value="PayPal">PayPal</option>
-            <option value="Mobile Money">Mobile Money</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-neutral-gray-dark mb-2 flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-neutral-gray-medium" /> Billing Address
-          </label>
-          <input type="text" value={props.billingAddress} onChange={e => props.onBillingAddressChange(e.target.value)} placeholder="Enter billing address" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" />
+      <div>
+        <label className="block text-sm font-medium text-neutral-gray-dark mb-3">Payment Methods</label>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {PAYMENT_METHODS.map(method => {
+            const selected = props.paymentMethod === method.key;
+            const Icon = method.icon;
+            return (
+              <button
+                key={method.key}
+                type="button"
+                onClick={() => props.onPaymentMethodChange(method.key)}
+                className={`relative rounded-xl border-2 p-4 cursor-pointer text-center transition-all ${
+                  selected
+                    ? 'border-brand-navy-900 bg-brand-navy-50'
+                    : 'border-neutral-gray-light bg-white hover:border-neutral-gray-medium'
+                }`}
+              >
+                <Icon className={`mx-auto h-6 w-6 mb-2 ${selected ? 'text-brand-navy-900' : 'text-neutral-gray-medium'}`} />
+                <span className={`text-sm font-medium ${selected ? 'text-brand-navy-900' : 'text-neutral-gray-dark'}`}>{method.label}</span>
+                {selected && (
+                  <CheckCircle2 className="absolute top-2 right-2 h-4 w-4 text-brand-navy-900" />
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
+
+      {props.paymentMethod === 'Credit / Debit Card' && (
+        <div className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light p-4">
+          <CreditCardPanel
+            cards={props.cards}
+            onAddCard={props.onAddCard}
+            onUpdateCard={props.onUpdateCard}
+            onRemoveCard={props.onRemoveCard}
+          />
+        </div>
+      )}
+
+      {selectedMethod && props.paymentMethod !== 'Credit / Debit Card' && (
+        <div className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light p-4">
+          <p className="text-sm text-neutral-gray-medium">
+            Payment details for {selectedMethod.label} will be available soon.
+          </p>
+        </div>
+      )}
 
       <div className="pt-4">
         <h4 className="text-base font-bold text-neutral-black mb-4 flex items-center gap-2">

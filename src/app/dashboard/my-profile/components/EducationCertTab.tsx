@@ -13,7 +13,9 @@ interface OtherCert {
 
 interface EducationCertTabProps {
   educationLevel: string; onEducationLevelChange: (v: string) => void;
+  educationLevelOther: string; onEducationLevelOtherChange: (v: string) => void;
   graduationClass: string; onGraduationClassChange: (v: string) => void;
+  graduationClassOther: string; onGraduationClassOtherChange: (v: string) => void;
   courseOfStudy: string; onCourseOfStudyChange: (v: string) => void;
   institution: string; onInstitutionChange: (v: string) => void;
   yearOfGraduation: string; onYearOfGraduationChange: (v: string) => void;
@@ -36,7 +38,9 @@ export function EducationCertTab(props: EducationCertTabProps) {
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Education Level <span className="text-red-600">*</span></label>
           <select value={props.educationLevel} onChange={e => props.onEducationLevelChange(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" required>
             <option value="">Select Education Level</option>
-            <option value="High School">High School</option>
+            <option value="Elementary Degree">Elementary Degree</option>
+            <option value="Junior High School Degree">Junior High School Degree</option>
+            <option value="Senior High School Degree">Senior High School Degree</option>
             <option value="National Diploma">National Diploma</option>
             <option value="Associate Degree">Associate Degree</option>
             <option value="Higher National Diploma">Higher National Diploma</option>
@@ -44,7 +48,11 @@ export function EducationCertTab(props: EducationCertTabProps) {
             <option value="Postgraduate Diploma">Postgraduate Diploma</option>
             <option value="Master's Degree">Master's Degree</option>
             <option value="Doctorate Degree">Doctorate Degree</option>
+            <option value="Other">Other</option>
           </select>
+          {props.educationLevel === 'Other' && (
+            <input type="text" value={props.educationLevelOther} onChange={e => props.onEducationLevelOtherChange(e.target.value)} placeholder="Specify education level" className="mt-2 w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" required />
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Graduation Class <span className="text-red-600">*</span></label>
@@ -55,7 +63,11 @@ export function EducationCertTab(props: EducationCertTabProps) {
             <option value="Second Class Lower">Second Class Lower</option>
             <option value="Third Class">Third Class</option>
             <option value="Pass">Pass</option>
+            <option value="Other">Other</option>
           </select>
+          {props.graduationClass === 'Other' && (
+            <input type="text" value={props.graduationClassOther} onChange={e => props.onGraduationClassOtherChange(e.target.value)} placeholder="Specify graduation class" className="mt-2 w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" required />
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Course of Study <span className="text-red-600">*</span></label>
@@ -94,7 +106,7 @@ export function EducationCertTab(props: EducationCertTabProps) {
       <div className="pt-4 border-t border-neutral-gray-light">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-base font-bold text-neutral-black">Other Certifications (if any)</h4>
-          <button type="button" onClick={props.onAddOtherCert} className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition-colors">
+          <button type="button" onClick={props.onAddOtherCert} className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-600 border border-green-600 rounded-lg hover:bg-green-50 cursor-pointer transition-colors">
             <Plus className="h-4 w-4" /> Add
           </button>
         </div>
@@ -107,7 +119,7 @@ export function EducationCertTab(props: EducationCertTabProps) {
           <div key={cert.id} className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light p-4 mb-3">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-neutral-black">Certification</span>
-              <button type="button" onClick={() => props.onRemoveOtherCert(cert.id)} className="text-red-500 hover:text-red-700 transition-colors">
+              <button type="button" onClick={() => props.onRemoveOtherCert(cert.id)} className="text-red-500 hover:text-red-700 cursor-pointer transition-colors">
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>

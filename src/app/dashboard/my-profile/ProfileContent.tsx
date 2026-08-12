@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useLocalStorage } from '@/lib/useLocalStorage';
 import { User, GraduationCap, Briefcase, CreditCard, Shield, Save } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { toast } from 'sonner';
@@ -12,6 +13,7 @@ import { EducationCertTab } from './components/EducationCertTab';
 import { ExperienceSkillsTab } from './components/ExperienceSkillsTab';
 import { PaymentInfoTab } from './components/PaymentInfoTab';
 import { SystemSecurityTab } from './components/SystemSecurityTab';
+import { type SavedCard } from './components/CreditCardPanel';
 
 type TabKey = 'personal' | 'education' | 'experience' | 'payment' | 'system';
 
@@ -55,7 +57,9 @@ export function ProfileContent() {
   const [website, setWebsite] = useState('');
 
   const [educationLevel, setEducationLevel] = useState("Bachelor's Degree");
+  const [educationLevelOther, setEducationLevelOther] = useState('');
   const [graduationClass, setGraduationClass] = useState('First Class');
+  const [graduationClassOther, setGraduationClassOther] = useState('');
   const [courseOfStudy, setCourseOfStudy] = useState('Electrical Engineering');
   const [institution, setInstitution] = useState('University of Lagos');
   const [yearOfGraduation, setYearOfGraduation] = useState('2023');
@@ -66,6 +70,7 @@ export function ProfileContent() {
   const [employmentStatus, setEmploymentStatus] = useState('Student');
   const [role, setRole] = useState('');
   const [industry, setIndustry] = useState('');
+  const [industryOther, setIndustryOther] = useState('');
   const [company, setCompany] = useState('');
   const [workCountry, setWorkCountry] = useState('');
   const [resumptionDate, setResumptionDate] = useState('');
@@ -78,7 +83,7 @@ export function ProfileContent() {
   const [cvFileName, setCvFileName] = useState('');
 
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [billingAddress, setBillingAddress] = useState('');
+  const [savedCards, setSavedCards] = useLocalStorage<SavedCard[]>('ash:saved-cards', []);
 
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -132,6 +137,18 @@ export function ProfileContent() {
       setCvFileName(file.name);
       toast.success('CV uploaded successfully!');
     }
+  };
+
+  const handleAddCard = (card: Omit<SavedCard, 'id'>) => {
+    setSavedCards(prev => [...prev, { ...card, id: generateId() }]);
+  };
+
+  const handleUpdateCard = (id: string, card: Omit<SavedCard, 'id'>) => {
+    setSavedCards(prev => prev.map(c => c.id === id ? { ...c, ...card } : c));
+  };
+
+  const handleRemoveCard = (id: string) => {
+    setSavedCards(prev => prev.filter(c => c.id !== id));
   };
 
   const addOtherCert = () => {
@@ -237,7 +254,9 @@ export function ProfileContent() {
           {activeTab === 'education' && (
             <EducationCertTab
               educationLevel={educationLevel} onEducationLevelChange={setEducationLevel}
+              educationLevelOther={educationLevelOther} onEducationLevelOtherChange={setEducationLevelOther}
               graduationClass={graduationClass} onGraduationClassChange={setGraduationClass}
+              graduationClassOther={graduationClassOther} onGraduationClassOtherChange={setGraduationClassOther}
               courseOfStudy={courseOfStudy} onCourseOfStudyChange={setCourseOfStudy}
               institution={institution} onInstitutionChange={setInstitution}
               yearOfGraduation={yearOfGraduation} onYearOfGraduationChange={setYearOfGraduation}
@@ -255,6 +274,7 @@ export function ProfileContent() {
               employmentStatus={employmentStatus} onEmploymentStatusChange={setEmploymentStatus}
               role={role} onRoleChange={setRole}
               industry={industry} onIndustryChange={setIndustry}
+              industryOther={industryOther} onIndustryOtherChange={setIndustryOther}
               company={company} onCompanyChange={setCompany}
               workCountry={workCountry} onWorkCountryChange={setWorkCountry}
               resumptionDate={resumptionDate} onResumptionDateChange={setResumptionDate}
@@ -282,7 +302,10 @@ export function ProfileContent() {
           {activeTab === 'payment' && (
             <PaymentInfoTab
               paymentMethod={paymentMethod} onPaymentMethodChange={setPaymentMethod}
-              billingAddress={billingAddress} onBillingAddressChange={setBillingAddress}
+              cards={savedCards}
+              onAddCard={handleAddCard}
+              onUpdateCard={handleUpdateCard}
+              onRemoveCard={handleRemoveCard}
             />
           )}
 
@@ -301,7 +324,7 @@ export function ProfileContent() {
           <div className="flex justify-end pt-6 border-t border-neutral-gray-light">
             <Button type="submit" className="bg-green-600 hover:bg-green-700 gap-2">
               <Save className="h-4 w-4" />
-              Save & Proceed
+              Save
             </Button>
           </div>
         </form>

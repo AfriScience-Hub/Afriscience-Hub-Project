@@ -82,6 +82,9 @@ export function PersonalInfoTab(props: PersonalInfoTabProps) {
       </div>
       <div>
         <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Upload ID Card <span className="text-red-600">*</span></label>
+        <p className="text-xs text-neutral-gray-medium mb-2">
+          To verify your user identity, kindly upload a copy of selected valid government issued ID card. Uploaded documents are securely stored and protected from unauthorized access
+        </p>
         <div className="flex items-center gap-3">
           <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={props.handleIdCardUpload} className="hidden" id="id-card-upload" />
           <label htmlFor="id-card-upload" className="px-4 py-2 rounded-lg border border-neutral-gray-light bg-white hover:bg-neutral-bg-light cursor-pointer inline-flex items-center gap-2 transition-colors">
@@ -90,9 +93,6 @@ export function PersonalInfoTab(props: PersonalInfoTabProps) {
           </label>
           <span className="text-sm text-neutral-gray-medium">{props.idCardFileName || 'No file chosen'}</span>
         </div>
-        <p className="text-xs text-neutral-gray-medium mt-2">
-          To verify your user identity, kindly upload a copy of selected valid government issued ID card. Uploaded documents are securely stored and protected from unauthorized access
-        </p>
       </div>
       <div>
         <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Bio / About Me <span className="text-red-600">*</span></label>

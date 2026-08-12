@@ -33,8 +33,10 @@ export function ProfileHeader({ fullName, govIdCode, completionPct, avatar }: Pr
             </button>
           </div>
           <div className="flex-1 pt-2">
-            <h2 className="text-2xl font-bold text-neutral-black">{fullName} <span className="text-lg text-neutral-gray-medium font-normal">(3mtt)</span></h2>
-            <p className="text-sm text-neutral-gray-medium mt-1">{govIdCode}</p>
+            <h2 className="text-2xl font-bold text-neutral-black">{fullName}</h2>
+            <span className="mt-1 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-bg-light border border-neutral-gray-light text-xs font-medium text-neutral-gray-dark">
+              <span className="font-bold text-neutral-black">ID:</span> {govIdCode}
+            </span>
           </div>
           <div className="flex items-center justify-center h-24 w-24 rounded-2xl bg-neutral-bg-light border border-neutral-gray-light">
             <div className="text-center">
