@@ -14,6 +14,7 @@ export default function SponsorsListing() {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [archivedIds, setArchivedIds] = useState<string[]>([]);
 
   const handleIndustryChange = useCallback((industry: string) => {
     setSelectedIndustry(prev => prev === industry ? '' : industry);
@@ -25,6 +26,14 @@ export default function SponsorsListing() {
 
   const handleCountryChange = useCallback((country: string) => {
     setSelectedCountry(country);
+  }, []);
+
+  const handleToggleArchive = useCallback((sponsorId: string) => {
+    setArchivedIds(prev =>
+      prev.includes(sponsorId)
+        ? prev.filter(id => id !== sponsorId)
+        : [...prev, sponsorId]
+    );
   }, []);
 
   const resetFilters = useCallback(() => {
@@ -105,6 +114,8 @@ export default function SponsorsListing() {
                 <SponsorCard
                   key={sponsor.id}
                   sponsor={sponsor}
+                  archivedIds={archivedIds}
+                  onToggleArchive={handleToggleArchive}
                 />
               ))}
             </div>

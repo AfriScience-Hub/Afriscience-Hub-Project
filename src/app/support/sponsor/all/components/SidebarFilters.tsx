@@ -2,7 +2,6 @@
 
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import Link from 'next/link';
 import { INDUSTRIES, COUNTRIES } from '../data';
 
 interface SidebarFiltersProps {
@@ -40,16 +39,17 @@ export function SidebarFilters({
           {industryOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </button>
         {industryOpen && (
-          <div className="space-y-1 max-h-64 overflow-y-auto">
+          <div className="mt-3 space-y-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
             {INDUSTRIES.map(industry => (
-              <Link
-                key={industry}
-                href={`/support/sponsor/catalog/${encodeURIComponent(industry)}`}
-                className={`flex items-center gap-2 text-sm p-1.5 rounded transition-colors ${selectedIndustry === industry ? 'bg-brand-red-50 text-brand-red-600 font-medium' : 'text-neutral-gray-dark hover:bg-neutral-bg-light'}`}
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-red-600 flex-shrink-0" />
-                <span>{industry}</span>
-              </Link>
+              <label key={industry} className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={selectedIndustry === industry}
+                  onChange={() => onIndustryChange(industry)}
+                  className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600"
+                />
+                <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{industry}</span>
+              </label>
             ))}
           </div>
         )}
@@ -61,17 +61,16 @@ export function SidebarFilters({
           {statusOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </button>
         {statusOpen && (
-          <div className="space-y-1">
+          <div className="mt-3 space-y-2">
             {['Online', 'Offline'].map(status => (
-              <label key={status} className={`flex items-center gap-2 cursor-pointer text-sm p-1.5 rounded transition-colors ${selectedStatus === status ? 'bg-brand-red-50 text-brand-red-600 font-medium' : 'text-neutral-gray-dark hover:bg-neutral-bg-light'}`}>
+              <label key={status} className="flex items-center gap-2 cursor-pointer group">
                 <input
-                  type="radio"
-                  name="status"
+                  type="checkbox"
                   checked={selectedStatus === status}
                   onChange={() => onStatusChange(status)}
-                  className="text-brand-red-600 focus:ring-brand-red-600"
+                  className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600"
                 />
-                <span>{status}</span>
+                <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{status}</span>
               </label>
             ))}
           </div>
