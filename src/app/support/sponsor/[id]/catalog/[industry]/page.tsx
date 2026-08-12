@@ -77,33 +77,52 @@ export default function SponsorCatalogByIndustry() {
 
         {items.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {items.map((item, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setSelectedItem(item)}
-                className="cursor-pointer bg-white rounded-xl shadow-sm border border-neutral-gray-light overflow-hidden hover:shadow-md hover:border-brand-red-600 transition-all text-left group"
-              >
-                <div className="aspect-square bg-neutral-bg-light overflow-hidden">
-                  {item.images.length > 0 ? (
-                    <img
-                      src={item.images[0]}
-                      alt={item.productName}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-neutral-gray-light">
-                      <ShoppingBag className="h-8 w-8" />
+            {items.map((item, idx) => {
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setSelectedItem(item)}
+                  className="cursor-pointer bg-white rounded-xl shadow-sm border border-neutral-gray-light overflow-hidden hover:shadow-md hover:border-brand-red-600 transition-all text-left group"
+                >
+                  <div className="aspect-square bg-neutral-bg-light overflow-hidden relative">
+                    {item.images.length > 0 ? (
+                      <img
+                        src={item.images[0]}
+                        alt={item.productName}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-neutral-gray-light">
+                        <ShoppingBag className="h-8 w-8" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3.5">
+                    <p className="text-xs font-bold text-neutral-black leading-snug line-clamp-2 mb-2.5">
+                      {item.productName}
+                    </p>
+                    <div className="mb-2.5">
+                      <p className="text-xs text-neutral-black font-medium mb-0.5">
+                        {item.currency} {parseFloat(item.price).toFixed(2)}
+                      </p>
+                      <p className="text-xs font-bold text-brand-red-600">
+                        ASH Discount: {item.currency} {parseFloat(item.ashDiscountPrice).toFixed(2)}
+                      </p>
                     </div>
-                  )}
-                </div>
-                <div className="p-2.5">
-                  <p className="text-xs font-semibold text-neutral-black text-center leading-tight line-clamp-2">
-                    {item.productName}
-                  </p>
-                </div>
-              </button>
-            ))}
+                    {item.specifications && item.specifications.length > 0 && (
+                      <div className="text-[10px] text-neutral-gray-dark space-y-0.5 pt-2 border-t border-neutral-gray-light">
+                        {item.specifications.slice(0, 2).map((spec, specIdx) => (
+                          <p key={specIdx} className="line-clamp-1">
+                            • {spec}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-16">

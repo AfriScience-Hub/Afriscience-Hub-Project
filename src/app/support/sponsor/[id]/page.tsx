@@ -12,6 +12,7 @@ import { MOCK_SPONSORS } from './data';
 export default function SponsorDetails() {
   const { id } = useParams();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isArchived, setIsArchived] = useState(false);
 
   const sponsor = MOCK_SPONSORS[Number(id)];
 
@@ -55,6 +56,8 @@ export default function SponsorDetails() {
             sponsor={sponsor}
             onShare={handleShare}
             onImageClick={setSelectedImage}
+            isArchived={isArchived}
+            onToggleArchive={() => setIsArchived(!isArchived)}
           />
 
           <div className="lg:col-span-2 space-y-6">
