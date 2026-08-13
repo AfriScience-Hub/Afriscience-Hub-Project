@@ -2,7 +2,7 @@
 
 import { Upload, X } from 'lucide-react';
 import { Input } from '../../../../components/ui/input';
-import { INDUSTRIES } from '../data';
+import { INDUSTRIES } from '@/lib/data';
 
 interface CompanyInfoSectionProps {
   companyName: string;

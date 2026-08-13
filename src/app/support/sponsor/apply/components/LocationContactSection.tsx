@@ -1,7 +1,7 @@
 'use client';
 
 import { Input } from '../../../../components/ui/input';
-import { COUNTRIES } from '../data';
+import { COUNTRIES } from '@/lib/data';
 
 interface LocationContactSectionProps {
   address: string;

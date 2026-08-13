@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Search, SlidersHorizontal, Globe } from 'lucide-react';
+import { useLocalStorage } from '@/lib/useLocalStorage';
 import { Button } from '../../../components/ui/Button';
 import { SidebarFilters } from './components/SidebarFilters';
 import { SponsorCard } from './components/SponsorCard';
@@ -14,7 +15,7 @@ export default function SponsorsListing() {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [archivedIds, setArchivedIds] = useState<string[]>([]);
+  const [archivedIds, setArchivedIds] = useLocalStorage<number[]>('ash:archived-sponsors', []);
 
   const handleIndustryChange = useCallback((industry: string) => {
     setSelectedIndustry(prev => prev === industry ? '' : industry);
@@ -28,13 +29,13 @@ export default function SponsorsListing() {
     setSelectedCountry(country);
   }, []);
 
-  const handleToggleArchive = useCallback((sponsorId: string) => {
+  const handleToggleArchive = useCallback((sponsorId: number) => {
     setArchivedIds(prev =>
       prev.includes(sponsorId)
         ? prev.filter(id => id !== sponsorId)
         : [...prev, sponsorId]
     );
-  }, []);
+  }, [setArchivedIds]);
 
   const resetFilters = useCallback(() => {
     setSelectedIndustry('');

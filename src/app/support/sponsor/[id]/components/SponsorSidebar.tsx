@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { MapPin, Phone, Share2, Mail, Globe, Eye, Archive, ArchiveX, MessageCircle } from 'lucide-react';
 import { Button } from '../../../../components/ui/Button';
 import type { SponsorDetail } from '../data';
@@ -17,10 +18,12 @@ export function SponsorSidebar({ sponsor: s, onShare, onImageClick, isArchived, 
     <div className="lg:col-span-1 space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light overflow-hidden">
         <div className="relative h-64">
-          <img
+          <Image
             src={s.image}
             alt={s.name}
-            className="w-full h-full object-cover"
+            fill
+            sizes="(max-width: 1024px) 100vw, 33vw"
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
             <button
@@ -55,26 +58,30 @@ export function SponsorSidebar({ sponsor: s, onShare, onImageClick, isArchived, 
             <div className="grid grid-cols-2 gap-2">
               <Button onClick={onToggleArchive} variant="outline" size="sm" className="flex items-center gap-2">
                 {isArchived ? <ArchiveX className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-                Archive
+                {isArchived ? 'Unarchive' : 'Archive'}
               </Button>
               <Button onClick={onShare} variant="outline" size="sm" className="flex items-center gap-2">
                 <Share2 className="h-4 w-4" /> Share
               </Button>
             </div>
             <Button
-              onClick={() => window.location.href = `tel:${s.contact.phone}`}
+              asChild
               className="w-full bg-brand-red-600 hover:bg-brand-red-700 flex items-center gap-2 justify-center"
               size="sm"
             >
-              <Phone className="h-4 w-4" /> Call Contact
+              <a href={`tel:${s.contact.phone}`}>
+                <Phone className="h-4 w-4" /> Call Contact
+              </a>
             </Button>
             <Button
-              onClick={() => window.location.href = `sms:${s.contact.phone}`}
+              asChild
               variant="outline"
               size="sm"
               className="w-full flex items-center gap-2 justify-center"
             >
-              <MessageCircle className="h-4 w-4" /> Message Contact
+              <a href={`sms:${s.contact.phone}`}>
+                <MessageCircle className="h-4 w-4" /> Message Contact
+              </a>
             </Button>
           </div>
         </div>

@@ -3,15 +3,16 @@
 import { useState, useEffect, useCallback } from 'react';
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
-  const [value, setValue] = useState<T>(() => {
-    if (typeof window === 'undefined') return initialValue;
+  const [value, setValue] = useState<T>(initialValue);
+
+  useEffect(() => {
     try {
       const stored = window.localStorage.getItem(key);
-      return stored ? (JSON.parse(stored) as T) : initialValue;
+      if (stored !== null) setValue(JSON.parse(stored) as T);
     } catch {
-      return initialValue;
+      // keep initial value
     }
-  });
+  }, [key]);
 
   const setStoredValue = useCallback((next: T | ((prev: T) => T)) => {
     setValue(prev => {
@@ -28,17 +29,16 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   useEffect(() => {
     const onChange = () => {
       try {
-        setStoredValue(prev => {
-          const stored = window.localStorage.getItem(key);
-          return stored ? (JSON.parse(stored) as T) : prev;
-        });
+        const stored = window.localStorage.getItem(key);
+        setValue(stored ? (JSON.parse(stored) as T) : initialValue);
       } catch {
         // ignore
       }
     };
     window.addEventListener('storage', onChange);
     return () => window.removeEventListener('storage', onChange);
-  }, [key, setStoredValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 
   return [value, setStoredValue] as const;
 }

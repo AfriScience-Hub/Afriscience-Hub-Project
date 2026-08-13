@@ -11,8 +11,8 @@ import type { Sponsor } from '../data';
 
 interface SponsorCardProps {
   sponsor: Sponsor;
-  archivedIds: string[];
-  onToggleArchive: (id: string) => void;
+  archivedIds: number[];
+  onToggleArchive: (id: number) => void;
 }
 
 export function SponsorCard({ sponsor, archivedIds, onToggleArchive }: SponsorCardProps) {
@@ -59,7 +59,9 @@ export function SponsorCard({ sponsor, archivedIds, onToggleArchive }: SponsorCa
                 try {
                   await navigator.clipboard.writeText(`${window.location.origin}/support/sponsor/${sponsor.id}`);
                   toast.success('Link copied');
-                } catch { toast.success('Link copied'); }
+                } catch {
+                  toast.error('Failed to copy link');
+                }
               }}
             >
               <Share2 className="h-3.5 w-3.5" />

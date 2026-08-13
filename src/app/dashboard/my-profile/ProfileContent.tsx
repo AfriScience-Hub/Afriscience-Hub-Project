@@ -26,16 +26,17 @@ const TABS = [
 ];
 
 function generateId() {
-  return Math.random().toString(36).substring(2, 11);
+  return crypto.randomUUID();
 }
 
 export function ProfileContent() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabKey>('personal');
 
-  const [firstName, setFirstName] = useState('Claire');
-  const [middleName, setMiddleName] = useState('');
-  const [surname, setSurname] = useState('Iwuanyanwu');
+  const defaultNameParts = (user?.name || 'Claire Iwuanyanwu').trim().split(/\s+/);
+  const [firstName, setFirstName] = useState(defaultNameParts[0] ?? '');
+  const [middleName, setMiddleName] = useState(defaultNameParts.length > 2 ? defaultNameParts.slice(1, -1).join(' ') : '');
+  const [surname, setSurname] = useState(defaultNameParts.length > 1 ? defaultNameParts[defaultNameParts.length - 1] : '');
   const [username, setUsername] = useState('@claire_iwu');
   const [gender, setGender] = useState('Female');
   const [dateOfBirth, setDateOfBirth] = useState('1997-02-23');

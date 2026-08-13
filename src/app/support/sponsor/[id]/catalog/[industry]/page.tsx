@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, ShoppingBag, MapPin } from 'lucide-react';
 import { MOCK_SPONSORS } from '../../data';
 import { CatalogItemModal } from '../../components/CatalogItemModal';
@@ -56,11 +57,13 @@ export default function SponsorCatalogByIndustry() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-6 mb-8">
           <div className="flex flex-col sm:flex-row gap-6">
-            <div className="flex-shrink-0">
-              <img
+            <div className="flex-shrink-0 relative h-24 w-24 sm:h-32 sm:w-32">
+              <Image
                 src={sponsor.image}
                 alt={sponsor.name}
-                className="h-24 w-24 sm:h-32 sm:w-32 rounded-xl object-cover"
+                fill
+                sizes="128px"
+                className="rounded-xl object-cover"
               />
             </div>
             <div className="flex-1 min-w-0">
@@ -87,10 +90,12 @@ export default function SponsorCatalogByIndustry() {
                 >
                   <div className="aspect-square bg-neutral-bg-light overflow-hidden relative">
                     {item.images.length > 0 ? (
-                      <img
+                      <Image
                         src={item.images[0]}
                         alt={item.productName}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+                        className="object-cover group-hover:scale-105 transition-transform"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-neutral-gray-light">

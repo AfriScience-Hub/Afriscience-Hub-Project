@@ -2,7 +2,7 @@
 
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import { INDUSTRIES, COUNTRIES } from '../data';
+import { INDUSTRIES, COUNTRIES } from '@/lib/data';
 
 interface SidebarFiltersProps {
   selectedIndustry: string;

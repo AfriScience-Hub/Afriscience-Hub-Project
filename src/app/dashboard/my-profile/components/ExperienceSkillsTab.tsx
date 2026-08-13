@@ -1,7 +1,7 @@
 'use client';
 
 import { Plus, Trash2, Upload, CheckCircle } from 'lucide-react';
-import { INDUSTRIES, COUNTRIES } from '@/app/support/sponsor/apply/data';
+import { INDUSTRIES, COUNTRIES } from '@/lib/data';
 
 interface PastJob {
   id: string;

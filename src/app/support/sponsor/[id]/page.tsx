@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
+import { useLocalStorage } from '@/lib/useLocalStorage';
 import { SponsorSidebar } from './components/SponsorSidebar';
 import { AboutSection, CatalogSection, LicensesSection, PoliciesSection, AwardsSection, MediaGallery, LocationMap } from './components/DetailSections';
 import { ImagePreviewModal } from './components/ImagePreviewModal';
@@ -12,7 +13,7 @@ import { MOCK_SPONSORS } from './data';
 export default function SponsorDetails() {
   const { id } = useParams();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [isArchived, setIsArchived] = useState(false);
+  const [archivedIds, setArchivedIds] = useLocalStorage<number[]>('ash:archived-sponsors', []);
 
   const sponsor = MOCK_SPONSORS[Number(id)];
 
@@ -33,6 +34,16 @@ export default function SponsorDetails() {
     } else {
       navigator.clipboard.writeText(window.location.href);
     }
+  };
+
+  const isArchived = archivedIds.includes(sponsor.id);
+
+  const handleToggleArchive = () => {
+    setArchivedIds(prev =>
+      prev.includes(sponsor.id)
+        ? prev.filter(archivedId => archivedId !== sponsor.id)
+        : [...prev, sponsor.id]
+    );
   };
 
   return (
@@ -57,7 +68,7 @@ export default function SponsorDetails() {
             onShare={handleShare}
             onImageClick={setSelectedImage}
             isArchived={isArchived}
-            onToggleArchive={() => setIsArchived(!isArchived)}
+            onToggleArchive={handleToggleArchive}
           />
 
           <div className="lg:col-span-2 space-y-6">
