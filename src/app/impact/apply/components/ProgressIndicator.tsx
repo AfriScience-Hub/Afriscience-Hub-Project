@@ -8,9 +8,9 @@ interface ProgressIndicatorProps {
 
 export default function ProgressIndicator({ currentStep }: ProgressIndicatorProps) {
   const steps = [
-    { step: 1, label: 'Select Cause' },
+    { step: 1, label: 'Select Program' },
     { step: 2, label: 'Review Requirements' },
-    { step: 3, label: 'Application Form' }
+    { step: 3, label: 'Application Form' },
   ];
 
   return (
@@ -24,22 +24,26 @@ export default function ProgressIndicator({ currentStep }: ProgressIndicatorProp
                   currentStep > item.step
                     ? 'bg-green-600 text-white'
                     : currentStep === item.step
-                    ? 'bg-brand-red-600 text-white'
-                    : 'bg-neutral-gray-light text-neutral-gray-medium'
+                      ? 'bg-brand-red-600 text-white'
+                      : 'bg-neutral-gray-light text-neutral-gray-medium'
                 }`}
               >
                 {currentStep > item.step ? <Check className="h-5 w-5" /> : item.step}
               </div>
-              <span className={`mt-2 text-xs font-medium text-center ${
-                currentStep >= item.step ? 'text-neutral-black' : 'text-neutral-gray-medium'
-              }`}>
+              <span
+                className={`mt-2 text-xs font-medium text-center ${
+                  currentStep >= item.step ? 'text-neutral-black' : 'text-neutral-gray-medium'
+                }`}
+              >
                 {item.label}
               </span>
             </div>
             {index < 2 && (
-              <div className={`h-1 flex-1 mx-2 ${
-                currentStep > item.step ? 'bg-green-600' : 'bg-neutral-gray-light'
-              }`} />
+              <div
+                className={`h-1 flex-1 mx-2 ${
+                  currentStep > item.step ? 'bg-green-600' : 'bg-neutral-gray-light'
+                }`}
+              />
             )}
           </div>
         ))}

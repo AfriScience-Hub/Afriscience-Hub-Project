@@ -1,92 +1,208 @@
-'use client';
+import type { ImpactProgram } from '@/app/data/impactData';
 
-export const CAUSE_DETAILS = {
-  'Borehole': {
-    description: 'Support communities in accessing clean water through borehole construction and maintenance.',
-    requirements: [
-      'Community population data and water needs assessment',
-      'Land ownership documentation or community consent letter',
-      'Proposed borehole location with coordinates',
-      'Maintenance plan and community commitment statement',
-      'Estimated cost breakdown and timeline'
+export interface ProgramDetails {
+  summary: string;
+  description: string;
+  eligibility: string[];
+  applicationRequirements: string[];
+  preApprovalRequirements?: string[];
+  disbursementRequirements?: string[];
+  approvalRequirements?: string[];
+  renewalRequirement?: string[];
+  honoraryAwardRequirements?: string[];
+  postCompletionRequirements: string[];
+  overallProgramImpact: string[];
+  undertaking: string;
+}
+
+export const PROGRAM_DETAILS: Record<ImpactProgram, ProgramDetails> = {
+  'Career Support': {
+    summary:
+      'Access entrepreneurial funding to start and grow your business as a graduate student of any science and technology field. Impact on your region by creating more employment opportunities.',
+    description:
+      'This program aims at financing the entrepreneurial journey of graduates (of science & technology), in their chosen career path. Our focus revolves around providing funding, creating investment opportunities and running mentorship programs to ensure entrepreneurial success of qualified graduates. Eligible graduates with strong entrepreneurial drive are invited to diligently follow through the application process for a chance to bring their career dreams to reality.',
+    eligibility: [
+      'Must be an African currently residing in an African country',
+      'Age requirement of 18 years minimum and 35 years maximum',
+      'Must be a tertiary graduate of any science or technology field from a recognized African tertiary academic institution',
+      'Minimum graduation CGPA of 3.0',
+      'Minimum of 3 years active work experience (or training) in chosen career',
+      'Career startup must be below 2 years (applicable to already existing startups only)',
+      'Must hold a majority ownership stake in the joint startup (for already existing joint startups only)',
+      'Startup budget proposal not exceeding $7,000 budget',
+      'Strong entrepreneurial drive of proprietor(s)',
+      'Good credit report status of proprietor(s)',
     ],
-    eligibility: 'Open to registered community groups, NGOs, and local government units in water-scarce areas.'
+    applicationRequirements: [
+      'Valid government issued ID card of proprietor(s)',
+      'Most recent degree certificate of proprietor(s)',
+      'Employment Letter/Training Certificate of proprietor(s)',
+      'Curriculum Vitae of proprietor(s)',
+      'Business plan summary',
+      'Estimated budget breakdown document',
+      'Facial images of proprietor(s)',
+    ],
+    preApprovalRequirements: [
+      'Business registration documents (for registered startups only)',
+      'License/Permit documents for proposed business (where applicable)',
+      'Skill verification/screening exercise',
+      'Two (2) reference letters for each proprietor',
+      'Bank reference letter of proprietor(s)',
+      'Statement of current personal debts of proprietor(s)',
+      'One (1) year personal bank statement of proprietor(s)',
+      'Tax related documents & KYC information of proprietor(s)',
+    ],
+    postCompletionRequirements: [
+      'Periodic evaluation of business operations, reports and documents (a mandatory requirement for secondary funding & investment opportunities)',
+    ],
+    overallProgramImpact: [
+      'Business funding',
+      'Market expansion opportunities',
+      'Secondary funding & investment opportunities (after 3 progressive business years)',
+      'Business mentorship schemes',
+      'Employment creation opportunities',
+    ],
+    undertaking:
+      'I understand the requirements of this program and confirm that I have all the necessary documents and information to complete this application. I also confirm that my organization and I meet the program’s eligibility criteria.',
   },
-  'Research Aid': {
-    description: 'Funding support for scientific research projects that advance knowledge and innovation in Africa.',
-    requirements: [
-      'Detailed research proposal with objectives and methodology',
-      'Research team credentials and institutional affiliation',
-      'Budget breakdown and justification',
-      'Expected outcomes and impact assessment',
-      'Timeline and milestones'
+  'Research Support': {
+    summary:
+      'Access research funding that supports African researchers (at different levels) towards conducting experimental findings that are scientifically and technologically relevant. Create an impact by contributing to scientific knowledge.',
+    description:
+      'This program aims at financing experimental findings by African researchers in different scientific and technological fields. Our focus primarily centers on providing support for research scopes that aim to: Tackle problems endemic to African regions; Explore African ecosystems; Discover practical applications of vast African resources; Contribute to global scientific and technological knowledge. Eligible African researchers with the zeal of using their scientific and technological knowledge to transform their communities are invited to apply for this program.',
+    eligibility: [
+      'Must be an African currently residing in an African country',
+      'Minimum age requirement of 18 years',
+      'Can either be an ‘Academic Researcher’ or an ‘Independent Researcher’',
+      'Research duration of 2 years max',
+      'Research budget not exceeding $1,500',
+      'Research must address at least one of the program scopes (endemic problems, ecosystems, African resources, or global knowledge contribution)',
     ],
-    eligibility: 'Open to researchers, institutions, and organizations conducting scientific research.'
+    applicationRequirements: [
+      'Valid government issued ID card of researcher(s)',
+      'Most recent degree certificate of researcher(s) where applicable',
+      'School registration details (for academic researchers only)',
+      'Minimum of seven (7) previous research publications (for independent researchers only)',
+      'Research proposal document',
+      'Research budget breakdown document',
+      'Facial images of researcher(s)',
+    ],
+    disbursementRequirements: [
+      'Periodic media and progress-report document submissions (information must align with research proposal objectives)',
+    ],
+    postCompletionRequirements: [
+      'Copy of complete research thesis (to be archived for researchers in AfriScience Hub’s digital library)',
+    ],
+    overallProgramImpact: [
+      'Research funding',
+      'Research collaboration & partnership opportunities',
+      'Recommendation of scientific & technological solutions to endemic problems',
+      'Knowledge of African resource(s) applications',
+      'Sensitization opportunities',
+      'Contribution to global scientific and technological knowledge',
+    ],
+    undertaking:
+      'I understand the requirements of this program and confirm that I have all the necessary documents and information to complete this application. I also confirm that I meet the program’s eligibility criteria.',
   },
-  'Education Support': {
-    description: 'Assistance for educational programs, scholarships, and infrastructure development.',
-    requirements: [
-      'Educational program details and target beneficiaries',
-      'Institution registration documents',
-      'Budget and fund utilization plan',
-      'Expected educational outcomes and impact metrics',
-      'Sustainability plan beyond funding period'
+  'Educational Scholarship': {
+    summary:
+      'Access educational funding as a tertiary student aspiring to obtain an academic degree in any science or technology field, from a recognized African tertiary institution. Invest in your intellectual capacity today, to make a difference tomorrow.',
+    description:
+      'This program aims at providing financial support to high-performing African tertiary students of science and technology that are struggling to finance their educational journey. Our focus is to assist these students absorb the financial stress that comes with their education, which may negatively affect their academic performance. Qualified students will be selected after an aptitude test screening, and will be required to maintain a certain performance-benchmark in order to continue benefiting from this scholarship program. Interested African tertiary students that are eligible for this scholarship program are invited to apply.',
+    eligibility: [
+      'Must be an African currently residing in an African country',
+      'Minimum age requirement of 18 years',
+      'Must be currently enrolled in a recognized African tertiary academic institution',
+      'Minimum CGPA score of 3.0 at the time of application',
     ],
-    eligibility: 'Open to schools, educational institutions, and registered education-focused NGOs.'
+    applicationRequirements: [
+      'Valid government issued ID card of applicant',
+      'School registration details of applicant',
+      'Most recent degree certificate of applicant (where applicable)',
+      'Current academic transcript of applicant',
+      'Facial image of applicant',
+    ],
+    approvalRequirements: [
+      'Aptitude test score of 80% and above',
+      'Current academic transcript of applicant',
+    ],
+    renewalRequirement: ['Annual CGPA score of 3.5 and above'],
+    honoraryAwardRequirements: [
+      'Final academic graduation with first class honors degree certification',
+      'Field specific assessment test score of 80% and above',
+    ],
+    postCompletionRequirements: [
+      'Maintain renewal CGPA benchmark where applicable',
+      'Submit academic progress evidence as requested by AfriScience Hub',
+    ],
+    overallProgramImpact: [
+      'Scholarship Funding (Undergraduates – $500 max. & Postgraduates – $700 max. annually)',
+      'Improved academic performance',
+      'Collaboration opportunities',
+      'AfriScience Hub’s first class honorary award',
+    ],
+    undertaking:
+      'I understand the requirements of this program and confirm that I have all the necessary documents and information to complete this application. I also confirm that I meet the program’s eligibility criteria.',
   },
-  'Health': {
-    description: 'Support for healthcare facilities, medical equipment, and health programs.',
-    requirements: [
-      'Healthcare facility registration and accreditation',
-      'Project proposal with specific health objectives',
-      'Beneficiary demographics and health needs assessment',
-      'Budget breakdown and procurement plan',
-      'Medical professional credentials and team composition'
-    ],
-    eligibility: 'Open to registered healthcare facilities, medical NGOs, and health departments.'
-  },
-  'Agriculture': {
-    description: 'Support for agricultural projects, farming equipment, and sustainable farming practices.',
-    requirements: [
-      'Farming project proposal with goals and methodology',
-      'Land ownership or lease documentation',
-      'Beneficiary farmer group details',
-      'Budget and resource allocation plan',
-      'Expected agricultural yields and economic impact'
-    ],
-    eligibility: 'Open to farmer groups, agricultural cooperatives, and agri-NGOs.'
-  },
-  'Renewable Energy': {
-    description: 'Funding for solar, wind, and other renewable energy projects.',
-    requirements: [
-      'Energy project proposal with technical specifications',
-      'Site assessment and energy needs analysis',
-      'Budget breakdown and equipment specifications',
-      'Installation and maintenance plan',
-      'Expected energy output and beneficiaries'
-    ],
-    eligibility: 'Open to communities, institutions, and organizations implementing clean energy solutions.'
-  },
-  'Technology Access': {
-    description: 'Support for technology infrastructure, digital literacy, and tech education programs.',
-    requirements: [
-      'Technology project proposal and objectives',
-      'Target beneficiaries and digital needs assessment',
-      'Equipment list and technical specifications',
-      'Training and capacity building plan',
-      'Sustainability and long-term management strategy'
-    ],
-    eligibility: 'Open to schools, community centers, tech hubs, and digital literacy organizations.'
-  },
-  'Infrastructure': {
-    description: 'Support for community infrastructure projects like roads, bridges, and public facilities.',
-    requirements: [
-      'Infrastructure project proposal with technical drawings',
-      'Community needs assessment and approval',
-      'Land documentation and permits',
-      'Detailed budget and construction timeline',
-      'Maintenance plan and community ownership model'
-    ],
-    eligibility: 'Open to communities, local governments, and infrastructure-focused NGOs.'
-  }
 };
+
+export const TITLES = ['Mr.', 'Ms.', 'Mrs.', 'Engr.', 'Dr.', 'Prof.'] as const;
+
+export const ID_CARD_TYPES = [
+  'National ID card',
+  "Driver’s License",
+  'International Passport',
+  'Other',
+] as const;
+
+export const INDUSTRIES = [
+  'Agriculture & AgriTech',
+  'Healthcare & Biomedical',
+  'Engineering & Manufacturing',
+  'ICT & Software',
+  'Energy & Environment',
+  'Education & EdTech',
+  'Food & Nutrition',
+  'Other',
+] as const;
+
+export const CUSTOMER_BASE_OPTIONS = ['None yet', '< 20', '< 50', '< 100', '> 100'] as const;
+
+export const GROWTH_PROJECTION_OPTIONS = ['+10', '+20', '+30', '+50', '> +50'] as const;
+
+export const FORM_UNDERTAKING =
+  'I confirm that all information provided are accurate, that all uploaded documents are valid, and that I accept the terms and conditions of this service.';
+
+export const RESEARCHER_IDENTITIES = ['Academic Researcher', 'Independent Researcher'] as const;
+
+export const ACADEMIC_RESEARCH_LEVELS = [
+  'Undergraduate Research',
+  'Masters Research',
+  'Doctoral Research',
+  'Postdoctoral Research',
+  'Other',
+] as const;
+
+export const INDEPENDENT_RESEARCH_LEVELS = [
+  'Basic Research',
+  'Intermediate Research',
+  'Advanced Research',
+  'Other',
+] as const;
+
+export const RESEARCH_DURATIONS = ['< 3 months', '< 6 months', '< 1 year', '< 2 years'] as const;
+
+export const RESEARCH_SCOPES = [
+  'Solve problem(s) endemic to an African region',
+  'Explore an African ecosystem',
+  'Discover practical applications of one or more African resource(s)',
+  'Contribute to global scientific and technological knowledge',
+  'Others',
+] as const;
+
+export const TEAM_ROLES = ['Co-researcher', 'Supervisor'] as const;
+
+export const SCHOLARSHIP_LEVELS = ['Undergraduate', 'Postgraduate'] as const;
+
+/** @deprecated use PROGRAM_DETAILS */
+export const CAUSE_DETAILS = PROGRAM_DETAILS;
