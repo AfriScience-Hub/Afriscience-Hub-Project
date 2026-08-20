@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Users } from 'lucide-react';
 import {
   FieldLabel,
   SectionCard,
@@ -23,7 +23,11 @@ export default function CoOwnersSection({
     onChange(value.map((c) => (c.id === id ? { ...c, ...patch } : c)));
 
   return (
-    <SectionCard title="Co-Owners | Secondary Proprietors">
+    <SectionCard
+      title="Co-Owners | Secondary Proprietors"
+      icon={<Users className="h-5 w-5 text-brand-red-600" />}
+      defaultOpen={false}
+    >
       <p className="text-sm text-neutral-gray-medium mb-4">
         Optional. Add co-owners if the startup has more than one proprietor.
       </p>

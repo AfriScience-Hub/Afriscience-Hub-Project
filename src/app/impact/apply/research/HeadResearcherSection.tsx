@@ -1,5 +1,6 @@
 'use client';
 
+import { User } from 'lucide-react';
 import {
   FieldLabel,
   SectionCard,
@@ -36,7 +37,11 @@ export default function HeadResearcherSection({
   const degreeDisabled = value.researchLevel === 'Undergraduate Research';
 
   return (
-    <SectionCard title="Your Information (Head Researcher)">
+    <SectionCard
+      title="Your Information (Head Researcher)"
+      icon={<User className="h-5 w-5 text-brand-red-600" />}
+      badge="Required"
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <FieldLabel required info="Select the appropriate title that best describes you.">

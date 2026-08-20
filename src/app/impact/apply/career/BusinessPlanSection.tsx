@@ -1,5 +1,6 @@
 'use client';
 
+import { ClipboardList } from 'lucide-react';
 import {
   FieldLabel,
   SectionCard,
@@ -26,7 +27,12 @@ export default function BusinessPlanSection({
   const words = wordCount(value.description);
 
   return (
-    <SectionCard title="Business Plan Summary">
+    <SectionCard
+      title="Business Plan Summary"
+      icon={<ClipboardList className="h-5 w-5 text-brand-red-600" />}
+      badge="Required"
+      defaultOpen={false}
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <FieldLabel

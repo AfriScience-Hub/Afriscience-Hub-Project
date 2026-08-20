@@ -1,5 +1,6 @@
 'use client';
 
+import { User } from 'lucide-react';
 import {
   FieldLabel,
   SectionCard,
@@ -19,7 +20,11 @@ export default function ApplicantSection({
   onChange: (v: ScholarshipFormState['applicant']) => void;
 }) {
   return (
-    <SectionCard title="Your Information (Beneficiary)">
+    <SectionCard
+      title="Your Information (Beneficiary)"
+      icon={<User className="h-5 w-5 text-brand-red-600" />}
+      badge="Required"
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <FieldLabel required>Title</FieldLabel>

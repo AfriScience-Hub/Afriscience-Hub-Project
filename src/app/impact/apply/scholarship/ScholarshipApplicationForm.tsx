@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Target, ImageIcon } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { toast } from 'sonner';
 import {
@@ -107,7 +107,12 @@ export default function ScholarshipApplicationForm({
         onChange={(school) => setForm((f) => ({ ...f, school }))}
       />
 
-      <SectionCard title="Impact Assessment">
+      <SectionCard
+        title="Impact Assessment"
+        icon={<Target className="h-5 w-5 text-brand-red-600" />}
+        badge="Required"
+        defaultOpen={false}
+      >
         <div className="space-y-4">
           <MultiStringList
             label="Problems before Scholarship Intervention"
@@ -144,7 +149,11 @@ export default function ScholarshipApplicationForm({
         </div>
       </SectionCard>
 
-      <SectionCard title="Media Gallery">
+      <SectionCard
+        title="Media Gallery"
+        icon={<ImageIcon className="h-5 w-5 text-brand-red-600" />}
+        defaultOpen={false}
+      >
         <div className="grid gap-6">
           <MediaGroupUpload
             label="Screening Exercise"

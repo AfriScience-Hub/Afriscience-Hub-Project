@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Users } from 'lucide-react';
 import {
   FieldLabel,
   SectionCard,
@@ -23,7 +23,11 @@ export default function TeamMembersSection({
     onChange(value.map((m) => (m.id === id ? { ...m, ...patch } : m)));
 
   return (
-    <SectionCard title="Research Team Members">
+    <SectionCard
+      title="Research Team Members"
+      icon={<Users className="h-5 w-5 text-brand-red-600" />}
+      defaultOpen={false}
+    >
       <p className="text-sm text-neutral-gray-medium mb-4">
         Add co-researchers and supervisors. A Supervisor is added by default for Academic
         Researchers.

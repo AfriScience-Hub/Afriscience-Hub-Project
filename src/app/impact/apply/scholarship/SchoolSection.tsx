@@ -1,5 +1,6 @@
 'use client';
 
+import { GraduationCap } from 'lucide-react';
 import { AFRICAN_COUNTRIES } from '@/app/data/mockData';
 import { COUNTRY_STATES } from '@/app/support/volunteer/data';
 import {
@@ -22,7 +23,12 @@ export default function SchoolSection({
   const states = value.country ? COUNTRY_STATES[value.country] || [] : [];
 
   return (
-    <SectionCard title="School Registration Details">
+    <SectionCard
+      title="School Registration Details"
+      icon={<GraduationCap className="h-5 w-5 text-brand-red-600" />}
+      badge="Required"
+      defaultOpen={false}
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <FieldLabel required>Scholarship Level</FieldLabel>

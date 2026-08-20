@@ -1,5 +1,6 @@
 'use client';
 
+import { Target, Link2, ImageIcon } from 'lucide-react';
 import {
   FieldLabel,
   SectionCard,
@@ -28,7 +29,12 @@ export default function ResearchImpactMediaSection({
 
   return (
     <>
-      <SectionCard title="Impact Assessment">
+      <SectionCard
+        title="Impact Assessment"
+        icon={<Target className="h-5 w-5 text-brand-red-600" />}
+        badge="Required"
+        defaultOpen={false}
+      >
         <div className="mb-4">
           <FieldLabel required>Research Aim</FieldLabel>
           <TextArea
@@ -88,7 +94,11 @@ export default function ResearchImpactMediaSection({
         </div>
       </SectionCard>
 
-      <SectionCard title="Publication Links">
+      <SectionCard
+        title="Publication Links"
+        icon={<Link2 className="h-5 w-5 text-brand-red-600" />}
+        defaultOpen={false}
+      >
         <p className="text-xs text-neutral-gray-medium mb-3">
           To be provided after the research is published. Multiple entries allowed.
         </p>
@@ -100,7 +110,11 @@ export default function ResearchImpactMediaSection({
         />
       </SectionCard>
 
-      <SectionCard title="Media Gallery">
+      <SectionCard
+        title="Media Gallery"
+        icon={<ImageIcon className="h-5 w-5 text-brand-red-600" />}
+        defaultOpen={false}
+      >
         <div className="grid gap-6">
           <MediaGroupUpload
             label="Materials Acquisition"

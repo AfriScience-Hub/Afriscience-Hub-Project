@@ -48,14 +48,27 @@ export default function ImpactBreakdown({ story }: { story: ImpactStory }) {
   const sections = buildSections(story);
   if (!sections.length) return null;
 
+  const bgColors = [
+    'bg-blue-50',
+    'bg-purple-50',
+    'bg-green-50',
+    'bg-amber-50',
+    'bg-rose-50',
+    'bg-teal-50',
+    'bg-indigo-50',
+    'bg-orange-50',
+    'bg-cyan-50',
+    'bg-pink-50',
+  ];
+
   return (
     <div className="p-6 sm:p-8 border-b border-neutral-gray-light">
       <h2 className="text-xl font-bold text-neutral-black mb-5">Impact Breakdown</h2>
       <div className="space-y-4">
-        {sections.map((section) => (
+        {sections.map((section, i) => (
           <div
             key={section.title}
-            className="rounded-xl border border-neutral-gray-light bg-neutral-bg-light/40 p-4 sm:p-5"
+            className={`rounded-xl p-4 sm:p-5 ${bgColors[i % bgColors.length]}`}
           >
             <h3 className="font-bold text-neutral-black mb-2">{section.title}</h3>
             {section.text && (

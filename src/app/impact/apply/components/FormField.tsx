@@ -27,22 +27,7 @@ export function FieldLabel({
   );
 }
 
-export function SectionCard({
-  title,
-  children,
-  className,
-}: {
-  title: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <section className={cn('mb-8 pb-8 border-b border-neutral-gray-light last:border-0 last:mb-0 last:pb-0', className)}>
-      <h3 className="text-lg font-bold text-neutral-black mb-4">{title}</h3>
-      {children}
-    </section>
-  );
-}
+export { default as SectionCard } from './CollapsibleSection';
 
 export function TextInput({
   className,

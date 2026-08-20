@@ -129,13 +129,54 @@ export const IMPACT_STATUSES: ImpactStatus[] = ['Active', 'Concluded'];
 export const IMPACT_COUNTRIES = [...AFRICAN_COUNTRIES];
 export const IMPACT_YEARS = ['2026', '2025', '2024', '2023', '2022', '2021', '2020'];
 
-/** Stable dummy images (placehold.co — reliable for Next/Image). */
-const img = (label: string, w = 800, h = 600) =>
-  `https://placehold.co/${w}x${h}/0f172a/e2e8f0/png?text=${encodeURIComponent(label)}`;
-const face = (label: string) =>
-  `https://placehold.co/400x400/1e293b/f8fafc/png?text=${encodeURIComponent(label)}`;
+/** Stable dummy images — real Unsplash photos for impact cards */
+const IMPACT_IMAGES: Record<string, string> = {
+  'Business DP':
+    'https://images.unsplash.com/photo-1621062089461-01f1eaebb66c?auto=format&fit=crop&q=80&w=800',
+  'MedFix Hub':
+    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800',
+  'Research Lab':
+    'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800',
+  'Field Trials':
+    'https://images.unsplash.com/photo-1677126577258-1a82fdf1a976?auto=format&fit=crop&q=80&w=800',
+  Scholarship:
+    'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=800',
+  Graduate:
+    'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=800',
+};
+
+/** Face portraits for people sections */
+const IMPACT_FACES: Record<string, string> = {
+  'Tunde A': 'https://images.unsplash.com/photo-1537511446984-935f663eb1f4?auto=format&fit=crop&q=80&w=400',
+  'Chioma O': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400',
+  'Kwame B': 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=400',
+  'Amara O': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400',
+  'James W': 'https://images.unsplash.com/photo-1537511446984-935f663eb1f4?auto=format&fit=crop&q=80&w=400',
+  'Amina Y': 'https://images.unsplash.com/photo-1621062089461-01f1eaebb66c?auto=format&fit=crop&q=80&w=400',
+  'Fatima M': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400',
+  'Hana B': 'https://images.unsplash.com/photo-1621062089461-01f1eaebb66c?auto=format&fit=crop&q=80&w=400',
+  'Thabo N': 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=400',
+};
+
+/** Media/gallery images */
+const IMPACT_MEDIA: Record<string, string> = {
+  Complete: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=600',
+  Survey: 'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&q=80&w=600',
+  Setup: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=600',
+  Done: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=600',
+  Field: 'https://images.unsplash.com/photo-1677126577258-1a82fdf1a976?auto=format&fit=crop&q=80&w=600',
+  Lab: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=600',
+  Analysis: 'https://images.unsplash.com/photo-1671917057421-677f9cd99721?auto=format&fit=crop&q=80&w=600',
+  Results: 'https://images.unsplash.com/photo-1717934444759-41d4794edcca?auto=format&fit=crop&q=80&w=600',
+  Screening: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=600',
+  Ceremony: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=600',
+  Graduation: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=600',
+};
+
+const img = (label: string) => IMPACT_IMAGES[label] || `https://placehold.co/800x600/0f172a/e2e8f0/png?text=${encodeURIComponent(label)}`;
+const face = (label: string) => IMPACT_FACES[label] || `https://placehold.co/400x400/1e293b/f8fafc/png?text=${encodeURIComponent(label)}`;
 const media = (label: string, caption: string): MediaItem => ({
-  url: `https://placehold.co/600x400/334155/f1f5f9/png?text=${encodeURIComponent(label)}`,
+  url: IMPACT_MEDIA[label] || `https://placehold.co/600x400/334155/f1f5f9/png?text=${encodeURIComponent(label)}`,
   caption,
 });
 

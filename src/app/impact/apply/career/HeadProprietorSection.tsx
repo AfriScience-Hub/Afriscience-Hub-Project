@@ -1,5 +1,6 @@
 'use client';
 
+import { User } from 'lucide-react';
 import {
   FieldLabel,
   SectionCard,
@@ -19,7 +20,11 @@ export default function HeadProprietorSection({
   onChange: (v: CareerFormState['head']) => void;
 }) {
   return (
-    <SectionCard title="Your Information (Head Proprietor)">
+    <SectionCard
+      title="Your Information (Head Proprietor)"
+      icon={<User className="h-5 w-5 text-brand-red-600" />}
+      badge="Required"
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <FieldLabel required info="Select the appropriate title that best describes you.">

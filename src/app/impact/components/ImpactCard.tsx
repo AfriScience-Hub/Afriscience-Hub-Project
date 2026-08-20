@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Eye, MapPin, Users, DollarSign } from 'lucide-react';
+import { Eye, MapPin, Users, DollarSign, Share2, Archive } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   type ImpactStory,
   formatImpactLocation,
@@ -24,6 +25,11 @@ export default function ImpactCard({ story, onPreview }: ImpactCardProps) {
   const badge = getDpBadgeLabel(story);
   const isActive = story.status === 'Active';
 
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.origin + '/impact/' + story.id);
+    toast.success('Link copied!');
+  };
+
   return (
     <div className="rounded-2xl border border-neutral-gray-light bg-white shadow-sm hover:shadow-md hover:border-brand-red-200 transition-all duration-300 overflow-hidden group">
       <div className="relative h-48 bg-neutral-bg-light overflow-hidden">
@@ -42,6 +48,23 @@ export default function ImpactCard({ story, onPreview }: ImpactCardProps) {
         >
           <Eye className="h-4 w-4 text-white" />
         </button>
+
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+          <button
+            onClick={(e) => { e.stopPropagation(); handleShare(); }}
+            className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 p-1.5 text-neutral-black shadow-sm backdrop-blur-sm hover:bg-white transition-colors cursor-pointer"
+            title="Share"
+          >
+            <Share2 className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center justify-center h-7 w-7 rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white transition-colors cursor-pointer"
+            title="Archive"
+          >
+            <Archive className="h-3.5 w-3.5" />
+          </button>
+        </div>
 
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-3 pb-3 pt-10">
           <div className="flex items-end justify-between gap-2">
@@ -98,7 +121,7 @@ export default function ImpactCard({ story, onPreview }: ImpactCardProps) {
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <span className="inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-brand-navy-900/10 text-brand-navy-900 line-clamp-1">
+          <span className="inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 line-clamp-1">
             {story.program}
           </span>
           <Link href={`/impact/${story.id}`}>

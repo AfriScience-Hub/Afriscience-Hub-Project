@@ -1,5 +1,6 @@
 'use client';
 
+import { FlaskConical } from 'lucide-react';
 import { AFRICAN_COUNTRIES } from '@/app/data/mockData';
 import { COUNTRY_STATES } from '@/app/support/volunteer/data';
 import {
@@ -43,7 +44,12 @@ export default function ResearchInfoSection({
   };
 
   return (
-    <SectionCard title="Research Information">
+    <SectionCard
+      title="Research Information"
+      icon={<FlaskConical className="h-5 w-5 text-brand-red-600" />}
+      badge="Required"
+      defaultOpen={false}
+    >
       <div className="grid gap-4 sm:grid-cols-2 mb-4">
         <div>
           <FieldLabel>Research Category</FieldLabel>
