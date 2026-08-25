@@ -1,6 +1,6 @@
 'use client';
 
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, Plus } from 'lucide-react';
 import {
   FieldLabel,
   SectionCard,
@@ -196,7 +196,7 @@ export default function BusinessPlanSection({
           ))}
           <button
             type="button"
-            className="text-xs font-bold text-brand-navy-900 hover:underline"
+            className="flex items-center gap-1 rounded-lg bg-brand-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-red-700 transition-colors"
             onClick={() =>
               onChange({
                 ...value,
@@ -204,7 +204,7 @@ export default function BusinessPlanSection({
               })
             }
           >
-            + Add competitor
+            <Plus className="h-4 w-4" /> Add competitor
           </button>
         </div>
       </div>
@@ -336,7 +336,7 @@ export default function BusinessPlanSection({
           ))}
           <button
             type="button"
-            className="text-xs font-bold text-brand-navy-900 hover:underline"
+            className="flex items-center gap-1 rounded-lg bg-brand-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-red-700 transition-colors"
             onClick={() =>
               onChange({
                 ...value,
@@ -347,7 +347,7 @@ export default function BusinessPlanSection({
               })
             }
           >
-            + Add bank
+            <Plus className="h-4 w-4" /> Add bank
           </button>
         </div>
       </div>
@@ -427,7 +427,7 @@ export default function BusinessPlanSection({
           ))}
           <button
             type="button"
-            className="text-xs font-bold text-brand-navy-900 hover:underline"
+            className="flex items-center gap-1 rounded-lg bg-brand-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-red-700 transition-colors"
             onClick={() =>
               onChange({
                 ...value,
@@ -444,7 +444,7 @@ export default function BusinessPlanSection({
               })
             }
           >
-            + Add liability
+            <Plus className="h-4 w-4" /> Add liability
           </button>
         </div>
       </div>
@@ -492,7 +492,7 @@ export default function BusinessPlanSection({
           ))}
           <button
             type="button"
-            className="text-xs font-bold text-brand-navy-900 hover:underline"
+            className="flex items-center gap-1 rounded-lg bg-brand-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-red-700 transition-colors"
             onClick={() =>
               onChange({
                 ...value,
@@ -500,7 +500,7 @@ export default function BusinessPlanSection({
               })
             }
           >
-            + Add risk
+            <Plus className="h-4 w-4" /> Add risk
           </button>
         </div>
       </div>

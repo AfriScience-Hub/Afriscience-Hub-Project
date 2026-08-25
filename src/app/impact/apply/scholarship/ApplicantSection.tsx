@@ -10,6 +10,7 @@ import {
   SocialHandlesFields,
 } from '../components/FormField';
 import { TITLES, ID_CARD_TYPES } from '../data';
+import { ACADEMIC_LEVELS } from './types';
 import type { ScholarshipFormState } from './types';
 
 export default function ApplicantSection({
@@ -27,7 +28,9 @@ export default function ApplicantSection({
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <FieldLabel required>Title</FieldLabel>
+          <FieldLabel required>
+            Title
+          </FieldLabel>
           <SelectInput
             value={value.title}
             onChange={(e) => onChange({ ...value, title: e.target.value })}
@@ -72,6 +75,30 @@ export default function ApplicantSection({
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div>
+          <FieldLabel required>Academic Level</FieldLabel>
+          <SelectInput
+            value={value.academicLevel}
+            onChange={(e) => onChange({ ...value, academicLevel: e.target.value, academicLevelOther: '' })}
+            required
+          >
+            <option value="">Select Level</option>
+            {ACADEMIC_LEVELS.map((l) => (
+              <option key={l} value={l}>
+                {l}
+              </option>
+            ))}
+          </SelectInput>
+          {value.academicLevel === 'Other' && (
+            <TextInput
+              className="mt-2"
+              placeholder="Specify your academic level"
+              value={value.academicLevelOther}
+              onChange={(e) => onChange({ ...value, academicLevelOther: e.target.value })}
+              required
+            />
+          )}
+        </div>
         <FileUpload
           label="Display Image"
           required
@@ -80,14 +107,6 @@ export default function ApplicantSection({
           file={value.displayImage}
           onChange={(f) => onChange({ ...value, displayImage: f })}
           onClear={() => onChange({ ...value, displayImage: null })}
-        />
-        <FileUpload
-          label="Current Academic Transcript"
-          required
-          accept="image/*,.pdf"
-          file={value.academicTranscript}
-          onChange={(f) => onChange({ ...value, academicTranscript: f })}
-          onClear={() => onChange({ ...value, academicTranscript: null })}
         />
         <div>
           <FieldLabel required>Government ID Card Type</FieldLabel>
@@ -127,6 +146,7 @@ export default function ApplicantSection({
           label="Upload ID Card"
           required
           accept="image/*"
+          hint="To verify your identity. Documents are securely stored."
           file={value.idCard.file}
           onChange={(f) =>
             onChange({

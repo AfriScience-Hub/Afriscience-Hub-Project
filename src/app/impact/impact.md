@@ -22,7 +22,7 @@
 | OWNER’S INFORMATION | Display the following:DP of Owners (facial image only)Name (with appropriate title)Social Handles (LinkedIn, Twitter, Instagram, Facebook) |  |  |  |
 | IMPACT SUMMARY | Display impact summary |  | to be written by AfriScience Hub team for every impact |  |
 | THE STORY | Display impact story |  | to be collected from applicant via the form and can be reviewed/edited by AfriScience Hub team before publication |  |
-| IMPACT BREAKDOWN | Display the following:Career PathCareer Objectives (in bullet points)Career Requirements (in bullet points)Protocols Funded by AfriScience Hub (in bullet points)Expected Career Impacts (in bullet points) |  | entries for “Protocols Funded by AfriScience Hub” will provided by AfriScience Hub |  |
+| IMPACT BREAKDOWN | Display the following:Career PathCareer Objectives (in bullet points)Career Requirements (in bullet points)Protocols Funded by AfriScience Hub (in bullet points)Expected Career Impacts (in bullet points)The Story |  | entries for “Protocols Funded by AfriScience Hub” will provided by AfriScience Hub |  |
 | TIMELINE | Display the following:Career Proposal & Verification (in bullet points)Business & Market Survey (in bullet points)Funding & Setup (in bullet points)Project Completion (in bullet points) |  | to be written by AfriScience Hub team as program progresses |  |
 | MEDIA GALLERY | Arrange media in the following group:Business & Market SurveyFunding & SetupProject Completion |  | to be collected as program progresses |  |
 | RESEARCH SUPPORT | TITLE | Display the following:DP (image of research setup)Share buttonProgramResearch TitleLocation (Region/State & Country)Year |  | DP (image of research setup) will be collected as program progresses |
@@ -30,7 +30,7 @@
 | RESEARCHER’S INFORMATION | Display the following:DP of Researchers (facial image only)Name (with appropriate title)Research RoleSocial Handles (LinkedIn, Twitter, Instagram, Facebook) |  |  |  |
 | IMPACT SUMMARY | Display impact summary |  | to be written by AfriScience Hub team for every impact |  |
 | THE STORY | Display impact story |  | to be collected from applicant via the form and can be reviewed/edited by AfriScience Hub team before publication |  |
-| IMPACT BREAKDOWN | Display the following:Research TitleResearch AimResearch Objectives (in bullet points)Expected Outcomes (in bullet points)Sampling & Collection (in bullet points)Research Materials (in bullet points)Analytical Procedures (in bullet points)Protocols Funded by AfriScience Hub (in bullet points)Result Interpretation (in bullet points)Research SummaryPossible Research-Impact Areas (in bullet points) |  | entries for “Protocols Funded by AfriScience Hub” will provided by AfriScience Hubentries for “Result Interpretations”, “Research Summary” and “Possible Research Impact Areas” will be collected as program progresses |  |
+| IMPACT BREAKDOWN | Display the following:Research TitleResearch AimResearch Objectives (in bullet points)Expected Outcomes (in bullet points)Sampling & Collection (in bullet points)Research Materials (in bullet points)Analytical Procedures (in bullet points)Protocols Funded by AfriScience Hub (in bullet points)Result Interpretation (in bullet points)Research SummaryPossible Research-Impact Areas (in bullet points)The Story |  | entries for “Protocols Funded by AfriScience Hub” will provided by AfriScience Hubentries for “Result Interpretations”, “Research Summary” and “Possible Research Impact Areas” will be collected as program progresses |  |
 | TIMELINE | Display the following:Research Proposal & Verification (in bullet points)Research Materials Acquisition (in bullet points)Sample Collection & Analysis (in bullet points)Result Interpretations & Statistical Representations (in bullet points)Publication (in bullet points) |  | to be written by AfriScience Hub team |  |
 | PUBLICATION LINKS | Display the links of the different sites where the research thesis were published |  |  |  |
 | MEDIA GALLERY | Arrange media in the following group:Materials AcquisitionSample CollectionSetup & ExperimentationProject Completion |  | to be collected as program progresses |  |
@@ -39,9 +39,9 @@
 | BENEFICIARY’S INFORMATION | Display the following:DP of Beneficiary (facial image only)Name (with appropriate title)Social Handles (LinkedIn, Twitter, Instagram, Facebook) |  |  |  |
 | IMPACT SUMMARY | Display impact summary |  | to be written by AfriScience Hub team for every impact |  |
 | THE STORY | Display impact story |  | to be collected from applicant via the form and can be reviewed/edited by AfriScience Hub team before publication |  |
-| IMPACT BREAKDOWN | Display the following:Problems before Scholarship Intervention (in bullet points)Proposed funding by AfriScience Hub (in bullet points)Expected Annual Outcome (in bullet points)Outcome After Intervention (in bullet points) |  | entries for “Proposed Funding by AfriScience Hub” will provided by AfriScience Hubentries for “Outcome After Intervention” will be collected as program progresses |  |
+| IMPACT BREAKDOWN | Display the following:Problems before Scholarship Intervention (in bullet points)Proposed funding by AfriScience Hub (in bullet points)Expected Annual Outcome (in bullet points)Outcome After Intervention (in bullet points)The Story |  | entries for “Proposed Funding by AfriScience Hub” will provided by AfriScience Hubentries for “Outcome After Intervention” will be collected at the end of the program |  |
 | TIMELINE | Display the following:Scholarship Proposal & Verification (in bullet points)Annual Clearance & Funding (in bullet points)Project Completion (in bullet points) |  | to be written by AfriScience Hub team |  |
-| MEDIA GALLERY | Arrange media in the following group:Screening ExerciseClearance & FundingProject Completion |  | to be collected as program progresses |  |
+| MEDIA GALLERY | Arrange media in the following group:Screening ExerciseAward CeremonyClearance & FundingProject Completion |  | to be collected as program progresses |  |
 
 **1.2 APPLY FOR AID – CAREER SUPPORT**
 
@@ -111,6 +111,7 @@
 | CAREER OBJECTIVES | Input Career objectives | Mention the goals that your chosen entrepreneurial career will help you achieve. | multiple entries are allowed |  |
 | CAREER REQUIREMENTS | Input Career requirements | List all the tangible needs of your chosen career in specific terms (e.g. sewing machine, office space, PC, oven, etc.). | multiple entries are allowed |  |
 | EXPECTED CAREER IMPACTS | Input Career impacts | Mention all possible impacts that your chosen entrepreneurial career is expected to cause. | multiple entries are allowed |  |
+| THE STORY | Enter “Story” | Give a detailed background story, highlighting the events and circumstances that surrounds your career ideation and journey | 1000 words max. |  |
 | MEDIA GALLERY | BUSINESS & MARKET SURVEY | Upload Media |  | to be collected as program progresses5 uploads (max.) for each media grouppicture and video file formats only |
 | FUNDING & SETUP | Upload Media |  |  |  |
 | PROJECT COMPLETION | Upload Media |  |  |  |
@@ -176,6 +177,7 @@
 | RESULT INTEPRETATIONS |  | Enter “Interpretation” |  | Give short explanatory notes for the results obtained from the research |  | to be provided at the end of the researchmultiple entries are allowed |  |
 | RESEARCH SUMMARY |  | Enter “Summary” |  |  |  | to be provided at the end of the research200 words max. |  |
 | POSSIBLE RESEARCH-IMPACT AREAS |  | Input “Impact Areas” |  | Mention the applicable uses of your research findings. |  | to be provided at the end of the researchmultiple entries are allowed |  |
+| THE STORY |  | Enter “Story” |  | Give a detailed background story, highlighting the events and circumstances that surrounds your research ideation and journey |  | 1000 words max. |  |
 | PUBLICATION LINKS | LINKS |  | Input “Link” |  |  |  | to be provided at the end of the research and after it has been publishedmultiple entries are allowed |
 | MEDIA GALLERY | MATERIALS ACQUISITION |  | Upload Media |  |  |  | to be collected as program progresses5 uploads (max.) for each media grouppicture and video file formats only |
 | SAMPLE COLLECTION |  | Upload Media |  |  |  |  |  |
@@ -188,11 +190,54 @@
 | SECTION | HEADINGS | CONTENT / DESCRIPTION | INFO (i) | NOTES |
 | --- | --- | --- | --- | --- |
 | SELECT PROGRAM | SUMMARY | Access educational funding as a tertiary student aspiring to obtain an academic degree in any science or technology field, from a recognized African tertiary institution. Invest in your intellectual capacity today, to make a difference tomorrow. |  |  |
-| REVIEW REQUIREMENTS | DESCRIPTION | This program aims at providing financial support to high-performing African tertiary students of science and technology that are struggling to finance their educational journey. Our focus is to assist these students absorb the financial stress that comes with their education, which may negatively affect their academic performance. Qualified students will be selected after an aptitude test screening, and will be required to maintain a certain performance-benchmark in order to continue benefiting from this scholarship program. Interested African tertiary students that are eligible for this scholarship program are invited to apply. |  |  |
-| ELIGIBILITY | Must be an African currently residing in an African country.Minimum age requirement of 18 years.Must be currently enrolled in a recognized African tertiary academic institutionMinimum CGPA score of 3.0 at the time of application |  |  |  |
+| REVIEW REQUIREMENTS | DESCRIPTION | This program aims at providing financial support to high-performing African tertiary students of science and technology that are struggling to finance their educational journey. Our focus is to assist these students absorb the financial stress that comes with their education, which may negatively affect their academic performance. Qualified students will be selected after an aptitude/achievement test screening, and will be required to maintain a certain performance-benchmark in order to continue benefiting from this scholarship program. Interested African tertiary students that are eligible for this scholarship program are invited to apply. |  |  |
+| ELIGIBILITY | Must be an African currently residing in an African country.Must provide the details of at least one (1) guardianMust be currently enrolled in a recognized African tertiary academic institutionMinimum CGPA score of 3.0 at the time of application |  |  |  |
 | REGISTRATION REQUIREMENTS | Valid government issued ID card of applicantSchool registration details of applicantMost recent degree certificate of applicant (where applicable)Current academic transcript of applicantFacial image of applicant |  |  |  |
-| APPROVAL REQUIREMENTS | Aptitude test score of 80% and aboveCurrent academic transcript of applicant |  |  |  |
+| APPROVAL REQUIREMENTS | Aptitude/achievement test score of 80% and aboveCurrent academic transcript of applicant |  |  |  |
 | RENEWAL REQUIREMENT | Annual CGPA score of 3.5 and above |  |  |  |
 | AFRISCIENCE HUB’s COMPLETION HONORARY AWARD REQUIREMENT | Final academic graduation with first class honors degree certificationField specific assessment test score of 80% and above |  |  |  |
 | OVERALL PROGRAM IMPACT | Scholarship Funding (Undergraduates – $500 max. & Postgraduates – $700 max. annually)Improved academic performanceCollaboration opportunitiesAfriScience Hub’s first class honorary award |  |  |  |
 | UNDERTAKING STATEMENT | I understand the requirements of this program and confirm that I have all the necessary documents and information to complete this application. I also confirm that I meet the program’s eligibility criteria. |  | undertaking statement box must be checked before user can proceed |  |
+
+**1.4.1 EDUCATIONAL SCHOLARSHIP – APPLICATION FORM**
+
+| SECTION | HEADINGS | CONTENT / DESCRIPTION |  | INFO (i) |  | NOTES |  |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| YOUR INFORMATION (BENEFICIARY) | TITLE | Select Title:Mr.Ms.Mrs.Engr.Dr.Prof. |  | Select the appropriate title that best describes you. |  | 1 selection max. |  |
+| NAME | Display name |  |  |  | automatically filled by platform |  |  |
+| ID TAG | Display ID Tag |  |  |  | automatically filled by platform |  |  |
+| PHONE NUMBER | Enter phone number |  |  |  |  |  |  |
+| E-MAIL | Display E-mail address |  |  |  | automatically filled by platform |  |  |
+| SOCIAL HANDLES | Input Handles:LinkedInInstagramTwitterFacebook |  |  |  | provide at least one |  |  |
+| DISPLAY IMAGE | Upload display image |  | Upload your facial image only. |  | picture/image file formats only |  |  |
+| ACADEMIC LEVEL | Select “Level”UndergraduateMastersDoctoralOther |  | Select your current academic program level. |  | 1 selection max.when “Other” is selected, the user should specify |  |  |
+| GOVERNMENT ID CARD | Select ID card typeNational ID cardDriver’s LicenseInternational PassportOtherUpload ID card |  | To verify your identity, kindly upload a copy of the selected ID card. Uploaded documents are securely stored and protected from unauthorized access. |  | picture/image file formats onlywhen “Other” is selected, the user should specify |  |  |
+| DEGREE CERTIFICATE | Upload Certificate |  | To verify your academic portfolio, kindly upload a copy of your most recent academic degree certificate. Uploaded documents are securely stored and protected from unauthorized access. |  | picture/image file formats onlydeactivate this function when “Undergraduate” is selected as a “Academic Level” |  |  |
+| GUARDIAN’S INFORMATION | TITLE | Select Title:Mr.Ms.Mrs.Engr.Dr.Prof. |  | Select the appropriate title that best describes your guardian. |  | 1 selection max. |  |
+| NAME | Enter name |  |  |  |  |  |  |
+| PHONE NUMBER | Enter phone number |  |  |  |  |  |  |
+| E-MAIL | Enter E-mail address |  |  |  |  |  |  |
+| SOCIAL HANDLES | Input Handles:LinkedInInstagramTwitterFacebook |  |  |  | provide at least one |  |  |
+| DISPLAY IMAGE | Upload display image |  | Upload your facial image only. |  | picture/image file formats only |  |  |
+| GOVERNMENT ID CARD | Select ID card typeNational ID cardDriver’s LicenseInternational PassportOtherUpload ID card |  | To verify your identity, kindly upload a copy of the selected ID card. Uploaded documents are securely stored and protected from unauthorized access. |  | picture/image file formats onlywhen “Other” is selected, the user should specify |  |  |
+| Introduce “ADD” button to add more “Guardians”2 guardians max. |  |  |  |  |  |  |  |
+| ACADEMIC INFORMATION | SCHOLARSHIP LEVEL |  | Display “Level” automatically |  |  |  | display the same selection as “Academic Level’ made by beneficiaryif beneficiary selected “Other” as “Academic Level”, display the entry he/she made as “Other”Add “Scholarship” at the end of the display (e.g. Undergraduate Scholarship) |
+| ACADEMIC YEAR |  | Select “Year”Undergraduate1st year2nd year3rd year4th year5th year6th yearMasters1st year2nd year3rd yearDoctorate1st year2nd year3rd year4th yearOther1st year2nd year3rd year4th year5th year6th year |  |  |  | display “Year” based on selected “Academic Level” by beneficiary1 selection max. |  |
+| MATRICULATION/REGISTRATION NUMBER |  | Input “Number” |  |  |  |  |  |
+| DEPARTMENT NAME |  | Input “Department” |  |  |  |  |  |
+| CURRENT CGPA |  | Input “CGPA” |  |  |  |  |  |
+| NAME OF INSTITUTION |  | Input “Institution” |  |  |  |  |  |
+| ADDRESS OF INSTITUTION |  | Input “Address” |  |  |  |  |  |
+| COUNTRY |  | Select “Country” |  |  |  | populate the list of all African “Countries” |  |
+| STATE/REGION |  | Select State/Region |  |  |  | populate the list of all “States/Regions” of all African countries |  |
+| SCHOOL ID CARD |  | Upload “ School ID card” |  |  |  | picture/image file formats only |  |
+| TRANSCRIPT |  | Upload “Transcript” |  | To validate your academic performance, kindly upload a copy of your current transcript. Uploaded documents are securely stored and protected from unauthorized access. |  | image & text file formats only |  |
+| IMPACT ASSESSMENT | PROBLEMS ENCOUNTERED |  | Enter “Problems” |  | Mention the specific challenges you’re currently experiencing in your academic journey |  |  |
+| EXPECTED OUTCOME |  | Enter “Expected Outcomes” |  | What end-results are you hoping to achieve in your academic journey with this scholarship program? |  | multiple entries are allowed |  |
+| OUTCOMES AFTER INTERVENTION |  | Enter “Outcomes” |  | What were the actual results that were achieved with this scholarship intervention? |  | to be provided at the end of the program |  |
+| THE STORY |  | Enter “Story” |  | Give a detailed background story, highlighting the events and circumstances that surrounds your research ideation and journey |  | 1000 words max. |  |
+| MEDIA GALLERY | SCREENING EXERCISE |  | Upload Media |  |  |  | to be collected as program progresses5 uploads (max.) for each media grouppicture and video file formats only |
+| AWARD CEREMONY |  | Upload Media |  |  |  |  |  |
+| CLEARANCE & FUNDING |  | Upload Media |  |  |  |  |  |
+| PROJECT COMPLETION |  | Upload Media |  |  |  |  |  |
+| UNDERTAKING STATEMENT | I confirm that all information provided are accurate, that all uploaded documents are valid, and that I accept the terms and conditions of this service. |  |  |  |  |  | undertaking statement box must be checked before user can submit form |

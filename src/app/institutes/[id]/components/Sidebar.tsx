@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   Users, BookOpen, Award, Clock, Download, FileText,
-  ShieldCheck, MapPin, Star
+  ShieldCheck, MapPin, Star, Building2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
@@ -15,6 +15,12 @@ interface Institute {
 }
 
 export default function Sidebar({ institute }: { institute: Institute }) {
+  const isUniversity = institute.type === 'University';
+  const yearsOfExistence = institute.yearEstablished ? `${new Date().getFullYear() - institute.yearEstablished} yrs` : null;
+  const awardsCount = institute.awards?.length || 0;
+  const facultiesCount = institute.faculties?.length || 0;
+  const alumniCount = institute.alumni?.length || 0;
+
   return (
     <div className="lg:col-span-1 space-y-8">
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
@@ -22,51 +28,102 @@ export default function Sidebar({ institute }: { institute: Institute }) {
           <BookOpen className="h-5 w-5 text-brand-red-600" /> Institute Highlights
         </h3>
         <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
-              <Users className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xl font-black text-neutral-black">1,500+</p>
-              <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Active Students</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="h-10 w-10 rounded-lg bg-brand-red-50 flex items-center justify-center text-brand-red-600 flex-shrink-0">
-              <BookOpen className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xl font-black text-neutral-black">45+</p>
-              <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Specialized Labs</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="h-10 w-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 flex-shrink-0">
-              <Award className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xl font-black text-neutral-black">12</p>
-              <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Innovation Awards</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="h-10 w-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 flex-shrink-0">
-              <Users className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xl font-black text-neutral-black">120+</p>
-              <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Faculty & Staff</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 flex-shrink-0">
-              <Clock className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xl font-black text-neutral-black">25 yrs</p>
-              <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Years of Excellence</p>
-            </div>
-          </div>
+          {isUniversity ? (
+            <>
+              {yearsOfExistence && (
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 flex-shrink-0">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xl font-black text-neutral-black">{yearsOfExistence}</p>
+                    <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Years of Existence</p>
+                  </div>
+                </div>
+              )}
+              {facultiesCount > 0 && (
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xl font-black text-neutral-black">{facultiesCount}+</p>
+                    <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Faculties</p>
+                  </div>
+                </div>
+              )}
+              {awardsCount > 0 && (
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 flex-shrink-0">
+                    <Award className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xl font-black text-neutral-black">{awardsCount}</p>
+                    <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Awards & Honours</p>
+                  </div>
+                </div>
+              )}
+              {alumniCount > 0 && (
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 flex-shrink-0">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xl font-black text-neutral-black">{alumniCount}</p>
+                    <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Notable Alumni</p>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-neutral-black">1,500+</p>
+                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Active Students</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-lg bg-brand-red-50 flex items-center justify-center text-brand-red-600 flex-shrink-0">
+                  <BookOpen className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-neutral-black">45+</p>
+                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Specialized Labs</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 flex-shrink-0">
+                  <Award className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-neutral-black">12</p>
+                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Innovation Awards</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 flex-shrink-0">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-neutral-black">120+</p>
+                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Faculty & Staff</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 flex-shrink-0">
+                  <Clock className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-neutral-black">25 yrs</p>
+                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Years of Excellence</p>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </section>
 

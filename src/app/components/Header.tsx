@@ -204,8 +204,11 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileExploreOpen, setIsMobileExploreOpen] = useState(false);
   const [isMobileSupportOpen, setIsMobileSupportOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
   const router = useRouter();
+
+  useEffect(() => { setMounted(true); }, []);
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-black bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -362,7 +365,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
             </Button>
             <div className="h-6 w-px bg-neutral-gray-light" />
 
-            {isAuthenticated ? (
+            {mounted && isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <NotificationDropdown
                   categories={[
@@ -387,7 +390,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center gap-2">
-            {isAuthenticated && user?.avatar && (
+            {mounted && isAuthenticated && user?.avatar && (
               <Image
                 src={user.avatar}
                 alt={user.name}
@@ -418,7 +421,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
           <div className="space-y-1 px-4 py-4">
 
             {/* If authenticated, show user info at top */}
-            {isAuthenticated && user && (
+            {mounted && isAuthenticated && user && (
               <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-neutral-bg-light rounded-lg">
                 <Image src={user.avatar} alt={user.name} width={40} height={40} className="rounded-full object-cover border-2 border-brand-navy-100 h-10 w-10" />
                 <div className="min-w-0">
@@ -549,7 +552,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
             </div>
 
             <div className="mt-4 border-t pt-4 space-y-2">
-              {isAuthenticated ? (
+              {mounted && isAuthenticated ? (
                 <>
                   <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start gap-2">

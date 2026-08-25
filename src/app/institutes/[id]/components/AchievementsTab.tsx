@@ -19,13 +19,16 @@ export default function AchievementsTab({ institute }: { institute: Institute })
           </h3>
           <div className="space-y-4">
             {institute.awards.map((award: any, idx: number) => (
-              <div key={idx} className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-transparent border border-amber-100">
-                <div className="h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
+              <div key={idx} className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-transparent border border-amber-100">
+                <div className="h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0 mt-1">
                   <Trophy className="h-6 w-6" />
                 </div>
                 <div>
                   <h4 className="font-bold text-neutral-black">{award.title}</h4>
                   <p className="text-sm text-neutral-gray-medium">Awarded in {award.year}</p>
+                  {award.description && (
+                    <p className="text-xs text-neutral-gray-dark mt-1 leading-relaxed">{award.description}</p>
+                  )}
                 </div>
               </div>
             ))}
@@ -51,10 +54,13 @@ export default function AchievementsTab({ institute }: { institute: Institute })
                 </div>
                 <h4 className="font-bold text-neutral-black text-sm leading-tight">{alum.name}</h4>
                 <p className="text-xs text-neutral-gray-medium mt-1">{alum.role}</p>
-                {alum.impact && (
+                {alum.department && (
+                  <p className="text-[10px] text-brand-navy-900 mt-0.5 font-medium">{alum.department}</p>
+                )}
+                {alum.achievements && (
                   <div className="absolute inset-0 bg-brand-navy-900/95 rounded-xl p-4 flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white z-10">
-                    <p className="text-xs font-bold uppercase tracking-wider text-brand-red-100 mb-1">Societal Impact</p>
-                    <p className="text-xs leading-relaxed">{alum.impact}</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-brand-red-100 mb-1">Achievements</p>
+                    <p className="text-xs leading-relaxed">{alum.achievements}</p>
                   </div>
                 )}
               </div>

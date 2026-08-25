@@ -61,18 +61,42 @@ export default function ContactTab({ institute }: { institute: Institute }) {
             <div className="mt-6 pt-4 border-t border-neutral-gray-light">
               <p className="text-sm font-bold text-neutral-black mb-3">Social Media</p>
               <div className="flex gap-3">
-                <a href="#" className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 hover:bg-blue-100 transition-colors" title="Facebook">
-                  <Facebook className="h-5 w-5" />
-                </a>
-                <a href="#" className="h-10 w-10 rounded-lg bg-sky-50 flex items-center justify-center text-sky-500 hover:bg-sky-100 transition-colors" title="Twitter">
-                  <Twitter className="h-5 w-5" />
-                </a>
-                <a href="#" className="h-10 w-10 rounded-lg bg-pink-50 flex items-center justify-center text-pink-600 hover:bg-pink-100 transition-colors" title="Instagram">
-                  <Instagram className="h-5 w-5" />
-                </a>
-                <a href="#" className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700 hover:bg-blue-100 transition-colors" title="LinkedIn">
-                  <Linkedin className="h-5 w-5" />
-                </a>
+                {institute.socialMedia?.facebook && (
+                  <a href="#" className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 hover:bg-blue-100 transition-colors" title={institute.socialMedia.facebook}>
+                    <Facebook className="h-5 w-5" />
+                  </a>
+                )}
+                {institute.socialMedia?.twitter && (
+                  <a href="#" className="h-10 w-10 rounded-lg bg-sky-50 flex items-center justify-center text-sky-500 hover:bg-sky-100 transition-colors" title={institute.socialMedia.twitter}>
+                    <Twitter className="h-5 w-5" />
+                  </a>
+                )}
+                {institute.socialMedia?.instagram && (
+                  <a href="#" className="h-10 w-10 rounded-lg bg-pink-50 flex items-center justify-center text-pink-600 hover:bg-pink-100 transition-colors" title={institute.socialMedia.instagram}>
+                    <Instagram className="h-5 w-5" />
+                  </a>
+                )}
+                {institute.socialMedia?.linkedin && (
+                  <a href="#" className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700 hover:bg-blue-100 transition-colors" title={institute.socialMedia.linkedin}>
+                    <Linkedin className="h-5 w-5" />
+                  </a>
+                )}
+                {!institute.socialMedia && (
+                  <>
+                    <a href="#" className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 hover:bg-blue-100 transition-colors" title="Facebook">
+                      <Facebook className="h-5 w-5" />
+                    </a>
+                    <a href="#" className="h-10 w-10 rounded-lg bg-sky-50 flex items-center justify-center text-sky-500 hover:bg-sky-100 transition-colors" title="Twitter">
+                      <Twitter className="h-5 w-5" />
+                    </a>
+                    <a href="#" className="h-10 w-10 rounded-lg bg-pink-50 flex items-center justify-center text-pink-600 hover:bg-pink-100 transition-colors" title="Instagram">
+                      <Instagram className="h-5 w-5" />
+                    </a>
+                    <a href="#" className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700 hover:bg-blue-100 transition-colors" title="LinkedIn">
+                      <Linkedin className="h-5 w-5" />
+                    </a>
+                  </>
+                )}
               </div>
             </div>
           </div>

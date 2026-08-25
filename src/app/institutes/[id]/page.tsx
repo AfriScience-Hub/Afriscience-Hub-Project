@@ -21,6 +21,7 @@ import AchievementsTab from './components/AchievementsTab';
 import GalleryTab from './components/GalleryTab';
 import ReviewsTab from './components/ReviewsTab';
 import ContactTab from './components/ContactTab';
+import NewsUpdatesTab from './components/NewsUpdatesTab';
 import Sidebar from './components/Sidebar';
 
 export default function InstituteDetails() {
@@ -68,10 +69,10 @@ export default function InstituteDetails() {
           <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900/60 to-transparent" />
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6">
-          <div className="flex flex-col lg:flex-row gap-6 -mt-12 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-6">
+          <div className="flex flex-col lg:flex-row gap-6">
             <div className="flex-shrink-0">
-              <div className="h-32 w-32 md:h-40 md:w-40 rounded-xl border-4 border-white bg-white shadow-lg overflow-hidden">
+              <div className="relative h-32 w-32 md:h-40 md:w-40 rounded-xl border border-neutral-gray-light bg-white shadow-lg overflow-hidden">
                 <Image src={institute.image} alt={institute.name} fill className="object-cover" sizes="100vw" />
               </div>
               <div className="flex items-center justify-center gap-1.5 mt-3">
@@ -207,6 +208,9 @@ export default function InstituteDetails() {
               <>
                 <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')}>Profile & Services</TabButton>
                 <TabButton active={activeTab === 'academics'} onClick={() => setActiveTab('academics')}>Certifications & Policies</TabButton>
+                <TabButton active={activeTab === 'achievements'} onClick={() => setActiveTab('achievements')}>Achievements</TabButton>
+                <TabButton active={activeTab === 'gallery'} onClick={() => { setActiveTab('gallery'); setOpenAlbum(null); }}>Media Gallery</TabButton>
+                <TabButton active={activeTab === 'news'} onClick={() => setActiveTab('news')}>News & Updates</TabButton>
                 <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')}>Reviews</TabButton>
                 <TabButton active={activeTab === 'contact'} onClick={() => setActiveTab('contact')}>Contact Info</TabButton>
               </>
@@ -232,6 +236,7 @@ export default function InstituteDetails() {
             {activeTab === 'academics' && <AcademicsTab institute={institute} />}
             {activeTab === 'achievements' && <AchievementsTab institute={institute} />}
             {activeTab === 'gallery' && <GalleryTab institute={institute} openAlbum={openAlbum} setOpenAlbum={setOpenAlbum} />}
+            {activeTab === 'news' && <NewsUpdatesTab institute={institute} />}
             {activeTab === 'reviews' && <ReviewsTab institute={institute} />}
             {activeTab === 'contact' && <ContactTab institute={institute} />}
           </div>

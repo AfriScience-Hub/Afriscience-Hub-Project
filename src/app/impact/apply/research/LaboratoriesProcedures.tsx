@@ -1,5 +1,6 @@
 'use client';
 
+import { Plus } from 'lucide-react';
 import { AFRICAN_COUNTRIES } from '@/app/data/mockData';
 import { COUNTRY_STATES } from '@/app/support/volunteer/data';
 import { FieldLabel, TextInput, SelectInput } from '../components/FormField';
@@ -118,7 +119,7 @@ export function LaboratoriesBlock({
         })}
         <button
           type="button"
-          className="text-xs font-bold text-brand-navy-900 hover:underline"
+          className="flex items-center gap-1 rounded-lg bg-brand-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-red-700 transition-colors"
           onClick={() =>
             onChange([
               ...laboratories,
@@ -133,7 +134,7 @@ export function LaboratoriesBlock({
             ])
           }
         >
-          + Add laboratory
+          <Plus className="h-4 w-4" /> Add laboratory
         </button>
       </div>
     </div>
@@ -209,7 +210,7 @@ export function ProceduresBlock({
         ))}
         <button
           type="button"
-          className="text-xs font-bold text-brand-navy-900 hover:underline"
+          className="flex items-center gap-1 rounded-lg bg-brand-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-red-700 transition-colors"
           onClick={() =>
             onChange([
               ...procedures,
@@ -217,7 +218,7 @@ export function ProceduresBlock({
             ])
           }
         >
-          + Add procedure
+          <Plus className="h-4 w-4" /> Add procedure
         </button>
       </div>
     </div>

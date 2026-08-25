@@ -1,6 +1,6 @@
 'use client';
 
-import { Info } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function FieldLabel({
@@ -13,17 +13,17 @@ export function FieldLabel({
   info?: string;
 }) {
   return (
-    <label className="block text-sm font-medium text-neutral-black mb-1">
-      <span className="inline-flex items-center gap-1.5">
-        {children}
-        {required && <span className="text-brand-red-600">*</span>}
-        {info && (
-          <span title={info} className="text-neutral-gray-medium cursor-help">
-            <Info className="h-3.5 w-3.5" />
-          </span>
-        )}
-      </span>
-    </label>
+    <div className="mb-1">
+      <label className="block text-sm font-medium text-neutral-black">
+        <span className="inline-flex items-center gap-1.5">
+          {children}
+          {required && <span className="text-brand-red-600">*</span>}
+        </span>
+      </label>
+      {info && (
+        <p className="text-xs text-neutral-gray-medium mt-0.5">{info}</p>
+      )}
+    </div>
   );
 }
 
@@ -171,9 +171,9 @@ export function MultiStringList({
         <button
           type="button"
           onClick={add}
-          className="text-xs font-bold text-brand-navy-900 hover:underline"
+          className="flex items-center gap-1 rounded-lg bg-brand-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-red-700 transition-colors"
         >
-          + Add entry
+          <Plus className="h-4 w-4" /> Add entry
         </button>
       </div>
     </div>

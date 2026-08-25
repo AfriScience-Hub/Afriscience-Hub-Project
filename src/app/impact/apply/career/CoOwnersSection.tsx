@@ -153,9 +153,9 @@ export default function CoOwnersSection({
       <button
         type="button"
         onClick={() => onChange([...value, createCoOwner()])}
-        className="inline-flex items-center gap-2 rounded-lg border border-brand-navy-900 px-4 py-2.5 text-sm font-bold text-brand-navy-900 hover:bg-brand-navy-900 hover:text-white transition-colors"
+        className="flex items-center gap-1 rounded-lg bg-brand-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-red-700 transition-colors"
       >
-        <Plus className="h-4 w-4" /> ADD Co-Owner / Secondary Proprietor
+        <Plus className="h-4 w-4" /> Add Co-Owner / Secondary Proprietor
       </button>
     </SectionCard>
   );

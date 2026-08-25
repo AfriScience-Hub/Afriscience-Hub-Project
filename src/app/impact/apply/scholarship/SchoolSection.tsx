@@ -10,21 +10,23 @@ import {
   SelectInput,
   FileUpload,
 } from '../components/FormField';
-import { SCHOLARSHIP_LEVELS } from '../data';
-import type { ScholarshipFormState } from './types';
+import { ACADEMIC_YEARS, type ScholarshipFormState } from './types';
 
 export default function SchoolSection({
   value,
+  academicLevel,
   onChange,
 }: {
   value: ScholarshipFormState['school'];
+  academicLevel: string;
   onChange: (v: ScholarshipFormState['school']) => void;
 }) {
   const states = value.country ? COUNTRY_STATES[value.country] || [] : [];
+  const years = ACADEMIC_YEARS[academicLevel] || ACADEMIC_YEARS['Undergraduate'];
 
   return (
     <SectionCard
-      title="School Registration Details"
+      title="Academic Information"
       icon={<GraduationCap className="h-5 w-5 text-brand-red-600" />}
       badge="Required"
       defaultOpen={false}
@@ -32,27 +34,26 @@ export default function SchoolSection({
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <FieldLabel required>Scholarship Level</FieldLabel>
-          <SelectInput
-            value={value.scholarshipLevel}
-            onChange={(e) => onChange({ ...value, scholarshipLevel: e.target.value })}
-            required
-          >
-            <option value="">Select Level</option>
-            {SCHOLARSHIP_LEVELS.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </SelectInput>
+          <TextInput
+            value={academicLevel ? `${academicLevel} Scholarship` : ''}
+            disabled
+            placeholder="Auto-filled from Academic Level"
+          />
         </div>
         <div>
           <FieldLabel required>Academic Year</FieldLabel>
-          <TextInput
+          <SelectInput
             value={value.academicYear}
             onChange={(e) => onChange({ ...value, academicYear: e.target.value })}
-            placeholder="e.g. 2025/2026"
             required
-          />
+          >
+            <option value="">Select Year</option>
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </SelectInput>
         </div>
         <div>
           <FieldLabel required>Name of Institution</FieldLabel>
@@ -130,23 +131,24 @@ export default function SchoolSection({
           />
         </div>
         <div>
-          <FieldLabel required info="Minimum CGPA of 3.0 at time of application.">
-            Initial CGPA
-          </FieldLabel>
+          <FieldLabel required>Current CGPA</FieldLabel>
           <TextInput
             type="number"
             step="0.01"
             min="0"
             max="5"
-            value={value.initialCgpa}
-            onChange={(e) => onChange({ ...value, initialCgpa: e.target.value })}
+            value={value.currentCgpa}
+            onChange={(e) => onChange({ ...value, currentCgpa: e.target.value })}
+            placeholder="e.g. 3.50"
             required
           />
+          <p className="text-xs text-neutral-gray-medium mt-1">Minimum CGPA of 3.0 at time of application.</p>
         </div>
         <FileUpload
           label="School Registration / Student ID"
           required
           accept="image/*,.pdf"
+          hint="Upload your school ID card or registration document."
           file={value.schoolIdCard}
           onChange={(f) => onChange({ ...value, schoolIdCard: f })}
           onClear={() => onChange({ ...value, schoolIdCard: null })}

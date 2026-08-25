@@ -1,6 +1,6 @@
 'use client';
 
-import { User } from 'lucide-react';
+import { User, Plus } from 'lucide-react';
 import {
   FieldLabel,
   SectionCard,
@@ -238,7 +238,7 @@ export default function HeadResearcherSection({
             ))}
             <button
               type="button"
-              className="text-xs font-bold text-brand-navy-900 hover:underline"
+              className="flex items-center gap-1 rounded-lg bg-brand-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-red-700 transition-colors"
               onClick={() =>
                 onChange({
                   ...value,
@@ -246,7 +246,7 @@ export default function HeadResearcherSection({
                 })
               }
             >
-              + Add publication link
+              <Plus className="h-4 w-4" /> Add publication link
             </button>
           </div>
         </div>

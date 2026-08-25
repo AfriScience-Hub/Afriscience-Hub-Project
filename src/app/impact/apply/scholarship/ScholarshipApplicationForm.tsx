@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Target, ImageIcon } from 'lucide-react';
+import { ArrowLeft, Target, ImageIcon, Users } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { toast } from 'sonner';
 import {
@@ -18,6 +18,7 @@ import {
 } from './types';
 import ApplicantSection from './ApplicantSection';
 import SchoolSection from './SchoolSection';
+import GuardianSection from './GuardianSection';
 
 export default function ScholarshipApplicationForm({
   user,
@@ -34,7 +35,7 @@ export default function ScholarshipApplicationForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validate = (): string | null => {
-    const { applicant, school, impact } = form;
+    const { applicant, school, guardians, impact } = form;
     if (!applicant.title) return 'Select title';
     if (!applicant.phone) return 'Enter phone number';
     if (!hasAtLeastOneSocial(applicant.socials))
@@ -44,24 +45,29 @@ export default function ScholarshipApplicationForm({
       return 'Complete government ID card upload';
     if (applicant.idCard.type === 'Other' && !applicant.idCard.otherSpecify)
       return 'Specify other ID card type';
-    if (!applicant.academicTranscript) return 'Upload current academic transcript';
 
-    if (!school.scholarshipLevel) return 'Select scholarship level';
     if (!school.institutionName || !school.institutionAddress)
       return 'Complete institution name and address';
     if (!school.country || !school.stateRegion) return 'Select country and state/region';
     if (!school.departmentName) return 'Enter department name';
     if (!school.matricNo) return 'Enter matriculation/registration number';
     if (!school.academicYear) return 'Enter academic year';
-    if (!school.initialCgpa) return 'Enter initial CGPA';
-    const cgpa = parseFloat(school.initialCgpa);
-    if (Number.isNaN(cgpa) || cgpa < 3.0) return 'Initial CGPA must be at least 3.0';
+    if (!school.currentCgpa) return 'Enter current CGPA';
+    const cgpa = parseFloat(school.currentCgpa);
+    if (Number.isNaN(cgpa) || cgpa < 3.0) return 'Current CGPA must be at least 3.0';
     if (!school.schoolIdCard) return 'Upload school registration / ID document';
 
-    if (!impact.problemsBefore.some((p) => p.trim()))
-      return 'Enter at least one problem before scholarship intervention';
-    if (!impact.expectedAnnualOutcome.some((o) => o.trim()))
-      return 'Enter at least one expected annual outcome';
+    for (const g of guardians) {
+      if (!g.title || !g.name || !g.phone) return 'Complete guardian details';
+      if (!g.idCard.type || !g.idCard.file) return 'Complete guardian ID card upload';
+      if (g.idCard.type === 'Other' && !g.idCard.otherSpecify)
+        return 'Specify guardian ID card type';
+    }
+
+    if (!impact.problemsEncountered.some((p) => p.trim()))
+      return 'Enter at least one problem encountered';
+    if (!impact.expectedOutcome.some((o) => o.trim()))
+      return 'Enter at least one expected outcome';
     if (!form.formUndertaking) return 'Accept the undertaking statement to submit';
     return null;
   };
@@ -104,7 +110,12 @@ export default function ScholarshipApplicationForm({
       />
       <SchoolSection
         value={form.school}
+        academicLevel={form.applicant.academicLevel || form.applicant.academicLevelOther}
         onChange={(school) => setForm((f) => ({ ...f, school }))}
+      />
+      <GuardianSection
+        value={form.guardians}
+        onChange={(guardians) => setForm((f) => ({ ...f, guardians }))}
       />
 
       <SectionCard
@@ -115,21 +126,34 @@ export default function ScholarshipApplicationForm({
       >
         <div className="space-y-4">
           <MultiStringList
-            label="Problems before Scholarship Intervention"
+            label="Problems Encountered"
             required
-            values={form.impact.problemsBefore}
-            onChange={(problemsBefore) =>
-              setForm((f) => ({ ...f, impact: { ...f.impact, problemsBefore } }))
+            info="Mention the specific challenges you're currently experiencing in your academic journey."
+            values={form.impact.problemsEncountered}
+            onChange={(problemsEncountered) =>
+              setForm((f) => ({ ...f, impact: { ...f.impact, problemsEncountered } }))
             }
           />
           <MultiStringList
-            label="Expected Annual Outcome"
+            label="Expected Outcome"
             required
-            values={form.impact.expectedAnnualOutcome}
-            onChange={(expectedAnnualOutcome) =>
+            info="What end-results are you hoping to achieve in your academic journey with this scholarship program?"
+            values={form.impact.expectedOutcome}
+            onChange={(expectedOutcome) =>
               setForm((f) => ({
                 ...f,
-                impact: { ...f.impact, expectedAnnualOutcome },
+                impact: { ...f.impact, expectedOutcome },
+              }))
+            }
+          />
+          <MultiStringList
+            label="Outcomes After Intervention"
+            info="What were the actual results that were achieved with this scholarship intervention?"
+            values={form.impact.outcomesAfterIntervention}
+            onChange={(outcomesAfterIntervention) =>
+              setForm((f) => ({
+                ...f,
+                impact: { ...f.impact, outcomesAfterIntervention },
               }))
             }
           />
@@ -143,7 +167,7 @@ export default function ScholarshipApplicationForm({
                   impact: { ...f.impact, story: e.target.value },
                 }))
               }
-              placeholder="Briefly describe your academic journey and need for support"
+              placeholder="Give a detailed background story, highlighting the events and circumstances that surrounds your academic journey and need for support (1000 words max)."
             />
           </div>
         </div>
@@ -160,6 +184,13 @@ export default function ScholarshipApplicationForm({
             files={form.media.screeningExercise}
             onChange={(screeningExercise) =>
               setForm((f) => ({ ...f, media: { ...f.media, screeningExercise } }))
+            }
+          />
+          <MediaGroupUpload
+            label="Award Ceremony"
+            files={form.media.awardCeremony}
+            onChange={(awardCeremony) =>
+              setForm((f) => ({ ...f, media: { ...f.media, awardCeremony } }))
             }
           />
           <MediaGroupUpload
