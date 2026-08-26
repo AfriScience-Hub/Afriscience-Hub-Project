@@ -85,6 +85,33 @@ npm run build      # Production build
 | `/dashboard/archive` | Archived items |
 | `/dashboard/awards` | User's awards |
 
+### Admin Routes
+
+| Route | Description |
+|---|---|
+| `/admin/login` | Admin login portal |
+| `/admin/forgot-password` | Admin password reset |
+| `/admin/dashboard` | Admin dashboard overview with stats, alerts, quick actions, and charts |
+| `/admin/user-management` | All users list |
+| `/admin/user-management/admin-management` | Admin account management |
+| `/admin/user-management/roles-permissions` | Role definitions and permission matrix |
+| `/admin/user-management/activity-logs` | Admin action audit trail |
+| `/admin/categories/institutes` | Institute management |
+| `/admin/categories/scientists-technologies` | Scientist profiles |
+| `/admin/categories/special-centres` | Specialist centres |
+| `/admin/categories/afro-innovations` | Afro-Innovation listings |
+| `/admin/categories/competitions` | Competition management |
+| `/admin/categories/voting` | Live voting monitor |
+| `/admin/categories/awards` | Awards and fellowships |
+| `/admin/categories/impact-stories` | Impact stories |
+| `/admin/approvals` | Pending approvals queue |
+| `/admin/verification-centre` | Profile verification |
+| `/admin/invoices` | Invoice tracking |
+| `/admin/notifications` | System notifications |
+| `/admin/reports-analytics` | Analytics and reports |
+| `/admin/system-settings` | Platform configuration |
+| `/admin/help-support` | Help documentation |
+
 ## Competition Types
 
 - **Afri – Anime** (18+) — Anime-themed competition
@@ -94,6 +121,7 @@ npm run build      # Production build
 
 ## Key Features
 
+- **Admin portal** — Dedicated admin section with login, dashboard overview (stats, activity, pending actions), and management pages for users, institutions, competitions, innovations, and advertisements
 - **Sponsor module** — Landing page with updated tier pricing ($2.5K–$500K), "Get Started" links pre-select tier on apply form; full application form with auto-populated user info, tier info modals, industry multi-select (capped by tier), product catalog by industry (currency, ASH discount, specs, images), licenses/awards with document upload, undertaking checkbox
 - **Live voting** — Track votes in real time with localStorage persistence, one-vote-per-category enforcement
 - **Competition submission flow** — Multi-step: details → application (with payment modal) → media upload

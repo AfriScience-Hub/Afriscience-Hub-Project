@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { SearchDirectory } from './SearchDirectory';
 import { FeedbackWidget } from './FeedbackWidget';
 import { Header } from './Header';
@@ -13,6 +14,11 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const pathname = usePathname();
+
+  if (pathname.startsWith('/admin')) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-bg-light font-sans text-neutral-black">

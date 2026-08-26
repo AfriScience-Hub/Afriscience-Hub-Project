@@ -1,0 +1,29 @@
+export const ADMIN_ROUTES = {
+  login: '/admin/login',
+  forgotPassword: '/admin/forgot-password',
+  dashboard: '/admin/dashboard',
+
+  userManagement: '/admin/user-management',
+  allUsers: '/admin/user-management',
+  adminManagement: '/admin/user-management/admin-management',
+  rolesPermissions: '/admin/user-management/roles-permissions',
+  activityLogs: '/admin/user-management/activity-logs',
+
+  categories: '/admin/categories',
+  institutes: '/admin/categories/institutes',
+  scientistsTechnologies: '/admin/categories/scientists-technologies',
+  specialCentres: '/admin/categories/special-centres',
+  afroInnovations: '/admin/categories/afro-innovations',
+  competitions: '/admin/categories/competitions',
+  voting: '/admin/categories/voting',
+  awards: '/admin/categories/awards',
+  impactStories: '/admin/categories/impact-stories',
+
+  approvals: '/admin/approvals',
+  verificationCentre: '/admin/verification-centre',
+  invoices: '/admin/invoices',
+  notifications: '/admin/notifications',
+  reportsAnalytics: '/admin/reports-analytics',
+  systemSettings: '/admin/system-settings',
+  helpSupport: '/admin/help-support',
+} as const;

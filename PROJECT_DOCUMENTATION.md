@@ -51,6 +51,41 @@ src/
 │   ├── layout.tsx                        # Root layout
 │   ├── not-found.tsx                     # 404 page
 │   ├── globals.css
+│   ├── admin/                            # Admin portal (no public Header/Footer)
+│   │   ├── layout.tsx                    # Admin shell (sidebar + header)
+│   │   ├── page.tsx                      # Redirects → /admin/dashboard
+│   │   ├── login/page.tsx
+│   │   ├── forgot-password/page.tsx
+│   │   ├── dashboard/page.tsx
+│   │   ├── user-management/
+│   │   │   ├── page.tsx
+│   │   │   ├── admin-management/page.tsx
+│   │   │   ├── roles-permissions/page.tsx
+│   │   │   └── activity-logs/page.tsx
+│   │   ├── categories/
+│   │   │   ├── institutes/page.tsx
+│   │   │   ├── scientists-technologies/page.tsx
+│   │   │   ├── special-centres/page.tsx
+│   │   │   ├── afro-innovations/page.tsx
+│   │   │   ├── competitions/page.tsx
+│   │   │   ├── voting/page.tsx
+│   │   │   ├── awards/page.tsx
+│   │   │   └── impact-stories/page.tsx
+│   │   ├── approvals/page.tsx
+│   │   ├── verification-centre/page.tsx
+│   │   ├── invoices/page.tsx
+│   │   ├── notifications/page.tsx
+│   │   ├── reports-analytics/page.tsx
+│   │   ├── system-settings/page.tsx
+│   │   ├── help-support/page.tsx
+│   │   ├── components/
+│   │   │   ├── AdminShell.tsx
+│   │   │   ├── AdminSidebar.tsx
+│   │   │   ├── AdminHeader.tsx
+│   │   │   └── SidebarNavItem.tsx
+│   │   └── data/
+│   │       ├── routes.ts
+│   │       └── sidebar-nav.ts
 │   ├── components/                       # Shared public-site components
 │   │   ├── Header.tsx
 │   │   ├── Footer.tsx
@@ -385,6 +420,116 @@ Dashboard at `src/app/dashboard` with 14 sidebar tabs:
 | Awards | `/dashboard/awards` |
 
 **Upload New Listing:** 6 category-specific forms: afro-innovation, award, competition, institute, scientist, specialist-center. Afro-Innovation is the most customized with dedicated form sections.
+
+---
+
+## Admin Architecture
+
+Admin portal at `src/app/admin` with authentication, dashboard, and management pages. The admin section has its own layout (dark sidebar + header) and does not use the public site's Header/Footer.
+
+### Admin Routes
+
+| Route | Description |
+|---|---|
+| `/admin/login` | Admin login portal with email/password |
+| `/admin/forgot-password` | Admin password reset flow |
+| `/admin/dashboard` | Dashboard overview with stats, alerts, quick actions, charts, platform health |
+| `/admin/user-management` | All users list with search/filter |
+| `/admin/user-management/admin-management` | Admin account management |
+| `/admin/user-management/roles-permissions` | Role definitions and permission matrix |
+| `/admin/user-management/activity-logs` | Admin action audit trail |
+| `/admin/categories/institutes` | Institute management |
+| `/admin/categories/scientists-technologies` | Scientist profiles |
+| `/admin/categories/special-centres` | Specialist centres |
+| `/admin/categories/afro-innovations` | Afro-Innovation listings |
+| `/admin/categories/competitions` | Competition management |
+| `/admin/categories/voting` | Live voting monitor |
+| `/admin/categories/awards` | Awards and fellowships |
+| `/admin/categories/impact-stories` | Impact stories |
+| `/admin/approvals` | Pending approvals queue |
+| `/admin/verification-centre` | Profile verification |
+| `/admin/invoices` | Invoice tracking |
+| `/admin/notifications` | System notifications |
+| `/admin/reports-analytics` | Analytics and reports |
+| `/admin/system-settings` | Platform configuration |
+| `/admin/help-support` | Help documentation |
+
+### Admin Components (`src/app/admin/components/`)
+
+| File | Purpose |
+|---|---|
+| `AdminShell.tsx` | Layout wrapper combining sidebar + header + main content area |
+| `AdminSidebar.tsx` | Dark sidebar with navigation, expandable subtabs, user profile, platform plan |
+| `AdminHeader.tsx` | Top bar with search, notifications, quick add, user profile |
+| `SidebarNavItem.tsx` | Reusable nav item with expand/collapse for subtabs |
+
+### Admin Data (`src/app/admin/data/`)
+
+| File | Purpose |
+|---|---|
+| `routes.ts` | All admin route path constants |
+| `sidebar-nav.ts` | Sidebar navigation structure definition |
+
+### Admin Structure
+
+```text
+src/app/admin/
+├── layout.tsx                              # Admin shell (sidebar + header), skips for login/forgot-password
+├── page.tsx                                # Redirects → /admin/dashboard
+├── login/
+│   └── page.tsx                            # /admin/login
+├── forgot-password/
+│   └── page.tsx                            # /admin/forgot-password
+├── dashboard/
+│   └── page.tsx                            # /admin/dashboard (overview)
+├── user-management/
+│   ├── page.tsx                            # /admin/user-management → All Users
+│   ├── admin-management/
+│   │   └── page.tsx                        # Admin account management
+│   ├── roles-permissions/
+│   │   └── page.tsx                        # Role definitions and permission matrix
+│   └── activity-logs/
+│       └── page.tsx                        # Admin action audit trail
+├── categories/
+│   ├── institutes/
+│   │   └── page.tsx                        # Institute management
+│   ├── scientists-technologies/
+│   │   └── page.tsx                        # Scientist profiles
+│   ├── special-centres/
+│   │   └── page.tsx                        # Specialist centres
+│   ├── afro-innovations/
+│   │   └── page.tsx                        # Afro-Innovation listings
+│   ├── competitions/
+│   │   └── page.tsx                        # Competition management
+│   ├── voting/
+│   │   └── page.tsx                        # Live voting monitor
+│   ├── awards/
+│   │   └── page.tsx                        # Awards and fellowships
+│   └── impact-stories/
+│       └── page.tsx                        # Impact stories
+├── approvals/
+│   └── page.tsx                            # /admin/approvals
+├── verification-centre/
+│   └── page.tsx                            # /admin/verification-centre
+├── invoices/
+│   └── page.tsx                            # /admin/invoices
+├── notifications/
+│   └── page.tsx                            # /admin/notifications
+├── reports-analytics/
+│   └── page.tsx                            # /admin/reports-analytics
+├── system-settings/
+│   └── page.tsx                            # /admin/system-settings
+├── help-support/
+│   └── page.tsx                            # /admin/help-support
+├── components/
+│   ├── AdminShell.tsx                      # Layout wrapper (sidebar + header + main)
+│   ├── AdminSidebar.tsx                    # Dark sidebar with nav items
+│   ├── AdminHeader.tsx                     # Top bar (search, notifications, profile)
+│   └── SidebarNavItem.tsx                  # Reusable expandable nav item
+└── data/
+    ├── sidebar-nav.ts                      # Navigation structure definition
+    └── routes.ts                           # Route path constants
+```
 
 ---
 
