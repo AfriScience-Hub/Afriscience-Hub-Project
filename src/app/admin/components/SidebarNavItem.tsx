@@ -19,6 +19,13 @@ export default function SidebarNavItem({ item, isExpanded, onToggle }: SidebarNa
     ? pathname === item.href || pathname.startsWith(item.href + '/')
     : item.children?.some((child) => pathname === child.href || pathname.startsWith(child.href + '/')) ?? false;
 
+  const isChildActiveStrict = (childHref: string, siblings: { href: string }[]) => {
+    if (pathname === childHref) return true;
+    if (!pathname.startsWith(childHref + '/')) return false;
+    const remainder = pathname.slice(childHref.length + 1);
+    return !siblings.some((s) => s.href !== childHref && remainder.startsWith(s.href.replace(childHref + '/', '')));
+  };
+
   if (item.children) {
     return (
       <div>
@@ -43,7 +50,7 @@ export default function SidebarNavItem({ item, isExpanded, onToggle }: SidebarNa
         {isExpanded && (
           <div className="ml-4 mt-1 space-y-0.5">
             {item.children.map((child) => {
-              const isChildActive = pathname === child.href || pathname.startsWith(child.href + '/');
+              const isChildActive = isChildActiveStrict(child.href, item.children!);
               return (
                 <Link
                   key={child.href}
