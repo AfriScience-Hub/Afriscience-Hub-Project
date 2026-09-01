@@ -33,19 +33,19 @@ export function DonateHero() {
             with donation funds, and we deeply appreciate/recognize your support towards our
             vision to propel the continent to greater heights.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row  gap-4">
             <Button
               size="lg"
               onClick={() => document.getElementById('current-programs')?.scrollIntoView({ behavior: 'smooth' })}
-              className="h-12 px-8 bg-brand-red-600 hover:bg-brand-red-700 text-base"
+              className="h-12 lg:px-8 bg-brand-red-600 hover:bg-brand-red-700 text-base"
             >
               Donate to AfriScience Hub Today!
             </Button>
-            <Link href="/impact">
+            <Link href="/impact" className="w-full">
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 px-8 bg-white/10 text-white border-white/20 hover:bg-white hover:text-brand-navy-900 backdrop-blur-sm text-base"
+                className="h-12 px-8 w-full md:w-fit bg-white/10 text-white border-white/20 hover:bg-white hover:text-brand-navy-900 backdrop-blur-sm text-base"
               >
                 Donation&apos;s Impact
               </Button>
