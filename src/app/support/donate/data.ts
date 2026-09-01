@@ -1,7 +1,7 @@
 export const CAUSES = [
   {
-    id: 'competition-support',
-    title: 'Competition Support',
+    id: 'afriScience-support',
+    title: 'AfriScience Support',
     emoji: '🏆',
     description: 'Provide support to enable AfriScience Hub organize annual competitions in more African countries. Help us cover more grounds in bringing more African talents to limelight through competitions.',
     target: 5000000,
