@@ -91,19 +91,21 @@ export function CatalogItemModal({ item, onClose }: CatalogItemModalProps) {
               <p className="text-xs text-neutral-gray-medium mb-1">Price</p>
               <p className="text-xl font-bold text-neutral-black">
                 {item.currency === 'USD' ? '$' : '₦'}{Number(item.price).toLocaleString()}
-                <span className="text-xs text-neutral-gray-medium font-normal ml-1">
-                  {item.currency === 'USD' ? 'USD' : 'Local Currency'}
-                </span>
               </p>
             </div>
             <div className="bg-neutral-bg-light rounded-xl p-4">
-              <p className="text-xs text-neutral-gray-medium mb-1">ASH Discount Price</p>
+              <p className="text-xs text-neutral-gray-medium mb-1">ASH Discount</p>
               {item.ashDiscountPrice === 'N/A' ? (
                 <p className="text-sm font-semibold text-neutral-gray-medium">N/A</p>
               ) : (
-                <p className="text-xl font-bold text-brand-red-600">
-                  {item.currency === 'USD' ? '$' : '₦'}{Number(item.ashDiscountPrice).toLocaleString()}
-                </p>
+                <div>
+                  <p className="text-xl font-bold text-brand-red-600">
+                    {item.currency === 'USD' ? '$' : '₦'}{Number(item.ashDiscountPrice).toLocaleString()}
+                  </p>
+                  <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded mt-1 inline-block">
+                    {Math.round(((Number(item.price) - Number(item.ashDiscountPrice)) / Number(item.price)) * 100)}% off
+                  </span>
+                </div>
               )}
             </div>
           </div>

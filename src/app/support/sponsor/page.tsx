@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Sparkles, ArrowRight, CheckCircle2, Globe, MapPin, Users, Lightbulb, Wrench, Award } from 'lucide-react';
+import { Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import { openFeedback } from '@/lib/feedback';
@@ -94,12 +94,12 @@ const SPONSOR_TIERS = [
 ];
 
 const WHY_SPONSOR = [
-  { icon: Globe, title: 'Continental Reach', desc: 'Access a network spanning across 54 African countries and growing.' },
-  { icon: MapPin, title: 'Brand Visibility', desc: 'Get your logo and brand featured across our platform, events and annual publications.' },
-  { icon: Users, title: 'Talent Pipeline', desc: 'Connect with top scientists, technologists, institutions, researchers, specialists and innovators for collaborations.' },
-  { icon: Lightbulb, title: 'Innovation Access', desc: 'Get early and premium access to groundbreaking African innovations and research.' },
-  { icon: Wrench, title: 'Technical Support', desc: 'Get tailored support from AfriScience Hub in handling some technical demands of your business or organization.' },
-  { icon: Award, title: 'Recognition', desc: 'Be recognized as a "Champion of African Science & Technology" at our annual awards.' },
+  { emoji: '🌍', title: 'Continental Reach', desc: 'Access a network spanning across 54 African countries and growing.' },
+  { emoji: '📈', title: 'Brand Visibility', desc: 'Get your logo and brand featured across our platform, events and annual publications.' },
+  { emoji: '🤝', title: 'Talent Pipeline', desc: 'Connect with top scientists, technologists, institutions, researchers, specialists and innovators for collaborations.' },
+  { emoji: '💡', title: 'Innovation Access', desc: 'Get early and premium access to groundbreaking African innovations and research.' },
+  { emoji: '🔧', title: 'Technical Support', desc: 'Get tailored support from AfriScience Hub in handling some technical demands of your business or organization.' },
+  { emoji: '🏆', title: 'Recognition', desc: 'Be recognized as a "Champion of African Science & Technology" at our annual awards.' },
 ];
 
 export default function Sponsor() {
@@ -154,18 +154,13 @@ export default function Sponsor() {
           <p className="text-slate-500 max-w-xl mx-auto">Align your brand with the biggest science and technology network in Africa.</p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {WHY_SPONSOR.map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <div key={idx} className="p-6 rounded-xl bg-neutral-bg-light hover:shadow-md transition-shadow">
-                <div className="mb-3">
-                  <Icon className="h-8 w-8 text-brand-red-600" />
-                </div>
-                <h3 className="font-bold text-neutral-black mb-1">{item.title}</h3>
-                <p className="text-sm text-slate-500">{item.desc}</p>
-              </div>
-            );
-          })}
+          {WHY_SPONSOR.map((item, idx) => (
+            <div key={idx} className="p-6 rounded-xl bg-neutral-bg-light hover:shadow-md transition-shadow">
+              <div className="text-3xl mb-3">{item.emoji}</div>
+              <h3 className="font-bold text-neutral-black mb-1">{item.title}</h3>
+              <p className="text-sm text-slate-500">{item.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -178,7 +173,7 @@ export default function Sponsor() {
           {SPONSOR_TIERS.map((tier) => (
             <div
               key={tier.name}
-              className={`relative rounded-2xl border-2 bg-white p-6 transition-shadow hover:shadow-lg ${tier.color} ${tier.popular ? 'ring-2 ring-brand-red-600 ring-offset-2' : ''}`}
+              className={`relative rounded-2xl border-2 bg-white p-6 transition-shadow hover:shadow-lg flex flex-col ${tier.color} ${tier.popular ? 'ring-2 ring-brand-red-600 ring-offset-2' : ''}`}
             >
               {tier.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -190,7 +185,7 @@ export default function Sponsor() {
                 <h3 className="text-xl font-bold text-neutral-black">{tier.name}</h3>
                 <p className="text-brand-red-600 font-semibold mt-1">{tier.amount}</p>
               </div>
-              <ul className="space-y-2.5 mb-6">
+              <ul className="space-y-2.5 mb-6 flex-1">
                 {tier.features.map((f, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
                     <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
@@ -198,7 +193,7 @@ export default function Sponsor() {
                   </li>
                 ))}
               </ul>
-              <Link href={`/support/sponsor/apply?tier=${tier.name}`}>
+              <Link href={`/support/sponsor/apply?tier=${tier.name}`} className="mt-auto">
                 <Button className={`w-full ${tier.popular ? 'bg-brand-red-600 hover:bg-brand-red-700' : 'hover:bg-brand-red-600 hover:text-white hover:border-brand-red-600'}`} variant={tier.popular ? 'default' : 'outline'}>
                   Get Started
                 </Button>

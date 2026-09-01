@@ -18,6 +18,7 @@ export const ADMIN_ROUTES = {
   voting: '/admin/categories/voting',
   awards: '/admin/categories/awards',
   impactStories: '/admin/categories/impact-stories',
+  donations: '/admin/categories/donations',
 
   approvals: '/admin/approvals',
   verificationCentre: '/admin/verification-centre',

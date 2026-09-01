@@ -109,11 +109,18 @@ export default function SponsorCatalogByIndustry() {
                     </p>
                     <div className="mb-2.5">
                       <p className="text-xs text-neutral-black font-medium mb-0.5">
-                        {item.currency} {parseFloat(item.price).toFixed(2)}
+                        {item.currency} {Number(item.price).toLocaleString()}
                       </p>
-                      <p className="text-xs font-bold text-brand-red-600">
-                        ASH Discount: {item.currency} {parseFloat(item.ashDiscountPrice).toFixed(2)}
-                      </p>
+                      {item.ashDiscountPrice && item.ashDiscountPrice !== 'N/A' && (
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs font-bold text-brand-red-600">
+                            ASH {Number(item.ashDiscountPrice).toLocaleString()}
+                          </p>
+                          <span className="text-[10px] font-semibold text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
+                            {Math.round(((parseFloat(item.price) - parseFloat(item.ashDiscountPrice)) / parseFloat(item.price)) * 100)}% off
+                          </span>
+                        </div>
+                      )}
                     </div>
                     {item.specifications && item.specifications.length > 0 && (
                       <div className="text-[10px] text-neutral-gray-dark space-y-0.5 pt-2 border-t border-neutral-gray-light">
