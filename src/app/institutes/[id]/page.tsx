@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -64,16 +64,16 @@ export default function InstituteDetails() {
     <div className="min-h-screen bg-neutral-bg-light pb-12">
       {/* HEADER */}
       <div className="bg-white border-b border-neutral-gray-light">
-        <div className="h-48 md:h-64 w-full bg-brand-navy-900 relative overflow-hidden">
-          <Image src={institute.image} alt={institute.name} fill className="object-cover opacity-80" sizes="100vw" />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900/60 to-transparent" />
+        <div className="h-48 md:h-64 bg-brand-navy-900 relative overflow-hidden flex-shrink-0">
+          <Image src={institute.image} alt={institute.name} fill sizes="(max-width: 768px) 100vw, 1280px" className="object-cover object-center opacity-80" style={{ objectFit: 'cover', objectPosition: 'center' }} priority />
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900/60 to-transparent pointer-events-none" />
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-6">
           <div className="flex flex-col lg:flex-row gap-6">
             <div className="flex-shrink-0">
               <div className="relative h-32 w-32 md:h-40 md:w-40 rounded-xl border border-neutral-gray-light bg-white shadow-lg overflow-hidden">
-                <Image src={institute.image} alt={institute.name} fill className="object-cover" sizes="100vw" />
+                <Image src={institute.image} alt={institute.name} fill className="object-cover" sizes="160px" />
               </div>
               <div className="flex items-center justify-center gap-1.5 mt-3">
                 <div className="flex gap-0.5">

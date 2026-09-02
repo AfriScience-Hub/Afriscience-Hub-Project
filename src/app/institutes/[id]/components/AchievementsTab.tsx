@@ -49,8 +49,8 @@ export default function AchievementsTab({ institute }: { institute: Institute })
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {institute.alumni.map((alum: any, idx: number) => (
               <div key={idx} className="group relative flex flex-col items-center text-center p-4 rounded-xl bg-neutral-bg-light border border-neutral-gray-light hover:border-brand-red-100 hover:shadow-md transition-all">
-                <div className="h-16 w-16 rounded-full overflow-hidden mb-3 border-2 border-white shadow-sm ring-2 ring-transparent group-hover:ring-brand-red-100 transition-all">
-                  <Image src={alum.image} alt={alum.name} fill className="object-cover" sizes="100vw" />
+                <div className="relative h-16 w-16 rounded-full overflow-hidden mb-3 border-2 border-white shadow-sm ring-2 ring-transparent group-hover:ring-brand-red-100 transition-all">
+                  <Image src={alum.image} alt={alum.name} fill className="object-cover" sizes="64px" />
                 </div>
                 <h4 className="font-bold text-neutral-black text-sm leading-tight">{alum.name}</h4>
                 <p className="text-xs text-neutral-gray-medium mt-1">{alum.role}</p>
