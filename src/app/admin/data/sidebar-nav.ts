@@ -52,7 +52,7 @@ export const SIDEBAR_NAV: SidebarItem[] = [
       { label: 'All Users', href: ADMIN_ROUTES.allUsers },
       { label: 'Admin Management', href: ADMIN_ROUTES.adminManagement },
       { label: 'Roles & Permissions', href: ADMIN_ROUTES.rolesPermissions },
-      { label: 'Activity Logs', href: ADMIN_ROUTES.activityLogs },
+      { label: 'Suspended Users', href: ADMIN_ROUTES.suspendedUsers },
     ],
   },
   {
@@ -111,6 +111,9 @@ export const SIDEBAR_NAV: SidebarItem[] = [
     key: 'help-support',
     label: 'Help & Support',
     icon: HelpCircle,
-    href: ADMIN_ROUTES.helpSupport,
+    children: [
+      { label: 'Feedback', href: ADMIN_ROUTES.feedback },
+      { label: 'Contact', href: ADMIN_ROUTES.contact },
+    ],
   },
 ];

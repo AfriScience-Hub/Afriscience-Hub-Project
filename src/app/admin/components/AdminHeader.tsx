@@ -44,7 +44,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
             alt="Admin"
             width={36}
             height={36}
-            className="rounded-full object-cover"
+            className="rounded-full object-cover w-10 h-10"
           />
           <div className="hidden sm:block">
             <p className="text-sm font-semibold text-neutral-black">Claire Iwuanyanwu</p>

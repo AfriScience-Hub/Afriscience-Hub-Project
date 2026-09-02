@@ -8,7 +8,12 @@ import { SIDEBAR_NAV } from '../data/sidebar-nav';
 import SidebarNavItem from './SidebarNavItem';
 import littleLogo from '../../../assets/littleLogo.png';
 
-export default function AdminSidebar() {
+interface MobileSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<string[]>(() => {
     const expanded: string[] = [];
@@ -26,10 +31,13 @@ export default function AdminSidebar() {
     );
   };
 
+  if (!isOpen) return null;
+
   return (
-    <aside className="w-64 flex-shrink-0 hidden lg:block">
-      <div className="fixed w-64 h-screen bg-[#030C2C] shadow-sm overflow-hidden flex flex-col">
-        <div className="p-5 border-b border-white/10">
+    <div className="fixed inset-0 z-50 lg:hidden">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-y-0 left-0 w-64 bg-[#030C2C] shadow-sm overflow-hidden flex flex-col">
+        <div className="p-5 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image src={littleLogo.src} alt="AFRISCIENCE HUB" width={40} height={40} className="h-10 w-10 object-contain" />
             <div>
@@ -37,6 +45,12 @@ export default function AdminSidebar() {
               <p className="text-[11px] text-gray-400">Admin Dashboard</p>
             </div>
           </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-white/10 text-white cursor-pointer"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
         <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
@@ -46,6 +60,7 @@ export default function AdminSidebar() {
               item={item}
               isExpanded={expandedItems.includes(item.key)}
               onToggle={() => toggleItem(item.key)}
+              onNavigate={onClose}
             />
           ))}
         </nav>
@@ -66,6 +81,6 @@ export default function AdminSidebar() {
           </div>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

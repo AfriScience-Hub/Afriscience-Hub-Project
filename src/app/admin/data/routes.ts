@@ -5,9 +5,10 @@ export const ADMIN_ROUTES = {
 
   userManagement: '/admin/user-management',
   allUsers: '/admin/user-management',
+  userDashboard: '/admin/user-management/dashboard',
   adminManagement: '/admin/user-management/admin-management',
   rolesPermissions: '/admin/user-management/roles-permissions',
-  activityLogs: '/admin/user-management/activity-logs',
+  suspendedUsers: '/admin/user-management/suspended-users',
 
   categories: '/admin/categories',
   institutes: '/admin/categories/institutes',
@@ -27,4 +28,6 @@ export const ADMIN_ROUTES = {
   reportsAnalytics: '/admin/reports-analytics',
   systemSettings: '/admin/system-settings',
   helpSupport: '/admin/help-support',
+  feedback: '/admin/help-support/feedback',
+  contact: '/admin/help-support/contact',
 } as const;

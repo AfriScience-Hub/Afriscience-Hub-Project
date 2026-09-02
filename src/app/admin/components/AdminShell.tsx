@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import AdminSidebar from './AdminSidebar';
+import MobileSidebar from './MobileSidebar';
 import AdminHeader from './AdminHeader';
 
 const NO_SHELL_ROUTES = ['/admin/login', '/admin/forgot-password'];
@@ -12,7 +13,7 @@ interface AdminShellProps {
 }
 
 export default function AdminShell({ children }: AdminShellProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const pathname = usePathname();
 
   if (NO_SHELL_ROUTES.includes(pathname)) {
@@ -21,9 +22,10 @@ export default function AdminShell({ children }: AdminShellProps) {
 
   return (
     <div className="min-h-screen bg-neutral-bg-light flex">
-      <AdminSidebar isSidebarOpen={isSidebarOpen} />
+      <AdminSidebar />
+      <MobileSidebar isOpen={isMobileSidebarOpen} onClose={() => setIsMobileSidebarOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0">
-        <AdminHeader onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+        <AdminHeader onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)} />
         <main className="flex-1 p-6 overflow-y-auto">
           {children}
         </main>

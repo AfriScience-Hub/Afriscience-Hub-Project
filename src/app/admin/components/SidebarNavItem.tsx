@@ -11,9 +11,10 @@ interface SidebarNavItemProps {
   item: SidebarItem;
   isExpanded: boolean;
   onToggle: () => void;
+  onNavigate?: () => void;
 }
 
-export default function SidebarNavItem({ item, isExpanded, onToggle }: SidebarNavItemProps) {
+export default function SidebarNavItem({ item, isExpanded, onToggle, onNavigate }: SidebarNavItemProps) {
   const pathname = usePathname();
   const isActive = item.href
     ? pathname === item.href || pathname.startsWith(item.href + '/')
@@ -55,6 +56,7 @@ export default function SidebarNavItem({ item, isExpanded, onToggle }: SidebarNa
                 <Link
                   key={child.href}
                   href={child.href}
+                  onClick={onNavigate}
                   className={cn(
                     "flex items-center gap-2.5 rounded-md px-3 py-2 text-xs font-medium transition-colors",
                     isChildActive
@@ -79,6 +81,7 @@ export default function SidebarNavItem({ item, isExpanded, onToggle }: SidebarNa
   return (
     <Link
       href={item.href!}
+      onClick={onNavigate}
       className={cn(
         "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
         isActive

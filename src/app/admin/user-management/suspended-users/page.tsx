@@ -2,20 +2,27 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { Search, ChevronDown, MoreHorizontal, ChevronLeft, ChevronRight, LayoutDashboard, Ban } from 'lucide-react';
+import { Search, ChevronDown, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MOCK_USERS, STATS, COUNTRIES, type User } from './data';
 
-export default function AllUsersPage() {
-  const router = useRouter();
+const MOCK_SUSPENDED_USERS = [
+  { id: 1, name: 'Tunde Bakare', email: 'tunde.bakare@email.com', userId: 'USR-2024-0089', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200', country: 'Nigeria', suspendedDate: 'May 20, 2025', reason: 'Policy violation' },
+  { id: 2, name: 'Fatima Al-Hassan', email: 'fatima.h@email.com', userId: 'USR-2024-0102', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200', country: 'Egypt', suspendedDate: 'May 18, 2025', reason: 'Spam activity' },
+  { id: 3, name: 'Kwame Mensah', email: 'kwame.m@email.com', userId: 'USR-2024-0076', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200', country: 'Ghana', suspendedDate: 'May 15, 2025', reason: 'Fake profile' },
+  { id: 4, name: 'Aisha Okonkwo', email: 'aisha.o@email.com', userId: 'USR-2024-0115', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200', country: 'Nigeria', suspendedDate: 'May 12, 2025', reason: 'Inappropriate content' },
+  { id: 5, name: 'Jean-Pierre Mulumba', email: 'jp.mulumba@email.com', userId: 'USR-2024-0093', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200', country: 'DR Congo', suspendedDate: 'May 10, 2025', reason: 'Policy violation' },
+  { id: 6, name: 'Naledi Dlamini', email: 'naledi.d@email.com', userId: 'USR-2024-0067', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200', country: 'South Africa', suspendedDate: 'May 8, 2025', reason: 'Spam activity' },
+];
+
+const COUNTRIES = ['All Countries', 'Nigeria', 'Ghana', 'Egypt', 'South Africa', 'DR Congo', 'Kenya', 'Tanzania'];
+
+export default function SuspendedUsersPage() {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [countryFilter, setCountryFilter] = useState(COUNTRIES[0]);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-  const [openActionsId, setOpenActionsId] = useState<number | null>(null);
 
-  const filteredUsers = MOCK_USERS.filter((user) => {
+  const filteredUsers = MOCK_SUSPENDED_USERS.filter((user) => {
     const matchesSearch = search === '' ||
       user.name.toLowerCase().includes(search.toLowerCase()) ||
       user.email.toLowerCase().includes(search.toLowerCase()) ||
@@ -26,24 +33,13 @@ export default function AllUsersPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-1.5 text-[11px] text-neutral-gray-medium mb-0.5">
-            <span>Dashboard</span><span>/</span><span>User Management</span><span>/</span>
-            <span className="text-neutral-black font-medium">All Users</span>
-          </div>
-          <h1 className="text-xl font-bold text-neutral-black">User Management</h1>
+      <div>
+        <div className="flex items-center gap-1.5 text-[11px] text-neutral-gray-medium mb-0.5">
+          <span>Dashboard</span><span>/</span><span>User Management</span><span>/</span>
+          <span className="text-neutral-black font-medium">Suspended Users</span>
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {STATS.map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-neutral-gray-light bg-white p-3 shadow-sm">
-            <p className="text-[10px] text-neutral-gray-medium">{stat.label}</p>
-            <p className="text-lg font-bold text-neutral-black mt-0.5">{stat.value}</p>
-            <p className={cn("text-[10px] mt-0.5", stat.positive ? 'text-green-600' : 'text-red-500')}>{stat.change}</p>
-          </div>
-        ))}
+        <h1 className="text-xl font-bold text-neutral-black">Suspended Users</h1>
+        <p className="text-xs text-neutral-gray-dark mt-0.5">Manage users who have been suspended from the platform.</p>
       </div>
 
       <div className="flex items-center gap-2">
@@ -51,7 +47,7 @@ export default function AllUsersPage() {
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-gray-medium" />
           <input
             type="text"
-            placeholder="Search by name, email, phone or ID..."
+            placeholder="Search by name, email or ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-neutral-gray-light focus:border-[#453DD8] focus:ring-1 focus:ring-[#453DD8] outline-none"
@@ -85,17 +81,15 @@ export default function AllUsersPage() {
               <tr className="border-b border-neutral-gray-light bg-neutral-bg-light">
                 <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">User</th>
                 <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">Email</th>
-                <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">Joined</th>
-                <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">Last Active</th>
                 <th className="text-right px-3 py-2 font-medium text-neutral-gray-dark">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center">
-                    <p className="text-sm font-medium text-neutral-black">No users found</p>
-                    <p className="text-xs text-neutral-gray-medium mt-1">Try adjusting your search or filters.</p>
+                  <td colSpan={3} className="px-6 py-12 text-center">
+                    <p className="text-sm font-medium text-neutral-black">No suspended users found</p>
+                    <p className="text-xs text-neutral-gray-medium mt-1">No users match your search or filter criteria.</p>
                   </td>
                 </tr>
               ) : filteredUsers.map((user) => (
@@ -115,38 +109,13 @@ export default function AllUsersPage() {
                     </div>
                   </td>
                   <td className="px-3 py-2.5 text-[10px] text-neutral-gray-dark">{user.email}</td>
-                  <td className="px-3 py-2.5 text-[10px] text-neutral-gray-dark whitespace-nowrap">{user.joined}</td>
-                  <td className="px-3 py-2.5">
-                    <span className="inline-flex items-center gap-1 text-[10px] text-neutral-gray-dark">
-                      <span className="h-1 w-1 rounded-full bg-green-500" />
-                      {user.lastActive}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2.5 text-right relative" onClick={(e) => e.stopPropagation()}>
+                  <td className="px-3 py-2.5 text-right">
                     <button
-                      onClick={() => setOpenActionsId(openActionsId === user.id ? null : user.id)}
-                      className="p-1 hover:bg-neutral-bg-light rounded cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg cursor-pointer transition-colors"
                     >
-                      <MoreHorizontal className="h-3.5 w-3.5 text-black" />
+                      <RotateCcw className="h-3 w-3" />
+                      Reinstate
                     </button>
-                    {openActionsId === user.id && (
-                      <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-neutral-gray-light rounded-lg shadow-lg py-1 z-50">
-                        <button
-                          onClick={() => { setOpenActionsId(null); router.push('/admin/user-management/dashboard'); }}
-                          className="w-full flex items-center gap-2 px-3 py-2 hover:bg-neutral-bg-light cursor-pointer text-left"
-                        >
-                          <LayoutDashboard className="h-3.5 w-3.5 text-neutral-gray-dark" />
-                          <span className="text-[11px] text-neutral-black">View Dashboard</span>
-                        </button>
-                        <button
-                          onClick={() => setOpenActionsId(null)}
-                          className="w-full flex items-center gap-2 px-3 py-2 hover:bg-red-50 cursor-pointer text-left"
-                        >
-                          <Ban className="h-3.5 w-3.5 text-red-500" />
-                          <span className="text-[11px] text-red-600">Suspend User</span>
-                        </button>
-                      </div>
-                    )}
                   </td>
                 </tr>
               ))}
@@ -155,10 +124,10 @@ export default function AllUsersPage() {
         </div>
 
         <div className="flex items-center justify-between px-3 py-2 border-t border-neutral-gray-light">
-          <p className="text-[11px] text-neutral-gray-dark">Showing 1 – {filteredUsers.length} of {filteredUsers.length} users</p>
+          <p className="text-[11px] text-neutral-gray-dark">Showing 1 – {filteredUsers.length} of {filteredUsers.length} suspended users</p>
           <div className="flex items-center gap-1">
             <button className="p-1 rounded hover:bg-neutral-bg-light cursor-pointer"><ChevronLeft className="h-3.5 w-3.5 text-neutral-gray-medium" /></button>
-            {[1, 2, 3, 4].map((page) => (
+            {[1, 2].map((page) => (
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
@@ -170,14 +139,7 @@ export default function AllUsersPage() {
                 {page}
               </button>
             ))}
-            <span className="text-neutral-gray-medium px-0.5">…</span>
-            <button className="w-6 h-6 rounded text-[11px] font-medium hover:bg-neutral-bg-light text-neutral-gray-dark cursor-pointer">1855</button>
             <button className="p-1 rounded hover:bg-neutral-bg-light cursor-pointer"><ChevronRight className="h-3.5 w-3.5 text-neutral-gray-medium" /></button>
-            <select className="ml-1 border border-neutral-gray-light rounded text-[10px] px-1.5 py-1 text-neutral-gray-dark outline-none cursor-pointer">
-              <option>10 / page</option>
-              <option>25 / page</option>
-              <option>50 / page</option>
-            </select>
           </div>
         </div>
       </div>
