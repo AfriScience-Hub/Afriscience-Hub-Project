@@ -3,9 +3,10 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Search, ChevronDown, MoreHorizontal, ChevronLeft, ChevronRight, LayoutDashboard, Ban } from 'lucide-react';
+import { Search, ChevronDown, ChevronLeft, ChevronRight, LayoutDashboard, Ban } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MOCK_USERS, STATS, COUNTRIES, type User } from './data';
+import TableActionMenu from '@/app/admin/components/TableActionMenu';
 
 export default function AllUsersPage() {
   const router = useRouter();
@@ -13,7 +14,6 @@ export default function AllUsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [countryFilter, setCountryFilter] = useState(COUNTRIES[0]);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-  const [openActionsId, setOpenActionsId] = useState<number | null>(null);
 
   const filteredUsers = MOCK_USERS.filter((user) => {
     const matchesSearch = search === '' ||
@@ -122,31 +122,15 @@ export default function AllUsersPage() {
                       {user.lastActive}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 text-right relative" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => setOpenActionsId(openActionsId === user.id ? null : user.id)}
-                      className="p-1 hover:bg-neutral-bg-light rounded cursor-pointer"
-                    >
-                      <MoreHorizontal className="h-3.5 w-3.5 text-black" />
-                    </button>
-                    {openActionsId === user.id && (
-                      <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-neutral-gray-light rounded-lg shadow-lg py-1 z-50">
-                        <button
-                          onClick={() => { setOpenActionsId(null); router.push('/admin/user-management/dashboard'); }}
-                          className="w-full flex items-center gap-2 px-3 py-2 hover:bg-neutral-bg-light cursor-pointer text-left"
-                        >
-                          <LayoutDashboard className="h-3.5 w-3.5 text-neutral-gray-dark" />
-                          <span className="text-[11px] text-neutral-black">View Dashboard</span>
-                        </button>
-                        <button
-                          onClick={() => setOpenActionsId(null)}
-                          className="w-full flex items-center gap-2 px-3 py-2 hover:bg-red-50 cursor-pointer text-left"
-                        >
-                          <Ban className="h-3.5 w-3.5 text-red-500" />
-                          <span className="text-[11px] text-red-600">Suspend User</span>
-                        </button>
-                      </div>
-                    )}
+                  <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex justify-end">
+                      <TableActionMenu
+                        items={[
+                          { label: 'View Dashboard', icon: <LayoutDashboard className="h-3.5 w-3.5 text-neutral-gray-dark" />, onClick: () => router.push('/admin/user-management/dashboard') },
+                          { label: 'Suspend User', icon: <Ban className="h-3.5 w-3.5 text-red-500" />, onClick: () => {}, danger: true },
+                        ]}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

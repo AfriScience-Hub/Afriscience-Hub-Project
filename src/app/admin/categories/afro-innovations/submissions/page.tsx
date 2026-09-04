@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, XCircle, ShieldCheck } from 'lucide-react';
+import TableActionMenu from '@/app/admin/components/TableActionMenu';
 import { SUBMISSIONS } from './data';
 import type { SubmissionRecord, SubmissionStatus } from './data';
 import SubmissionDetailModal from './components/SubmissionDetailModal';
@@ -16,17 +17,9 @@ export default function SubmissionsPage() {
   const [fieldFilter, setFieldFilter] = useState<string>('All Fields');
   const [stageFilter, setStageFilter] = useState<string>('All Stages');
   const [countryFilter, setCountryFilter] = useState<string>('All Countries');
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [selected, setSelected] = useState<SubmissionRecord | null>(null);
   const [page, setPage] = useState(1);
   const perPage = 10;
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const h = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpenMenuId(null); };
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
-  }, []);
 
   const filtered = useMemo(() => {
     return records.filter((r) => {
@@ -93,7 +86,7 @@ export default function SubmissionsPage() {
       </div>
 
       <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
-        <div className="overflow-x-auto" ref={menuRef}>
+        <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[900px]">
             <thead>
               <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
@@ -141,18 +134,14 @@ export default function SubmissionsPage() {
                     ) : <span className="text-xs text-neutral-gray-medium">—</span>}
                   </td>
                   <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
-                    <div className="relative inline-block">
-                      <button onClick={() => setOpenMenuId(openMenuId === r.id ? null : r.id)} className="h-8 w-8 rounded-lg border border-neutral-gray-light bg-white hover:bg-neutral-bg-light inline-flex items-center justify-center cursor-pointer">
-                        <MoreVertical className="h-4 w-4 text-neutral-gray-dark" />
-                      </button>
-                      {openMenuId === r.id && (
-                        <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-neutral-gray-light rounded-xl shadow-lg py-1 z-10">
-                          <button onClick={() => { setSelected(r); setOpenMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-neutral-bg-light cursor-pointer"><Eye className="h-3.5 w-3.5" /> View</button>
-                          <button onClick={() => { updateStatus(r.id, 'Published'); setOpenMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-emerald-700 hover:bg-emerald-50 cursor-pointer"><CheckCircle className="h-3.5 w-3.5" /> Approve</button>
-                          <button onClick={() => { updateStatus(r.id, 'Rejected'); setOpenMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50 cursor-pointer"><XCircle className="h-3.5 w-3.5" /> Reject</button>
-                        </div>
-                      )}
-                    </div>
+                    <TableActionMenu
+                      triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
+                      items={[
+                        { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
+                        { label: 'Approve', icon: <CheckCircle className="h-3.5 w-3.5" />, onClick: () => updateStatus(r.id, 'Published') },
+                        { label: 'Reject', icon: <XCircle className="h-3.5 w-3.5" />, onClick: () => updateStatus(r.id, 'Rejected'), danger: true },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}
