@@ -1,95 +1,53 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { api } from '@/lib/api';
-
-export interface User {
-  name: string;
-  email: string;
-  phone: string;
-  avatar: string;
-}
+import React, { createContext, useContext, type ReactNode } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { signupUser, loginUser, verifyUserEmail, logoutThunk, setUser } from '@/store/authSlice';
+import type { AuthUser } from '@/store/authSlice';
+export type User = AuthUser;
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
   login: (identifier: string, password: string) => Promise<void>;
   signup: (name: string, email: string, phone: string, password: string) => Promise<void>;
   verifyEmail: (email: string, otp: string) => Promise<void>;
   logout: () => void;
-  updateUser: (updates: Partial<User>) => void;
+  updateUser: (updates: Partial<AuthUser>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1670881391783-9c55ba592f93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzIzODM4NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080';
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      const stored = localStorage.getItem('afrisciencehub_user');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
-
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem('afrisciencehub_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('afrisciencehub_user');
-    }
-  }, [user]);
+  const dispatch = useAppDispatch();
+  const { user, isAuthenticated } = useAppSelector((s) => s.auth);
 
   const signup = async (name: string, email: string, phone: string, password: string) => {
-    await api.post('/auth/signup', {
-      fullName: name,
-      email,
-      phone,
-      password,
-      confirmPassword: password,
-    });
+    const res: any = await dispatch(signupUser({ fullName: name, email, phone, password, confirmPassword: password }));
+    if (res.error || signupUser.rejected.match(res)) throw new Error((res.payload as string) || res.error?.message || 'Signup failed');
   };
 
   const verifyEmail = async (email: string, otp: string) => {
-    await api.post('/auth/verify', { email, otp });
+    const res: any = await dispatch(verifyUserEmail({ email, otp }));
+    if (res.error || verifyUserEmail.rejected.match(res)) throw new Error((res.payload as string) || res.error?.message || 'Verification failed');
   };
 
   const login = async (identifier: string, password: string) => {
-    const isEmail = identifier.includes('@');
-    const payload: Record<string, string> = { password };
-    if (isEmail) {
-      payload.email = identifier;
-    } else {
-      payload.phone = identifier;
-    }
-
-    const data = await api.post<{ name?: string; email?: string; phone?: string }>('/auth/login', payload);
-
-    if (data.token) {
-      localStorage.setItem('afrisciencehub_token', data.token);
-    }
-
-    setUser({
-      name: data.user?.name || (isEmail ? identifier.split('@')[0] : 'User'),
-      email: data.user?.email || (isEmail ? identifier : ''),
-      phone: data.user?.phone || (!isEmail ? identifier : ''),
-      avatar: DEFAULT_AVATAR,
-    });
+    const res: any = await dispatch(loginUser({ identifier, password }));
+    if (res.error || loginUser.rejected.match(res)) throw new Error((res.payload as string) || res.error?.message || 'Login failed');
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('afrisciencehub_token');
+    dispatch(logoutThunk());
   };
 
-  const updateUser = (updates: Partial<User>) => {
-    setUser(prev => prev ? { ...prev, ...updates } : null);
+  const updateUser = (updates: Partial<AuthUser>) => {
+    if (!user) return;
+    dispatch(setUser({ ...user, ...updates }));
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, verifyEmail, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!isAuthenticated, login, signup, verifyEmail, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

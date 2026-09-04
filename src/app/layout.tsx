@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { StoreProvider } from '@/store/StoreProvider'
 import { AuthProvider } from './context/AuthContext'
 import { Layout } from './components/Layout'
 import { Toaster } from 'sonner'
@@ -19,11 +20,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ScrollToTop />
-        <AuthProvider>
-          <Toaster position="top-right" richColors closeButton />
-          <Layout>{children}</Layout>
-        </AuthProvider>
+        <StoreProvider>
+          <AuthProvider>
+            <ScrollToTop />
+            <Toaster position="top-right" richColors closeButton />
+            <Layout>{children}</Layout>
+          </AuthProvider>
+        </StoreProvider>
       </body>
     </html>
   )

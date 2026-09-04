@@ -4,6 +4,8 @@ interface ApiResponse<T = unknown> {
   data?: T;
   message?: string;
   token?: string;
+  accessToken?: string;
+  refreshToken?: string;
   user?: T;
   error?: string;
 }
@@ -13,7 +15,7 @@ async function request<T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   const url = `${BASE_URL}${endpoint}`;
-  const token = localStorage.getItem('afrisciencehub_token');
+  const token = typeof window !== 'undefined' ? localStorage.getItem('afrisciencehub_token') : null;
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -24,22 +26,35 @@ async function request<T>(
   const res = await fetch(url, {
     ...options,
     headers,
+    // FIX: was `credentials: 'include'` — this is `fetch` equivalent of axios `withCredentials: true`.
+    // It forces browser to send cookies and requires backend to return
+    // `Access-Control-Allow-Origin: <specific-origin>` + `Access-Control-Allow-Credentials: true`.
+    // Backend currently returns `Access-Control-Allow-Origin: *` which is rejected when credentials is 'include'.
+    // Since auth uses Bearer token in Authorization header (localStorage), we don't need cookies.
+    // Use 'omit' to avoid CORS preflight failure. If backend later requires httpOnly cookies,
+    // keep 'include' BUT backend must fix CORS: origin: ['http://localhost:3000', 'https://yourdomain.com'], credentials: true
+    credentials: 'omit',
   });
 
-  const data: ApiResponse<T> = await res.json();
+  let data: ApiResponse<T>;
+  try {
+    data = await res.json();
+  } catch {
+    data = {} as ApiResponse<T>;
+  }
 
   if (!res.ok) {
-    throw new Error(data.message || data.error || 'Something went wrong');
+    throw new Error(data.message || data.error || `Request failed (${res.status})`);
   }
 
   return data;
 }
 
 export const api = {
-  post<T>(endpoint: string, body: Record<string, unknown>) {
+  post<T>(endpoint: string, body?: Record<string, unknown>) {
     return request<T>(endpoint, {
       method: 'POST',
-      body: JSON.stringify(body),
+      body: body ? JSON.stringify(body) : undefined,
     });
   },
 
@@ -47,7 +62,7 @@ export const api = {
     return request<T>(endpoint, { method: 'GET' });
   },
 
-  put<T>(endpoint: string, body: Record<string, unknown>) {
+  put<T>(endpoint: string, body?: Record<string, unknown>) {
     return request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(body),

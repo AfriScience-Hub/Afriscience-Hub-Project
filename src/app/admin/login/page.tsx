@@ -8,6 +8,8 @@ import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import littleLogo from '../../../assets/littleLogo.png';
 import { Button } from '../../components/ui/Button';
 import { toast } from 'sonner';
+import { useAppDispatch } from '@/store/hooks';
+import { loginAdmin } from '@/store/authSlice';
 
 export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +17,7 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +32,8 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      // TODO: Replace with actual admin authentication API
+      const res: any = await dispatch(loginAdmin({ email: email.trim(), password }));
+      if (loginAdmin.rejected.match(res)) throw new Error((res.payload as string) || 'Login failed');
       toast.success('Admin login successful!');
       router.push('/admin/dashboard');
     } catch (err) {
@@ -132,7 +136,13 @@ export default function AdminLoginPage() {
         </form>
 
         <p className="text-center text-sm text-neutral-gray-dark">
-          <Link href="/login" className="font-medium text-brand-red-600 hover:text-brand-red-700">
+          Don&apos;t have an account?{' '}
+          <Link href="/admin/signup" className="font-medium text-brand-red-600 hover:text-brand-red-700">
+            Create admin account
+          </Link>
+        </p>
+        <p className="text-center text-sm text-neutral-gray-dark">
+          <Link href="/login" className="font-medium text-neutral-gray-dark hover:text-brand-red-600">
             Back to user login
           </Link>
         </p>

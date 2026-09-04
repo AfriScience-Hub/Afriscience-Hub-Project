@@ -2,14 +2,27 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { X } from 'lucide-react';
+import { X, LogOut } from 'lucide-react';
 import { SIDEBAR_NAV } from '../data/sidebar-nav';
 import SidebarNavItem from './SidebarNavItem';
 import littleLogo from '../../../assets/littleLogo.png';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { logoutThunk } from '@/store/authSlice';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const { user } = useAppSelector((s) => s.auth);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const handleSignOut = async () => {
+    await (dispatch as any)(logoutThunk());
+    toast.success('Signed out');
+    router.replace('/admin/login');
+  };
   const [expandedItems, setExpandedItems] = useState<string[]>(() => {
     const expanded: string[] = [];
     for (const item of SIDEBAR_NAV) {
@@ -50,20 +63,28 @@ export default function AdminSidebar() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-white/10">
-          <div className="flex items-center gap-3 px-2 py-2">
-            <Image
-              src="https://images.unsplash.com/photo-1670881391783-9c55ba592f93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzIzODM4NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080"
-              alt="Admin"
-              width={40}
-              height={40}
-              className="rounded-full object-cover w-10 h-10"
-            />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white truncate">Claire Iwuanyanwu</p>
-              <p className="text-[10px] text-gray-400">Super Admin</p>
+        <div className="border-t border-white/10">
+          <Link href="/admin/profile" className="p-4 block hover:bg-white/5 transition-colors">
+            <div className="flex items-center gap-3 px-2 py-2">
+              <Image
+                src={user?.avatar || 'https://images.unsplash.com/photo-1670881391783-9c55ba592f93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzIzODM4NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'}
+                alt="Admin"
+                width={40}
+                height={40}
+                className="rounded-full object-cover w-10 h-10"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-white truncate">{user?.name || 'Claire Iwuanyanwu'}</p>
+                <p className="text-[10px] text-gray-400 truncate">{user?.email || 'Super Admin'}</p>
+              </div>
             </div>
-          </div>
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center gap-2 px-6 py-2 text-xs font-medium text-red-300 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <LogOut className="h-3.5 w-3.5" /> Sign out
+          </button>
         </div>
       </div>
     </aside>

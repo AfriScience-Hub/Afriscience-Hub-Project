@@ -1,15 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Lightbulb, ChevronDown, ChevronRight, MoreHorizontal, BarChart3, Eye, Share2, CheckCircle, XCircle, Clock, ArrowRight, Calendar, Filter } from 'lucide-react';
+import Link from 'next/link';
+import { Lightbulb, MoreHorizontal, Eye, Share2, CheckCircle, XCircle, Clock, ArrowRight, Calendar, Filter, ChevronDown, LayoutGrid, Settings2, Inbox } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MOCK_INNOVATIONS, PENDING_APPROVALS, RECENTLY_ADDED, STATS, TABS, INNOVATIONS_BY_CATEGORY, INNOVATIONS_BY_STAGE, GROWTH_DATA, QUICK_ACTIONS } from './data';
+import { MOCK_INNOVATIONS, PENDING_APPROVALS, RECENTLY_ADDED, STATS, TABS, INNOVATIONS_BY_CATEGORY, INNOVATIONS_BY_STAGE, GROWTH_DATA } from './data';
 
 export default function AfroInnovationsPage() {
   const [activeTab, setActiveTab] = useState('Overview');
-  const [showActions, setShowActions] = useState(false);
   const [growthPeriod, setGrowthPeriod] = useState('This Month');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const h = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
 
   const maxGrowth = Math.max(...GROWTH_DATA.map((d) => d.value));
 
@@ -27,40 +34,34 @@ export default function AfroInnovationsPage() {
           </h1>
           <p className="text-[11px] text-neutral-gray-dark mt-0.5">Discover, manage and promote innovative solutions from across Africa that are solving real problems and driving impact.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setShowActions(!showActions)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#453DD8] text-white rounded-lg text-xs font-medium hover:bg-[#3a33c0] cursor-pointer"
-            >
-              + Add Innovation <ChevronDown className="h-3 w-3" />
-            </button>
-            {showActions && (
-              <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-neutral-gray-light rounded-lg shadow-lg py-1 z-50">
-                {QUICK_ACTIONS.map((action) => (
-                  <button
-                    key={action.label}
-                    onClick={() => setShowActions(false)}
-                    className="w-full flex items-start gap-2.5 px-3 py-2.5 hover:bg-neutral-bg-light cursor-pointer text-left"
-                  >
-                    <div className="p-1.5 rounded-lg bg-purple-50 mt-0.5">
-                      {action.icon === 'dashboard' && <BarChart3 className="h-3.5 w-3.5 text-purple-600" />}
-                      {action.icon === 'content' && <Lightbulb className="h-3.5 w-3.5 text-purple-600" />}
-                      {action.icon === 'approvals' && <CheckCircle className="h-3.5 w-3.5 text-purple-600" />}
-                      {action.icon === 'add' && <span className="text-purple-600 text-sm font-bold">+</span>}
-                    </div>
-                    <div>
-                      <p className="text-[11px] font-medium text-neutral-black">{action.label}</p>
-                      <p className="text-[9px] text-neutral-gray-medium">{action.description}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <button className="p-1.5 rounded-lg border border-neutral-gray-light hover:bg-neutral-bg-light cursor-pointer">
-            <MoreHorizontal className="h-4 w-4 text-neutral-gray-medium" />
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="h-9 w-9 inline-flex items-center justify-center rounded-xl bg-white border border-neutral-gray-light shadow-sm hover:bg-neutral-bg-light cursor-pointer"
+            aria-label="More actions"
+          >
+            <MoreHorizontal className="h-5 w-5 text-neutral-gray-dark" />
           </button>
+          {menuOpen && (
+            <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-neutral-gray-light rounded-xl shadow-xl py-1.5 z-50 overflow-hidden">
+              <Link
+                href="/admin/categories/afro-innovations/manage-options"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3.5 py-2.5 hover:bg-neutral-bg-light cursor-pointer"
+              >
+                <span className="h-8 w-8 rounded-lg bg-[#453DD8]/10 flex items-center justify-center shrink-0"><Settings2 className="h-4 w-4 text-[#453DD8]" /></span>
+                <span className="text-xs font-semibold text-neutral-black">Manage Options</span>
+              </Link>
+              <Link
+                href="/admin/categories/afro-innovations/submissions"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3.5 py-2.5 hover:bg-neutral-bg-light cursor-pointer"
+              >
+                <span className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0"><Inbox className="h-4 w-4 text-emerald-600" /></span>
+                <span className="text-xs font-semibold text-neutral-black">View Submissions</span>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
