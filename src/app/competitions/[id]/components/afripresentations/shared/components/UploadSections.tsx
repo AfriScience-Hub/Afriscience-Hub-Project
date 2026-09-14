@@ -129,7 +129,7 @@ export function GuardianIdSection({ idType, otherIdType, preview, fileName, onId
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-4">
         <div>
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-            <CreditCard className="h-3.5 w-3.5" /> Parent/Guardian&apos;s ID Card <span className="text-brand-red-600">*</span>
+            <CreditCard className="h-3.5 w-3.5" /> Parent/Guardian's ID Card <span className="text-brand-red-600">*</span>
           </label>
           <div className="relative">
             <select

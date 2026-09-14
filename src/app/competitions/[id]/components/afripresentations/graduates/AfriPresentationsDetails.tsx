@@ -74,13 +74,17 @@ export function AfriPresentationsDetails({ comp, undertakingChecked, onUndertaki
         <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-brand-navy-900" /> Screening & Selection
         </h3>
-        <ul className="space-y-2 text-sm text-neutral-gray-dark leading-relaxed list-disc list-inside">
-          <li>All submitted entries will be reviewed and scored by our competition panel in the following areas:</li>
-          {GR_DATA.SELECTION_CRITERIA.map((c, idx) => <li key={idx}>{c}</li>)}
-          <li>Top 30 finalists will be listed under the &apos;Voting&apos; section of the platform after four (4) weeks of submission deadline.</li>
-          <li>Public votes will be used to determine the final performance of finalists.</li>
-          <li>At the end of voting sessions, winners will be ranked, announced and rewarded under the &apos;Awards&apos; section of the platform.</li>
-          <li>When a tie exists either in the 1st, 2nd or 3rd positions, it will be resolved by further extending the voting window for affected finalists by 48 hours.</li>
+        <ul className="space-y-2.5 text-sm text-neutral-gray-dark leading-relaxed">
+          <li className="flex items-start gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-neutral-black flex-shrink-0" /><span>All submitted entries will be reviewed and scored by our competition panel in the following areas:</span></li>
+          <ul className="ml-6 space-y-2 border-l border-neutral-gray-light/60 pl-4">
+            {GR_DATA.SELECTION_CRITERIA.map((c, idx) => (
+              <li key={idx} className="flex items-start gap-2.5"><span className="mt-2 h-1.5 w-1.5 rounded-full bg-neutral-gray-dark flex-shrink-0" /><span>{c}</span></li>
+            ))}
+          </ul>
+          <li className="flex items-start gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-neutral-black flex-shrink-0" /><span>Top 30 finalists will be listed under the &apos;Voting&apos; section of the platform after four (4) weeks of submission deadline.</span></li>
+          <li className="flex items-start gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-neutral-black flex-shrink-0" /><span>Public votes will be used to determine the final performance of finalists.</span></li>
+          <li className="flex items-start gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-neutral-black flex-shrink-0" /><span>At the end of voting sessions, winners will be ranked, announced and rewarded under the &apos;Awards&apos; section of the platform.</span></li>
+          <li className="flex items-start gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-neutral-black flex-shrink-0" /><span>When a tie exists either in the 1st, 2nd or 3rd positions, it will be resolved by further extending the voting window for affected finalists by 48 hours.</span></li>
         </ul>
       </section>
 

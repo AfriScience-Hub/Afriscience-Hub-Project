@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import {
   User, Hash, FileText, Calendar, MapPin, Globe, BookOpen, Edit3,
-  Link as LinkIcon, School, ChevronDown, Info
+  Link as LinkIcon, School, ChevronDown,
 } from 'lucide-react';
 import type { Competition } from '@/app/competitions/data';
 
@@ -102,21 +101,13 @@ interface LanguageSectionProps {
 
 export function LanguageSection({ language, otherLanguage, onLanguageChange, onOtherLanguageChange }: LanguageSectionProps) {
   const LANGUAGES = ['English', 'French', 'Arabic', 'Portuguese', 'Spanish', 'Afrikaans', 'Other'];
-  const [showLangInfo, setShowLangInfo] = useState(false);
   return (
     <div className="border-t border-neutral-gray-light pt-6">
       <div>
-        <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+        <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1">
           <Globe className="h-3.5 w-3.5" /> Language <span className="text-brand-red-600">*</span>
-          <span className="relative ml-1">
-            <Info className="h-3 w-3 text-blue-500 cursor-pointer" onClick={() => setShowLangInfo(!showLangInfo)} />
-            {showLangInfo && (
-              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap z-10" onClick={() => setShowLangInfo(false)}>
-                Select the language of your presentation
-              </span>
-            )}
-          </span>
-          </label>
+        </label>
+        <p className="text-[10px] text-neutral-gray-medium mb-1.5">Select the language of your presentation</p>
         <div className="relative">
           <select
             value={language}
@@ -213,20 +204,12 @@ interface SummarySectionProps {
 }
 
 export function SummarySection({ summary, wordCount, wordLimit, onSummaryChange }: SummarySectionProps) {
-  const [showSummaryInfo, setShowSummaryInfo] = useState(false);
   return (
     <div>
-      <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+      <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1">
         <Edit3 className="h-3.5 w-3.5" /> Presentation Summary <span className="text-brand-red-600">*</span>
-        <span className="relative ml-1">
-          <Info className="h-3 w-3 text-blue-500 cursor-pointer" onClick={() => setShowSummaryInfo(!showSummaryInfo)} />
-          {showSummaryInfo && (
-            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap z-10" onClick={() => setShowSummaryInfo(false)}>
-              Briefly describe your presentation topic and key points
-            </span>
-          )}
-        </span>
       </label>
+      <p className="text-[10px] text-neutral-gray-medium mb-1.5">Briefly describe your presentation topic and key points</p>
       <textarea
         value={summary}
         onChange={(e) => onSummaryChange(e.target.value)}
@@ -256,7 +239,7 @@ export function SocialHandlesSection({ linkedin, twitter, instagram, facebook, o
   return (
     <div className="border-t border-neutral-gray-light pt-6">
       <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-3">
-        <LinkIcon className="h-3.5 w-3.5" /> {title || 'Parent/Guardian&apos;s Social Handles'} <span className="text-brand-red-600">*</span>
+        <LinkIcon className="h-3.5 w-3.5" /> {title || `Parent/Guardian's Social Handles`} <span className="text-brand-red-600">*</span>
       </label>
       {subtitle !== undefined ? (subtitle ? <p className="text-[10px] text-neutral-gray-medium mb-3">{subtitle}</p> : null) : (
         <p className="text-[10px] text-neutral-gray-medium mb-3">provide at least one</p>
