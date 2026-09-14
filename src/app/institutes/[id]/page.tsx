@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -24,7 +24,7 @@ import ContactTab from './components/ContactTab';
 import NewsUpdatesTab from './components/NewsUpdatesTab';
 import Sidebar from './components/Sidebar';
 
-export default function InstituteDetails() {
+function InstituteDetailsContent() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || 'overview';
@@ -260,5 +260,13 @@ export default function InstituteDetails() {
         providerImage={institute.image}
       />
     </div>
+  );
+}
+
+export default function InstituteDetails() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-neutral-bg-light" />}>
+      <InstituteDetailsContent />
+    </Suspense>
   );
 }

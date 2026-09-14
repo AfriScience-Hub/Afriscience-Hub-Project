@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -22,7 +22,7 @@ import ContactTab from './components/ContactTab';
 import Sidebar from './components/Sidebar';
 import PolicyModal from './components/PolicyModal';
 
-export default function SpecialistCenterDetailsPage() {
+function SpecialistCenterDetailsContent() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'overview');
@@ -219,5 +219,13 @@ export default function SpecialistCenterDetailsPage() {
         providerImage={center.image}
       />
     </div>
+  );
+}
+
+export default function SpecialistCenterDetailsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-neutral-bg-light" />}>
+      <SpecialistCenterDetailsContent />
+    </Suspense>
   );
 }

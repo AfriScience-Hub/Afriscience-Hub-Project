@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -10,7 +10,7 @@ import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 
-export default function Login() {
+function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [usePhone, setUsePhone] = useState(false);
   const [identifier, setIdentifier] = useState('');
@@ -204,5 +204,17 @@ export default function Login() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-neutral-bg-light">
+        <Loader2 className="h-8 w-8 animate-spin text-brand-red-600" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
