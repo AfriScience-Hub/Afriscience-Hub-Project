@@ -21,9 +21,9 @@ export default function DashboardShell({ children }: { children: React.ReactNode
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.replace('/login');
+      router.replace(`/login?from=${encodeURIComponent(pathname)}`);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, pathname]);
 
   if (!isAuthenticated) {
     return null;

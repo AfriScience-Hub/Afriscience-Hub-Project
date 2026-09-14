@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, Phone, Loader2 } from 'lucide-react';
 import littleLogo from "../../assets/littleLogo.png";
 import { Button } from '../components/ui/Button';
@@ -18,12 +18,21 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('from') || '/dashboard';
+  const reason = searchParams.get('reason');
+
+  useEffect(() => {
+    if (reason === 'session_expired') {
+      toast.error('Your session has expired. Please sign in again.');
+    }
+  }, [reason]);
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace('/dashboard');
+      router.replace(redirectTo);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, redirectTo]);
 
   if (isAuthenticated) {
     return null;
@@ -44,7 +53,7 @@ export default function Login() {
     try {
       await login(identifier, password);
       toast.success('Welcome back! You are now logged in.');
-      router.push('/dashboard');
+      router.push(redirectTo);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');
     } finally {

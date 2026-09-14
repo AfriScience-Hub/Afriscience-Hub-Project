@@ -1,6 +1,7 @@
 'use client';
 
-import { Upload, Plus, Trash2, CheckCircle } from 'lucide-react';
+import { Upload, Plus, Trash2, CheckCircle, X } from 'lucide-react';
+import { Field, SectionCard } from './FieldDisplay';
 
 interface OtherCert {
   id: string;
@@ -12,6 +13,7 @@ interface OtherCert {
 }
 
 interface EducationCertTabProps {
+  isEditing: boolean;
   educationLevel: string; onEducationLevelChange: (v: string) => void;
   educationLevelOther: string; onEducationLevelOtherChange: (v: string) => void;
   graduationClass: string; onGraduationClassChange: (v: string) => void;
@@ -22,14 +24,50 @@ interface EducationCertTabProps {
   degreeCertFile: File | null;
   degreeCertFileName: string;
   handleDegreeCertUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onDegreeCertClear?: () => void;
   otherCerts: OtherCert[];
   onAddOtherCert: () => void;
   onRemoveOtherCert: (id: string) => void;
   onOtherCertChange: (id: string, field: keyof Omit<OtherCert, 'id'>, value: string | File | null) => void;
 }
 
-export function EducationCertTab(props: EducationCertTabProps) {
+function EducationDisplay(props: EducationCertTabProps) {
+  return (
+    <div className="space-y-6">
+      <SectionCard title="Education Details">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <Field label="Education Level" value={props.educationLevel} />
+          <Field label="Graduation Class" value={props.graduationClass} />
+          <Field label="Course of Study" value={props.courseOfStudy} />
+          <Field label="Institution" value={props.institution} />
+          <Field label="Year of Graduation" value={props.yearOfGraduation} />
+          <Field label="Degree Certificate" value={props.degreeCertFileName || 'Not uploaded'} />
+        </div>
+      </SectionCard>
+
+      {props.otherCerts.length > 0 && (
+        <SectionCard title="Other Certifications">
+          <div className="space-y-3">
+            {props.otherCerts.map(cert => (
+              <div key={cert.id} className="rounded-lg bg-white border border-neutral-gray-light p-3">
+                <div className="grid grid-cols-3 gap-3">
+                  <Field label="Title" value={cert.title} />
+                  <Field label="Issuer" value={cert.issuer} />
+                  <Field label="Year" value={cert.year} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      )}
+    </div>
+  );
+}
+
+function EducationForm(props: EducationCertTabProps) {
   const noGraduationClass = ['Elementary Degree', 'Junior High School Degree', 'Senior High School Degree'].includes(props.educationLevel);
+  const inputClass = "w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900";
+  const disabledClass = "w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light cursor-not-allowed opacity-50";
 
   return (
     <div className="space-y-6">
@@ -38,7 +76,7 @@ export function EducationCertTab(props: EducationCertTabProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Education Level <span className="text-red-600">*</span></label>
-          <select value={props.educationLevel} onChange={e => props.onEducationLevelChange(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" required>
+          <select value={props.educationLevel} onChange={e => props.onEducationLevelChange(e.target.value)} className={inputClass} required>
             <option value="">Select Education Level</option>
             <option value="Elementary Degree">Elementary Degree</option>
             <option value="Junior High School Degree">Junior High School Degree</option>
@@ -46,19 +84,19 @@ export function EducationCertTab(props: EducationCertTabProps) {
             <option value="National Diploma">National Diploma</option>
             <option value="Associate Degree">Associate Degree</option>
             <option value="Higher National Diploma">Higher National Diploma</option>
-            <option value="Bachelor's Degree">Bachelor's Degree</option>
+            <option value="Bachelor's Degree">Bachelor&apos;s Degree</option>
             <option value="Postgraduate Diploma">Postgraduate Diploma</option>
-            <option value="Master's Degree">Master's Degree</option>
+            <option value="Master's Degree">Master&apos;s Degree</option>
             <option value="Doctorate Degree">Doctorate Degree</option>
             <option value="Other">Other</option>
           </select>
           {props.educationLevel === 'Other' && (
-            <input type="text" value={props.educationLevelOther} onChange={e => props.onEducationLevelOtherChange(e.target.value)} placeholder="Specify education level" className="mt-2 w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" required />
+            <input type="text" value={props.educationLevelOther} onChange={e => props.onEducationLevelOtherChange(e.target.value)} placeholder="Specify education level" className={`mt-2 ${inputClass}`} required />
           )}
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Graduation Class {noGraduationClass ? <span className="text-neutral-gray-medium">(N/A)</span> : <span className="text-red-600">*</span>}</label>
-          <select value={props.graduationClass} onChange={e => props.onGraduationClassChange(e.target.value)} disabled={noGraduationClass} className={`w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900 ${noGraduationClass ? 'cursor-not-allowed opacity-50' : ''}`} required={!noGraduationClass}>
+          <select value={props.graduationClass} onChange={e => props.onGraduationClassChange(e.target.value)} disabled={noGraduationClass} className={noGraduationClass ? disabledClass : inputClass} required={!noGraduationClass}>
             <option value="">Select Graduation Class</option>
             <option value="First Class">First Class</option>
             <option value="Second Class Upper">Second Class Upper</option>
@@ -68,23 +106,23 @@ export function EducationCertTab(props: EducationCertTabProps) {
             <option value="Other">Other</option>
           </select>
           {props.graduationClass === 'Other' && (
-            <input type="text" value={props.graduationClassOther} onChange={e => props.onGraduationClassOtherChange(e.target.value)} placeholder="Specify graduation class" className="mt-2 w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" required />
+            <input type="text" value={props.graduationClassOther} onChange={e => props.onGraduationClassOtherChange(e.target.value)} placeholder="Specify graduation class" className={`mt-2 ${inputClass}`} required />
           )}
         </div>
         <div>
-          <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Course of Study <span className="text-red-600">*</span></label>
-          <input type="text" value={props.courseOfStudy} onChange={e => props.onCourseOfStudyChange(e.target.value)} placeholder="e.g., Electrical Engineering" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" required />
+          <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Course of Study {noGraduationClass ? <span className="text-neutral-gray-medium">(N/A)</span> : <span className="text-red-600">*</span>}</label>
+          <input type="text" value={props.courseOfStudy} onChange={e => props.onCourseOfStudyChange(e.target.value)} placeholder="e.g., Electrical Engineering" disabled={noGraduationClass} className={noGraduationClass ? disabledClass : inputClass} required={!noGraduationClass} />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Institution Attended <span className="text-red-600">*</span></label>
-          <input type="text" value={props.institution} onChange={e => props.onInstitutionChange(e.target.value)} placeholder="Institution Name" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" required />
+          <input type="text" value={props.institution} onChange={e => props.onInstitutionChange(e.target.value)} placeholder="Institution Name" className={inputClass} required />
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Year of Graduation <span className="text-red-600">*</span></label>
-          <input type="text" value={props.yearOfGraduation} onChange={e => props.onYearOfGraduationChange(e.target.value)} placeholder="2023" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" required />
+          <input type="text" value={props.yearOfGraduation} onChange={e => props.onYearOfGraduationChange(e.target.value)} placeholder="2023" className={inputClass} required />
         </div>
       </div>
 
@@ -93,9 +131,13 @@ export function EducationCertTab(props: EducationCertTabProps) {
         <div className="flex items-center gap-3">
           <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={props.handleDegreeCertUpload} className="hidden" id="degree-cert-upload" />
           <label htmlFor="degree-cert-upload" className="px-4 py-2 rounded-lg border border-neutral-gray-light bg-white hover:bg-neutral-bg-light cursor-pointer inline-flex items-center gap-2 transition-colors">
-            <Upload className="h-4 w-4" />
-            Choose File
+            <Upload className="h-4 w-4" /> Choose File
           </label>
+          {props.degreeCertFileName && (
+            <button type="button" onClick={() => props.onDegreeCertClear?.()} className="text-red-500 hover:text-red-700 cursor-pointer" title="Remove file">
+              <X className="h-4 w-4" />
+            </button>
+          )}
           <span className="text-sm text-neutral-gray-medium">{props.degreeCertFileName || 'No file chosen'}</span>
         </div>
         {props.degreeCertFile && (
@@ -114,7 +156,7 @@ export function EducationCertTab(props: EducationCertTabProps) {
         </div>
 
         {props.otherCerts.length === 0 && (
-          <p className="text-sm text-neutral-gray-medium">No certifications added yet. Click "Add" to include certifications.</p>
+          <p className="text-sm text-neutral-gray-medium">No certifications added yet. Click &quot;Add&quot; to include certifications.</p>
         )}
 
         {props.otherCerts.map((cert) => (
@@ -128,15 +170,15 @@ export function EducationCertTab(props: EducationCertTabProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Certificate Title <span className="text-red-600">*</span></label>
-                <input type="text" value={cert.title} onChange={e => props.onOtherCertChange(cert.id, 'title', e.target.value)} placeholder="e.g., AWS Certified Solutions Architect" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
+                <input type="text" value={cert.title} onChange={e => props.onOtherCertChange(cert.id, 'title', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
               </div>
               <div>
                 <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Issuer <span className="text-red-600">*</span></label>
-                <input type="text" value={cert.issuer} onChange={e => props.onOtherCertChange(cert.id, 'issuer', e.target.value)} placeholder="e.g., Amazon Web Services" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
+                <input type="text" value={cert.issuer} onChange={e => props.onOtherCertChange(cert.id, 'issuer', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
               </div>
               <div>
                 <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Year <span className="text-red-600">*</span></label>
-                <input type="text" value={cert.year} onChange={e => props.onOtherCertChange(cert.id, 'year', e.target.value)} placeholder="2024" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
+                <input type="text" value={cert.year} onChange={e => props.onOtherCertChange(cert.id, 'year', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
               </div>
             </div>
             <div className="mt-3">
@@ -144,9 +186,13 @@ export function EducationCertTab(props: EducationCertTabProps) {
               <div className="flex items-center gap-3">
                 <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => props.onOtherCertChange(cert.id, 'file', e.target.files?.[0] || null)} className="hidden" id={`cert-upload-${cert.id}`} />
                 <label htmlFor={`cert-upload-${cert.id}`} className="px-3 py-1.5 text-xs rounded-lg border border-neutral-gray-light bg-white hover:bg-neutral-bg-light cursor-pointer inline-flex items-center gap-1 transition-colors">
-                  <Upload className="h-3 w-3" />
-                  Choose File
+                  <Upload className="h-3 w-3" /> Choose File
                 </label>
+                {cert.fileName && (
+                  <button type="button" onClick={() => props.onOtherCertChange(cert.id, 'file', null)} className="text-red-500 hover:text-red-700 cursor-pointer" title="Remove file">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
                 <span className="text-xs text-neutral-gray-medium">{cert.fileName || 'No file chosen'}</span>
               </div>
             </div>
@@ -155,4 +201,8 @@ export function EducationCertTab(props: EducationCertTabProps) {
       </div>
     </div>
   );
+}
+
+export function EducationCertTab(props: EducationCertTabProps) {
+  return props.isEditing ? <EducationForm {...props} /> : <EducationDisplay {...props} />;
 }

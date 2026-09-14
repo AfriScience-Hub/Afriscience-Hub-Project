@@ -11,14 +11,28 @@ export interface AuthUser {
 
 export interface UserSession {
   id: string;
-  device?: string;
-  browser?: string;
-  os?: string;
-  ip?: string;
-  location?: string;
-  lastActive?: string;
+  userId?: string;
+  deviceName?: string | null;
+  ipAddress?: string;
+  userAgent?: string;
+  role?: string;
+  lastActive?: string | null;
+  expiresAt?: string;
+  revokedAt?: string | null;
   createdAt?: string;
+  updatedAt?: string;
   current?: boolean;
+}
+
+export interface SessionsPagination {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  nextPage: number | null;
+  previousPage: number | null;
 }
 
 interface AuthState {
@@ -29,6 +43,7 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   sessions: UserSession[];
+  sessionsPagination: SessionsPagination | null;
   sessionsLoading: boolean;
   sessionsError: string | null;
 }
@@ -44,7 +59,7 @@ function persistTokens(data: any) {
 }
 
 function extractUser(data: any, fallbackIdentifier?: string): AuthUser {
-  const u = data?.user || data?.data?.user || data?.data || {};
+  const u = data?.details || data?.user || data?.data?.user || data?.data || {};
   const isEmail = fallbackIdentifier?.includes('@');
   return {
     name: u.name || u.fullName || u.firstName || (fallbackIdentifier ? (isEmail ? fallbackIdentifier.split('@')[0] : 'User') : 'User'),
@@ -145,10 +160,15 @@ export const refreshTokenThunk = createAsyncThunk(
   'auth/refresh',
   async (_, { rejectWithValue }) => {
     try {
-      const refresh = typeof window !== 'undefined' ? localStorage.getItem('afrisciencehub_refresh') : null;
-      const body = refresh ? { refreshToken: refresh } : undefined;
-      const data = await api.post('/auth/refresh', body as any);
-      persistTokens(data as any);
+      const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+      const res = await fetch(`${BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || 'Refresh failed');
+      persistTokens(data);
       return data;
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -158,12 +178,14 @@ export const refreshTokenThunk = createAsyncThunk(
 
 export const fetchSessions = createAsyncThunk(
   'auth/fetchSessions',
-  async (_, { rejectWithValue }) => {
+  async (params: { page?: number; limit?: number } | undefined, { rejectWithValue }) => {
     try {
-      const res: any = await api.get('/auth/sessions');
-      // API may return { data: [...] } or { sessions: [...] } or array directly
-      const list = res?.data || res?.sessions || res?.data?.sessions || (Array.isArray(res) ? res : []);
-      return Array.isArray(list) ? list : [];
+      const page = params?.page || 1;
+      const limit = params?.limit || 5;
+      const res: any = await api.get(`/auth/sessions?page=${page}&limit=${limit}`);
+      const list = res?.data || [];
+      const pagination = res?.pagination || null;
+      return { sessions: Array.isArray(list) ? list : [], pagination };
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
@@ -191,6 +213,7 @@ const initialState: AuthState = {
   accessToken: null,
   refreshToken: null,
   sessions: [],
+  sessionsPagination: null,
   sessionsLoading: false,
   sessionsError: null,
 };
@@ -231,7 +254,9 @@ const authSlice = createSlice({
         s.loading = false;
         s.user = extractUser(a.payload.data, a.payload.identifier);
         s.isAuthenticated = true;
-        s.accessToken = (a.payload.data as any)?.accessToken || (a.payload.data as any)?.token || null;
+        const resp = a.payload.data as any;
+        s.accessToken = resp?.accessToken || resp?.token || null;
+        s.refreshToken = resp?.refreshToken || null;
         if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
       })
       .addCase(loginUser.rejected, (s, a) => { s.loading = false; s.error = a.payload as string; })
@@ -258,6 +283,9 @@ const authSlice = createSlice({
         s.loading = false;
         s.user = extractUser(a.payload.data, a.payload.identifier);
         s.isAuthenticated = true;
+        const resp = a.payload.data as any;
+        s.accessToken = resp?.accessToken || resp?.token || null;
+        s.refreshToken = resp?.refreshToken || null;
         if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
       })
       .addCase(loginAdmin.rejected, (s, a) => { s.loading = false; s.error = a.payload as string; })
@@ -274,7 +302,11 @@ const authSlice = createSlice({
         s.user = null; s.isAuthenticated = false; s.accessToken = null; s.refreshToken = null;
       })
       .addCase(fetchSessions.pending, (s) => { s.sessionsLoading = true; s.sessionsError = null; })
-      .addCase(fetchSessions.fulfilled, (s, a) => { s.sessionsLoading = false; s.sessions = a.payload as UserSession[]; })
+      .addCase(fetchSessions.fulfilled, (s, a) => {
+        s.sessionsLoading = false;
+        s.sessions = a.payload.sessions as UserSession[];
+        s.sessionsPagination = a.payload.pagination as SessionsPagination | null;
+      })
       .addCase(fetchSessions.rejected, (s, a) => { s.sessionsLoading = false; s.sessionsError = a.payload as string; });
   },
 });

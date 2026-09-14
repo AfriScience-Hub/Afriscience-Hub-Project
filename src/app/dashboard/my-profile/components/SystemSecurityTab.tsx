@@ -1,35 +1,103 @@
 'use client';
 
-import { useEffect } from 'react';
-import { Eye, EyeOff, Activity, Smartphone, Monitor, LogOut, RefreshCw } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import {
+  Eye, EyeOff, Activity, Smartphone,
+  Monitor, RefreshCw, ChevronLeft, ChevronRight,
+  Globe, Tablet
+} from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchSessions } from '@/store/authSlice';
+import { fetchSessions, UserSession } from '@/store/authSlice';
 import { Button } from '@/app/components/ui/Button';
 import { toast } from 'sonner';
 
+function parseUserAgent(ua?: string): { browser: string; os: string; device: string } {
+  if (!ua) return { browser: 'Unknown', os: 'Unknown', device: 'Unknown' };
+
+  let browser = 'Unknown';
+  if (ua.includes('Edg/')) browser = 'Edge';
+  else if (ua.includes('Chrome/')) browser = 'Chrome';
+  else if (ua.includes('Firefox/')) browser = 'Firefox';
+  else if (ua.includes('Safari/')) browser = 'Safari';
+  else if (ua.includes('Opera') || ua.includes('OPR/')) browser = 'Opera';
+
+  let os = 'Unknown';
+  if (ua.includes('Windows NT 10')) os = 'Windows 10';
+  else if (ua.includes('Windows NT 11') || ua.includes('Windows NT 10.0')) os = 'Windows 11';
+  else if (ua.includes('Windows')) os = 'Windows';
+  else if (ua.includes('Android')) os = 'Android';
+  else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+  else if (ua.includes('Mac OS X')) os = 'macOS';
+  else if (ua.includes('Linux')) os = 'Linux';
+
+  let device = 'Desktop';
+  if (ua.includes('Mobile') || ua.includes('Android')) device = 'Mobile';
+  else if (ua.includes('iPad') || ua.includes('Tablet')) device = 'Tablet';
+
+  return { browser, os, device };
+}
+
+function DeviceIcon({ ua, className }: { ua?: string; className?: string }) {
+  const { device } = parseUserAgent(ua);
+  const cls = className || 'h-5 w-5';
+  if (device === 'Mobile') return <Smartphone className={cls} />;
+  if (device === 'Tablet') return <Tablet className={cls} />;
+  return <Monitor className={cls} />;
+}
+
+function formatRelativeTime(dateStr?: string | null): string {
+  if (!dateStr) return 'Unknown';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return 'Just now';
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay < 7) return `${diffDay}d ago`;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 interface SystemSecurityTabProps {
   govIdCode: string;
-  oldPassword: string; onOldPasswordChange: (v: string) => void;
-  newPassword: string; onNewPasswordChange: (v: string) => void;
-  showOldPassword: boolean; onShowOldPasswordChange: (v: boolean) => void;
-  showNewPassword: boolean; onShowNewPasswordChange: (v: boolean) => void;
-  securityQuestion: string; onSecurityQuestionChange: (v: string) => void;
-  securityAnswer: string; onSecurityAnswerChange: (v: string) => void;
+  oldPassword: string;
+  onOldPasswordChange: (v: string) => void;
+  newPassword: string;
+  onNewPasswordChange: (v: string) => void;
+  showOldPassword: boolean;
+  onShowOldPasswordChange: (v: boolean) => void;
+  showNewPassword: boolean;
+  onShowNewPasswordChange: (v: boolean) => void;
+  securityQuestion: string;
+  onSecurityQuestionChange: (v: string) => void;
+  securityAnswer: string;
+  onSecurityAnswerChange: (v: string) => void;
 }
 
 export function SystemSecurityTab(props: SystemSecurityTabProps) {
   const dispatch = useAppDispatch();
-  const { sessions, sessionsLoading, sessionsError } = useAppSelector(s => s.auth);
+  const { sessions, sessionsPagination, sessionsLoading, sessionsError } = useAppSelector(s => s.auth);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    dispatch(fetchSessions() as any);
-  }, [dispatch]);
+    dispatch(fetchSessions({ page, limit: 5 }) as any);
+  }, [dispatch, page]);
 
   const handleRefresh = () => {
-    dispatch(fetchSessions() as any).then((res: any) => {
+    dispatch(fetchSessions({ page, limit: 5 }) as any).then((res: any) => {
       if (fetchSessions.rejected.match(res)) toast.error(res.payload as string);
     });
   };
+
+  const currentSessionId = useMemo(() => {
+    if (sessions.length === 0) return null;
+    const valid = sessions.filter(s => !s.revokedAt && new Date(s.expiresAt || 0) > new Date());
+    if (valid.length === 0) return sessions[0]?.id;
+    const sorted = [...valid].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    return sorted[0]?.id;
+  }, [sessions]);
 
   return (
     <div className="space-y-6">
@@ -56,7 +124,6 @@ export function SystemSecurityTab(props: SystemSecurityTabProps) {
         </div>
       </div>
 
-      {/* Active Sessions */}
       <div className="space-y-3">
         <div className="flex items-center justify-between pt-2">
           <h3 className="text-lg font-bold text-neutral-black">Active Sessions</h3>
@@ -81,39 +148,80 @@ export function SystemSecurityTab(props: SystemSecurityTabProps) {
               <p className="text-xs text-neutral-gray-medium">Sessions will appear here when you log in from a new device.</p>
             </div>
           ) : (
-            <div className="divide-y divide-neutral-gray-light">
-              {sessions.map((sess: any, idx: number) => {
-                const isCurrent = sess.current || sess.isCurrent || idx === 0;
-                return (
-                  <div key={sess.id || idx} className="p-4 flex items-start gap-3 hover:bg-neutral-bg-light transition-colors">
-                    <div className={`h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0 ${isCurrent ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
-                      {sess.device?.toLowerCase().includes('mobile') ? <Smartphone className="h-5 w-5" /> : <Monitor className="h-5 w-5" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-neutral-black truncate">{sess.device || sess.browser || 'Unknown device'}</p>
-                        {isCurrent && <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold">Current</span>}
+            <>
+              <div className="divide-y divide-neutral-gray-light">
+                {sessions.map((sess) => {
+                  const isCurrent = sess.id === currentSessionId;
+                  const isRevoked = !!sess.revokedAt;
+                  const isExpired = sess.expiresAt ? new Date(sess.expiresAt) < new Date() : false;
+                  const { browser, os, device } = parseUserAgent(sess.userAgent);
+                  const meta = [os, sess.ipAddress, device].filter(Boolean).join(' \u2022 ');
+
+                  return (
+                    <div key={sess.id} className="p-4 flex items-start gap-3 hover:bg-neutral-bg-light transition-colors">
+                      <div className={`h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0 ${isCurrent ? 'bg-green-100 text-green-700' : isRevoked || isExpired ? 'bg-red-50 text-red-400' : 'bg-slate-100 text-slate-600'}`}>
+                        <DeviceIcon ua={sess.userAgent} />
                       </div>
-                      <p className="text-xs text-neutral-gray-medium truncate">
-                        {[sess.os, sess.ip, sess.location].filter(Boolean).join(' • ') || sess.createdAt || sess.lastActive || 'Active now'}
-                      </p>
-                      {sess.lastActive && <p className="text-[11px] text-neutral-gray-medium">Last active: {sess.lastActive}</p>}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium text-neutral-black truncate">
+                            {sess.deviceName || `${browser} on ${os}`}
+                          </p>
+                          {isCurrent && <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold">Current</span>}
+                          {isRevoked && <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold">Revoked</span>}
+                          {isExpired && !isRevoked && <span className="px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold">Expired</span>}
+                        </div>
+                        <p className="text-xs text-neutral-gray-medium truncate mt-0.5">{meta || sess.ipAddress || 'Unknown'}</p>
+                        <p className="text-xs text-neutral-gray-medium mt-0.5">
+                          {sess.createdAt ? `Logged in ${formatRelativeTime(sess.createdAt)}` : 'Unknown'}
+                          {sess.expiresAt && ` \u2022 Expires ${new Date(sess.expiresAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
+                        </p>
+                      </div>
                     </div>
-                    {!isCurrent && (
-                      <Button variant="outline" size="sm" className="h-8 text-red-600 border-red-200 hover:bg-red-50" onClick={() => toast.info('Revoke session coming soon')}>
-                        <LogOut className="h-3.5 w-3.5 mr-1" /> Logout
+                  );
+                })}
+              </div>
+              {sessionsPagination && sessionsPagination.totalPages > 1 && (
+                <div className="flex items-center justify-between px-4 py-3 border-t border-neutral-gray-light bg-neutral-bg-light">
+                  <p className="text-xs text-neutral-gray-medium">
+                    Page {sessionsPagination.page} of {sessionsPagination.totalPages} ({sessionsPagination.totalItems} sessions)
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline" size="sm" className="h-8"
+                      disabled={!sessionsPagination.hasPrevious || sessionsLoading}
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    {Array.from({ length: sessionsPagination.totalPages }, (_, i) => i + 1).map(p => (
+                      <Button
+                        key={p}
+                        variant={p === page ? 'default' : 'outline'}
+                        size="sm"
+                        className={`h-8 w-8 p-0 ${p === page ? 'bg-[#453DD8] text-white' : ''}`}
+                        onClick={() => setPage(p)}
+                        disabled={sessionsLoading}
+                      >
+                        {p}
                       </Button>
-                    )}
+                    ))}
+                    <Button
+                      variant="outline" size="sm" className="h-8"
+                      disabled={!sessionsPagination.hasNext || sessionsLoading}
+                      onClick={() => setPage(p => p + 1)}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
 
       <h3 className="text-lg font-bold text-neutral-black pt-4">Recent Activity Log</h3>
-
       <div className="rounded-lg border border-neutral-gray-light overflow-hidden">
         <div className="divide-y divide-neutral-gray-light">
           {[
@@ -135,7 +243,6 @@ export function SystemSecurityTab(props: SystemSecurityTabProps) {
       </div>
 
       <h3 className="text-lg font-bold text-neutral-black pt-4">Security Settings</h3>
-
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Old Password</label>
@@ -161,7 +268,7 @@ export function SystemSecurityTab(props: SystemSecurityTabProps) {
         <div>
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Security Question</label>
           <select value={props.securityQuestion} onChange={e => props.onSecurityQuestionChange(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900">
-            <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+            <option value="What is your mother's maiden name?">What is your mother&apos;s maiden name?</option>
             <option value="What was the name of your first pet?">What was the name of your first pet?</option>
             <option value="What city were you born in?">What city were you born in?</option>
             <option value="What is your favorite book?">What is your favorite book?</option>

@@ -1,7 +1,7 @@
 'use client';
 
-import { Plus, Trash2, Upload, CheckCircle } from 'lucide-react';
-import { INDUSTRIES, COUNTRIES } from '@/lib/data';
+import { Field, SectionCard } from './FieldDisplay';
+import { ExperienceForm } from './ExperienceSkillsForm';
 
 interface PastJob {
   id: string;
@@ -28,6 +28,7 @@ interface PortfolioLink {
 }
 
 interface ExperienceSkillsTabProps {
+  isEditing: boolean;
   employmentStatus: string; onEmploymentStatusChange: (v: string) => void;
   role: string; onRoleChange: (v: string) => void;
   industry: string; onIndustryChange: (v: string) => void;
@@ -55,205 +56,99 @@ interface ExperienceSkillsTabProps {
   cvFile: File | null;
   cvFileName: string;
   handleCvUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onCvClear?: () => void;
 }
 
-export function ExperienceSkillsTab(props: ExperienceSkillsTabProps) {
-  const showCurrentEmployment = props.employmentStatus === 'Employed (full time)' || props.employmentStatus === 'Self Employed (business owner)';
+function ExperienceDisplay(props: ExperienceSkillsTabProps) {
+  const showCurrent = props.employmentStatus === 'Employed (full time)' || props.employmentStatus === 'Self Employed (business owner)';
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-bold text-neutral-black">Experience & Skills</h3>
-
-      <div>
-        <label className="block text-sm font-medium text-neutral-gray-dark mb-3">Current Employment Status <span className="text-red-600">*</span></label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {['Employed (full time)', 'Self Employed (business owner)', 'Student', 'Unemployed'].map(status => (
-            <button key={status} type="button" onClick={() => props.onEmploymentStatusChange(status)}
-              className={`py-3 px-4 rounded-lg border cursor-pointer transition-colors text-sm ${props.employmentStatus === status ? 'border-brand-navy-900 bg-brand-navy-900 text-white' : 'border-neutral-gray-light bg-white text-neutral-gray-dark hover:border-brand-navy-900'}`}>
-              {status}
-            </button>
-          ))}
+      <SectionCard title="Employment Status">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <Field label="Status" value={props.employmentStatus} />
         </div>
-      </div>
+      </SectionCard>
 
-      {showCurrentEmployment && (
-        <div className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light p-4 space-y-4">
-          <h4 className="text-sm font-bold text-neutral-black">Current Employment Details</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Role <span className="text-red-600">*</span></label>
-              <input type="text" value={props.role} onChange={e => props.onRoleChange(e.target.value)} placeholder="e.g., Renewable Energy Consultant" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Industry <span className="text-red-600">*</span></label>
-              <select value={props.industry} onChange={e => props.onIndustryChange(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required>
-                <option value="">Select Industry</option>
-                {INDUSTRIES.map(ind => (
-                  <option key={ind} value={ind}>{ind}</option>
-                ))}
-                <option value="Other">Other</option>
-              </select>
-              {props.industry === 'Other' && (
-                <input type="text" value={props.industryOther} onChange={e => props.onIndustryOtherChange(e.target.value)} placeholder="Specify industry" className="mt-2 w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Company / Organization <span className="text-red-600">*</span></label>
-              <input type="text" value={props.company} onChange={e => props.onCompanyChange(e.target.value)} placeholder="e.g., GreenTech Solutions" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
-            </div>
+      {showCurrent && (
+        <SectionCard title="Current Employment">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <Field label="Role" value={props.role} />
+            <Field label="Industry" value={props.industry} />
+            <Field label="Company" value={props.company} />
+            <Field label="Country" value={props.workCountry} />
+            <Field label="Resumption Date" value={props.resumptionDate ? new Date(props.resumptionDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null} />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Country <span className="text-red-600">*</span></label>
-              <select value={props.workCountry} onChange={e => props.onWorkCountryChange(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required>
-                <option value="">Select Country</option>
-                {COUNTRIES.map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Resumption Date <span className="text-red-600">*</span></label>
-              <input type="date" value={props.resumptionDate} onChange={e => props.onResumptionDateChange(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
-            </div>
+          <div className="mt-3">
+            <Field label="Role Description" value={props.roleDescription} />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Role Description <span className="text-red-600">*</span></label>
-            <textarea value={props.roleDescription} onChange={e => props.onRoleDescriptionChange(e.target.value)} rows={3} placeholder="Describe your responsibilities and achievements..." className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900 resize-none" required />
-          </div>
-        </div>
+        </SectionCard>
       )}
 
-      <div className="pt-4 border-t border-neutral-gray-light">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-base font-bold text-neutral-black">Past Employment <span className="text-red-600">*</span></h4>
-          <button type="button" onClick={props.onAddPastJob} className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-600 border border-green-600 rounded-lg hover:bg-green-50 cursor-pointer transition-colors">
-            <Plus className="h-4 w-4" /> Add
-          </button>
-        </div>
-
-        {props.pastJobs.length === 0 && (
-          <p className="text-sm text-neutral-gray-medium">No past employment added yet.</p>
-        )}
-
-        {props.pastJobs.map((job) => (
-          <div key={job.id} className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light p-4 mb-3">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold text-neutral-black">Past Employment</span>
-              <button type="button" onClick={() => props.onRemovePastJob(job.id)} className="text-red-500 hover:text-red-700 cursor-pointer transition-colors">
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Name of Organization <span className="text-red-600">*</span></label>
-                <input type="text" value={job.organization} onChange={e => props.onPastJobChange(job.id, 'organization', e.target.value)} placeholder="Organization Name" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
+      {props.pastJobs.length > 0 && (
+        <SectionCard title="Past Employment">
+          <div className="space-y-3">
+            {props.pastJobs.map(job => (
+              <div key={job.id} className="rounded-lg bg-white border border-neutral-gray-light p-3">
+                <div className="grid grid-cols-3 gap-3">
+                  <Field label="Organization" value={job.organization} />
+                  <Field label="Role" value={job.role} />
+                  <Field label="Duration" value={job.duration ? `${job.duration} year(s)` : null} />
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Role <span className="text-red-600">*</span></label>
-                <input type="text" value={job.role} onChange={e => props.onPastJobChange(job.id, 'role', e.target.value)} placeholder="e.g., Junior Analyst" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
+            ))}
+          </div>
+        </SectionCard>
+      )}
+
+      {props.skills.filter(s => s.name.trim()).length > 0 && (
+        <SectionCard title="Skills / Expertise">
+          <div className="flex flex-wrap gap-2">
+            {props.skills.filter(s => s.name.trim()).map(skill => (
+              <span key={skill.id} className="inline-flex px-3 py-1.5 rounded-full border border-neutral-gray-light bg-white text-sm text-neutral-black">
+                {skill.name}
+              </span>
+            ))}
+          </div>
+        </SectionCard>
+      )}
+
+      {props.languages.filter(l => l.name.trim()).length > 0 && (
+        <SectionCard title="Languages">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {props.languages.filter(l => l.name.trim()).map(lang => (
+              <div key={lang.id}>
+                <span className="text-sm font-medium text-neutral-black">{lang.name}</span>
+                {lang.proficiency && <span className="text-xs text-neutral-gray-medium ml-1">({lang.proficiency})</span>}
               </div>
-              <div>
-                <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Work Duration (in years) <span className="text-red-600">*</span></label>
-                <input type="text" value={job.duration} onChange={e => props.onPastJobChange(job.id, 'duration', e.target.value)} placeholder="e.g., 2" className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </SectionCard>
+      )}
 
-      <div className="pt-4 border-t border-neutral-gray-light">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-base font-bold text-neutral-black">Skills / Expertise <span className="text-red-600">*</span></h4>
-          <button type="button" onClick={props.onAddSkill} className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-600 border border-green-600 rounded-lg hover:bg-green-50 cursor-pointer transition-colors">
-            <Plus className="h-4 w-4" /> Add Skills
-          </button>
-        </div>
-
-        {props.skills.length === 0 && (
-          <p className="text-sm text-neutral-gray-medium">No skills added yet. Click "Add Skills" to include your expertise.</p>
-        )}
-
-        <div className="flex flex-wrap gap-2">
-          {props.skills.map((skill) => (
-            <div key={skill.id} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-neutral-gray-light bg-white">
-              <input type="text" value={skill.name} onChange={e => props.onSkillChange(skill.id, e.target.value)} placeholder="Skill name" className="text-sm bg-transparent outline-none w-28" />
-              <button type="button" onClick={() => props.onRemoveSkill(skill.id)} className="text-red-400 hover:text-red-600 cursor-pointer transition-colors">
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="pt-4 border-t border-neutral-gray-light">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-base font-bold text-neutral-black">Language Proficiency <span className="text-red-600">*</span></h4>
-          <button type="button" onClick={props.onAddLanguage} className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-600 border border-green-600 rounded-lg hover:bg-green-50 cursor-pointer transition-colors">
-            <Plus className="h-4 w-4" /> Add Languages
-          </button>
-        </div>
-
-        {props.languages.length === 0 && (
-          <p className="text-sm text-neutral-gray-medium">No languages added yet. Click "Add Languages" to include languages you speak.</p>
-        )}
-
-        {props.languages.map((lang) => (
-          <div key={lang.id} className="flex items-center gap-3 mb-2">
-            <input type="text" value={lang.name} onChange={e => props.onLanguageChange(lang.id, 'name', e.target.value)} placeholder="Language" className="flex-1 px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" />
-            <select value={lang.proficiency} onChange={e => props.onLanguageChange(lang.id, 'proficiency', e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900">
-              <option value="">Proficiency</option>
-              <option value="Beginner">Beginner</option>
-              <option value="Intermediate">Intermediate</option>
-              <option value="Advanced">Advanced</option>
-              <option value="Native">Native</option>
-            </select>
-            <button type="button" onClick={() => props.onRemoveLanguage(lang.id)} className="text-red-500 hover:text-red-700 cursor-pointer transition-colors">
-              <Trash2 className="h-4 w-4" />
-            </button>
+      {props.portfolioLinks.filter(p => p.url.trim()).length > 0 && (
+        <SectionCard title="Portfolio Links">
+          <div className="space-y-2">
+            {props.portfolioLinks.filter(p => p.url.trim()).map(link => {
+              const href = link.url.startsWith('http') ? link.url : `https://${link.url}`;
+              return (
+                <div key={link.id} className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-neutral-black">{link.label || 'Link'}:</span>
+                  <a href={href} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate">{link.url}</a>
+                </div>
+              );
+            })}
           </div>
-        ))}
-      </div>
+        </SectionCard>
+      )}
 
-      <div className="pt-4 border-t border-neutral-gray-light">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-base font-bold text-neutral-black">Portfolio (Work Links)</h4>
-          <button type="button" onClick={props.onAddPortfolioLink} className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-600 border border-green-600 rounded-lg hover:bg-green-50 cursor-pointer transition-colors">
-            <Plus className="h-4 w-4" /> Add Links
-          </button>
-        </div>
-
-        {props.portfolioLinks.length === 0 && (
-          <p className="text-sm text-neutral-gray-medium">No work links added yet. Click "Add Links" to include your portfolio.</p>
-        )}
-
-        {props.portfolioLinks.map((link) => (
-          <div key={link.id} className="flex items-center gap-3 mb-2">
-            <input type="text" value={link.label} onChange={e => props.onPortfolioLinkChange(link.id, 'label', e.target.value)} placeholder="Label (e.g., GitHub)" className="w-40 px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" />
-            <input type="url" value={link.url} onChange={e => props.onPortfolioLinkChange(link.id, 'url', e.target.value)} placeholder="https://..." className="flex-1 px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900" />
-            <button type="button" onClick={() => props.onRemovePortfolioLink(link.id)} className="text-red-500 hover:text-red-700 cursor-pointer transition-colors">
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <div className="pt-4 border-t border-neutral-gray-light">
-        <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Upload CV <span className="text-red-600">*</span></label>
-        <div className="flex items-center gap-3">
-          <input type="file" accept=".pdf" onChange={props.handleCvUpload} className="hidden" id="cv-upload" />
-          <label htmlFor="cv-upload" className="px-4 py-2 rounded-lg border border-neutral-gray-light bg-white hover:bg-neutral-bg-light cursor-pointer inline-flex items-center gap-2 transition-colors">
-            <Upload className="h-4 w-4" />
-            Choose File
-          </label>
-          <span className="text-sm text-neutral-gray-medium">{props.cvFileName || 'No file chosen'}</span>
-        </div>
-        {props.cvFile && (
-          <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
-            <CheckCircle className="h-3 w-3" /> CV uploaded
-          </p>
-        )}
-      </div>
+      <SectionCard title="CV">
+        <Field label="CV File" value={props.cvFileName || 'Not uploaded'} />
+      </SectionCard>
     </div>
   );
+}
+
+export function ExperienceSkillsTab(props: ExperienceSkillsTabProps) {
+  return props.isEditing ? <ExperienceForm {...props} /> : <ExperienceDisplay {...props} />;
 }

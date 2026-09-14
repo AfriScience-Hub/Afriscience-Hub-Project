@@ -3,12 +3,11 @@ import { Edit3 } from 'lucide-react';
 
 interface ProfileHeaderProps {
   fullName: string;
-  govIdCode: string;
   completionPct: number;
   avatar?: string | null;
 }
 
-export function ProfileHeader({ fullName, govIdCode, completionPct, avatar }: ProfileHeaderProps) {
+export function ProfileHeader({ fullName, completionPct, avatar }: ProfileHeaderProps) {
   return (
     <div className="rounded-2xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden mb-6">
       <div className="h-32 bg-gradient-to-r from-brand-navy-900 to-brand-navy-800 relative">
@@ -16,7 +15,7 @@ export function ProfileHeader({ fullName, govIdCode, completionPct, avatar }: Pr
           backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.15\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
         }} />
       </div>
-      <div className="px-6 pb-6 -mt-16 relative">
+      <div className="px-6 pb-6 -mt-12 lg:-mt-16 relative">
         <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6">
           <div className="relative w-28 h-28 lg:w-32 lg:h-32 rounded-full">
             {avatar && (
@@ -35,7 +34,7 @@ export function ProfileHeader({ fullName, govIdCode, completionPct, avatar }: Pr
           <div className="flex-1 pt-2">
             <h2 className="text-2xl font-bold text-neutral-black">{fullName}</h2>
             <span className="mt-1 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-bg-light border border-neutral-gray-light text-xs font-medium text-neutral-gray-dark">
-              <span className="font-bold text-neutral-black">ID:</span> {govIdCode}
+              <span className="font-bold text-neutral-black">ID:</span> Pending
             </span>
           </div>
           <div className="flex items-center justify-center h-24 w-24 rounded-2xl bg-neutral-bg-light border border-neutral-gray-light">

@@ -1,9 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useLocalStorage } from '@/lib/useLocalStorage';
-import { User, GraduationCap, Briefcase, CreditCard, Shield, Save } from 'lucide-react';
-import { useAuth } from '@/app/context/AuthContext';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { User, GraduationCap, Briefcase, CreditCard, Shield, Save, X, Send, FileDown, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
 import { ProfileHeader } from './components/ProfileHeader';
@@ -13,7 +11,7 @@ import { EducationCertTab } from './components/EducationCertTab';
 import { ExperienceSkillsTab } from './components/ExperienceSkillsTab';
 import { PaymentInfoTab } from './components/PaymentInfoTab';
 import { SystemSecurityTab } from './components/SystemSecurityTab';
-import { type SavedCard } from './components/CreditCardPanel';
+import { useProfileForm } from './useProfileForm';
 
 type TabKey = 'personal' | 'education' | 'experience' | 'payment' | 'system';
 
@@ -25,310 +23,226 @@ const TABS = [
   { key: 'system' as const, label: 'System & Security', icon: Shield },
 ];
 
-function generateId() {
-  return crypto.randomUUID();
+function EditIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  );
+}
+
+function TabLockedPlaceholder({ tabName }: { tabName: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="h-16 w-16 rounded-full bg-neutral-bg-light border border-neutral-gray-light flex items-center justify-center mb-4">
+        <Lock className="h-7 w-7 text-neutral-gray-medium" />
+      </div>
+      <h3 className="text-lg font-bold text-neutral-black mb-2">Complete Personal Information First</h3>
+      <p className="text-sm text-neutral-gray-medium max-w-md">
+        You must fill in and submit your personal and contact details before you can access <span className="font-medium text-neutral-black">{tabName}</span>.
+      </p>
+    </div>
+  );
 }
 
 export function ProfileContent() {
-  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabKey>('personal');
+  const [editingTab, setEditingTab] = useState<TabKey | null>(null);
+  const f = useProfileForm();
+  const isEditing = editingTab !== null;
+  const canAccessTabs = f.hasPersonalInfo;
+  const remindedRef = useRef(false);
 
-  const defaultNameParts = (user?.name || 'Claire Iwuanyanwu').trim().split(/\s+/);
-  const [firstName, setFirstName] = useState(defaultNameParts[0] ?? '');
-  const [middleName, setMiddleName] = useState(defaultNameParts.length > 2 ? defaultNameParts.slice(1, -1).join(' ') : '');
-  const [surname, setSurname] = useState(defaultNameParts.length > 1 ? defaultNameParts[defaultNameParts.length - 1] : '');
-  const [username, setUsername] = useState('@claire_iwu');
-  const [gender, setGender] = useState('Female');
-  const [dateOfBirth, setDateOfBirth] = useState('1997-02-23');
-  const [idCardType, setIdCardType] = useState('');
-  const [idCardNumber, setIdCardNumber] = useState('FE/23/70886398');
-  const [idCardFile, setIdCardFile] = useState<File | null>(null);
-  const [idCardFileName, setIdCardFileName] = useState('');
-  const [bio, setBio] = useState('Passionate about renewable energy and sustainable development in Africa');
-
-  const [email, setEmail] = useState(user?.email || 'claire.iwuanyanwu@afriscience.org');
-  const [phone, setPhone] = useState(user?.phone || '+234 805 675 0798');
-  const [altPhone, setAltPhone] = useState('');
-  const [address, setAddress] = useState('14 Ahunanya Street');
-  const [city, setCity] = useState('Umungasi');
-  const [stateOfResidence, setStateOfResidence] = useState('Abia State');
-  const [localGovt, setLocalGovt] = useState('Aba South');
-  const [country, setCountry] = useState('Nigeria');
-  const [zipCode, setZipCode] = useState('');
-  const [website, setWebsite] = useState('');
-
-  const [educationLevel, setEducationLevel] = useState("Bachelor's Degree");
-  const [educationLevelOther, setEducationLevelOther] = useState('');
-  const [graduationClass, setGraduationClass] = useState('First Class');
-  const [graduationClassOther, setGraduationClassOther] = useState('');
-  const [courseOfStudy, setCourseOfStudy] = useState('Electrical Engineering');
-  const [institution, setInstitution] = useState('University of Lagos');
-  const [yearOfGraduation, setYearOfGraduation] = useState('2023');
-  const [degreeCertFile, setDegreeCertFile] = useState<File | null>(null);
-  const [degreeCertFileName, setDegreeCertFileName] = useState('');
-  const [otherCerts, setOtherCerts] = useState<Array<{ id: string; title: string; issuer: string; year: string; file: File | null; fileName: string }>>([]);
-
-  const [employmentStatus, setEmploymentStatus] = useState('Student');
-  const [role, setRole] = useState('');
-  const [industry, setIndustry] = useState('');
-  const [industryOther, setIndustryOther] = useState('');
-  const [company, setCompany] = useState('');
-  const [workCountry, setWorkCountry] = useState('');
-  const [resumptionDate, setResumptionDate] = useState('');
-  const [roleDescription, setRoleDescription] = useState('');
-  const [pastJobs, setPastJobs] = useState<Array<{ id: string; organization: string; role: string; duration: string }>>([]);
-  const [skills, setSkills] = useState<Array<{ id: string; name: string }>>([]);
-  const [languages, setLanguages] = useState<Array<{ id: string; name: string; proficiency: string }>>([]);
-  const [portfolioLinks, setPortfolioLinks] = useState<Array<{ id: string; url: string; label: string }>>([]);
-  const [cvFile, setCvFile] = useState<File | null>(null);
-  const [cvFileName, setCvFileName] = useState('');
-
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [savedCards, setSavedCards] = useLocalStorage<SavedCard[]>('ash:saved-cards', []);
-
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [securityQuestion, setSecurityQuestion] = useState("What is your mother's maiden name?");
-  const [securityAnswer, setSecurityAnswer] = useState('');
-
-  const fullName = [firstName, middleName, surname].filter(Boolean).join(' ');
-
-  const calculateCompletion = () => {
-    const fields = [
-      firstName, surname, username, gender, dateOfBirth, idCardType, idCardNumber, bio,
-      email, phone, address, city, stateOfResidence, country,
-      educationLevel, institution, courseOfStudy, yearOfGraduation,
-      employmentStatus,
-    ];
-    const filled = fields.filter(f => f && f.toString().trim() !== '').length;
-    return Math.round((filled / fields.length) * 100);
-  };
-
-  const completionPct = calculateCompletion();
-
-  const handleSaveProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success('Profile updated successfully!');
-  };
-
-  const handleIdCardUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setIdCardFile(file);
-      setIdCardFileName(file.name);
-      toast.success('ID card uploaded successfully!');
+  useEffect(() => {
+    if (remindedRef.current || !f.personalLoaded || editingTab) return;
+    remindedRef.current = true;
+    const missing: string[] = [];
+    if (!f.firstName) missing.push('First Name');
+    if (!f.surname) missing.push('Surname');
+    if (!f.username) missing.push('Username');
+    if (!f.gender) missing.push('Gender');
+    if (!f.dateOfBirth) missing.push('Date of Birth');
+    if (!f.idCardType) missing.push('ID Card Type');
+    if (!f.idCardNumber) missing.push('ID Card Number');
+    if (!f.phone) missing.push('Phone Number');
+    if (!f.address) missing.push('Address');
+    if (!f.city) missing.push('City');
+    if (!f.stateOfResidence) missing.push('State');
+    if (!f.country) missing.push('Country');
+    if (missing.length > 0) {
+      toast.info(`Complete your profile: ${missing.slice(0, 3).join(', ')}${missing.length > 3 ? ` and ${missing.length - 3} more` : ''}`, { duration: 6000 });
     }
-  };
+  }, [f.personalLoaded, editingTab, f.firstName, f.surname, f.username, f.gender, f.dateOfBirth, f.idCardType, f.idCardNumber, f.phone, f.address, f.city, f.stateOfResidence, f.country]);
 
-  const handleDegreeCertUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setDegreeCertFile(file);
-      setDegreeCertFileName(file.name);
-      toast.success('Degree certificate uploaded successfully!');
+  const handleStartEdit = () => setEditingTab(activeTab);
+  const handleCancel = () => setEditingTab(null);
+  const [saving, setSaving] = useState(false);
+
+  const handleTabChange = (key: string) => {
+    if (isEditing) { toast.info('Save or discard your changes first'); return; }
+    if (key !== 'personal' && key !== 'system' && !canAccessTabs) {
+      toast.info('Complete personal information first');
+      return;
     }
+    setActiveTab(key as TabKey);
   };
 
-  const handleCvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCvFile(file);
-      setCvFileName(file.name);
-      toast.success('CV uploaded successfully!');
-    }
-  };
-
-  const handleAddCard = (card: Omit<SavedCard, 'id'>) => {
-    setSavedCards(prev => [...prev, { ...card, id: generateId() }]);
-  };
-
-  const handleUpdateCard = (id: string, card: Omit<SavedCard, 'id'>) => {
-    setSavedCards(prev => prev.map(c => c.id === id ? { ...c, ...card } : c));
-  };
-
-  const handleRemoveCard = (id: string) => {
-    setSavedCards(prev => prev.filter(c => c.id !== id));
-  };
-
-  const addOtherCert = () => {
-    setOtherCerts(prev => [...prev, { id: generateId(), title: '', issuer: '', year: '', file: null, fileName: '' }]);
-  };
-
-  const removeOtherCert = (id: string) => {
-    setOtherCerts(prev => prev.filter(c => c.id !== id));
-  };
-
-  const updateOtherCert = (id: string, field: string, value: string | File | null) => {
-    setOtherCerts(prev => prev.map(c => {
-      if (c.id !== id) return c;
-      if (field === 'file') {
-        const file = value as File | null;
-        return { ...c, file, fileName: file ? file.name : '' };
+  const handleSaveDraft = async () => {
+    setSaving(true);
+    try {
+      if (activeTab === 'personal') {
+        await f.savePersonalInfo();
+      } else if (activeTab === 'education') {
+        await f.saveEducation();
+      } else if (activeTab === 'experience') {
+        await f.saveSkills();
+        await f.saveExperience();
+        await f.saveLanguages();
+        await f.savePortfolio();
+      } else {
+        toast.success('Draft saved');
       }
-      return { ...c, [field]: value as string };
-    }));
+    } finally { setSaving(false); }
   };
 
-  const addPastJob = () => {
-    setPastJobs(prev => [...prev, { id: generateId(), organization: '', role: '', duration: '' }]);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      if (activeTab === 'personal') {
+        const ok = await f.savePersonalInfo();
+        if (ok) setEditingTab(null);
+      } else {
+        const ok = await f.saveAll();
+        if (ok) setEditingTab(null);
+      }
+    } finally { setSaving(false); }
   };
 
-  const removePastJob = (id: string) => {
-    setPastJobs(prev => prev.filter(j => j.id !== id));
+  const personalProps = {
+    isEditing: editingTab === 'personal',
+    firstName: f.firstName, onFirstNameChange: f.setFirstName,
+    middleName: f.middleName, onMiddleNameChange: f.setMiddleName,
+    surname: f.surname, onSurnameChange: f.setSurname,
+    username: f.username, onUsernameChange: f.setUsername,
+    gender: f.gender, onGenderChange: f.setGender,
+    dateOfBirth: f.dateOfBirth, onDateOfBirthChange: f.setDateOfBirth,
+    idCardType: f.idCardType, onIdCardTypeChange: f.setIdCardType,
+    idCardNumber: f.idCardNumber, onIdCardNumberChange: f.setIdCardNumber,
+    idCardFile: f.idCardFile, idCardFileName: f.idCardFileName,
+    handleIdCardUpload: f.handleIdCardUpload, onIdCardClear: f.clearIdCard,
+    bio: f.bio, onBioChange: f.setBio,
+    email: f.email, onEmailChange: f.setEmail,
+    phone: f.phone, onPhoneChange: f.setPhone,
+    altPhone: f.altPhone, onAltPhoneChange: f.setAltPhone,
+    address: f.address, onAddressChange: f.setAddress,
+    city: f.city, onCityChange: f.setCity,
+    stateOfResidence: f.stateOfResidence, onStateOfResidenceChange: f.setStateOfResidence,
+    localGovt: f.localGovt, onLocalGovtChange: f.setLocalGovt,
+    country: f.country, onCountryChange: f.setCountry,
+    zipCode: f.zipCode, onZipCodeChange: f.setZipCode,
+    website: f.website, onWebsiteChange: f.setWebsite,
   };
 
-  const updatePastJob = (id: string, field: string, value: string) => {
-    setPastJobs(prev => prev.map(j => j.id === id ? { ...j, [field]: value } : j));
+  const educationProps = {
+    isEditing: editingTab === 'education',
+    educationLevel: f.educationLevel, onEducationLevelChange: f.setEducationLevel,
+    educationLevelOther: f.educationLevelOther, onEducationLevelOtherChange: f.setEducationLevelOther,
+    graduationClass: f.graduationClass, onGraduationClassChange: f.setGraduationClass,
+    graduationClassOther: f.graduationClassOther, onGraduationClassOtherChange: f.setGraduationClassOther,
+    courseOfStudy: f.courseOfStudy, onCourseOfStudyChange: f.setCourseOfStudy,
+    institution: f.institution, onInstitutionChange: f.setInstitution,
+    yearOfGraduation: f.yearOfGraduation, onYearOfGraduationChange: f.setYearOfGraduation,
+    degreeCertFile: f.degreeCertFile, degreeCertFileName: f.degreeCertFileName,
+    handleDegreeCertUpload: f.handleDegreeCertUpload, onDegreeCertClear: f.clearDegreeCert,
+    otherCerts: f.otherCerts,
+    onAddOtherCert: f.addOtherCert, onRemoveOtherCert: f.removeOtherCert,
+    onOtherCertChange: f.updateOtherCert,
   };
 
-  const addSkill = () => {
-    setSkills(prev => [...prev, { id: generateId(), name: '' }]);
-  };
-
-  const removeSkill = (id: string) => {
-    setSkills(prev => prev.filter(s => s.id !== id));
-  };
-
-  const updateSkill = (id: string, value: string) => {
-    setSkills(prev => prev.map(s => s.id === id ? { ...s, name: value } : s));
-  };
-
-  const addLanguage = () => {
-    setLanguages(prev => [...prev, { id: generateId(), name: '', proficiency: '' }]);
-  };
-
-  const removeLanguage = (id: string) => {
-    setLanguages(prev => prev.filter(l => l.id !== id));
-  };
-
-  const updateLanguage = (id: string, field: string, value: string) => {
-    setLanguages(prev => prev.map(l => l.id === id ? { ...l, [field]: value } : l));
-  };
-
-  const addPortfolioLink = () => {
-    setPortfolioLinks(prev => [...prev, { id: generateId(), url: '', label: '' }]);
-  };
-
-  const removePortfolioLink = (id: string) => {
-    setPortfolioLinks(prev => prev.filter(p => p.id !== id));
-  };
-
-  const updatePortfolioLink = (id: string, field: string, value: string) => {
-    setPortfolioLinks(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+  const experienceProps = {
+    isEditing: editingTab === 'experience',
+    employmentStatus: f.employmentStatus, onEmploymentStatusChange: f.setEmploymentStatus,
+    role: f.role, onRoleChange: f.setRole,
+    industry: f.industry, onIndustryChange: f.setIndustry,
+    industryOther: f.industryOther, onIndustryOtherChange: f.setIndustryOther,
+    company: f.company, onCompanyChange: f.setCompany,
+    workCountry: f.workCountry, onWorkCountryChange: f.setWorkCountry,
+    resumptionDate: f.resumptionDate, onResumptionDateChange: f.setResumptionDate,
+    roleDescription: f.roleDescription, onRoleDescriptionChange: f.setRoleDescription,
+    pastJobs: f.pastJobs, onAddPastJob: f.addPastJob,
+    onRemovePastJob: f.removePastJob, onPastJobChange: f.updatePastJob,
+    skills: f.skills, onAddSkill: f.addSkill,
+    onRemoveSkill: f.removeSkill, onSkillChange: f.updateSkill,
+    languages: f.languages, onAddLanguage: f.addLanguage,
+    onRemoveLanguage: f.removeLanguage, onLanguageChange: f.updateLanguage,
+    portfolioLinks: f.portfolioLinks, onAddPortfolioLink: f.addPortfolioLink,
+    onRemovePortfolioLink: f.removePortfolioLink, onPortfolioLinkChange: f.updatePortfolioLink,
+    cvFile: f.cvFile, cvFileName: f.cvFileName, handleCvUpload: f.handleCvUpload, onCvClear: f.clearCv,
   };
 
   return (
     <>
-      <ProfileHeader fullName={fullName} govIdCode={idCardNumber} completionPct={completionPct} avatar={user?.avatar} />
+      <ProfileHeader fullName={f.fullName} completionPct={f.completionPct} avatar={f.user?.avatar} />
 
       <div className="rounded-2xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
-        <ProfileTabs tabs={TABS} activeTab={activeTab} onTabChange={(key) => setActiveTab(key as TabKey)} />
+        <ProfileTabs tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
-        <form onSubmit={handleSaveProfile} className="p-6 space-y-6">
-          {activeTab === 'personal' && (
-            <PersonalInfoTab
-              firstName={firstName} onFirstNameChange={setFirstName}
-              middleName={middleName} onMiddleNameChange={setMiddleName}
-              surname={surname} onSurnameChange={setSurname}
-              username={username} onUsernameChange={setUsername}
-              gender={gender} onGenderChange={setGender}
-              dateOfBirth={dateOfBirth} onDateOfBirthChange={setDateOfBirth}
-              idCardType={idCardType} onIdCardTypeChange={setIdCardType}
-              idCardNumber={idCardNumber} onIdCardNumberChange={setIdCardNumber}
-              idCardFile={idCardFile} idCardFileName={idCardFileName} handleIdCardUpload={handleIdCardUpload}
-              bio={bio} onBioChange={setBio}
-              email={email} onEmailChange={setEmail}
-              phone={phone} onPhoneChange={setPhone}
-              altPhone={altPhone} onAltPhoneChange={setAltPhone}
-              address={address} onAddressChange={setAddress}
-              city={city} onCityChange={setCity}
-              stateOfResidence={stateOfResidence} onStateOfResidenceChange={setStateOfResidence}
-              localGovt={localGovt} onLocalGovtChange={setLocalGovt}
-              country={country} onCountryChange={setCountry}
-              zipCode={zipCode} onZipCodeChange={setZipCode}
-              website={website} onWebsiteChange={setWebsite}
-            />
-          )}
-
-          {activeTab === 'education' && (
-            <EducationCertTab
-              educationLevel={educationLevel} onEducationLevelChange={setEducationLevel}
-              educationLevelOther={educationLevelOther} onEducationLevelOtherChange={setEducationLevelOther}
-              graduationClass={graduationClass} onGraduationClassChange={setGraduationClass}
-              graduationClassOther={graduationClassOther} onGraduationClassOtherChange={setGraduationClassOther}
-              courseOfStudy={courseOfStudy} onCourseOfStudyChange={setCourseOfStudy}
-              institution={institution} onInstitutionChange={setInstitution}
-              yearOfGraduation={yearOfGraduation} onYearOfGraduationChange={setYearOfGraduation}
-              degreeCertFile={degreeCertFile} degreeCertFileName={degreeCertFileName}
-              handleDegreeCertUpload={handleDegreeCertUpload}
-              otherCerts={otherCerts}
-              onAddOtherCert={addOtherCert}
-              onRemoveOtherCert={removeOtherCert}
-              onOtherCertChange={updateOtherCert}
-            />
-          )}
-
-          {activeTab === 'experience' && (
-            <ExperienceSkillsTab
-              employmentStatus={employmentStatus} onEmploymentStatusChange={setEmploymentStatus}
-              role={role} onRoleChange={setRole}
-              industry={industry} onIndustryChange={setIndustry}
-              industryOther={industryOther} onIndustryOtherChange={setIndustryOther}
-              company={company} onCompanyChange={setCompany}
-              workCountry={workCountry} onWorkCountryChange={setWorkCountry}
-              resumptionDate={resumptionDate} onResumptionDateChange={setResumptionDate}
-              roleDescription={roleDescription} onRoleDescriptionChange={setRoleDescription}
-              pastJobs={pastJobs}
-              onAddPastJob={addPastJob}
-              onRemovePastJob={removePastJob}
-              onPastJobChange={updatePastJob}
-              skills={skills}
-              onAddSkill={addSkill}
-              onRemoveSkill={removeSkill}
-              onSkillChange={updateSkill}
-              languages={languages}
-              onAddLanguage={addLanguage}
-              onRemoveLanguage={removeLanguage}
-              onLanguageChange={updateLanguage}
-              portfolioLinks={portfolioLinks}
-              onAddPortfolioLink={addPortfolioLink}
-              onRemovePortfolioLink={removePortfolioLink}
-              onPortfolioLinkChange={updatePortfolioLink}
-              cvFile={cvFile} cvFileName={cvFileName} handleCvUpload={handleCvUpload}
-            />
-          )}
-
+        <div className="p-6 space-y-6">
+          {activeTab === 'personal' && <PersonalInfoTab {...personalProps} />}
+          {activeTab === 'education' && (canAccessTabs ? <EducationCertTab {...educationProps} /> : <TabLockedPlaceholder tabName="Education & Certifications" />)}
+          {activeTab === 'experience' && (canAccessTabs ? <ExperienceSkillsTab {...experienceProps} /> : <TabLockedPlaceholder tabName="Experience & Skills" />)}
           {activeTab === 'payment' && (
             <PaymentInfoTab
-              paymentMethod={paymentMethod} onPaymentMethodChange={setPaymentMethod}
-              cards={savedCards}
-              onAddCard={handleAddCard}
-              onUpdateCard={handleUpdateCard}
-              onRemoveCard={handleRemoveCard}
+              isEditing={editingTab === 'payment'}
+              paymentMethod={f.paymentMethod} onPaymentMethodChange={f.setPaymentMethod}
+              cards={f.savedCards} onAddCard={f.handleAddCard}
+              onUpdateCard={f.handleUpdateCard} onRemoveCard={f.handleRemoveCard}
             />
           )}
-
           {activeTab === 'system' && (
             <SystemSecurityTab
-              govIdCode={idCardNumber}
-              oldPassword={oldPassword} onOldPasswordChange={setOldPassword}
-              newPassword={newPassword} onNewPasswordChange={setNewPassword}
-              showOldPassword={showOldPassword} onShowOldPasswordChange={setShowOldPassword}
-              showNewPassword={showNewPassword} onShowNewPasswordChange={setShowNewPassword}
-              securityQuestion={securityQuestion} onSecurityQuestionChange={setSecurityQuestion}
-              securityAnswer={securityAnswer} onSecurityAnswerChange={setSecurityAnswer}
+              govIdCode={f.idCardNumber}
+              oldPassword={f.oldPassword} onOldPasswordChange={f.setOldPassword}
+              newPassword={f.newPassword} onNewPasswordChange={f.setNewPassword}
+              showOldPassword={f.showOldPassword} onShowOldPasswordChange={f.setShowOldPassword}
+              showNewPassword={f.showNewPassword} onShowNewPasswordChange={f.setShowNewPassword}
+              securityQuestion={f.securityQuestion} onSecurityQuestionChange={f.setSecurityQuestion}
+              securityAnswer={f.securityAnswer} onSecurityAnswerChange={f.setSecurityAnswer}
             />
           )}
+        </div>
 
-          <div className="flex justify-end pt-6 border-t border-neutral-gray-light">
-            <Button type="submit" className="bg-green-600 hover:bg-green-700 gap-2">
-              <Save className="h-4 w-4" />
-              Save
-            </Button>
+        <div className="px-6 py-4 border-t border-neutral-gray-light bg-neutral-bg-light/50">
+          <div className="flex items-center justify-end gap-3">
+            {activeTab === 'system' ? (
+              <Button type="button" onClick={handleSaveDraft} loading={saving} className="gap-2 bg-green-600 hover:bg-green-700">
+                <Save className="h-4 w-4" /> Save
+              </Button>
+            ) : isEditing ? (
+              <>
+                <Button type="button" variant="outline" onClick={handleCancel} disabled={saving} className="gap-2">
+                  <X className="h-4 w-4" /> Cancel
+                </Button>
+                <Button type="button" onClick={handleSaveDraft} loading={saving} className="gap-2 bg-white border border-neutral-gray-light text-neutral-black hover:bg-neutral-bg-light">
+                  <FileDown className="h-4 w-4" /> Save as Draft
+                </Button>
+                <Button type="button" onClick={handleSubmit} loading={saving} className="gap-2 bg-green-600 hover:bg-green-700">
+                  <Send className="h-4 w-4" /> Submit
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button type="button" onClick={handleSaveDraft} variant="outline" loading={saving} className="gap-2">
+                  <Save className="h-4 w-4" /> Save as Draft
+                </Button>
+                <Button type="button" onClick={handleStartEdit} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700">
+                  <EditIcon className="h-4 w-4" /> Edit
+                </Button>
+              </>
+            )}
           </div>
-        </form>
+        </div>
       </div>
     </>
   );
