@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   User, Hash, FileText, Calendar, MapPin, Globe, BookOpen, Edit3,
-  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown, Save, Info
+  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown, Save
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/context/AuthContext';
@@ -186,7 +186,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {user.name}
             </div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
@@ -195,7 +195,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium font-mono">
               {idTag}
             </div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
@@ -204,7 +204,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {comp.type}
             </div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
@@ -213,7 +213,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {comp.category}
             </div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
@@ -222,7 +222,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
@@ -231,7 +231,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
@@ -240,7 +240,7 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {comp.country}
             </div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
         </div>
 
@@ -248,13 +248,8 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
               <Globe className="h-3.5 w-3.5" /> Language <span className="text-brand-red-600">*</span>
-              <span className="relative group ml-1">
-                <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
-                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  Select the language of your animation
-                </span>
-              </span>
             </label>
+            <p className="text-xs text-neutral-gray-medium mb-2">Select the language of your animation.</p>
             <div className="relative">
               <select
                 value={language}
@@ -296,13 +291,8 @@ export function AfriAnimeApply({ comp }: AfriAnimeApplyProps) {
         <div>
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
             <Edit3 className="h-3.5 w-3.5" /> Animation Summary <span className="text-brand-red-600">*</span>
-            <span className="relative group ml-1">
-              <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
-              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                Briefly describe the science concept in your animation
-              </span>
-            </span>
           </label>
+          <p className="text-xs text-neutral-gray-medium mb-2">Briefly describe the science concept in your animation.</p>
           <textarea
             value={animationSummary}
             onChange={(e) => setAnimationSummary(e.target.value)}

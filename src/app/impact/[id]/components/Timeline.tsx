@@ -34,7 +34,14 @@ export default function Timeline({ timeline }: { timeline: TimelinePhase[] }) {
               )}
             </div>
             <div className="flex-1 pb-2">
-              <h3 className="font-bold text-neutral-black mb-2">{item.title}</h3>
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <h3 className="font-bold text-neutral-black">{item.title}</h3>
+                {item.interval && (
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-red-50 text-brand-red-600">
+                    {item.interval}
+                  </span>
+                )}
+              </div>
               <ul className="list-disc pl-5 space-y-1">
                 {item.bullets.map((b) => (
                   <li key={b} className="text-sm text-neutral-gray-dark leading-relaxed">

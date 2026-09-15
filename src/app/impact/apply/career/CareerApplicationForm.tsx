@@ -31,10 +31,10 @@ export default function CareerApplicationForm({
   const ownerCount = useMemo(() => 1 + form.coOwners.length, [form.coOwners.length]);
 
   const validate = (): string | null => {
-    if (!form.head.title) return 'Select head proprietor title';
-    if (!form.head.phone) return 'Enter head proprietor phone number';
-    if (!hasAtLeastOneSocial(form.head.socials)) return 'Provide at least one social handle for head proprietor';
-    if (!form.head.displayImage) return 'Upload head proprietor display image';
+    if (!form.head.title) return 'Select primary proprietor title';
+    if (!form.head.phone) return 'Enter primary proprietor phone number';
+    if (!hasAtLeastOneSocial(form.head.socials)) return 'Provide at least one social handle for primary proprietor';
+    if (!form.head.displayImage) return 'Upload primary proprietor display image';
     if (!form.head.idCard.type || !form.head.idCard.file) return 'Complete government ID card upload';
     if (form.head.idCard.type === 'Other' && !form.head.idCard.otherSpecify)
       return 'Specify other ID card type';
@@ -125,10 +125,8 @@ export default function CareerApplicationForm({
       />
       <ImpactMediaSection
         impact={form.impact}
-        media={form.media}
         formUndertaking={form.formUndertaking}
         onImpactChange={(impact) => setForm((f) => ({ ...f, impact }))}
-        onMediaChange={(media) => setForm((f) => ({ ...f, media }))}
         onUndertakingChange={(formUndertaking) => setForm((f) => ({ ...f, formUndertaking }))}
       />
 

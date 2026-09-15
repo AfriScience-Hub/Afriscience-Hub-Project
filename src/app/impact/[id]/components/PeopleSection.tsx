@@ -10,12 +10,19 @@ const sectionTitle: Record<ImpactProgram, string> = {
   'Educational Scholarship': "Beneficiary's Information",
 };
 
+const positionLabel: Partial<Record<ImpactProgram, string>> = {
+  'Career Support': 'Ownership Position',
+  'Research Support': 'Research Position',
+};
+
 export default function PeopleSection({
   program,
   people,
+  onPreview,
 }: {
   program: ImpactProgram;
   people: ImpactPerson[];
+  onPreview?: (src: string, alt: string) => void;
 }) {
   if (!people.length) return null;
 
@@ -28,19 +35,46 @@ export default function PeopleSection({
             key={person.name}
             className="rounded-xl border border-neutral-gray-light bg-neutral-bg-light/50 p-4 flex gap-4"
           >
-            <div className="relative h-16 w-16 rounded-full overflow-hidden shrink-0 bg-neutral-gray-light">
-              <Image
-                src={person.image}
-                alt={person.name}
-                fill
-                className="object-cover"
-                sizes="64px"
-              />
-            </div>
+            {onPreview ? (
+              <button
+                onClick={() => onPreview(person.image, person.name)}
+                className="relative h-16 w-16 rounded-full overflow-hidden shrink-0 bg-neutral-gray-light ring-offset-2 hover:ring-2 hover:ring-brand-red-500 transition-all cursor-pointer"
+                title="View Picture"
+              >
+                <Image
+                  src={person.image}
+                  alt={person.name}
+                  fill
+                  className="object-cover"
+                  sizes="64px"
+                />
+              </button>
+            ) : (
+              <div className="relative h-16 w-16 rounded-full overflow-hidden shrink-0 bg-neutral-gray-light">
+                <Image
+                  src={person.image}
+                  alt={person.name}
+                  fill
+                  className="object-cover"
+                  sizes="64px"
+                />
+              </div>
+            )}
             <div className="min-w-0">
               <p className="font-bold text-neutral-black truncate">{person.name}</p>
-              {person.role && (
-                <p className="text-xs text-neutral-gray-medium mb-2">{person.role}</p>
+              {person.role && positionLabel[program] && (
+                <p className="text-xs text-neutral-gray-medium mb-2 mt-0.5">
+                  <span className="font-semibold text-neutral-gray-dark">
+                    {positionLabel[program]}:
+                  </span>{' '}
+                  {person.role}
+                </p>
+              )}
+              {!person.role && positionLabel[program] && (
+                <p className="text-xs text-neutral-gray-medium mb-2 mt-0.5">
+                  <span className="font-semibold text-neutral-gray-dark">{positionLabel[program]}:</span>{' '}
+                  —
+                </p>
               )}
               {person.socials && (
                 <div className="flex items-center gap-2 mt-1">

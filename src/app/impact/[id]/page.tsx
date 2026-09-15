@@ -47,7 +47,11 @@ export default function ImpactDetails() {
         <div className="rounded-2xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden mb-8">
           <DetailHero story={story} />
           <Infographic story={story} />
-          <PeopleSection program={story.program} people={story.people} />
+          <PeopleSection
+            program={story.program}
+            people={story.people}
+            onPreview={(src, alt) => setPreviewImage({ src, alt })}
+          />
 
           <div className="p-6 sm:p-8 border-b border-neutral-gray-light">
             <h2 className="text-xl font-bold text-neutral-black mb-3">Impact Summary</h2>

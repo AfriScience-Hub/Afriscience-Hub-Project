@@ -86,6 +86,7 @@ export type CareerFormState = {
     careerObjectives: string[];
     careerRequirements: string[];
     expectedCareerImpacts: string[];
+    story: string;
   };
   media: {
     businessMarketSurvey: File[];
@@ -166,7 +167,9 @@ export function createInitialCareerForm(user: {
       revenueProjection: { y1: '', y2: '', y3: '', currency: 'USD' },
       careerChallenges: [''],
       bankRelationships: [{ bankName: '', bankAddress: '', accountNumber: '' }],
-      personalLiabilities: [],
+      personalLiabilities: [
+        { institution: '', totalAmount: '', remainingBalance: '', tenorMonths: '', currency: 'USD' },
+      ],
       risks: [{ riskType: '', preventionControl: '' }],
       budgetDocument: null,
     },
@@ -175,6 +178,7 @@ export function createInitialCareerForm(user: {
       careerObjectives: [''],
       careerRequirements: [''],
       expectedCareerImpacts: [''],
+      story: '',
     },
     media: {
       businessMarketSurvey: [],

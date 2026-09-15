@@ -76,7 +76,7 @@ export default function ImpactApplication() {
           </Link>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2">Apply for Aid</h1>
           <p className="text-slate-300">
-            Submit your application for impact-funding under our enlightenment programs
+            Submit your application to access impact funding for eligible programs.
           </p>
         </div>
       </section>

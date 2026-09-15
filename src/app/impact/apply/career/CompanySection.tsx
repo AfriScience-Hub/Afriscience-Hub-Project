@@ -53,7 +53,7 @@ export default function CompanySection({
           <FieldLabel>Number of Owners / Proprietors</FieldLabel>
           <TextInput value={String(ownerCount)} disabled />
           <p className="text-xs text-neutral-gray-medium mt-1">
-            Head Proprietor + Secondary Proprietors
+            Primary Proprietor + Secondary Proprietors
           </p>
         </div>
 
@@ -160,6 +160,7 @@ export default function CompanySection({
       <div className="mt-4">
         <FieldLabel required>Social Handles</FieldLabel>
         <SocialHandlesFields
+          hintPosition="above"
           value={value.socials}
           onChange={(socials) => onChange({ ...value, socials })}
         />

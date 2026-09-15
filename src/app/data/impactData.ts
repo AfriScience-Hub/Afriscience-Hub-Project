@@ -39,6 +39,7 @@ export interface MediaGroup {
 export interface TimelinePhase {
   title: string;
   bullets: string[];
+  interval?: string;
 }
 
 export interface BreakdownSection {
@@ -202,11 +203,13 @@ export const IMPACT_STORIES: ImpactStory[] = [
       {
         name: 'Engr. Tunde Adeyemi',
         image: face('Tunde A'),
+        role: 'Primary Proprietor',
         socials: { linkedin: 'https://linkedin.com', twitter: 'https://twitter.com' },
       },
       {
         name: 'Ms. Chioma Okeke',
         image: face('Chioma O'),
+        role: 'Co-Proprietor',
         socials: { instagram: 'https://instagram.com', facebook: 'https://facebook.com' },
       },
     ],
@@ -237,6 +240,7 @@ export const IMPACT_STORIES: ImpactStory[] = [
     },
     timeline: [
       {
+        interval: 'Q1 2024',
         title: 'Career Proposal & Verification',
         bullets: [
           'Application reviewed and eligibility verified',
@@ -244,6 +248,7 @@ export const IMPACT_STORIES: ImpactStory[] = [
         ],
       },
       {
+        interval: 'Q2 2024',
         title: 'Business & Market Survey',
         bullets: [
           'Farmer demand survey across three LGAs',
@@ -251,6 +256,7 @@ export const IMPACT_STORIES: ImpactStory[] = [
         ],
       },
       {
+        interval: 'Q3 2024',
         title: 'Funding & Setup',
         bullets: [
           'Disbursement of startup equipment funds',
@@ -258,6 +264,7 @@ export const IMPACT_STORIES: ImpactStory[] = [
         ],
       },
       {
+        interval: 'Q4 2024',
         title: 'Project Completion',
         bullets: [
           'Three kiosks operational',
@@ -307,6 +314,7 @@ export const IMPACT_STORIES: ImpactStory[] = [
       {
         name: 'Mr. Kwame Boateng',
         image: face('Kwame B'),
+        role: 'Primary Proprietor',
         socials: { linkedin: 'https://linkedin.com' },
       },
     ],
@@ -332,10 +340,10 @@ export const IMPACT_STORIES: ImpactStory[] = [
       ],
     },
     timeline: [
-      { title: 'Career Proposal & Verification', bullets: ['Proposal approved', 'Site inspection completed'] },
-      { title: 'Business & Market Survey', bullets: ['Hospital needs assessment across 5 facilities'] },
-      { title: 'Funding & Setup', bullets: ['Workshop commissioned', 'Tools procured'] },
-      { title: 'Project Completion', bullets: ['Service contracts signed', 'Final report accepted'] },
+      { interval: 'Q1 2023', title: 'Career Proposal & Verification', bullets: ['Proposal approved', 'Site inspection completed'] },
+      { interval: 'Q2 2023', title: 'Business & Market Survey', bullets: ['Hospital needs assessment across 5 facilities'] },
+      { interval: 'Q3 2023', title: 'Funding & Setup', bullets: ['Workshop commissioned', 'Tools procured'] },
+      { interval: 'Q4 2023', title: 'Project Completion', bullets: ['Service contracts signed', 'Final report accepted'] },
     ],
     mediaGallery: [
       { label: 'Business & Market Survey', items: [media('Survey', 'Hospital equipment audit')] },
@@ -430,14 +438,15 @@ export const IMPACT_STORIES: ImpactStory[] = [
       ],
     },
     timeline: [
-      { title: 'Research Proposal & Verification', bullets: ['Proposal peer-reviewed', 'Ethics clearance secured'] },
-      { title: 'Research Materials Acquisition', bullets: ['Reagents and kits procured', 'Lab readiness verified'] },
-      { title: 'Sample Collection & Analysis', bullets: ['Field sampling completed', 'Sequencing batch 1–3 analyzed'] },
+      { interval: 'Q1 2024', title: 'Research Proposal & Verification', bullets: ['Proposal peer-reviewed', 'Ethics clearance secured'] },
+      { interval: 'Q2 2024', title: 'Research Materials Acquisition', bullets: ['Reagents and kits procured', 'Lab readiness verified'] },
+      { interval: 'Q3–Q4 2024', title: 'Sample Collection & Analysis', bullets: ['Field sampling completed', 'Sequencing batch 1–3 analyzed'] },
       {
+        interval: 'Q1 2025',
         title: 'Result Interpretations & Statistical Representations',
         bullets: ['Association models finalized', 'Visualization dashboards prepared'],
       },
-      { title: 'Publication', bullets: ['Manuscript drafted', 'Preprint released'] },
+      { interval: 'Q2 2025', title: 'Publication', bullets: ['Manuscript drafted', 'Preprint released'] },
     ],
     mediaGallery: [
       { label: 'Materials Acquisition', items: [media('Materials', 'Lab kit inventory')] },
@@ -491,11 +500,11 @@ export const IMPACT_STORIES: ImpactStory[] = [
       publicationLinks: [{ label: 'Journal article', url: 'https://example.com/journal' }],
     },
     timeline: [
-      { title: 'Research Proposal & Verification', bullets: ['Doctoral proposal approved'] },
-      { title: 'Research Materials Acquisition', bullets: ['Seed and sensors acquired'] },
-      { title: 'Sample Collection & Analysis', bullets: ['Two season trials completed'] },
-      { title: 'Result Interpretations & Statistical Representations', bullets: ['Yield models published internally'] },
-      { title: 'Publication', bullets: ['Peer-reviewed article released'] },
+      { interval: 'Q1 2023', title: 'Research Proposal & Verification', bullets: ['Doctoral proposal approved'] },
+      { interval: 'Q2 2023', title: 'Research Materials Acquisition', bullets: ['Seed and sensors acquired'] },
+      { interval: 'Q3 2023 – Q3 2024', title: 'Sample Collection & Analysis', bullets: ['Two season trials completed'] },
+      { interval: 'Q4 2024', title: 'Result Interpretations & Statistical Representations', bullets: ['Yield models published internally'] },
+      { interval: 'Q1 2025', title: 'Publication', bullets: ['Peer-reviewed article released'] },
     ],
     mediaGallery: [
       { label: 'Materials Acquisition', items: [media('Seeds', 'Seed preparation')] },
@@ -550,9 +559,9 @@ export const IMPACT_STORIES: ImpactStory[] = [
       ],
     },
     timeline: [
-      { title: 'Scholarship Proposal & Verification', bullets: ['Eligibility verified', 'Aptitude screening passed'] },
-      { title: 'Annual Clearance & Funding', bullets: ['Institution clearance confirmed', 'Funds disbursed'] },
-      { title: 'Project Completion', bullets: ['End-of-year transcript submitted'] },
+      { interval: 'Q1 2025', title: 'Scholarship Proposal & Verification', bullets: ['Eligibility verified', 'Aptitude screening passed'] },
+      { interval: 'Q2 2025', title: 'Annual Clearance & Funding', bullets: ['Institution clearance confirmed', 'Funds disbursed'] },
+      { interval: 'Q4 2025', title: 'Project Completion', bullets: ['End-of-year transcript submitted'] },
     ],
     mediaGallery: [
       { label: 'Screening Exercise', items: [media('Screening', 'Aptitude screening day')] },
@@ -594,9 +603,9 @@ export const IMPACT_STORIES: ImpactStory[] = [
       outcomeAfter: ['MSc completed with distinction', 'Thesis archived by department'],
     },
     timeline: [
-      { title: 'Scholarship Proposal & Verification', bullets: ['Documents verified', 'Renewal CGPA confirmed'] },
-      { title: 'Annual Clearance & Funding', bullets: ['Fees cleared', 'Research stipend released'] },
-      { title: 'Project Completion', bullets: ['Graduation confirmed'] },
+      { interval: 'Q1 2024', title: 'Scholarship Proposal & Verification', bullets: ['Documents verified', 'Renewal CGPA confirmed'] },
+      { interval: 'Q2 2024', title: 'Annual Clearance & Funding', bullets: ['Fees cleared', 'Research stipend released'] },
+      { interval: 'Q3 2024', title: 'Project Completion', bullets: ['Graduation confirmed'] },
     ],
     mediaGallery: [
       { label: 'Screening Exercise', items: [media('Screening', 'Document screening')] },
@@ -620,7 +629,7 @@ export function getCardPrimaryTitle(story: ImpactStory): string {
 export function getDetailTitle(story: ImpactStory): string {
   if (story.program === 'Career Support') return story.companyName ?? story.idTag;
   if (story.program === 'Research Support') return story.researchTitle ?? story.idTag;
-  return story.departmentName ?? story.idTag;
+  return `${story.departmentName ?? story.idTag} Scholarship`;
 }
 
 export function getCardSecondaryMetric(story: ImpactStory): { label: string; value: string } {
@@ -635,6 +644,6 @@ export function getCardSecondaryMetric(story: ImpactStory): { label: string; val
 
 export function getDpBadgeLabel(story: ImpactStory): string {
   if (story.program === 'Career Support') return story.careerPath ?? '';
-  if (story.program === 'Research Support') return story.researchLevel ?? '';
+  if (story.program === 'Research Support') return story.researchLevel ? `${story.researchLevel} Research` : '';
   return story.scholarshipLevel ?? '';
 }

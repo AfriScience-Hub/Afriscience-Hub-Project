@@ -20,7 +20,7 @@ export default function SelectCauseStep({
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8">
       <h2 className="text-2xl font-bold text-neutral-black mb-2">Select Program</h2>
       <p className="text-neutral-gray-dark mb-6">
-        Choose the program you are applying for aid under
+        Choose the program you're eligible to access its impact funding.
       </p>
 
       <div className="grid gap-4 sm:grid-cols-1">

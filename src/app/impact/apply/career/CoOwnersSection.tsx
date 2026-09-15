@@ -8,8 +8,9 @@ import {
   SelectInput,
   FileUpload,
   SocialHandlesFields,
+  GovernmentIdCardUpload,
 } from '../components/FormField';
-import { TITLES, ID_CARD_TYPES } from '../data';
+import { TITLES } from '../data';
 import { createCoOwner, type CoOwner } from './types';
 
 export default function CoOwnersSection({
@@ -90,6 +91,7 @@ export default function CoOwnersSection({
           <div className="mt-4">
             <FieldLabel required>Social Handles</FieldLabel>
             <SocialHandlesFields
+              hintPosition="above"
               value={owner.socials}
               onChange={(socials) => update(owner.id, { socials })}
             />
@@ -111,40 +113,16 @@ export default function CoOwnersSection({
               onChange={(f) => update(owner.id, { cv: f })}
               onClear={() => update(owner.id, { cv: null })}
             />
-            <div>
-              <FieldLabel>Government ID Card Type</FieldLabel>
-              <SelectInput
-                value={owner.idCard.type}
-                onChange={(e) =>
-                  update(owner.id, { idCard: { ...owner.idCard, type: e.target.value } })
-                }
-              >
-                <option value="">Select ID card type</option>
-                {ID_CARD_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </SelectInput>
-              {owner.idCard.type === 'Other' && (
-                <TextInput
-                  className="mt-2"
-                  placeholder="Specify ID type"
-                  value={owner.idCard.otherSpecify}
-                  onChange={(e) =>
-                    update(owner.id, {
-                      idCard: { ...owner.idCard, otherSpecify: e.target.value },
-                    })
-                  }
-                />
-              )}
-            </div>
-            <FileUpload
-              label="Upload ID Card"
-              accept="image/*"
+          </div>
+
+          <div className="mt-4">
+            <GovernmentIdCardUpload
+              idType={owner.idCard.type}
+              otherSpecify={owner.idCard.otherSpecify}
               file={owner.idCard.file}
-              onChange={(f) => update(owner.id, { idCard: { ...owner.idCard, file: f } })}
-              onClear={() => update(owner.id, { idCard: { ...owner.idCard, file: null } })}
+              onChange={(patch) =>
+                update(owner.id, { idCard: { ...owner.idCard, ...patch } })
+              }
             />
           </div>
         </div>

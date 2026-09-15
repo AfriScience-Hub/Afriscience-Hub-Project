@@ -187,13 +187,6 @@ export default function ScholarshipApplicationForm({
             }
           />
           <MediaGroupUpload
-            label="Award Ceremony"
-            files={form.media.awardCeremony}
-            onChange={(awardCeremony) =>
-              setForm((f) => ({ ...f, media: { ...f.media, awardCeremony } }))
-            }
-          />
-          <MediaGroupUpload
             label="Clearance & Funding"
             files={form.media.clearanceFunding}
             onChange={(clearanceFunding) =>
@@ -205,6 +198,13 @@ export default function ScholarshipApplicationForm({
             files={form.media.projectCompletion}
             onChange={(projectCompletion) =>
               setForm((f) => ({ ...f, media: { ...f.media, projectCompletion } }))
+            }
+          />
+          <MediaGroupUpload
+            label="Award Ceremony"
+            files={form.media.awardCeremony}
+            onChange={(awardCeremony) =>
+              setForm((f) => ({ ...f, media: { ...f.media, awardCeremony } }))
             }
           />
         </div>

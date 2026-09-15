@@ -17,8 +17,8 @@ import ImagePreviewModal from './components/ImagePreviewModal';
 
 export default function Impact() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPrograms, setSelectedPrograms] = useState<ImpactProgram[]>([]);
-  const [selectedStatuses, setSelectedStatuses] = useState<ImpactStatus[]>([]);
+  const [selectedProgram, setSelectedProgram] = useState<ImpactProgram | ''>('');
+  const [selectedStatus, setSelectedStatus] = useState<ImpactStatus | ''>('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
   const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
@@ -33,19 +33,9 @@ export default function Impact() {
   const toggleSection = (key: string) =>
     setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  const toggleProgram = (p: ImpactProgram) =>
-    setSelectedPrograms((prev) =>
-      prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]
-    );
-
-  const toggleStatus = (s: ImpactStatus) =>
-    setSelectedStatuses((prev) =>
-      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
-    );
-
   const activeFilterCount =
-    selectedPrograms.length +
-    selectedStatuses.length +
+    (selectedProgram ? 1 : 0) +
+    (selectedStatus ? 1 : 0) +
     (selectedCountry ? 1 : 0) +
     (selectedYear ? 1 : 0);
 
@@ -53,20 +43,18 @@ export default function Impact() {
     const q = searchTerm.trim().toLowerCase();
     return IMPACT_STORIES.filter((story) => {
       const matchesSearch = !q || matchesQuery(story, q);
-      const matchesProgram =
-        selectedPrograms.length === 0 || selectedPrograms.includes(story.program);
-      const matchesStatus =
-        selectedStatuses.length === 0 || selectedStatuses.includes(story.status);
+      const matchesProgram = !selectedProgram || story.program === selectedProgram;
+      const matchesStatus = !selectedStatus || story.status === selectedStatus;
       const matchesCountry = !selectedCountry || story.location.country === selectedCountry;
       const matchesYear = !selectedYear || story.year === selectedYear;
       return matchesSearch && matchesProgram && matchesStatus && matchesCountry && matchesYear;
     });
-  }, [searchTerm, selectedPrograms, selectedStatuses, selectedCountry, selectedYear]);
+  }, [searchTerm, selectedProgram, selectedStatus, selectedCountry, selectedYear]);
 
   const clearAllFilters = () => {
     setSearchTerm('');
-    setSelectedPrograms([]);
-    setSelectedStatuses([]);
+    setSelectedProgram('');
+    setSelectedStatus('');
     setSelectedCountry('');
     setSelectedYear('');
   };
@@ -93,21 +81,21 @@ export default function Impact() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          <ImpactFilters
-            showFilters={showFilters}
-            activeFilterCount={activeFilterCount}
-            selectedPrograms={selectedPrograms}
-            selectedStatuses={selectedStatuses}
-            selectedCountry={selectedCountry}
-            selectedYear={selectedYear}
-            collapsedSections={collapsedSections}
-            onToggleSection={toggleSection}
-            onToggleProgram={toggleProgram}
-            onToggleStatus={toggleStatus}
-            onCountryChange={setSelectedCountry}
-            onYearChange={setSelectedYear}
-            onClearAll={clearAllFilters}
-          />
+<ImpactFilters
+              showFilters={showFilters}
+              activeFilterCount={activeFilterCount}
+              selectedProgram={selectedProgram}
+              selectedStatus={selectedStatus}
+              selectedCountry={selectedCountry}
+              selectedYear={selectedYear}
+              collapsedSections={collapsedSections}
+              onToggleSection={toggleSection}
+              onProgramChange={setSelectedProgram}
+              onStatusChange={setSelectedStatus}
+              onCountryChange={setSelectedCountry}
+              onYearChange={setSelectedYear}
+              onClearAll={clearAllFilters}
+            />
 
           <main className="flex-1">
             <div className="mb-6">

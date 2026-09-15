@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { MapPin, Calendar, Share2 } from 'lucide-react';
+import { MapPin, Calendar, Hash, Share2 } from 'lucide-react';
 import {
   type ImpactStory,
   formatImpactLocation,
@@ -30,9 +30,6 @@ export default function DetailHero({ story }: { story: ImpactStory }) {
           <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-green-500/80">
             {story.status}
           </span>
-          <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-black/40">
-            {story.idTag}
-          </span>
         </div>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">{title}</h1>
         <div className="flex flex-wrap items-center gap-4 text-sm">
@@ -43,6 +40,10 @@ export default function DetailHero({ story }: { story: ImpactStory }) {
           <div className="flex items-center gap-1.5">
             <Calendar className="h-4 w-4" />
             <span>{story.year}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Hash className="h-4 w-4" />
+            <span>{story.idTag}</span>
           </div>
         </div>
       </div>

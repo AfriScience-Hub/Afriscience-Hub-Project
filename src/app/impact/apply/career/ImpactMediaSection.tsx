@@ -1,84 +1,24 @@
 'use client';
 
-import { Target, ImageIcon } from 'lucide-react';
+import { Target } from 'lucide-react';
 import {
   FieldLabel,
   SectionCard,
   TextInput,
+  TextArea,
   MultiStringList,
 } from '../components/FormField';
 import type { CareerFormState } from './types';
 
-const MAX_MEDIA = 5;
-
-function MediaGroupUpload({
-  label,
-  files,
-  onChange,
-}: {
-  label: string;
-  files: File[];
-  onChange: (f: File[]) => void;
-}) {
-  return (
-    <div>
-      <FieldLabel>{label}</FieldLabel>
-      <p className="text-xs text-neutral-gray-medium mb-2">
-        Optional for now — collected as program progresses. Max {MAX_MEDIA} uploads. Picture and
-        video formats only.
-      </p>
-      <label className="flex flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-neutral-gray-light px-4 py-5 cursor-pointer hover:border-brand-red-300 transition-colors">
-        <span className="text-sm font-medium text-neutral-gray-dark">
-          Upload media ({files.length}/{MAX_MEDIA})
-        </span>
-        <input
-          type="file"
-          accept="image/*,video/*"
-          multiple
-          className="hidden"
-          onChange={(e) => {
-            const incoming = Array.from(e.target.files || []);
-            onChange([...files, ...incoming].slice(0, MAX_MEDIA));
-            e.target.value = '';
-          }}
-        />
-      </label>
-      {files.length > 0 && (
-        <ul className="mt-2 space-y-1">
-          {files.map((f, i) => (
-            <li
-              key={`${f.name}-${i}`}
-              className="flex items-center justify-between text-xs bg-neutral-bg-light rounded px-2 py-1.5"
-            >
-              <span className="truncate">{f.name}</span>
-              <button
-                type="button"
-                className="text-brand-red-600 font-semibold shrink-0 ml-2"
-                onClick={() => onChange(files.filter((_, idx) => idx !== i))}
-              >
-                Remove
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 export default function ImpactMediaSection({
   impact,
-  media,
   formUndertaking,
   onImpactChange,
-  onMediaChange,
   onUndertakingChange,
 }: {
   impact: CareerFormState['impact'];
-  media: CareerFormState['media'];
   formUndertaking: boolean;
   onImpactChange: (v: CareerFormState['impact']) => void;
-  onMediaChange: (v: CareerFormState['media']) => void;
   onUndertakingChange: (v: boolean) => void;
 }) {
   return (
@@ -109,7 +49,7 @@ export default function ImpactMediaSection({
           <MultiStringList
             label="Career Requirements"
             required
-            info="List all tangible needs in specific terms (e.g. sewing machine, office space, PC)."
+            info="List all the tangible needs of your chosen career in specific terms (e.g. sewing machine, office space, PC, oven, etc.)."
             values={impact.careerRequirements}
             onChange={(careerRequirements) => onImpactChange({ ...impact, careerRequirements })}
           />
@@ -122,30 +62,14 @@ export default function ImpactMediaSection({
               onImpactChange({ ...impact, expectedCareerImpacts })
             }
           />
-        </div>
-      </SectionCard>
-
-      <SectionCard
-        title="Media Gallery"
-        icon={<ImageIcon className="h-5 w-5 text-brand-red-600" />}
-        defaultOpen={false}
-      >
-        <div className="grid gap-6">
-          <MediaGroupUpload
-            label="Business & Market Survey"
-            files={media.businessMarketSurvey}
-            onChange={(businessMarketSurvey) => onMediaChange({ ...media, businessMarketSurvey })}
-          />
-          <MediaGroupUpload
-            label="Funding & Setup"
-            files={media.fundingSetup}
-            onChange={(fundingSetup) => onMediaChange({ ...media, fundingSetup })}
-          />
-          <MediaGroupUpload
-            label="Project Completion"
-            files={media.projectCompletion}
-            onChange={(projectCompletion) => onMediaChange({ ...media, projectCompletion })}
-          />
+          <div>
+            <FieldLabel>Your Story</FieldLabel>
+            <TextArea
+              value={impact.story}
+              onChange={(e) => onImpactChange({ ...impact, story: e.target.value })}
+              placeholder="Give a detailed background story, highlighting the events and circumstances that surround your entrepreneurial journey and need for support (1000 words max)."
+            />
+          </div>
         </div>
       </SectionCard>
 

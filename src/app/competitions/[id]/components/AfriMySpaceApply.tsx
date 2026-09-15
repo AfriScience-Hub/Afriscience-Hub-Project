@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   User, Hash, FileText, Calendar, MapPin, BookOpen, Edit3,
-  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown, Briefcase, Save, Info
+  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown, Briefcase, Save
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/context/AuthContext';
@@ -29,7 +29,7 @@ function AutoField({ icon: Icon, label, value }: { icon: React.ElementType; labe
         <Icon className="h-3.5 w-3.5" /> {label}
       </label>
       <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{value}</div>
-      <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+      
     </div>
   );
 }
@@ -190,13 +190,8 @@ export function AfriMySpaceApply({ comp }: AfriMySpaceApplyProps) {
         <div className="border-t border-neutral-gray-light pt-6">
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
             <Briefcase className="h-3.5 w-3.5" /> Profession <span className="text-brand-red-600">*</span>
-            <span className="relative group ml-1">
-              <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
-              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                Enter your current profession or field of work
-              </span>
-            </span>
           </label>
+          <p className="text-xs text-neutral-gray-medium mb-2">Enter your current profession or field of work.</p>
           <input type="text" value={profession} onChange={(e) => setProfession(e.target.value)}
             placeholder="Input your profession"
             className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
@@ -205,13 +200,8 @@ export function AfriMySpaceApply({ comp }: AfriMySpaceApplyProps) {
         <div>
           <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
             <Edit3 className="h-3.5 w-3.5" /> Space Description <span className="text-brand-red-600">*</span>
-            <span className="relative group ml-1">
-              <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
-              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                Describe your workspace and the tools/equipment you use
-              </span>
-            </span>
           </label>
+          <p className="text-xs text-neutral-gray-medium mb-2">Describe your workspace and the tools/equipment you use.</p>
           <textarea value={spaceDescription} onChange={(e) => setSpaceDescription(e.target.value)}
             placeholder="Briefly describe your workspace (mention tools and equipment used)"
             rows={5}

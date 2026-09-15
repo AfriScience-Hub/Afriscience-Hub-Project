@@ -1,7 +1,10 @@
 'use client';
 
-import { Plus } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
+import { Plus, CreditCard, ChevronDown, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ID_CARD_TYPES } from '../data';
 
 export function FieldLabel({
   children,
@@ -183,23 +186,125 @@ export function MultiStringList({
 export function SocialHandlesFields({
   value,
   onChange,
+  hintPosition = 'below',
 }: {
   value: { linkedin: string; instagram: string; twitter: string; facebook: string };
   onChange: (v: typeof value) => void;
+  hintPosition?: 'above' | 'below';
 }) {
   return (
-    <div className="grid sm:grid-cols-2 gap-3">
-      {(['linkedin', 'instagram', 'twitter', 'facebook'] as const).map((key) => (
-        <div key={key}>
-          <FieldLabel>{key.charAt(0).toUpperCase() + key.slice(1)}</FieldLabel>
-          <TextInput
-            value={value[key]}
-            onChange={(e) => onChange({ ...value, [key]: e.target.value })}
-            placeholder={`https://${key}.com/...`}
-          />
+    <div>
+      {hintPosition === 'above' && (
+        <p className="text-xs text-neutral-gray-medium mb-2">Provide at least one social handle.</p>
+      )}
+      <div className="grid sm:grid-cols-2 gap-3">
+        {(['linkedin', 'instagram', 'twitter', 'facebook'] as const).map((key) => (
+          <div key={key}>
+            <FieldLabel>{key.charAt(0).toUpperCase() + key.slice(1)}</FieldLabel>
+            <TextInput
+              value={value[key]}
+              onChange={(e) => onChange({ ...value, [key]: e.target.value })}
+              placeholder={`https://${key}.com/...`}
+            />
+          </div>
+        ))}
+      </div>
+      {hintPosition === 'below' && (
+        <p className="text-xs text-neutral-gray-medium mt-2">Provide at least one social handle.</p>
+      )}
+    </div>
+  );
+}
+
+export function GovernmentIdCardUpload({
+  idType,
+  otherSpecify,
+  file,
+  onChange,
+  required,
+}: {
+  idType: string;
+  otherSpecify: string;
+  file: File | null;
+  onChange: (patch: { type?: string; otherSpecify?: string; file?: File | null }) => void;
+  required?: boolean;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f || !f.type.startsWith('image/')) return;
+    onChange({ file: f });
+  };
+
+  return (
+    <div className="border-t border-neutral-gray-light pt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-4">
+        <div>
+          <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+            <CreditCard className="h-3.5 w-3.5" /> Government ID Card
+            {required && <span className="text-brand-red-600">*</span>}
+          </label>
+          <div className="relative">
+            <select
+              value={idType}
+              onChange={(e) => onChange({ type: e.target.value })}
+              className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm appearance-none bg-white focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+            >
+              <option value="">Select ID card type</option>
+              {ID_CARD_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium pointer-events-none" />
+          </div>
+          {idType === 'Other' && (
+            <input
+              type="text"
+              value={otherSpecify}
+              onChange={(e) => onChange({ otherSpecify: e.target.value })}
+              placeholder="Specify ID card type..."
+              className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm mt-2 focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+            />
+          )}
         </div>
-      ))}
-      <p className="sm:col-span-2 text-xs text-neutral-gray-medium">Provide at least one social handle.</p>
+      </div>
+
+      <div
+        className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors border-neutral-gray-light hover:border-brand-red-300 hover:bg-brand-red-50/30"
+        onClick={() => ref.current?.click()}
+      >
+        <input ref={ref} type="file" accept="image/*" onChange={handleChange} className="hidden" />
+        {preview ? (
+          <div className="flex flex-col items-center">
+            <div className="relative h-28 w-48 rounded-lg overflow-hidden mb-3">
+              <Image src={preview} alt="ID preview" fill className="object-cover" sizes="192px" />
+            </div>
+            <p className="font-bold text-green-800">{file?.name}</p>
+            <p className="text-xs text-neutral-gray-medium mt-1">Click to replace</p>
+          </div>
+        ) : (
+          <div>
+            <Upload className="h-8 w-8 text-neutral-gray-light mx-auto mb-2" />
+            <p className="text-sm text-neutral-gray-dark leading-relaxed">
+              To verify your identity, kindly upload a copy of any valid government issued ID card
+              of yours (National ID card, Driver&apos;s license, Voter&apos;s card, International
+              passport, etc.). Uploaded documents are securely stored and protected from
+              unauthorized access.
+            </p>
+            <p className="text-xs text-neutral-gray-medium mt-2">picture / image file formats only</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -209,69 +209,79 @@ export default function BusinessPlanSection({
         </div>
       </div>
 
-      <div className="mt-6 grid sm:grid-cols-3 gap-3">
-        <p className="sm:col-span-3 text-sm font-medium text-neutral-black">
-          Employment Projection (how many employees within 3 business years?)
-        </p>
-        {(['y1', 'y2', 'y3'] as const).map((k, i) => (
-          <div key={k}>
-            <FieldLabel required>{i + 1} year period</FieldLabel>
-            <TextInput
-              type="number"
-              min={0}
-              value={value.employmentProjection[k]}
+      <div className="mt-6">
+        <FieldLabel
+          required
+          info="How many employees are you projecting to hire within the space of 3 business years?"
+        >
+          Employment Projection
+        </FieldLabel>
+        <div className="grid sm:grid-cols-3 gap-3">
+          {(['y1', 'y2', 'y3'] as const).map((k, i) => (
+            <div key={k}>
+              <FieldLabel required>{i + 1} year period</FieldLabel>
+              <TextInput
+                type="number"
+                min={0}
+                value={value.employmentProjection[k]}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    employmentProjection: {
+                      ...value.employmentProjection,
+                      [k]: e.target.value,
+                    },
+                  })
+                }
+                required
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <FieldLabel
+          required
+          info="How much revenue are you projecting to generate within the space of 3 business years?"
+        >
+          Revenue Projection
+        </FieldLabel>
+        <div className="grid sm:grid-cols-4 gap-3">
+          <div>
+            <FieldLabel required>Currency</FieldLabel>
+            <SelectInput
+              value={value.revenueProjection.currency}
               onChange={(e) =>
                 onChange({
                   ...value,
-                  employmentProjection: {
-                    ...value.employmentProjection,
-                    [k]: e.target.value,
+                  revenueProjection: {
+                    ...value.revenueProjection,
+                    currency: e.target.value as 'USD' | 'Local',
                   },
                 })
               }
-              required
-            />
+            >
+              <option value="USD">USD</option>
+              <option value="Local">Local</option>
+            </SelectInput>
           </div>
-        ))}
-      </div>
-
-      <div className="mt-6 grid sm:grid-cols-4 gap-3">
-        <p className="sm:col-span-4 text-sm font-medium text-neutral-black">
-          Revenue Projection (within 3 business years)
-        </p>
-        <div>
-          <FieldLabel required>Currency</FieldLabel>
-          <SelectInput
-            value={value.revenueProjection.currency}
-            onChange={(e) =>
-              onChange({
-                ...value,
-                revenueProjection: {
-                  ...value.revenueProjection,
-                  currency: e.target.value as 'USD' | 'Local',
-                },
-              })
-            }
-          >
-            <option value="USD">USD</option>
-            <option value="Local">Local</option>
-          </SelectInput>
+          {(['y1', 'y2', 'y3'] as const).map((k, i) => (
+            <div key={k}>
+              <FieldLabel required>{i + 1} year period</FieldLabel>
+              <TextInput
+                value={value.revenueProjection[k]}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    revenueProjection: { ...value.revenueProjection, [k]: e.target.value },
+                  })
+                }
+                required
+              />
+            </div>
+          ))}
         </div>
-        {(['y1', 'y2', 'y3'] as const).map((k, i) => (
-          <div key={k}>
-            <FieldLabel required>{i + 1} year period</FieldLabel>
-            <TextInput
-              value={value.revenueProjection[k]}
-              onChange={(e) =>
-                onChange({
-                  ...value,
-                  revenueProjection: { ...value.revenueProjection, [k]: e.target.value },
-                })
-              }
-              required
-            />
-          </div>
-        ))}
       </div>
 
       <div className="mt-6">
@@ -285,7 +295,9 @@ export default function BusinessPlanSection({
       </div>
 
       <div className="mt-6">
-        <FieldLabel required>Bank Relationship</FieldLabel>
+        <FieldLabel required info="Provide the details of the banks you transact with.">
+          Bank Relationship
+        </FieldLabel>
         <div className="space-y-3">
           {value.bankRelationships.map((b, idx) => (
             <div key={idx} className="grid sm:grid-cols-3 gap-2">
@@ -450,7 +462,12 @@ export default function BusinessPlanSection({
       </div>
 
       <div className="mt-6">
-        <FieldLabel required>Risks & Mitigation</FieldLabel>
+        <FieldLabel
+          required
+          info="Mention the risks associated with your chosen career and measures to prevent and control them."
+        >
+          Risks & Mitigation
+        </FieldLabel>
         <div className="space-y-3">
           {value.risks.map((r, idx) => (
             <div key={idx} className="grid sm:grid-cols-2 gap-2">
@@ -510,7 +527,7 @@ export default function BusinessPlanSection({
           label="Career Budget Breakdown"
           required
           accept=".pdf,.doc,.docx,.xls,.xlsx,.csv"
-          hint="Upload the estimated budget breakdown document. Document file formats only."
+          hint="Upload the estimated budget breakdown document of chosen career. Uploaded documents are securely stored and protected from unauthorized access."
           file={value.budgetDocument}
           onChange={(f) => onChange({ ...value, budgetDocument: f })}
           onClear={() => onChange({ ...value, budgetDocument: null })}

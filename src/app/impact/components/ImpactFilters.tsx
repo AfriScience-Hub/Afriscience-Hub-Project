@@ -14,30 +14,36 @@ import { cn } from '@/lib/utils';
 interface ImpactFiltersProps {
   showFilters: boolean;
   activeFilterCount: number;
-  selectedPrograms: ImpactProgram[];
-  selectedStatuses: ImpactStatus[];
+  selectedProgram: ImpactProgram | '';
+  selectedStatus: ImpactStatus | '';
   selectedCountry: string;
   selectedYear: string;
   collapsedSections: Record<string, boolean>;
   onToggleSection: (key: string) => void;
-  onToggleProgram: (p: ImpactProgram) => void;
-  onToggleStatus: (s: ImpactStatus) => void;
+  onProgramChange: (p: ImpactProgram) => void;
+  onStatusChange: (s: ImpactStatus) => void;
   onCountryChange: (v: string) => void;
   onYearChange: (v: string) => void;
   onClearAll: () => void;
 }
 
+const PROGRAM_LABELS: Record<ImpactProgram, string> = {
+  'Career Support': 'Career Support',
+  'Research Support': 'Research Support',
+  'Educational Scholarship': 'Educational Scholarship (Tertiary)',
+};
+
 export default function ImpactFilters({
   showFilters,
   activeFilterCount,
-  selectedPrograms,
-  selectedStatuses,
+  selectedProgram,
+  selectedStatus,
   selectedCountry,
   selectedYear,
   collapsedSections,
   onToggleSection,
-  onToggleProgram,
-  onToggleStatus,
+  onProgramChange,
+  onStatusChange,
   onCountryChange,
   onYearChange,
   onClearAll,
@@ -71,20 +77,21 @@ export default function ImpactFilters({
         <div className="space-y-5">
           <FilterSection
             title="Programs"
-            count={selectedPrograms.length}
+            count={selectedProgram ? 1 : 0}
             collapsed={!!collapsedSections.programs}
             onToggle={() => onToggleSection('programs')}
           >
             {IMPACT_PROGRAMS.map((program) => (
               <label key={program} className="flex items-center gap-2 cursor-pointer group">
                 <input
-                  type="checkbox"
-                  checked={selectedPrograms.includes(program)}
-                  onChange={() => onToggleProgram(program)}
-                  className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5"
+                  type="radio"
+                  name="impact-program"
+                  checked={selectedProgram === program}
+                  onChange={() => onProgramChange(program)}
+                  className="rounded-full border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5"
                 />
                 <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">
-                  {program}
+                  {PROGRAM_LABELS[program]}
                 </span>
               </label>
             ))}
@@ -92,17 +99,18 @@ export default function ImpactFilters({
 
           <FilterSection
             title="Status"
-            count={selectedStatuses.length}
+            count={selectedStatus ? 1 : 0}
             collapsed={!!collapsedSections.status}
             onToggle={() => onToggleSection('status')}
           >
             {IMPACT_STATUSES.map((status) => (
               <label key={status} className="flex items-center gap-2 cursor-pointer group">
                 <input
-                  type="checkbox"
-                  checked={selectedStatuses.includes(status)}
-                  onChange={() => onToggleStatus(status)}
-                  className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5"
+                  type="radio"
+                  name="impact-status"
+                  checked={selectedStatus === status}
+                  onChange={() => onStatusChange(status)}
+                  className="rounded-full border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5"
                 />
                 <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">
                   {status}

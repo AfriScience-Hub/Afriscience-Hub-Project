@@ -12,8 +12,18 @@ interface ImagePreviewModalProps {
 export default function ImagePreviewModal({ src, alt, onClose }: ImagePreviewModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={onClose}>
-      <div className="relative max-w-5xl max-h-[90vh]" onClick={e => e.stopPropagation()}>
-        <Image src={src} alt={alt} width={0} height={0} sizes="100vw" className="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl" />
+      <div
+        className="relative w-full max-w-5xl h-[85vh] flex items-center justify-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Image
+          src={src}
+          alt={alt}
+          width={800}
+          height={600}
+          sizes="(max-width: 768px) 100vw, 1024px"
+          className="max-h-full max-w-full rounded-lg object-contain shadow-2xl"
+        />
         <button onClick={onClose} className="absolute -top-3 -right-3 rounded-full bg-white p-2 shadow-lg hover:bg-neutral-bg-light transition-colors cursor-pointer">
           <X className="h-5 w-5" />
         </button>

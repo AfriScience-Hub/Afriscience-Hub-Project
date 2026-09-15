@@ -8,8 +8,9 @@ import {
   SelectInput,
   FileUpload,
   SocialHandlesFields,
+  GovernmentIdCardUpload,
 } from '../components/FormField';
-import { TITLES, ID_CARD_TYPES } from '../data';
+import { TITLES } from '../data';
 import type { CareerFormState } from './types';
 
 export default function HeadProprietorSection({
@@ -21,7 +22,7 @@ export default function HeadProprietorSection({
 }) {
   return (
     <SectionCard
-      title="Your Information (Head Proprietor)"
+      title="Your Information (Primary Proprietor)"
       icon={<User className="h-5 w-5 text-brand-red-600" />}
       badge="Required"
     >
@@ -68,6 +69,7 @@ export default function HeadProprietorSection({
       <div className="mt-4">
         <FieldLabel required>Social Handles</FieldLabel>
         <SocialHandlesFields
+          hintPosition="above"
           value={value.socials}
           onChange={(socials) => onChange({ ...value, socials })}
         />
@@ -87,55 +89,22 @@ export default function HeadProprietorSection({
           label="Degree Certificate"
           required
           accept="image/*"
-          hint="Upload a copy of your most recent tertiary degree certificate."
+          hint="To verify your academic qualification, kindly upload a copy of your most recent tertiary degree certificate. Uploaded documents are securely stored and protected from unauthorized access."
           file={value.degreeCertificate}
           onChange={(f) => onChange({ ...value, degreeCertificate: f })}
           onClear={() => onChange({ ...value, degreeCertificate: null })}
         />
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div>
-          <FieldLabel required info="To verify your identity, upload a copy of the selected ID card.">
-            Government ID Card Type
-          </FieldLabel>
-          <SelectInput
-            value={value.idCard.type}
-            onChange={(e) =>
-              onChange({ ...value, idCard: { ...value.idCard, type: e.target.value } })
-            }
-            required
-          >
-            <option value="">Select ID card type</option>
-            {ID_CARD_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </SelectInput>
-          {value.idCard.type === 'Other' && (
-            <TextInput
-              className="mt-2"
-              placeholder="Specify ID type"
-              value={value.idCard.otherSpecify}
-              onChange={(e) =>
-                onChange({
-                  ...value,
-                  idCard: { ...value.idCard, otherSpecify: e.target.value },
-                })
-              }
-              required
-            />
-          )}
-        </div>
-        <FileUpload
-          label="Upload ID Card"
-          required
-          accept="image/*"
-          hint="Picture/image file formats only."
+      <div className="mt-4">
+        <GovernmentIdCardUpload
+          idType={value.idCard.type}
+          otherSpecify={value.idCard.otherSpecify}
           file={value.idCard.file}
-          onChange={(f) => onChange({ ...value, idCard: { ...value.idCard, file: f } })}
-          onClear={() => onChange({ ...value, idCard: { ...value.idCard, file: null } })}
+          required
+          onChange={(patch) =>
+            onChange({ ...value, idCard: { ...value.idCard, ...patch } })
+          }
         />
       </div>
 
@@ -156,7 +125,7 @@ export default function HeadProprietorSection({
           label="Upload Selected Document"
           required
           accept="image/*"
-          hint="Picture/image file formats only."
+          hint="To verify your professional experience, kindly upload a copy of the selected document. Uploaded documents are securely stored and protected from unauthorized access."
           file={value.experienceDoc}
           onChange={(f) => onChange({ ...value, experienceDoc: f })}
           onClear={() => onChange({ ...value, experienceDoc: null })}

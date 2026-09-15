@@ -87,11 +87,11 @@ export default function ImpactCard({ story, onPreview }: ImpactCardProps) {
       </div>
 
       <div className="p-5">
-        <h3 className="font-bold text-neutral-black mb-1 line-clamp-2 min-h-[2.5rem]">{title}</h3>
+        <h3 className="font-bold text-neutral-black mb-2 line-clamp-2 min-h-[2.5rem]">{title}</h3>
 
         <p className="text-xs text-neutral-gray-medium mb-1">
           <span className="font-semibold text-neutral-gray-dark">{secondary.label}:</span>{' '}
-          {secondary.value}
+          <span className="font-bold text-brand-red-600">{secondary.value}</span>
         </p>
 
         <div className="flex items-center gap-1.5 text-xs text-neutral-gray-medium mb-3">

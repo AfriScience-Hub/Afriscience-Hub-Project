@@ -167,28 +167,28 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
               <User className="h-3.5 w-3.5" /> Name
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{user.name}</div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
               <Hash className="h-3.5 w-3.5" /> ID Tag
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium font-mono">{idTag}</div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
               <FileText className="h-3.5 w-3.5" /> Competition Type
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{comp.type}</div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
               <FileText className="h-3.5 w-3.5" /> Category
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{comp.category}</div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
@@ -197,7 +197,7 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
@@ -206,14 +206,14 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
               <MapPin className="h-3.5 w-3.5" /> Country
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{comp.country}</div>
-            <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
+            
           </div>
         </div>
 
