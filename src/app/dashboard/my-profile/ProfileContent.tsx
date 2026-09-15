@@ -12,6 +12,7 @@ import { ExperienceSkillsTab } from './components/ExperienceSkillsTab';
 import { PaymentInfoTab } from './components/PaymentInfoTab';
 import { SystemSecurityTab } from './components/SystemSecurityTab';
 import { useProfileForm } from './useProfileForm';
+import { ProfileSkeleton } from './components/ProfileSkeleton';
 
 type TabKey = 'personal' | 'education' | 'experience' | 'payment' | 'system';
 
@@ -87,6 +88,12 @@ export function ProfileContent() {
     }
     setActiveTab(key as TabKey);
   };
+
+  const isLoading = !f.personalLoaded;
+
+  if (isLoading) {
+    return <ProfileSkeleton />;
+  }
 
   const handleSaveDraft = async () => {
     setSaving(true);

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { ProfileContent } from '../dashboard/my-profile/ProfileContent';
+import { ProfileSkeleton } from '../dashboard/my-profile/components/ProfileSkeleton';
 
 export default function Profile() {
   const { user, isAuthenticated } = useAuth();
@@ -18,7 +19,13 @@ export default function Profile() {
   }, [isAuthenticated, user, router]);
 
   if (!isAuthenticated || !user) {
-    return null;
+    return (
+      <div className="min-h-screen bg-neutral-bg-light">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-8">
+          <ProfileSkeleton />
+        </div>
+      </div>
+    );
   }
 
   return (

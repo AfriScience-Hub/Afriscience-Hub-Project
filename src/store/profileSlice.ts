@@ -26,7 +26,40 @@ interface ProfileState {
   portfolio: PortfolioEntry[]; portfolioLoading: boolean; portfolioError: string | null;
   certs: CertEntry[]; certsLoading: boolean; certsError: string | null;
   completion: number; completionLoading: boolean;
+  profileLoading: boolean; profileLoaded: boolean; profileError: string | null;
   saveLoading: boolean; saveError: string | null;
+}
+
+/** Unwrap common API envelopes: {data: ...} or raw payload. */
+function unwrap<T>(r: any): T {
+  return (r?.data ?? r) as T;
+}
+
+function asArray<T>(v: unknown): T[] {
+  if (Array.isArray(v)) return v as T[];
+  if (v && typeof v === 'object') return [v as T];
+  return [];
+}
+
+function pickFirst<T>(...vals: unknown[]): T[] {
+  for (const v of vals) {
+    if (Array.isArray(v)) return v as T[];
+    if (v && typeof v === 'object') return [v as T];
+  }
+  return [];
+}
+
+function extractCompletion(v: any): number {
+  const root = v?.data ?? v;
+  const candidates = [
+    root?.completion, root?.completionRate, root?.completionPercentage,
+    root?.percentage, root?.percent, root?.rate, root,
+  ];
+  for (const c of candidates) {
+    const n = typeof c === 'string' ? Number(c) : c;
+    if (typeof n === 'number' && Number.isFinite(n)) return Math.max(0, Math.min(100, Math.round(n)));
+  }
+  return 0;
 }
 
 // Personal
@@ -112,12 +145,30 @@ export const updateCert = createAsyncThunk('profile/updateCert', async (p: { id:
   try { const r: any = await api.patch(`/profile/certs/${p.id}`, p.data); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
 });
 
+// Full profile — SINGLE request hydrating every tab (GET /api/v1/profile).
+// Per-section POST/PATCH thunks below stay as the write path on edit/save.
+export const fetchFullProfile = createAsyncThunk('profile/fetchFull', async (_, { rejectWithValue }) => {
+  try {
+    const r: any = await api.get('/profile');
+    const d = unwrap<any>(r) || {};
+    return {
+      personal: d.personal ?? d.personalInfo ?? d.bio ?? d.user ?? null,
+      skills: pickFirst<SkillEntry>(d.skills),
+      education: pickFirst<EducationEntry>(d.education, d.educations),
+      experience: pickFirst<ExperienceEntry>(d.experience, d.experiences, d.employment, d.workExperience),
+      languages: pickFirst<LanguageEntry>(d.languages),
+      portfolio: pickFirst<PortfolioEntry>(d.portfolio, d.portfolios),
+      certs: pickFirst<CertEntry>(d.certs, d.certifications, d.certificates),
+    };
+  } catch (e: any) { return rejectWithValue(e.message); }
+});
+
 // Profile + Completion
 export const fetchProfile = createAsyncThunk('profile/fetchProfile', async (_, { rejectWithValue }) => {
   try { const r: any = await api.get('/profile'); return r?.data || r || null; } catch (e: any) { return rejectWithValue(e.message); }
 });
 export const fetchProfileCompletion = createAsyncThunk('profile/fetchCompletion', async (_, { rejectWithValue }) => {
-  try { const r: any = await api.get('/profile/completion'); return r?.data ?? r ?? 0; } catch (e: any) { return rejectWithValue(e.message); }
+  try { const r: any = await api.get('/profile/completion'); return extractCompletion(r); } catch (e: any) { return rejectWithValue(e.message); }
 });
 export const submitProfileCompletion = createAsyncThunk('profile/submitCompletion', async (_, { rejectWithValue }) => {
   try { const r: any = await api.post('/profile/completion'); return r?.data ?? r; } catch (e: any) { return rejectWithValue(e.message); }
@@ -132,6 +183,7 @@ const initialState: ProfileState = {
   portfolio: [], portfolioLoading: false, portfolioError: null,
   certs: [], certsLoading: false, certsError: null,
   completion: 0, completionLoading: false,
+  profileLoading: false, profileLoaded: false, profileError: null,
   saveLoading: false, saveError: null,
 };
 
@@ -185,6 +237,18 @@ const profileSlice = createSlice({
       .addCase(fetchCerts.rejected, (s, a) => { s.certsLoading = false; s.certsError = a.payload as string; })
       .addCase(createCert.fulfilled, (s, a) => { s.certs.push(a.payload); })
       .addCase(updateCert.fulfilled, (s, a) => { const i = s.certs.findIndex(c => c.id === a.payload.id); if (i >= 0) s.certs[i] = a.payload; })
+      .addCase(fetchFullProfile.pending, (s) => { s.profileLoading = true; s.profileError = null; })
+      .addCase(fetchFullProfile.fulfilled, (s, a) => {
+        s.profileLoading = false; s.profileLoaded = true;
+        if (a.payload.personal) s.personal = a.payload.personal;
+        s.skills = asArray<SkillEntry>(a.payload.skills);
+        s.education = asArray<EducationEntry>(a.payload.education);
+        s.experience = asArray<ExperienceEntry>(a.payload.experience);
+        s.languages = asArray<LanguageEntry>(a.payload.languages);
+        s.portfolio = asArray<PortfolioEntry>(a.payload.portfolio);
+        s.certs = asArray<CertEntry>(a.payload.certs);
+      })
+      .addCase(fetchFullProfile.rejected, (s, a) => { s.profileLoading = false; s.profileError = a.payload as string; })
       .addCase(fetchProfile.pending, (s) => { s.completionLoading = true; })
       .addCase(fetchProfile.fulfilled, (s, a) => { s.completionLoading = false; if (a.payload?.personal) s.personal = a.payload.personal; })
       .addCase(fetchProfile.rejected, (s) => { s.completionLoading = false; })

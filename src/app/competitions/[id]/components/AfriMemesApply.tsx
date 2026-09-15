@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   User, Hash, FileText, Calendar, MapPin, Globe, BookOpen, Edit3,
-  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown, Save, Info
+  Link as LinkIcon, Camera, CreditCard, CheckCircle, Upload, ChevronDown, Save
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/context/AuthContext';
@@ -164,35 +164,35 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <User className="h-3.5 w-3.5" /> Name <span className="text-brand-red-600">*</span>
+              <User className="h-3.5 w-3.5" /> Name
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{user.name}</div>
             <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <Hash className="h-3.5 w-3.5" /> ID Tag <span className="text-brand-red-600">*</span>
+              <Hash className="h-3.5 w-3.5" /> ID Tag
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium font-mono">{idTag}</div>
             <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <FileText className="h-3.5 w-3.5" /> Competition Type <span className="text-brand-red-600">*</span>
+              <FileText className="h-3.5 w-3.5" /> Competition Type
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{comp.type}</div>
             <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <FileText className="h-3.5 w-3.5" /> Category <span className="text-brand-red-600">*</span>
+              <FileText className="h-3.5 w-3.5" /> Category
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{comp.category}</div>
             <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <Calendar className="h-3.5 w-3.5" /> Application Date <span className="text-brand-red-600">*</span>
+              <Calendar className="h-3.5 w-3.5" /> Application Date
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -201,7 +201,7 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <Calendar className="h-3.5 w-3.5" /> Submission Deadline <span className="text-brand-red-600">*</span>
+              <Calendar className="h-3.5 w-3.5" /> Submission Deadline
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">
               {new Date(comp.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -210,7 +210,7 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
-              <MapPin className="h-3.5 w-3.5" /> Country <span className="text-brand-red-600">*</span>
+              <MapPin className="h-3.5 w-3.5" /> Country
             </label>
             <div className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm bg-neutral-bg-light text-neutral-black font-medium">{comp.country}</div>
             <p className="text-[10px] text-neutral-gray-medium mt-1">Automatically filled by platform</p>
@@ -218,15 +218,10 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
         </div>
 
         <div className="border-t border-neutral-gray-light pt-6">
-          <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+          <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1">
             <Globe className="h-3.5 w-3.5" /> Language <span className="text-brand-red-600">*</span>
-            <span className="relative group ml-1">
-              <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
-              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                Select the language of your meme
-              </span>
-            </span>
           </label>
+          <p className="text-[10px] text-neutral-gray-medium mb-1.5">Select the language of your meme</p>
           <div className="relative">
             <select value={language} onChange={(e) => setLanguage(e.target.value)}
               className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm appearance-none bg-white focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
@@ -252,15 +247,10 @@ export function AfriMemesApply({ comp }: AfriMemesApplyProps) {
         </div>
 
         <div>
-          <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1.5">
+          <label className="flex items-center gap-1.5 text-xs text-neutral-gray-medium uppercase font-bold mb-1">
             <Edit3 className="h-3.5 w-3.5" /> Meme Summary <span className="text-brand-red-600">*</span>
-            <span className="relative group ml-1">
-              <Info className="h-3 w-3 text-neutral-gray-medium cursor-help" />
-              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] bg-neutral-black text-white rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                Briefly explain the meaning of your meme and the science concept behind it
-              </span>
-            </span>
           </label>
+          <p className="text-[10px] text-neutral-gray-medium mb-1.5">Briefly explain the meaning of your meme and the science concept behind it</p>
           <textarea value={memeSummary} onChange={(e) => setMemeSummary(e.target.value)}
             placeholder="Briefly explain the meaning of your meme and the science concept behind it"
             rows={5}

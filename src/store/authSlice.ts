@@ -50,12 +50,16 @@ interface AuthState {
 
 const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1670881391783-9c55ba592f93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzIzODM4NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
+// The refresh token is an HttpOnly cookie set/cleared by the backend
+// (login sets it, /auth/refresh reads it, /auth/logout clears it).
+// It is sent automatically via `credentials: 'include'` and is NEVER
+// visible to JS (document.cookie won't show it — that's expected).
+// So we only persist the short-lived access/session token here.
 function persistTokens(data: any) {
   if (typeof window === 'undefined') return;
   const access = data?.accessToken || data?.token || data?.data?.accessToken;
-  const refresh = data?.refreshToken || data?.data?.refreshToken;
   if (access) localStorage.setItem('afrisciencehub_token', access);
-  if (refresh) localStorage.setItem('afrisciencehub_refresh', refresh);
+  localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
 }
 
 function extractUser(data: any, fallbackIdentifier?: string): AuthUser {
@@ -194,13 +198,15 @@ export const fetchSessions = createAsyncThunk(
 
 export const logoutThunk = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
   try {
+    // credentials:'include' (set in lib/api) sends the HttpOnly refresh cookie
+    // so the backend can clear it. Still clear local state even on failure.
     await api.post('/auth/logout');
   } catch (err: any) {
     // still clear locally even if server fails
   }
   if (typeof window !== 'undefined') {
     localStorage.removeItem('afrisciencehub_token');
-    localStorage.removeItem('afrisciencehub_refresh');
+    localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
     localStorage.removeItem('afrisciencehub_user');
   }
 });

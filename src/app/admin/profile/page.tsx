@@ -7,9 +7,10 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logoutThunk } from '@/store/authSlice';
 import { Button } from '@/app/components/ui/Button';
 import { toast } from 'sonner';
+import { AdminProfileSkeleton } from '@/app/dashboard/my-profile/components/ProfileSkeleton';
 
 export default function AdminProfilePage() {
-  const { user } = useAppSelector((s) => s.auth);
+  const { user, loading } = useAppSelector((s) => s.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -18,6 +19,10 @@ export default function AdminProfilePage() {
     toast.success('Signed out');
     router.replace('/admin/login');
   };
+
+  if (loading && !user) {
+    return <AdminProfileSkeleton />;
+  }
 
   const displayName = user?.name || 'Claire Iwuanyanwu';
   const displayEmail = user?.email || 'claire.iwuanyanwu@afriscience.org';

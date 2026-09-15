@@ -4,12 +4,13 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  fetchPersonalInfo, createPersonalInfo, updatePersonalInfo,
-  fetchSkills, createSkill, updateSkill,
-  fetchEducation, createEducation, updateEducation,
-  fetchExperience, createExperience, updateExperience,
-  fetchLanguages, createLanguage, updateLanguage,
-  fetchPortfolio, createPortfolio, updatePortfolio,
+  fetchFullProfile, fetchProfileCompletion,
+  createPersonalInfo, updatePersonalInfo,
+  createSkill, updateSkill,
+  createEducation, updateEducation,
+  createExperience, updateExperience,
+  createLanguage, updateLanguage,
+  createPortfolio, updatePortfolio,
 } from '@/store/profileSlice';
 import { toast } from 'sonner';
 import { useLocalStorage } from '@/lib/useLocalStorage';
@@ -25,7 +26,7 @@ export function useProfileForm() {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
   const profile = useAppSelector(s => s.profile);
-  const fetchedRef = useRef({ personal: false, skills: false, education: false, experience: false, languages: false, portfolio: false });
+  const fetchedRef = useRef({ full: false });
   const existingIdsRef = useRef({ skills: new Set<string>(), languages: new Set<string>(), portfolio: new Set<string>() });
 
   const [firstName, setFirstName] = useState(''); const [middleName, setMiddleName] = useState(''); const [surname, setSurname] = useState('');
@@ -58,41 +59,14 @@ export function useProfileForm() {
   const [savedCards, setSavedCards] = useLocalStorage<SavedCard[]>('ash:saved-cards', []);
   const [personalLoaded, setPersonalLoaded] = useState(false);
 
-  // Fetch once on mount
+  // Single fetch on mount: GET /profile hydrates every tab, plus
+  // GET /profile/completion for the header percentage. Per-section
+  // POST/PATCH thunks fire only on save (see save* below).
   useEffect(() => {
-    if (fetchedRef.current.personal) return;
-    fetchedRef.current.personal = true;
-    dispatch(fetchPersonalInfo()).unwrap().catch(() => {}).finally(() => setPersonalLoaded(true));
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (fetchedRef.current.skills) return;
-    fetchedRef.current.skills = true;
-    dispatch(fetchSkills());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (fetchedRef.current.education) return;
-    fetchedRef.current.education = true;
-    dispatch(fetchEducation());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (fetchedRef.current.experience) return;
-    fetchedRef.current.experience = true;
-    dispatch(fetchExperience());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (fetchedRef.current.languages) return;
-    fetchedRef.current.languages = true;
-    dispatch(fetchLanguages());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (fetchedRef.current.portfolio) return;
-    fetchedRef.current.portfolio = true;
-    dispatch(fetchPortfolio());
+    if (fetchedRef.current.full) return;
+    fetchedRef.current.full = true;
+    dispatch(fetchFullProfile()).unwrap().catch(() => {}).finally(() => setPersonalLoaded(true));
+    dispatch(fetchProfileCompletion());
   }, [dispatch]);
 
   // Sync personal info from Redux into local state
@@ -137,26 +111,31 @@ export function useProfileForm() {
   const handleUpdateCard = (id: string, c: Omit<SavedCard, 'id'>) => setSavedCards(p => p.map(x => x.id === id ? { ...x, ...c } : x));
   const handleRemoveCard = (id: string) => setSavedCards(p => p.filter(x => x.id !== id));
 
+  const refreshCompletion = useCallback(() => { dispatch(fetchProfileCompletion()); }, [dispatch]);
+
   const savePersonalInfo = useCallback(async () => {
     const payload: Record<string, any> = { firstname: firstName, middlename: middleName, surname, username, gender: GENDER_MAP[gender] || gender, dateOfBirth, bio, phone, address, city, state: stateOfResidence, lga: localGovt, country, postalCode: zipCode, idCardType, idCardNumber, employmentStatus: EMP_MAP[employmentStatus] || employmentStatus, website };
-    try { await dispatch(hasPersonalInfo ? updatePersonalInfo(payload) : createPersonalInfo(payload)).unwrap(); toast.success('Personal info saved!'); return true; } catch (e: any) { toast.error(e || 'Failed to save'); return false; }
-  }, [firstName, middleName, surname, username, gender, dateOfBirth, bio, phone, address, city, stateOfResidence, localGovt, country, zipCode, idCardType, idCardNumber, employmentStatus, website, hasPersonalInfo, dispatch]);
+    try { await dispatch(hasPersonalInfo ? updatePersonalInfo(payload) : createPersonalInfo(payload)).unwrap(); toast.success('Personal info saved!'); refreshCompletion(); return true; } catch (e: any) { toast.error(e || 'Failed to save'); return false; }
+  }, [firstName, middleName, surname, username, gender, dateOfBirth, bio, phone, address, city, stateOfResidence, localGovt, country, zipCode, idCardType, idCardNumber, employmentStatus, website, hasPersonalInfo, dispatch, refreshCompletion]);
 
-  const saveSkills = useCallback(async () => { for (const s of skills) { if (!s.name.trim()) continue; const existing = existingIdsRef.current.skills.has(s.id); try { if (existing) { await dispatch(updateSkill({ id: s.id, name: s.name })).unwrap(); } else { const created = await dispatch(createSkill({ name: s.name })).unwrap(); existingIdsRef.current.skills.add(created.id); } } catch {} } }, [skills, dispatch]);
+  const saveSkills = useCallback(async () => { for (const s of skills) { if (!s.name.trim()) continue; const existing = existingIdsRef.current.skills.has(s.id); try { if (existing) { await dispatch(updateSkill({ id: s.id, name: s.name })).unwrap(); } else { const created = await dispatch(createSkill({ name: s.name })).unwrap(); existingIdsRef.current.skills.add(created.id); } } catch {} } refreshCompletion(); }, [skills, dispatch, refreshCompletion]);
   const saveEducation = useCallback(async () => {
     const p = { educationLevel, graduationClass, courseOfStudy, institution, yearOfGraduation: Number(yearOfGraduation) || 0, degreeCertificate: '' };
-    try { await dispatch(profile.education[0]?.id ? updateEducation({ id: profile.education[0].id, data: p }) : createEducation(p)).unwrap(); toast.success('Education saved!'); } catch {}
-  }, [educationLevel, graduationClass, courseOfStudy, institution, yearOfGraduation, profile.education, dispatch]);
+    try { await dispatch(profile.education[0]?.id ? updateEducation({ id: profile.education[0].id, data: p }) : createEducation(p)).unwrap(); toast.success('Education saved!'); refreshCompletion(); } catch {}
+  }, [educationLevel, graduationClass, courseOfStudy, institution, yearOfGraduation, profile.education, dispatch, refreshCompletion]);
   const saveExperience = useCallback(async () => {
     const p = { organization: company, role, industry, country: workCountry, startDate: resumptionDate, roleDescription, isCurrent: true };
-    try { await dispatch(profile.experience.find(e => e.isCurrent)?.id ? updateExperience({ id: profile.experience.find(e => e.isCurrent)!.id, data: p }) : createExperience(p)).unwrap(); toast.success('Experience saved!'); } catch {}
-  }, [company, role, industry, workCountry, resumptionDate, roleDescription, profile.experience, dispatch]);
-  const saveLanguages = useCallback(async () => { for (const l of languages) { if (!l.name.trim()) continue; const existing = existingIdsRef.current.languages.has(l.id); try { if (existing) { await dispatch(updateLanguage({ id: l.id, data: { language: l.name, proficiency: l.proficiency } })).unwrap(); } else { const created = await dispatch(createLanguage({ language: l.name, proficiency: l.proficiency })).unwrap(); existingIdsRef.current.languages.add(created.id); } } catch {} } }, [languages, dispatch]);
-  const savePortfolio = useCallback(async () => { for (const p of portfolioLinks.filter(x => x.url.trim())) { const existing = existingIdsRef.current.portfolio.has(p.id); try { if (existing) { await dispatch(updatePortfolio({ id: p.id, data: { label: p.label, link: p.url } })).unwrap(); } else { const created = await dispatch(createPortfolio({ label: p.label, link: p.url })).unwrap(); existingIdsRef.current.portfolio.add(created.id); } } catch {} } }, [portfolioLinks, dispatch]);
+    try { await dispatch(profile.experience.find(e => e.isCurrent)?.id ? updateExperience({ id: profile.experience.find(e => e.isCurrent)!.id, data: p }) : createExperience(p)).unwrap(); toast.success('Experience saved!'); refreshCompletion(); } catch {}
+  }, [company, role, industry, workCountry, resumptionDate, roleDescription, profile.experience, dispatch, refreshCompletion]);
+  const saveLanguages = useCallback(async () => { for (const l of languages) { if (!l.name.trim()) continue; const existing = existingIdsRef.current.languages.has(l.id); try { if (existing) { await dispatch(updateLanguage({ id: l.id, data: { language: l.name, proficiency: l.proficiency } })).unwrap(); } else { const created = await dispatch(createLanguage({ language: l.name, proficiency: l.proficiency })).unwrap(); existingIdsRef.current.languages.add(created.id); } } catch {} } refreshCompletion(); }, [languages, dispatch, refreshCompletion]);
+  const savePortfolio = useCallback(async () => { for (const p of portfolioLinks.filter(x => x.url.trim())) { const existing = existingIdsRef.current.portfolio.has(p.id); try { if (existing) { await dispatch(updatePortfolio({ id: p.id, data: { label: p.label, link: p.url } })).unwrap(); } else { const created = await dispatch(createPortfolio({ label: p.label, link: p.url })).unwrap(); existingIdsRef.current.portfolio.add(created.id); } } catch {} } refreshCompletion(); }, [portfolioLinks, dispatch, refreshCompletion]);
   const saveAll = useCallback(async () => { const ok = await savePersonalInfo(); if (!ok) return false; await Promise.all([saveSkills(), saveEducation(), saveExperience(), saveLanguages(), savePortfolio()]); return true; }, [savePersonalInfo, saveSkills, saveEducation, saveExperience, saveLanguages, savePortfolio]);
 
   const fullName = [firstName, middleName, surname].filter(Boolean).join(' ') || user?.name || '';
-  const completionPct = (() => { const fields = [firstName, surname, username, gender, dateOfBirth, idCardType, idCardNumber, bio, email, phone, address, city, stateOfResidence, country, educationLevel, institution, courseOfStudy, yearOfGraduation, employmentStatus]; return Math.round((fields.filter(f => f?.trim()).length / fields.length) * 100); })();
+  // Server is the source of truth (GET /profile/completion); local field-count
+  // is only a fallback before the server value arrives or if it errors.
+  const localPct = (() => { const fields = [firstName, surname, username, gender, dateOfBirth, idCardType, idCardNumber, bio, email, phone, address, city, stateOfResidence, country, educationLevel, institution, courseOfStudy, yearOfGraduation, employmentStatus]; return Math.round((fields.filter(f => f?.trim()).length / fields.length) * 100); })();
+  const completionPct = profile.completionLoading && !profile.profileLoaded ? localPct : (profile.completion > 0 ? profile.completion : localPct);
 
   return {
     user, fullName, completionPct, hasPersonalInfo, personalLoaded, personalLoading: profile.personalLoading,

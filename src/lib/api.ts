@@ -23,15 +23,18 @@ function getAccessToken(): string | null {
   return localStorage.getItem('afrisciencehub_token');
 }
 
-function getRefreshToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('afrisciencehub_refresh');
-}
-
-function setTokens(access: string | null, refresh: string | null) {
+function setAccessToken(access: string | null) {
   if (typeof window === 'undefined') return;
   if (access) localStorage.setItem('afrisciencehub_token', access);
-  if (refresh) localStorage.setItem('afrisciencehub_refresh', refresh);
+}
+
+function clearAuthStorage() {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem('afrisciencehub_token');
+  // NOTE: refresh token lives in an HttpOnly cookie — never readable/writable here.
+  // It is sent automatically via `credentials: 'include'` and cleared server-side on logout.
+  localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
+  localStorage.removeItem('afrisciencehub_user');
 }
 
 async function request<T>(
@@ -52,7 +55,10 @@ async function request<T>(
   const res = await fetch(url, {
     ...fetchOpts,
     headers,
-    credentials: 'omit',
+    // Must be 'include' so the browser sends/stores the HttpOnly refresh-token
+    // cookie (login sets it, /auth/refresh reads it, /auth/logout clears it).
+    // document.cookie will NEVER show it — that is expected for HttpOnly cookies.
+    credentials: 'include',
   });
 
   let data: ApiResponse<T>;
@@ -78,19 +84,23 @@ async function request<T>(
       }
 
       isRefreshing = true;
-      const refresh = getRefreshToken();
       try {
+        // No body needed: the HttpOnly refresh cookie is sent automatically
+        // because of `credentials: 'include'`. Never read it from JS.
         const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
         });
         const refreshData = await refreshRes.json().catch(() => ({}));
-        const newAccess = refreshData?.accessToken || refreshData?.token || null;
-        const newRefresh = refreshData?.refreshToken || null;
+        const newAccess =
+          refreshData?.accessToken ||
+          refreshData?.token ||
+          (refreshData as any)?.data?.accessToken ||
+          null;
 
         if (refreshRes.ok && newAccess) {
-          setTokens(newAccess, newRefresh);
+          setAccessToken(newAccess);
           isRefreshing = false;
           onRefreshed(newAccess);
           return request<T>(endpoint, { ...options, _retry: true, headers: { ...options.headers, Authorization: `Bearer ${newAccess}` } } as any);
@@ -100,9 +110,7 @@ async function request<T>(
         isRefreshing = false;
         onRefreshed(null);
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('afrisciencehub_token');
-          localStorage.removeItem('afrisciencehub_refresh');
-          localStorage.removeItem('afrisciencehub_user');
+          clearAuthStorage();
           window.location.href = '/login?reason=session_expired';
         }
         throw new Error('Session expired, please sign in again');
