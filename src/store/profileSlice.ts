@@ -17,7 +17,7 @@ export interface LanguageEntry { id: string; language: string; proficiency: stri
 export interface PortfolioEntry { id: string; label: string; link: string; }
 export interface CertEntry { id: string; title: string; issuer: string; year: number; file: string; }
 
-interface ProfileState {
+export interface ProfileState {
   personal: PersonalInfo | null; personalLoading: boolean; personalError: string | null;
   skills: SkillEntry[]; skillsLoading: boolean; skillsError: string | null;
   education: EducationEntry[]; educationLoading: boolean; educationError: string | null;
@@ -147,12 +147,23 @@ export const updateCert = createAsyncThunk('profile/updateCert', async (p: { id:
 
 // Full profile — SINGLE request hydrating every tab (GET /api/v1/profile).
 // Per-section POST/PATCH thunks below stay as the write path on edit/save.
+function looksLikePersonal(v: unknown): v is Record<string, any> {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+  const o = v as Record<string, any>;
+  return typeof o.firstname === 'string' || typeof o.surname === 'string' || typeof o.phone === 'string';
+}
+
 export const fetchFullProfile = createAsyncThunk('profile/fetchFull', async (_, { rejectWithValue }) => {
   try {
     const r: any = await api.get('/profile');
     const d = unwrap<any>(r) || {};
+    // The backend returns personal fields either nested (personal/personalInfo/user/bio)
+    // or directly at the top level of /profile. Guard against a top-level bio string
+    // being mistaken for the record — it must be an object with name/phone fields.
+    const nested = d.personal ?? d.personalInfo ?? d.user ?? d.bio;
+    const personal = looksLikePersonal(nested) ? (nested as Record<string, any>) : looksLikePersonal(d) ? d : null;
     return {
-      personal: d.personal ?? d.personalInfo ?? d.bio ?? d.user ?? null,
+      personal,
       skills: pickFirst<SkillEntry>(d.skills),
       education: pickFirst<EducationEntry>(d.education, d.educations),
       experience: pickFirst<ExperienceEntry>(d.experience, d.experiences, d.employment, d.workExperience),
@@ -240,7 +251,7 @@ const profileSlice = createSlice({
       .addCase(fetchFullProfile.pending, (s) => { s.profileLoading = true; s.profileError = null; })
       .addCase(fetchFullProfile.fulfilled, (s, a) => {
         s.profileLoading = false; s.profileLoaded = true;
-        if (a.payload.personal) s.personal = a.payload.personal;
+        if (a.payload.personal) s.personal = a.payload.personal as PersonalInfo;
         s.skills = asArray<SkillEntry>(a.payload.skills);
         s.education = asArray<EducationEntry>(a.payload.education);
         s.experience = asArray<ExperienceEntry>(a.payload.experience);

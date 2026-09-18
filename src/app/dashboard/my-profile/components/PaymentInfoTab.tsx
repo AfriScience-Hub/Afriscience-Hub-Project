@@ -1,15 +1,16 @@
 'use client';
 
-import {
-  CreditCard,
-  Landmark,
-  Wallet,
-  Smartphone,
-  Clock,
-  CheckCircle2,
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { CreditCard, Landmark, Wallet, Smartphone, CheckCircle2 } from 'lucide-react';
 import { CreditCardPanel, type SavedCard } from './CreditCardPanel';
 import { Field, SectionCard } from './FieldDisplay';
+import { AshWalletModal } from './AshWalletModal';
+import { AshWalletTopupModal } from './AshWalletTopupModal';
+import { AshWalletSection } from './AshWalletSection';
+import { TransactionHistory } from './TransactionHistory';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchWalletBalance, fetchWalletHistory } from '@/store/walletSlice';
+import { getCurrencyForCountry } from '../walletUtils';
 
 interface PaymentInfoTabProps {
   isEditing: boolean;
@@ -24,33 +25,9 @@ interface PaymentInfoTabProps {
 const PAYMENT_METHODS = [
   { key: 'Bank Transfer', label: 'Bank Transfer', icon: Landmark },
   { key: 'Credit / Debit Card', label: 'Credit / Debit Card', icon: CreditCard },
-  { key: 'PayPal', label: 'PayPal', icon: Wallet },
+  { key: 'ASH Wallet', label: 'ASH Wallet', icon: Wallet },
   { key: 'Mobile Money', label: 'Mobile Money', icon: Smartphone },
 ] as const;
-
-const TRANSACTIONS = [
-  {
-    id: '#INV-2026-0042',
-    date: 'April 5, 2026',
-    description: 'Innovation Listing Fee',
-    amount: '\u20A615,000',
-    status: 'Completed',
-  },
-  {
-    id: '#INV-2026-0038',
-    date: 'March 22, 2026',
-    description: 'Premium Membership',
-    amount: '\u20A650,000',
-    status: 'Completed',
-  },
-  {
-    id: '#INV-2026-0029',
-    date: 'March 10, 2026',
-    description: 'Innovation Listing Fee',
-    amount: '\u20A615,000',
-    status: 'Pending',
-  },
-];
 
 function maskCardNumber(value: string) {
   const digits = value.replace(/\D/g, '');
@@ -58,77 +35,12 @@ function maskCardNumber(value: string) {
   return last4 ? `\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 ${last4}` : '\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022';
 }
 
-function TransactionTable() {
-  return (
-    <div className="pt-4">
-      <h4 className="text-base font-bold text-neutral-black mb-4 flex items-center gap-2">
-        <Clock className="h-4 w-4 text-neutral-gray-medium" />
-        Transaction History
-      </h4>
-      <div className="rounded-lg border border-neutral-gray-light overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-neutral-bg-light border-b border-neutral-gray-light">
-              <th className="text-left px-4 py-3 font-medium text-neutral-gray-dark">
-                Invoice ID
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-neutral-gray-dark">
-                Date
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-neutral-gray-dark">
-                Description
-              </th>
-              <th className="text-right px-4 py-3 font-medium text-neutral-gray-dark">
-                Amount
-              </th>
-              <th className="text-center px-4 py-3 font-medium text-neutral-gray-dark">
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-gray-light">
-            {TRANSACTIONS.map((tx) => (
-              <tr
-                key={tx.id}
-                className="hover:bg-neutral-bg-light transition-colors"
-              >
-                <td className="px-4 py-3 font-medium text-neutral-black">
-                  {tx.id}
-                </td>
-                <td className="px-4 py-3 text-neutral-gray-medium">
-                  {tx.date}
-                </td>
-                <td className="px-4 py-3 text-neutral-gray-medium">
-                  {tx.description}
-                </td>
-                <td className="px-4 py-3 text-right font-medium text-neutral-black">
-                  {tx.amount}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <span
-                    className={`inline-flex px-2 py-1 rounded text-xs font-medium ${
-                      tx.status === 'Completed'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}
-                  >
-                    {tx.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function PaymentDisplay(props: PaymentInfoTabProps) {
-  const { paymentMethod, cards } = props;
+function PaymentDisplay(props: PaymentInfoTabProps & { onOpenCreateWallet: () => void; onOpenTopup: () => void }) {
+  const { paymentMethod, cards, onOpenCreateWallet, onOpenTopup } = props;
   const selectedMethod = paymentMethod
     ? PAYMENT_METHODS.find((m) => m.key === paymentMethod)
     : undefined;
+  const isWallet = paymentMethod === 'ASH Wallet';
 
   return (
     <div className="space-y-6">
@@ -161,14 +73,19 @@ function PaymentDisplay(props: PaymentInfoTabProps) {
             ))}
           </div>
         )}
+        {isWallet && (
+          <div className="mt-4">
+            <AshWalletSection onOpenCreateWallet={onOpenCreateWallet} onOpenTopup={onOpenTopup} />
+          </div>
+        )}
       </SectionCard>
 
-      <TransactionTable />
+      <TransactionHistory filter={isWallet ? 'wallet' : 'general'} />
     </div>
   );
 }
 
-function PaymentForm(props: PaymentInfoTabProps) {
+function PaymentForm(props: PaymentInfoTabProps & { onOpenCreateWallet: () => void; onOpenTopup: () => void }) {
   const {
     paymentMethod,
     onPaymentMethodChange,
@@ -176,11 +93,14 @@ function PaymentForm(props: PaymentInfoTabProps) {
     onAddCard,
     onUpdateCard,
     onRemoveCard,
+    onOpenCreateWallet,
+    onOpenTopup,
   } = props;
 
   const selectedMethod = paymentMethod
     ? PAYMENT_METHODS.find((m) => m.key === paymentMethod)
     : undefined;
+  const isWallet = paymentMethod === 'ASH Wallet';
 
   return (
     <div className="space-y-6">
@@ -201,7 +121,10 @@ function PaymentForm(props: PaymentInfoTabProps) {
               <button
                 key={method.key}
                 type="button"
-                onClick={() => onPaymentMethodChange(method.key)}
+                onClick={() => {
+                  onPaymentMethodChange(method.key);
+                  if (method.key === 'ASH Wallet') onOpenCreateWallet();
+                }}
                 className={`relative rounded-xl border-2 p-4 cursor-pointer text-center transition-all ${btnClass}`}
               >
                 <Icon
@@ -236,7 +159,11 @@ function PaymentForm(props: PaymentInfoTabProps) {
         </div>
       )}
 
-      {selectedMethod && paymentMethod !== 'Credit / Debit Card' && (
+      {isWallet && (
+        <AshWalletSection onOpenCreateWallet={onOpenCreateWallet} onOpenTopup={onOpenTopup} />
+      )}
+
+      {selectedMethod && !isWallet && paymentMethod !== 'Credit / Debit Card' && (
         <div className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light p-4">
           <p className="text-sm text-neutral-gray-medium">
             Payment details for {selectedMethod.label} will be available soon.
@@ -244,14 +171,36 @@ function PaymentForm(props: PaymentInfoTabProps) {
         </div>
       )}
 
-      <TransactionTable />
+      <TransactionHistory filter={isWallet ? 'wallet' : 'general'} />
     </div>
   );
 }
 
 export function PaymentInfoTab(props: PaymentInfoTabProps) {
-  if (props.isEditing) {
-    return <PaymentForm {...props} />;
-  }
-  return <PaymentDisplay {...props} />;
+  const dispatch = useAppDispatch();
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const [topupModalOpen, setTopupModalOpen] = useState(false);
+  const walletCurrency = useAppSelector((s) => s.wallet.wallet?.currency);
+  const detectedCurrency = useAppSelector((s) =>
+    s.wallet.detect?.details?.country_code ? getCurrencyForCountry(s.wallet.detect.details.country_code) : 'USD'
+  );
+
+  useEffect(() => {
+    dispatch(fetchWalletBalance());
+    dispatch(fetchWalletHistory());
+  }, [dispatch]);
+
+  const subProps = {
+    ...props,
+    onOpenCreateWallet: () => setWalletModalOpen(true),
+    onOpenTopup: () => setTopupModalOpen(true),
+  };
+
+  return (
+    <>
+      {props.isEditing ? <PaymentForm {...subProps} /> : <PaymentDisplay {...subProps} />}
+      <AshWalletModal open={walletModalOpen} onClose={() => setWalletModalOpen(false)} />
+      <AshWalletTopupModal open={topupModalOpen} currency={walletCurrency || detectedCurrency} onClose={() => setTopupModalOpen(false)} />
+    </>
+  );
 }

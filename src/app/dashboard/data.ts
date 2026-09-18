@@ -66,9 +66,9 @@ export const SUMMARY_CARDS = [
 ];
 
 export const LISTING_STATUS_CARDS = [
-  { label: 'Verified', value: 8, color: 'bg-gradient-to-br from-green-50 to-green-100 border-green-200 text-green-700' },
-  { label: 'Pending Verification', value: 3, color: 'bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 text-amber-700' },
-  { label: 'Rejected', value: 1, color: 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 text-red-700' },
+  { label: 'Verified', value: 0, color: 'bg-gradient-to-br from-green-50 to-green-100 border-green-200 text-green-700' },
+  { label: 'Pending Verification', value: 0, color: 'bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 text-amber-700' },
+  { label: 'Rejected', value: 0, color: 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 text-red-700' },
 ];
 
 export const RECENT_ACTIVITY = [
