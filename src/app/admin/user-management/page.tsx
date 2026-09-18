@@ -125,7 +125,7 @@ export default function AllUsersPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((stat) => (
           <div key={stat.label} className="rounded-lg border border-neutral-gray-light bg-white p-3 shadow-sm">
             <p className="text-[10px] text-neutral-gray-medium">{stat.label}</p>
@@ -266,13 +266,13 @@ export default function AllUsersPage() {
           </table>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-3 py-2 border-t border-neutral-gray-light">
-          <p className="text-[11px] text-neutral-gray-dark">Showing {from} – {to} of {totalItems} users</p>
-          <div className="flex items-center gap-1">
+        <div className="flex flex-col gap-3 px-3 py-2 border-t border-neutral-gray-light sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[11px] text-neutral-gray-dark text-center sm:text-left">Showing {from} – {to} of {totalItems} users</p>
+          <div className="flex flex-wrap items-center justify-center gap-1">
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={!pagination?.hasPrevious || loading}
-              className="p-1 rounded hover:bg-neutral-bg-light disabled:opacity-40 cursor-pointer"
+              className="p-1 rounded hover:bg-neutral-bg-light disabled:opacity-40 cursor-pointer flex-shrink-0"
             >
               <ChevronLeft className="h-3.5 w-3.5 text-neutral-gray-medium" />
             </button>
@@ -296,14 +296,14 @@ export default function AllUsersPage() {
             <button
               onClick={() => setCurrentPage((p) => p + 1)}
               disabled={!pagination?.hasNext || loading}
-              className="p-1 rounded hover:bg-neutral-bg-light disabled:opacity-40 cursor-pointer"
+              className="p-1 rounded hover:bg-neutral-bg-light disabled:opacity-40 cursor-pointer flex-shrink-0"
             >
               <ChevronRight className="h-3.5 w-3.5 text-neutral-gray-medium" />
             </button>
             <select
               value={pageSize}
               onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
-              className="ml-1 border border-neutral-gray-light rounded text-[10px] px-1.5 py-1 text-neutral-gray-dark outline-none cursor-pointer"
+              className="ml-1 border border-neutral-gray-light rounded text-[10px] px-1.5 py-1 text-neutral-gray-dark outline-none cursor-pointer flex-shrink-0"
             >
               <option value={10}>10 / page</option>
               <option value={25}>25 / page</option>

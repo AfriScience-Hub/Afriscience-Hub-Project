@@ -3,17 +3,14 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, FileText, MapPin, Eye, Heart, Calendar, Loader2 } from 'lucide-react';
-import { fetchAdminUser, userDisplayName, userCityLocation, formatISODate, type AdminUser } from '../userApi';
+import { ArrowLeft, FileText, Eye, Heart, Calendar, Loader2 } from 'lucide-react';
+import { fetchAdminUser, userDisplayName, formatISODate, displayUserId, type AdminUser } from '../userApi';
 
 interface HeaderData {
   name: string;
   email: string;
-  location: string;
   userId: string;
-  role: string;
   memberSince: string;
-  lastActive: string;
   status: string;
   verified: boolean;
 }
@@ -21,11 +18,8 @@ interface HeaderData {
 const FALLBACK_HEADER: HeaderData = {
   name: 'Unknown User',
   email: '\u2014',
-  location: '\u2014',
   userId: '\u2014',
-  role: '\u2014',
   memberSince: '\u2014',
-  lastActive: '\u2014',
   status: 'Unknown',
   verified: false,
 };
@@ -35,41 +29,43 @@ function initials(name: string) {
 }
 
 const STATS = [
-  { label: 'Total Listings', value: '12', icon: FileText, iconBg: 'bg-purple-100 text-purple-600' },
-  { label: 'Donations', value: '47', icon: Heart, iconBg: 'bg-green-100 text-green-600' },
-  { label: 'Invoices Requested', value: '6', icon: FileText, iconBg: 'bg-orange-100 text-orange-600' },
-  { label: 'Submissions', value: '23', icon: Eye, iconBg: 'bg-blue-100 text-blue-600' },
-  { label: 'Impact Stories', value: '3', icon: Heart, iconBg: 'bg-pink-100 text-pink-600' },
-  { label: 'Events Joined', value: '5', icon: Calendar, iconBg: 'bg-indigo-100 text-indigo-600' },
+  { label: 'Total Listings', value: '0', icon: FileText, iconBg: 'bg-purple-100 text-purple-600' },
+  { label: 'Donations', value: '0', icon: Heart, iconBg: 'bg-green-100 text-green-600' },
+  { label: 'Invoices Requested', value: '0', icon: FileText, iconBg: 'bg-orange-100 text-orange-600' },
+  { label: 'Submissions', value: '0', icon: Eye, iconBg: 'bg-blue-100 text-blue-600' },
+  { label: 'Impact Stories', value: '0', icon: Heart, iconBg: 'bg-pink-100 text-pink-600' },
+  { label: 'Events Joined', value: '0', icon: Calendar, iconBg: 'bg-indigo-100 text-indigo-600' },
 ];
 
 const LISTINGS_SUMMARY = [
-  { label: 'Total Listings', value: 12 },
-  { label: 'Published', value: 9, color: 'text-green-600' },
-  { label: 'Pending Review', value: 2, color: 'text-orange-600' },
-  { label: 'Rejected', value: 1, color: 'text-red-600' },
+  { label: 'Total Listings', value: 0 },
+  { label: 'Published', value: 0, color: 'text-green-600' },
+  { label: 'Pending Review', value: 0, color: 'text-orange-600' },
+  { label: 'Rejected', value: 0, color: 'text-red-600' },
   { label: 'Archived', value: 0, color: 'text-neutral-gray-medium' },
 ];
 
 const LISTINGS_PIE = [
-  { label: 'Published', percent: 75, color: '#453DD8' },
-  { label: 'Pending', percent: 16.7, color: '#F97316' },
-  { label: 'Rejected', percent: 8.3, color: '#EF4444' },
+  { label: 'Published', percent: 0, color: '#453DD8' },
+  { label: 'Pending', percent: 0, color: '#F97316' },
+  { label: 'Rejected', percent: 0, color: '#EF4444' },
   { label: 'Archived', percent: 0, color: '#D1D5DB' },
 ];
 
 const INVOICE_SUMMARY = [
-  { label: 'Total Invoices Requested', value: 6 },
-  { label: 'Paid', value: 3, color: 'text-green-600' },
-  { label: 'Pending', value: 2, color: 'text-orange-600' },
-  { label: 'Overdue', value: 1, color: 'text-red-600' },
+  { label: 'Total Invoices Requested', value: 0 },
+  { label: 'Paid', value: 0, color: 'text-green-600' },
+  { label: 'Pending', value: 0, color: 'text-orange-600' },
+  { label: 'Overdue', value: 0, color: 'text-red-600' },
 ];
 
 const ENGAGEMENT = [
-  { label: 'Profile Completeness', value: '85%', color: 'bg-[#453DD8]' },
-  { label: 'Rating', value: '4.6/5', icon: '⭐' },
-  { label: 'Trust Score', value: 'High', badge: 'bg-green-100 text-green-700' },
+  { label: 'Profile Completeness', value: '0%', color: 'bg-[#453DD8]' },
+  { label: 'Rating', value: '0/5', icon: '⭐' },
+  { label: 'Trust Score', value: '\u2014', badge: 'bg-neutral-gray-light text-neutral-gray-dark' },
 ];
+
+const PIE_TRACK_COLOR = '#E5E7EB';
 
 function UserDashboardContent() {
   const searchParams = useSearchParams();
@@ -92,11 +88,8 @@ function UserDashboardContent() {
     ? {
         name: userDisplayName(user),
         email: user.email,
-        location: userCityLocation(user),
-        userId: user.id,
-        role: user.profile?.employmentStatus || '\u2014',
+        userId: displayUserId(user),
         memberSince: formatISODate(user.createdAt),
-        lastActive: '\u2014',
         status: user.deletedAt ? 'Suspended' : 'Active',
         verified: user.isVerified,
       }
@@ -106,6 +99,7 @@ function UserDashboardContent() {
   const publishedOffset = (LISTINGS_PIE[0].percent / 100) * circumference;
   const pendingOffset = (LISTINGS_PIE[1].percent / 100) * circumference;
   const rejectedOffset = (LISTINGS_PIE[2].percent / 100) * circumference;
+  const hasPieData = LISTINGS_PIE.some((p) => p.percent > 0);
 
   if (loading) {
     return (
@@ -136,8 +130,8 @@ function UserDashboardContent() {
       </div>
 
       <div className="bg-white rounded-xl border border-neutral-gray-light p-4 sm:p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <span className="flex h-16 w-16 sm:h-[72px] sm:w-[72px] flex-shrink-0 items-center justify-center rounded-full bg-[#453DD8]/10 text-lg font-bold text-[#453DD8]">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
+          <span className="flex h-16 w-16 lg:h-[72px] lg:w-[72px] flex-shrink-0 items-center justify-center rounded-full bg-[#453DD8]/10 text-lg font-bold text-[#453DD8]">
             {initials(header.name)}
           </span>
           <div className="flex-1 min-w-0">
@@ -150,29 +144,15 @@ function UserDashboardContent() {
               )}
             </div>
             <p className="text-xs text-neutral-gray-medium">{header.email}</p>
-            <p className="text-xs text-neutral-gray-medium flex items-center gap-1 mt-0.5">
-              <MapPin className="h-3 w-3" /> {header.location}
-            </p>
           </div>
-          <div className="flex flex-wrap gap-4 sm:gap-6 text-xs">
+          <div className="flex flex-wrap gap-4 lg:gap-6 text-xs">
             <div>
               <p className="text-neutral-gray-medium mb-0.5">User ID</p>
-              <p className="font-semibold text-neutral-black break-all">{header.userId}</p>
-            </div>
-            <div>
-              <p className="text-neutral-gray-medium mb-0.5">Role</p>
-              <p className="font-semibold text-neutral-black">{header.role}</p>
+              <p className="font-semibold text-neutral-black">{header.userId}</p>
             </div>
             <div>
               <p className="text-neutral-gray-medium mb-0.5">Member Since</p>
               <p className="font-semibold text-neutral-black">{header.memberSince}</p>
-            </div>
-            <div>
-              <p className="text-neutral-gray-medium mb-0.5">Last Active</p>
-              <p className="font-semibold text-neutral-black flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                {header.lastActive}
-              </p>
             </div>
             <div>
               <p className="text-neutral-gray-medium mb-0.5">Status</p>
@@ -217,6 +197,8 @@ function UserDashboardContent() {
             </div>
             <div className="relative flex-shrink-0">
               <svg viewBox="0 0 100 100" className="w-28 h-28">
+                <circle cx="50" cy="50" r="40" fill="none" stroke={PIE_TRACK_COLOR} strokeWidth="12"
+                  transform="rotate(-90 50 50)" />
                 <circle cx="50" cy="50" r="40" fill="none" stroke="#453DD8" strokeWidth="12"
                   strokeDasharray={`${publishedOffset} ${circumference - publishedOffset}`}
                   strokeDashoffset={0} transform="rotate(-90 50 50)" />
@@ -228,19 +210,23 @@ function UserDashboardContent() {
                   strokeDashoffset={-(publishedOffset + pendingOffset)} transform="rotate(-90 50 50)" />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-lg font-bold text-neutral-black">12</p>
+                <p className="text-lg font-bold text-neutral-black">{LISTINGS_SUMMARY[0].value}</p>
                 <p className="text-[9px] text-neutral-gray-medium">Total</p>
               </div>
             </div>
           </div>
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px]">
-            {LISTINGS_PIE.filter(p => p.percent > 0).map((p) => (
-              <div key={p.label} className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
-                <span className="text-neutral-gray-dark">{p.label} ({p.percent}%)</span>
-              </div>
-            ))}
-          </div>
+          {hasPieData ? (
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px]">
+              {LISTINGS_PIE.filter(p => p.percent > 0).map((p) => (
+                <div key={p.label} className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
+                  <span className="text-neutral-gray-dark">{p.label} ({p.percent}%)</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-[10px] text-neutral-gray-medium">No listing data yet.</p>
+          )}
         </div>
 
         <div className="bg-white rounded-xl border border-neutral-gray-light p-5 shadow-sm">
@@ -257,7 +243,7 @@ function UserDashboardContent() {
             ))}
             <div className="pt-2 border-t border-neutral-gray-light flex items-center justify-between">
               <span className="text-neutral-gray-dark">Total Amount</span>
-              <span className="font-bold text-neutral-black">₦320,000</span>
+              <span className="font-bold text-neutral-black">₦0</span>
             </div>
           </div>
         </div>

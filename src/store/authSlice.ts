@@ -51,13 +51,13 @@ interface AuthState {
 const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1670881391783-9c55ba592f93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzIzODM4NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 // The refresh token is an HttpOnly cookie set/cleared by the backend
-// (login sets it, /auth/refresh reads it, /auth/logout clears it).
-// It is sent automatically via `credentials: 'include'` and is NEVER
-// visible to JS (document.cookie won't show it — that's expected).
+// (login sets it, /auth/refresh or /admin/auth/refresh reads it, /auth/logout
+// clears it). It is sent automatically via `credentials: 'include'` and is
+// NEVER visible to JS (document.cookie won't show it — that's expected).
 // So we only persist the short-lived access/session token here.
 function persistTokens(data: any) {
   if (typeof window === 'undefined') return;
-  const access = data?.accessToken || data?.token || data?.data?.accessToken;
+  const access = data?.accessToken || data?.token || data?.data?.accessToken || data?.data?.token;
   if (access) localStorage.setItem('afrisciencehub_token', access);
   localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
 }
@@ -158,27 +158,35 @@ export const verifyAdminEmail = createAsyncThunk(
   }
 );
 
-// --- Shared ---
+// --- Refresh (user and admin have SEPARATE endpoints) ---
 
-export const refreshTokenThunk = createAsyncThunk(
-  'auth/refresh',
-  async (_, { rejectWithValue }) => {
-    try {
-      const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-      const res = await fetch(`${BASE_URL}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.message || 'Refresh failed');
-      persistTokens(data);
-      return data;
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+function createRefreshThunk(typePrefix: string, endpoint: string) {
+  return createAsyncThunk(
+    typePrefix,
+    async (_, { rejectWithValue }) => {
+      try {
+        const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+        const res = await fetch(`${BASE_URL}${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || 'Refresh failed');
+        persistTokens(data);
+        return data;
+      } catch (err: any) {
+        return rejectWithValue(err.message);
+      }
     }
-  }
-);
+  );
+}
+
+// User session refresh — POST /api/v1/auth/refresh
+export const refreshUserToken = createRefreshThunk('auth/refreshUser', '/auth/refresh');
+
+// Admin session refresh — POST /api/v1/admin/auth/refresh (not shared with users)
+export const refreshAdminToken = createRefreshThunk('auth/refreshAdmin', '/admin/auth/refresh');
 
 export const fetchSessions = createAsyncThunk(
   'auth/fetchSessions',
@@ -301,8 +309,11 @@ const authSlice = createSlice({
       .addCase(verifyAdminEmail.pending, (s) => { s.loading = true; s.error = null; })
       .addCase(verifyAdminEmail.fulfilled, (s) => { s.loading = false; })
       .addCase(verifyAdminEmail.rejected, (s, a) => { s.loading = false; s.error = a.payload as string; })
-      .addCase(refreshTokenThunk.fulfilled, (s, a) => {
-        s.accessToken = (a.payload as any)?.accessToken || (a.payload as any)?.token || s.accessToken;
+      .addCase(refreshUserToken.fulfilled, (s, a) => {
+        s.accessToken = (a.payload as any)?.accessToken || (a.payload as any)?.token || (a.payload as any)?.data?.accessToken || (a.payload as any)?.data?.token || s.accessToken;
+      })
+      .addCase(refreshAdminToken.fulfilled, (s, a) => {
+        s.accessToken = (a.payload as any)?.accessToken || (a.payload as any)?.token || (a.payload as any)?.data?.accessToken || (a.payload as any)?.data?.token || s.accessToken;
       })
       .addCase(logoutThunk.fulfilled, (s) => {
         s.user = null; s.isAuthenticated = false; s.accessToken = null; s.refreshToken = null;
