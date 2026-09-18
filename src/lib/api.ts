@@ -71,8 +71,10 @@ async function request<T>(
   if (!res.ok) {
     const msg = (data.message || data.error || '').toLowerCase();
     const isExpired = (res.status === 401 || res.status === 400) && (msg.includes('expired') || msg.includes('token'));
+    const isAdminRequest = endpoint.startsWith('/admin');
+    const refreshEndpoint = isAdminRequest ? '/admin/auth/refresh' : '/auth/refresh';
 
-    if (isExpired && !_retry && endpoint !== '/auth/refresh') {
+    if (isExpired && !_retry && endpoint !== refreshEndpoint) {
       if (isRefreshing) {
         return new Promise<ApiResponse<T>>((resolve, reject) => {
           failedQueue.push({
@@ -87,7 +89,9 @@ async function request<T>(
       try {
         // No body needed: the HttpOnly refresh cookie is sent automatically
         // because of `credentials: 'include'`. Never read it from JS.
-        const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+        // Admin requests refresh via the admin endpoint so admin sessions
+        // are not terminated by the user-session refresh flow (and vice versa).
+        const refreshRes = await fetch(`${BASE_URL}${refreshEndpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -97,6 +101,7 @@ async function request<T>(
           refreshData?.accessToken ||
           refreshData?.token ||
           (refreshData as any)?.data?.accessToken ||
+          (refreshData as any)?.data?.token ||
           null;
 
         if (refreshRes.ok && newAccess) {
@@ -111,7 +116,7 @@ async function request<T>(
         onRefreshed(null);
         if (typeof window !== 'undefined') {
           clearAuthStorage();
-          window.location.href = '/login?reason=session_expired';
+          window.location.href = isAdminRequest ? '/admin/login?reason=session_expired' : '/login?reason=session_expired';
         }
         throw new Error('Session expired, please sign in again');
       }

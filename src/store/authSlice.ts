@@ -136,7 +136,7 @@ export const loginAdmin = createAsyncThunk(
   'auth/loginAdmin',
   async (payload: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const data = await api.post('/admin/login', payload);
+      const data = await api.post('/admin/auth/login', payload);
       persistTokens(data as any);
       return { data, identifier: payload.email };
     } catch (err: any) {

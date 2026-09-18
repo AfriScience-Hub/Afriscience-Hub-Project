@@ -1,22 +1,38 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowLeft, FileText, MapPin, Eye, Heart, Calendar } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { ArrowLeft, FileText, MapPin, Eye, Heart, Calendar, Loader2 } from 'lucide-react';
+import { fetchAdminUser, userDisplayName, userCityLocation, formatISODate, type AdminUser } from '../userApi';
 
-const MOCK_USER = {
-  name: 'Emeka Nwachukwu',
-  email: 'emeka.nwachi@email.com',
-  avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
-  userId: 'USR-2024-0015B',
-  role: 'Innovator',
-  memberSince: 'Feb 12, 2024',
-  lastActive: '2 hours ago',
-  status: 'Active',
-  verified: true,
-  location: 'Lagos, Nigeria',
+interface HeaderData {
+  name: string;
+  email: string;
+  location: string;
+  userId: string;
+  role: string;
+  memberSince: string;
+  lastActive: string;
+  status: string;
+  verified: boolean;
+}
+
+const FALLBACK_HEADER: HeaderData = {
+  name: 'Unknown User',
+  email: '\u2014',
+  location: '\u2014',
+  userId: '\u2014',
+  role: '\u2014',
+  memberSince: '\u2014',
+  lastActive: '\u2014',
+  status: 'Unknown',
+  verified: false,
 };
+
+function initials(name: string) {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join('') || '?';
+}
 
 const STATS = [
   { label: 'Total Listings', value: '12', icon: FileText, iconBg: 'bg-purple-100 text-purple-600' },
@@ -55,11 +71,49 @@ const ENGAGEMENT = [
   { label: 'Trust Score', value: 'High', badge: 'bg-green-100 text-green-700' },
 ];
 
-export default function UserDashboardPage() {
+function UserDashboardContent() {
+  const searchParams = useSearchParams();
+  const userId = searchParams.get('userId') || '';
+  const [user, setUser] = useState<AdminUser | null>(null);
+  const [loading, setLoading] = useState<boolean>(!!userId);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+    let active = true;
+    setLoading(true);
+    fetchAdminUser(userId)
+      .then((u) => { if (active) setUser(u); })
+      .catch(() => { if (active) setUser(null); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [userId]);
+
+  const header: HeaderData = user
+    ? {
+        name: userDisplayName(user),
+        email: user.email,
+        location: userCityLocation(user),
+        userId: user.id,
+        role: user.profile?.employmentStatus || '\u2014',
+        memberSince: formatISODate(user.createdAt),
+        lastActive: '\u2014',
+        status: user.deletedAt ? 'Suspended' : 'Active',
+        verified: user.isVerified,
+      }
+    : FALLBACK_HEADER;
+
   const circumference = 2 * Math.PI * 40;
   const publishedOffset = (LISTINGS_PIE[0].percent / 100) * circumference;
   const pendingOffset = (LISTINGS_PIE[1].percent / 100) * circumference;
   const rejectedOffset = (LISTINGS_PIE[2].percent / 100) * circumference;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-6 w-6 animate-spin text-[#453DD8]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -83,51 +137,49 @@ export default function UserDashboardPage() {
 
       <div className="bg-white rounded-xl border border-neutral-gray-light p-4 sm:p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <Image
-            src={MOCK_USER.avatar}
-            alt={MOCK_USER.name}
-            width={72}
-            height={72}
-            className="rounded-full object-cover w-18 h-18 flex-shrink-0"
-          />
+          <span className="flex h-16 w-16 sm:h-[72px] sm:w-[72px] flex-shrink-0 items-center justify-center rounded-full bg-[#453DD8]/10 text-lg font-bold text-[#453DD8]">
+            {initials(header.name)}
+          </span>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
-              <h2 className="text-lg font-bold text-neutral-black">{MOCK_USER.name}</h2>
-              {MOCK_USER.verified && (
+              <h2 className="text-lg font-bold text-neutral-black">{header.name}</h2>
+              {header.verified && (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-700">
                   Verified ✓
                 </span>
               )}
             </div>
-            <p className="text-xs text-neutral-gray-medium">{MOCK_USER.email}</p>
+            <p className="text-xs text-neutral-gray-medium">{header.email}</p>
             <p className="text-xs text-neutral-gray-medium flex items-center gap-1 mt-0.5">
-              <MapPin className="h-3 w-3" /> {MOCK_USER.location}
+              <MapPin className="h-3 w-3" /> {header.location}
             </p>
           </div>
           <div className="flex flex-wrap gap-4 sm:gap-6 text-xs">
             <div>
               <p className="text-neutral-gray-medium mb-0.5">User ID</p>
-              <p className="font-semibold text-neutral-black">{MOCK_USER.userId}</p>
+              <p className="font-semibold text-neutral-black break-all">{header.userId}</p>
             </div>
             <div>
               <p className="text-neutral-gray-medium mb-0.5">Role</p>
-              <p className="font-semibold text-neutral-black">{MOCK_USER.role}</p>
+              <p className="font-semibold text-neutral-black">{header.role}</p>
             </div>
             <div>
               <p className="text-neutral-gray-medium mb-0.5">Member Since</p>
-              <p className="font-semibold text-neutral-black">{MOCK_USER.memberSince}</p>
+              <p className="font-semibold text-neutral-black">{header.memberSince}</p>
             </div>
             <div>
               <p className="text-neutral-gray-medium mb-0.5">Last Active</p>
               <p className="font-semibold text-neutral-black flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                {MOCK_USER.lastActive}
+                {header.lastActive}
               </p>
             </div>
             <div>
               <p className="text-neutral-gray-medium mb-0.5">Status</p>
-              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-700">
-                {MOCK_USER.status}
+              <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold ${
+                header.status === 'Active' ? 'bg-green-100 text-green-700' : header.status === 'Suspended' ? 'bg-red-100 text-red-700' : 'bg-neutral-gray-light text-neutral-gray-dark'
+              }`}>
+                {header.status}
               </span>
             </div>
           </div>
@@ -236,5 +288,19 @@ export default function UserDashboardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function UserDashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-24">
+          <Loader2 className="h-6 w-6 animate-spin text-[#453DD8]" />
+        </div>
+      }
+    >
+      <UserDashboardContent />
+    </Suspense>
   );
 }
