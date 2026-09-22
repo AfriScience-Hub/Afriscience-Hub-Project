@@ -103,7 +103,7 @@ export const createExperience = createAsyncThunk('profile/createExperience', asy
   try { const r: any = await api.post('/profile/exp', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
 });
 export const updateExperience = createAsyncThunk('profile/updateExperience', async (p: { id: string; data: Record<string, any> }, { rejectWithValue }) => {
-  try { const r: any = await api.patch(`/profile/edit/${p.id}`, p.data); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
+  try { const r: any = await api.patch(`/profile/exp/${p.id}`, p.data); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
 });
 export const deleteExperience = createAsyncThunk('profile/deleteExperience', async (id: string, { rejectWithValue }) => {
   try { await api.delete(`/profile/${id}`); return id; } catch (e: any) { return rejectWithValue(e.message); }
@@ -114,7 +114,7 @@ export const fetchLanguages = createAsyncThunk('profile/fetchLanguages', async (
   try { const r: any = await api.get('/profile/languages'); return (r?.data || r || []) as LanguageEntry[]; } catch (e: any) { return rejectWithValue(e.message); }
 });
 export const createLanguage = createAsyncThunk('profile/createLanguage', async (p: { language: string; proficiency: string }, { rejectWithValue }) => {
-  try { const r: any = await api.post('/profile/language', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
+  try { const r: any = await api.post('/profile/languages', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
 });
 export const updateLanguage = createAsyncThunk('profile/updateLanguage', async (p: { id: string; data: { language: string; proficiency: string } }, { rejectWithValue }) => {
   try { const r: any = await api.patch(`/profile/languages/${p.id}`, p.data); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
@@ -128,7 +128,7 @@ export const createPortfolio = createAsyncThunk('profile/createPortfolio', async
   try { const r: any = await api.post('/profile/portfolio', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
 });
 export const updatePortfolio = createAsyncThunk('profile/updatePortfolio', async (p: { id: string; data: { label: string; link: string } }, { rejectWithValue }) => {
-  try { const r: any = await api.patch(`/profile/${p.id}`, p.data); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
+  try { const r: any = await api.patch(`/profile/portfolio/${p.id}`, p.data); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
 });
 export const deletePortfolio = createAsyncThunk('profile/deletePortfolio', async (id: string, { rejectWithValue }) => {
   try { await api.delete(`/profile/portfolio/${id}`); return id; } catch (e: any) { return rejectWithValue(e.message); }

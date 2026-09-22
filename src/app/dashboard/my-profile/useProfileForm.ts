@@ -14,6 +14,7 @@ import {
 } from '@/store/profileSlice';
 import { toast } from 'sonner';
 import { useLocalStorage } from '@/lib/useLocalStorage';
+import { isNoGraduationClassLevel } from './educationLevels';
 import { type SavedCard } from './components/CreditCardPanel';
 
 function uid() { return crypto.randomUUID(); }
@@ -21,13 +22,15 @@ const GENDER_MAP: Record<string, string> = { Male: 'MALE', Female: 'FEMALE', Oth
 const GENDER_REV: Record<string, string> = { MALE: 'Male', FEMALE: 'Female', OTHER: 'Other' };
 const EMP_MAP: Record<string, string> = { 'Student': 'STUDENT', 'Employed (full time)': 'EMPLOYED', 'Self Employed (business owner)': 'SELF_EMPLOYED', 'Unemployed': 'UNEMPLOYED' };
 const EMP_REV: Record<string, string> = { STUDENT: 'Student', EMPLOYED: 'Employed (full time)', SELF_EMPLOYED: 'Self Employed (business owner)', UNEMPLOYED: 'Unemployed' };
+const PROF_MAP: Record<string, string> = { Beginner: 'BEGINNER', Intermediate: 'INTERMEDIATE', Advanced: 'ADVANCED', Native: 'NATIVE' };
+const PROF_REV: Record<string, string> = { BEGINNER: 'Beginner', INTERMEDIATE: 'Intermediate', ADVANCED: 'Advanced', NATIVE: 'Native' };
 
 export function useProfileForm() {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
   const profile = useAppSelector(s => s.profile);
   const fetchedRef = useRef({ full: false });
-  const existingIdsRef = useRef({ skills: new Set<string>(), languages: new Set<string>(), portfolio: new Set<string>() });
+  const existingIdsRef = useRef({ skills: new Set<string>(), languages: new Set<string>(), portfolio: new Set<string>(), experience: new Set<string>() });
 
   const [firstName, setFirstName] = useState(''); const [middleName, setMiddleName] = useState(''); const [surname, setSurname] = useState('');
   const [username, setUsername] = useState(''); const [gender, setGender] = useState(''); const [dateOfBirth, setDateOfBirth] = useState('');
@@ -47,7 +50,7 @@ export function useProfileForm() {
   const [role, setRole] = useState(''); const [industry, setIndustry] = useState(''); const [industryOther, setIndustryOther] = useState('');
   const [company, setCompany] = useState(''); const [workCountry, setWorkCountry] = useState('');
   const [resumptionDate, setResumptionDate] = useState(''); const [roleDescription, setRoleDescription] = useState('');
-  const [pastJobs, setPastJobs] = useState<Array<{ id: string; organization: string; role: string; duration: string }>>([]);
+  const [pastJobs, setPastJobs] = useState<Array<{ id: string; organization: string; role: string; industry: string; country: string; startDate: string; roleDescription: string }>>([]);
   const [skills, setSkills] = useState<Array<{ id: string; name: string }>>([]);
   const [languages, setLanguages] = useState<Array<{ id: string; name: string; proficiency: string }>>([]);
   const [portfolioLinks, setPortfolioLinks] = useState<Array<{ id: string; url: string; label: string }>>([]);
@@ -82,15 +85,15 @@ export function useProfileForm() {
 
   useEffect(() => { if (profile.skills.length) { setSkills(profile.skills.map(s => ({ id: s.id, name: s.name }))); existingIdsRef.current.skills = new Set(profile.skills.map(s => s.id)); } }, [profile.skills]);
   useEffect(() => { if (profile.education.length) { const e = profile.education[0]; setEducationLevel(e.educationLevel || ''); setGraduationClass(e.graduationClass || ''); setCourseOfStudy(e.courseOfStudy || ''); setInstitution(e.institution || ''); setYearOfGraduation(e.yearOfGraduation ? String(e.yearOfGraduation) : ''); } }, [profile.education]);
-  useEffect(() => { if (profile.experience.length) { const c = profile.experience.find(e => e.isCurrent) || profile.experience[0]; setRole(c.role || ''); setIndustry(c.industry || ''); setCompany(c.organization || ''); setWorkCountry(c.country || ''); setResumptionDate(c.startDate || ''); setRoleDescription(c.roleDescription || ''); setPastJobs(profile.experience.filter(e => !e.isCurrent).map(e => ({ id: e.id, organization: e.organization, role: e.role, duration: '' }))); } }, [profile.experience]);
-  useEffect(() => { if (profile.languages.length) { setLanguages(profile.languages.map(l => ({ id: l.id, name: l.language, proficiency: l.proficiency }))); existingIdsRef.current.languages = new Set(profile.languages.map(l => l.id)); } }, [profile.languages]);
+  useEffect(() => { if (profile.experience.length) { const c = profile.experience.find(e => e.isCurrent); if (c) { setRole(c.role || ''); setIndustry(c.industry || ''); setCompany(c.organization || ''); setWorkCountry(c.country || ''); setResumptionDate(c.startDate || ''); setRoleDescription(c.roleDescription || ''); } setPastJobs(profile.experience.filter(e => !e.isCurrent).map(e => ({ id: e.id, organization: e.organization || '', role: e.role || '', industry: e.industry || '', country: e.country || '', startDate: e.startDate || '', roleDescription: e.roleDescription || '' }))); existingIdsRef.current.experience = new Set(profile.experience.map(e => e.id)); } }, [profile.experience]);
+  useEffect(() => { if (profile.languages.length) { setLanguages(profile.languages.map(l => ({ id: l.id, name: l.language, proficiency: PROF_REV[l.proficiency] || l.proficiency }))); existingIdsRef.current.languages = new Set(profile.languages.map(l => l.id)); } }, [profile.languages]);
   useEffect(() => { if (profile.portfolio.length) { setPortfolioLinks(profile.portfolio.map(p => ({ id: p.id, url: p.link, label: p.label }))); existingIdsRef.current.portfolio = new Set(profile.portfolio.map(p => p.id)); } }, [profile.portfolio]);
 
   const hasPersonalInfo = !!profile.personal;
 
-  const handleIdCardUpload = (e: React.ChangeEvent<HTMLInputElement>) => { const f = e.target.files?.[0]; if (f) { setIdCardFile(f); setIdCardFileName(f.name); toast.success('ID card uploaded!'); } };
-  const handleDegreeCertUpload = (e: React.ChangeEvent<HTMLInputElement>) => { const f = e.target.files?.[0]; if (f) { setDegreeCertFile(f); setDegreeCertFileName(f.name); toast.success('Degree certificate uploaded!'); } };
-  const handleCvUpload = (e: React.ChangeEvent<HTMLInputElement>) => { const f = e.target.files?.[0]; if (f) { setCvFile(f); setCvFileName(f.name); toast.success('CV uploaded!'); } };
+  const handleIdCardUpload = (e: React.ChangeEvent<HTMLInputElement>) => { const f = e.target.files?.[0]; if (f) { setIdCardFile(f); setIdCardFileName(f.name); toast.success('ID card added'); } };
+  const handleDegreeCertUpload = (e: React.ChangeEvent<HTMLInputElement>) => { const f = e.target.files?.[0]; if (f) { setDegreeCertFile(f); setDegreeCertFileName(f.name); toast.success('Degree certificate added'); } };
+  const handleCvUpload = (e: React.ChangeEvent<HTMLInputElement>) => { const f = e.target.files?.[0]; if (f) { setCvFile(f); setCvFileName(f.name); toast.success('CV added'); } };
   const clearIdCard = () => { setIdCardFile(null); setIdCardFileName(''); };
   const clearDegreeCert = () => { setDegreeCertFile(null); setDegreeCertFileName(''); };
   const clearCv = () => { setCvFile(null); setCvFileName(''); };
@@ -98,7 +101,7 @@ export function useProfileForm() {
   const addOtherCert = () => setOtherCerts(p => [...p, { id: uid(), title: '', issuer: '', year: '', file: null, fileName: '' }]);
   const removeOtherCert = (id: string) => setOtherCerts(p => p.filter(c => c.id !== id));
   const updateOtherCert = (id: string, field: string, value: string | File | null) => setOtherCerts(p => p.map(c => c.id !== id ? c : field === 'file' ? { ...c, file: value as File | null, fileName: (value as File)?.name || '' } : { ...c, [field]: value as string }));
-  const addPastJob = () => setPastJobs(p => [...p, { id: uid(), organization: '', role: '', duration: '' }]);
+  const addPastJob = () => setPastJobs(p => [...p, { id: uid(), organization: '', role: '', industry: '', country: '', startDate: '', roleDescription: '' }]);
   const removePastJob = (id: string) => setPastJobs(p => p.filter(j => j.id !== id));
   const updatePastJob = (id: string, field: string, value: string) => setPastJobs(p => p.map(j => j.id === id ? { ...j, [field]: value } : j));
   const addSkill = () => setSkills(p => [...p, { id: uid(), name: '' }]); const removeSkill = (id: string) => setSkills(p => p.filter(s => s.id !== id));
@@ -112,23 +115,45 @@ export function useProfileForm() {
   const handleRemoveCard = (id: string) => setSavedCards(p => p.filter(x => x.id !== id));
 
   const refreshCompletion = useCallback(() => { dispatch(fetchProfileCompletion()); }, [dispatch]);
+  const fail = (e: unknown, fallback: string) => {
+    const msg = typeof e === 'string' ? e : e instanceof Error ? e.message : '';
+    toast.error(msg || fallback);
+    return false;
+  };
 
   const savePersonalInfo = useCallback(async () => {
     const payload: Record<string, any> = { firstname: firstName, middlename: middleName, surname, username, gender: GENDER_MAP[gender] || gender, dateOfBirth, bio, phone, address, city, state: stateOfResidence, lga: localGovt, country, postalCode: zipCode, idCardType, idCardNumber, employmentStatus: EMP_MAP[employmentStatus] || employmentStatus, website };
-    try { await dispatch(hasPersonalInfo ? updatePersonalInfo(payload) : createPersonalInfo(payload)).unwrap(); toast.success('Personal info saved!'); refreshCompletion(); return true; } catch (e: any) { toast.error(e || 'Failed to save'); return false; }
-  }, [firstName, middleName, surname, username, gender, dateOfBirth, bio, phone, address, city, stateOfResidence, localGovt, country, zipCode, idCardType, idCardNumber, employmentStatus, website, hasPersonalInfo, dispatch, refreshCompletion]);
+    try { await dispatch(hasPersonalInfo ? updatePersonalInfo(payload) : createPersonalInfo(payload)).unwrap(); toast.success('Personal info saved!'); refreshCompletion(); return true; } catch (e) { return fail(e, 'Failed to save personal info'); }
+  }, [firstName, middleName, surname, username, gender, dateOfBirth, bio, phone, address, city, stateOfResidence, localGovt, country, zipCode, idCardType, idCardNumber, employmentStatus, website, hasPersonalInfo, dispatch, refreshCompletion, fail]);
 
-  const saveSkills = useCallback(async () => { for (const s of skills) { if (!s.name.trim()) continue; const existing = existingIdsRef.current.skills.has(s.id); try { if (existing) { await dispatch(updateSkill({ id: s.id, name: s.name })).unwrap(); } else { const created = await dispatch(createSkill({ name: s.name })).unwrap(); existingIdsRef.current.skills.add(created.id); } } catch {} } refreshCompletion(); }, [skills, dispatch, refreshCompletion]);
+  const saveSkills = useCallback(async () => { for (const s of skills) { if (!s.name.trim()) continue; const existing = existingIdsRef.current.skills.has(s.id); try { if (existing) { await dispatch(updateSkill({ id: s.id, name: s.name })).unwrap(); } else { const created = await dispatch(createSkill({ name: s.name })).unwrap(); existingIdsRef.current.skills.add(created.id); } } catch (e) { fail(e, 'Failed to save skill'); } } refreshCompletion(); }, [skills, dispatch, refreshCompletion, fail]);
   const saveEducation = useCallback(async () => {
-    const p = { educationLevel, graduationClass, courseOfStudy, institution, yearOfGraduation: Number(yearOfGraduation) || 0, degreeCertificate: '' };
-    try { await dispatch(profile.education[0]?.id ? updateEducation({ id: profile.education[0].id, data: p }) : createEducation(p)).unwrap(); toast.success('Education saved!'); refreshCompletion(); } catch {}
-  }, [educationLevel, graduationClass, courseOfStudy, institution, yearOfGraduation, profile.education, dispatch, refreshCompletion]);
+    const noGrad = isNoGraduationClassLevel(educationLevel);
+    const p = { educationLevel, graduationClass: noGrad ? null : graduationClass, courseOfStudy: noGrad ? null : courseOfStudy, institution, yearOfGraduation: Number(yearOfGraduation) || 0, degreeCertificate: '' };
+    try { await dispatch(profile.education[0]?.id ? updateEducation({ id: profile.education[0].id, data: p }) : createEducation(p)).unwrap(); toast.success('Education saved!'); refreshCompletion(); return true; } catch (e) { return fail(e, 'Failed to save education'); }
+  }, [educationLevel, graduationClass, courseOfStudy, institution, yearOfGraduation, profile.education, dispatch, refreshCompletion, fail]);
   const saveExperience = useCallback(async () => {
-    const p = { organization: company, role, industry, country: workCountry, startDate: resumptionDate, roleDescription, isCurrent: true };
-    try { await dispatch(profile.experience.find(e => e.isCurrent)?.id ? updateExperience({ id: profile.experience.find(e => e.isCurrent)!.id, data: p }) : createExperience(p)).unwrap(); toast.success('Experience saved!'); refreshCompletion(); } catch {}
-  }, [company, role, industry, workCountry, resumptionDate, roleDescription, profile.experience, dispatch, refreshCompletion]);
-  const saveLanguages = useCallback(async () => { for (const l of languages) { if (!l.name.trim()) continue; const existing = existingIdsRef.current.languages.has(l.id); try { if (existing) { await dispatch(updateLanguage({ id: l.id, data: { language: l.name, proficiency: l.proficiency } })).unwrap(); } else { const created = await dispatch(createLanguage({ language: l.name, proficiency: l.proficiency })).unwrap(); existingIdsRef.current.languages.add(created.id); } } catch {} } refreshCompletion(); }, [languages, dispatch, refreshCompletion]);
-  const savePortfolio = useCallback(async () => { for (const p of portfolioLinks.filter(x => x.url.trim())) { const existing = existingIdsRef.current.portfolio.has(p.id); try { if (existing) { await dispatch(updatePortfolio({ id: p.id, data: { label: p.label, link: p.url } })).unwrap(); } else { const created = await dispatch(createPortfolio({ label: p.label, link: p.url })).unwrap(); existingIdsRef.current.portfolio.add(created.id); } } catch {} } refreshCompletion(); }, [portfolioLinks, dispatch, refreshCompletion]);
+    const current = { organization: company, role, industry, country: workCountry, startDate: resumptionDate, roleDescription, isCurrent: true };
+    try {
+      const currentId = profile.experience.find(e => e.isCurrent)?.id;
+      await dispatch(currentId ? updateExperience({ id: currentId, data: current }) : createExperience(current)).unwrap();
+      for (const job of pastJobs) {
+        if (!job.organization.trim() && !job.role.trim()) continue;
+        const data = { organization: job.organization, role: job.role, industry: job.industry, country: job.country, startDate: job.startDate, roleDescription: job.roleDescription, isCurrent: false };
+        if (existingIdsRef.current.experience.has(job.id)) {
+          await dispatch(updateExperience({ id: job.id, data })).unwrap();
+        } else {
+          const created = await dispatch(createExperience(data)).unwrap();
+          if (created?.id) existingIdsRef.current.experience.add(created.id);
+        }
+      }
+      toast.success('Experience saved!');
+      refreshCompletion();
+      return true;
+    } catch (e) { return fail(e, 'Failed to save experience'); }
+  }, [company, role, industry, workCountry, resumptionDate, roleDescription, pastJobs, profile.experience, dispatch, refreshCompletion, fail]);
+  const saveLanguages = useCallback(async () => { for (const l of languages) { if (!l.name.trim()) continue; const existing = existingIdsRef.current.languages.has(l.id); try { if (existing) { await dispatch(updateLanguage({ id: l.id, data: { language: l.name, proficiency: PROF_MAP[l.proficiency] || l.proficiency.toUpperCase() } })).unwrap(); } else { const created = await dispatch(createLanguage({ language: l.name, proficiency: PROF_MAP[l.proficiency] || l.proficiency.toUpperCase() })).unwrap(); existingIdsRef.current.languages.add(created.id); } } catch (e) { fail(e, 'Failed to save language'); } } refreshCompletion(); }, [languages, dispatch, refreshCompletion, fail]);
+  const savePortfolio = useCallback(async () => { for (const p of portfolioLinks.filter(x => x.url.trim())) { const existing = existingIdsRef.current.portfolio.has(p.id); try { if (existing) { await dispatch(updatePortfolio({ id: p.id, data: { label: p.label, link: p.url } })).unwrap(); } else { const created = await dispatch(createPortfolio({ label: p.label, link: p.url })).unwrap(); existingIdsRef.current.portfolio.add(created.id); } } catch (e) { fail(e, 'Failed to save portfolio link'); } } refreshCompletion(); }, [portfolioLinks, dispatch, refreshCompletion, fail]);
   const saveAll = useCallback(async () => { const ok = await savePersonalInfo(); if (!ok) return false; await Promise.all([saveSkills(), saveEducation(), saveExperience(), saveLanguages(), savePortfolio()]); return true; }, [savePersonalInfo, saveSkills, saveEducation, saveExperience, saveLanguages, savePortfolio]);
 
   const fullName = [firstName, middleName, surname].filter(Boolean).join(' ') || user?.name || '';

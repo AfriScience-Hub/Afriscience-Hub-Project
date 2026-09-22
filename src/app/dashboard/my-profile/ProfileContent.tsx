@@ -116,13 +116,16 @@ export function ProfileContent() {
   const handleSubmit = async () => {
     setSaving(true);
     try {
-      if (activeTab === 'personal') {
-        const ok = await f.savePersonalInfo();
-        if (ok) setEditingTab(null);
-      } else {
-        const ok = await f.saveAll();
-        if (ok) setEditingTab(null);
+      let ok = false;
+      if (activeTab === 'personal') ok = await f.savePersonalInfo();
+      else if (activeTab === 'education') ok = await f.saveEducation();
+      else if (activeTab === 'experience') {
+        await f.saveSkills();
+        ok = await f.saveExperience();
+        await f.saveLanguages();
+        await f.savePortfolio();
       }
+      if (ok) setEditingTab(null);
     } finally { setSaving(false); }
   };
 

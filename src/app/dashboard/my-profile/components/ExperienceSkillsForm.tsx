@@ -7,7 +7,10 @@ interface PastJob {
   id: string;
   organization: string;
   role: string;
-  duration: string;
+  industry: string;
+  country: string;
+  startDate: string;
+  roleDescription: string;
 }
 
 interface SkillEntry {
@@ -146,7 +149,7 @@ export function ExperienceForm(props: ExperienceSkillsTabProps) {
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Organization <span className="text-red-600">*</span></label>
                 <input type="text" value={job.organization} onChange={e => props.onPastJobChange(job.id, 'organization', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
@@ -156,8 +159,26 @@ export function ExperienceForm(props: ExperienceSkillsTabProps) {
                 <input type="text" value={job.role} onChange={e => props.onPastJobChange(job.id, 'role', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
               </div>
               <div>
-                <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Duration (years) <span className="text-red-600">*</span></label>
-                <input type="text" value={job.duration} onChange={e => props.onPastJobChange(job.id, 'duration', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
+                <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Industry <span className="text-red-600">*</span></label>
+                <select value={job.industry} onChange={e => props.onPastJobChange(job.id, 'industry', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required>
+                  <option value="">Select Industry</option>
+                  {INDUSTRIES.map(ind => <option key={ind} value={ind}>{ind}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Country <span className="text-red-600">*</span></label>
+                <select value={job.country} onChange={e => props.onPastJobChange(job.id, 'country', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required>
+                  <option value="">Select Country</option>
+                  {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Start Date <span className="text-red-600">*</span></label>
+                <input type="date" value={job.startDate} onChange={e => props.onPastJobChange(job.id, 'startDate', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" required />
+              </div>
+              <div className="md:col-span-2 lg:col-span-3">
+                <label className="block text-xs font-medium text-neutral-gray-dark mb-1">Role Description</label>
+                <input type="text" value={job.roleDescription} onChange={e => props.onPastJobChange(job.id, 'roleDescription', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900" />
               </div>
             </div>
           </div>
@@ -256,7 +277,7 @@ export function ExperienceForm(props: ExperienceSkillsTabProps) {
         </div>
         {props.cvFile && (
           <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
-            <CheckCircle className="h-3 w-3" /> CV uploaded
+            <CheckCircle className="h-3 w-3" /> CV added
           </p>
         )}
       </div>

@@ -7,7 +7,10 @@ interface PastJob {
   id: string;
   organization: string;
   role: string;
-  duration: string;
+  industry: string;
+  country: string;
+  startDate: string;
+  roleDescription: string;
 }
 
 interface SkillEntry {
@@ -90,10 +93,13 @@ function ExperienceDisplay(props: ExperienceSkillsTabProps) {
           <div className="space-y-3">
             {props.pastJobs.map(job => (
               <div key={job.id} className="rounded-lg bg-white border border-neutral-gray-light p-3">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   <Field label="Organization" value={job.organization} />
                   <Field label="Role" value={job.role} />
-                  <Field label="Duration" value={job.duration ? `${job.duration} year(s)` : null} />
+                  <Field label="Industry" value={job.industry} />
+                  <Field label="Country" value={job.country} />
+                  <Field label="Start Date" value={job.startDate} />
+                  <Field label="Role Description" value={job.roleDescription} />
                 </div>
               </div>
             ))}

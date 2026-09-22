@@ -2,6 +2,7 @@
 
 import { Upload, Plus, Trash2, CheckCircle, X } from 'lucide-react';
 import { Field, SectionCard } from './FieldDisplay';
+import { isNoGraduationClassLevel } from '../educationLevels';
 
 interface OtherCert {
   id: string;
@@ -65,7 +66,7 @@ function EducationDisplay(props: EducationCertTabProps) {
 }
 
 function EducationForm(props: EducationCertTabProps) {
-  const noGraduationClass = ['Elementary Degree', 'Junior High School Degree', 'Senior High School Degree'].includes(props.educationLevel);
+  const noGraduationClass = isNoGraduationClassLevel(props.educationLevel);
   const inputClass = "w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900";
   const disabledClass = "w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light cursor-not-allowed opacity-50";
 
@@ -142,7 +143,7 @@ function EducationForm(props: EducationCertTabProps) {
         </div>
         {props.degreeCertFile && (
           <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
-            <CheckCircle className="h-3 w-3" /> Degree certificate uploaded
+            <CheckCircle className="h-3 w-3" /> Degree certificate added
           </p>
         )}
       </div>
