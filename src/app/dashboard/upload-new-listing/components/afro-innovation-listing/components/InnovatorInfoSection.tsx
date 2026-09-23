@@ -13,8 +13,8 @@ interface InnovatorInfoSectionProps {
   setEmail: (v: string) => void;
   website: string;
   setWebsite: (v: string) => void;
-  socialLinks: { linkedin: string; twitter: string; instagram: string; facebook: string };
-  setSocialLinks: (v: { linkedin: string; twitter: string; instagram: string; facebook: string } | ((prev: { linkedin: string; twitter: string; instagram: string; facebook: string }) => { linkedin: string; twitter: string; instagram: string; facebook: string })) => void;
+  socialLinks: { x: string; linkedin: string; instagram: string; facebook: string };
+  setSocialLinks: (v: { x: string; linkedin: string; facebook: string; instagram: string } | ((prev: { x: string; linkedin: string; facebook: string; instagram: string }) => { x: string; linkedin: string; facebook: string; instagram: string })) => void;
   agreed: boolean;
   setAgreed: (v: boolean) => void;
 }
@@ -82,7 +82,7 @@ export default function InnovatorInfoSection({
       <div>
         <label className="block text-sm font-medium text-neutral-black mb-2">Social Media Handles <span className="text-red-500">*</span> <span className="text-[10px] text-neutral-gray-medium font-normal">(provide at least one)</span></label>
         <div className="grid gap-3 sm:grid-cols-2">
-          {(['linkedin', 'twitter', 'instagram', 'facebook'] as const).map(platform => (
+          {(['linkedin', 'x', 'instagram', 'facebook'] as const).map(platform => (
             <div key={platform}>
               <label className="block text-[11px] font-medium text-neutral-gray-medium mb-1 capitalize">{platform}</label>
               <input type="text"

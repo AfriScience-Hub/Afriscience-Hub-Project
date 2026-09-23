@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 interface ListingCardProps {
   listing: {
-    id: number;
+    id: string | number;
     name: string;
     category: string;
     status: string;
@@ -16,13 +16,15 @@ interface ListingCardProps {
     likes: number;
     reviews: number;
   };
+  onEdit?: () => void;
+  onPreview?: () => void;
 }
 
-export function ListingCard({ listing }: ListingCardProps) {
+export function ListingCard({ listing, onEdit, onPreview }: ListingCardProps) {
   return (
     <div className="rounded-xl border border-neutral-gray-light overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative h-36">
-        <Image src={listing.image} alt={listing.name} fill sizes="33vw" className="object-cover" />
+        {listing.image ? <Image src={listing.image} alt={listing.name} fill sizes="33vw" className="object-cover" /> : <div className="h-full w-full bg-neutral-bg-light" />}
         <span className={cn(
           "absolute top-2 right-2 px-2.5 py-1 rounded-full text-[10px] font-bold",
           listing.status === 'Verified' ? "bg-green-100 text-green-700" :
@@ -41,8 +43,8 @@ export function ListingCard({ listing }: ListingCardProps) {
           <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5" /> {listing.reviews}</span>
         </div>
         <div className="flex items-center gap-2 mt-3 pt-3 border-t border-neutral-gray-light">
-          <Button size="sm" variant="outline" className="flex-1 text-xs"><Edit className="h-3 w-3 mr-1" /> Edit</Button>
-          <Button size="sm" variant="outline" className="flex-1 text-xs"><ExternalLink className="h-3 w-3 mr-1" /> Preview</Button>
+          <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={onEdit}><Edit className="h-3 w-3 mr-1" /> Edit</Button>
+          <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={onPreview}><ExternalLink className="h-3 w-3 mr-1" /> Preview</Button>
           <Button size="sm" variant="outline" className="text-xs px-2"><Archive className="h-3.5 w-3.5" /></Button>
           <Button size="sm" variant="outline" className="text-xs px-2 text-red-500 hover:text-red-600"><Trash2 className="h-3.5 w-3.5" /></Button>
         </div>

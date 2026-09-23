@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import {
   Menu, X, Search, ChevronDown, Building2, Beaker, Microscope, Lightbulb, Trophy, Vote, Award,
   Linkedin, Facebook, Twitter, Youtube, Instagram,
-  User, LayoutDashboard, Settings, LogOut, Heart, Sparkles, HandCoins, Users as UsersIcon, TrendingUp
+  User, LayoutDashboard, Settings, LogOut, Heart, Sparkles, HandCoins, Users as UsersIcon, TrendingUp, Wallet
 } from 'lucide-react';
 import logoImg from "../../assets/logo.png";
 import { Button } from './ui/Button';
@@ -367,6 +367,14 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
 
             {mounted && isAuthenticated ? (
               <div className="flex items-center gap-3">
+                <Link
+                  href="/dashboard/my-profile?tab=wallet"
+                  aria-label="Wallet"
+                  title="Wallet"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-navy-900 transition-colors"
+                >
+                  <Wallet className="h-5 w-5" />
+                </Link>
                 <NotificationDropdown
                   categories={[
                     { id: 'impact', label: 'Impact Applications', icon: UsersIcon, count: 3, path: '/dashboard/notifications?filter=impact' },

@@ -7,6 +7,7 @@ const COUNTRY_CURRENCY: Record<string, string> = {
   SD: 'SDG', SS: 'SSP', LY: 'LYD', TN: 'TND', DZ: 'DZD', MA: 'MAD', AO: 'AOA',
   MZ: 'MZN', NA: 'NAD', LS: 'LSL', SZ: 'SZL', MG: 'MGA', MU: 'MUR', SC: 'SCR',
   KM: 'KMF', BI: 'BIF', ER: 'ERN', MLI: 'XOF',
+  CD: 'CDF', GW: 'XOF',
   US: 'USD', GB: 'GBP', CA: 'CAD', AU: 'AUD', NZ: 'NZD', DE: 'EUR', FR: 'EUR',
   IT: 'EUR', ES: 'EUR', PT: 'EUR', NL: 'EUR', BE: 'EUR', IE: 'EUR', AT: 'EUR',
   GR: 'EUR', FI: 'EUR', LU: 'EUR', CY: 'EUR', MT: 'EUR', SK: 'EUR', SI: 'EUR',
@@ -25,6 +26,32 @@ const COUNTRY_CURRENCY: Record<string, string> = {
 export function getCurrencyForCountry(code?: string | null): string {
   if (!code) return 'USD';
   return COUNTRY_CURRENCY[code.trim().toUpperCase()] ?? 'USD';
+}
+
+// Country names as stored on the user profile → ISO code, so the profile's
+// country name can be resolved to a currency.
+const COUNTRY_NAME_TO_CODE: Record<string, string> = {
+  algeria: 'DZ', angola: 'AO', benin: 'BJ', botswana: 'BW', 'burkina faso': 'BF',
+  burundi: 'BI', 'cabo verde': 'CV', cameroon: 'CM', 'central african republic': 'CF',
+  chad: 'TD', comoros: 'KM', congo: 'CG', 'dr congo': 'CD', "côte d'ivoire": 'CI',
+  'ivory coast': 'CI', djibouti: 'DJ', egypt: 'EG', 'equatorial guinea': 'GQ',
+  eritrea: 'ER', eswatini: 'SZ', ethiopia: 'ET', gabon: 'GA', gambia: 'GM', ghana: 'GH',
+  guinea: 'GN', 'guinea-bissau': 'GW', kenya: 'KE', lesotho: 'LS', liberia: 'LR',
+  libya: 'LY', madagascar: 'MG', malawi: 'MW', mali: 'ML', mauritania: 'MR',
+  mauritius: 'MU', morocco: 'MA', mozambique: 'MZ', namibia: 'NA', niger: 'NE',
+  nigeria: 'NG', rwanda: 'RW', 'são tomé and príncipe': 'ST', 'sao tome and principe': 'ST',
+  senegal: 'SN', seychelles: 'SC', 'sierra leone': 'SL', somalia: 'SO', 'south africa': 'ZA',
+  'south sudan': 'SS', sudan: 'SD', tanzania: 'TZ', togo: 'TG', tunisia: 'TN',
+  uganda: 'UG', zambia: 'ZM', zimbabwe: 'ZW',
+  'united states': 'US', 'united states of america': 'US', usa: 'US',
+  'united kingdom': 'GB', uk: 'GB', canada: 'CA', australia: 'AU', india: 'IN',
+};
+
+/** Resolve a profile country name (e.g. "Nigeria") to its currency, or null. */
+export function getCurrencyForCountryName(name?: string | null): string | null {
+  if (!name) return null;
+  const code = COUNTRY_NAME_TO_CODE[name.trim().toLowerCase()];
+  return code ? getCurrencyForCountry(code) : null;
 }
 
 export function currencySymbol(currency: string): string {
@@ -54,6 +81,12 @@ export function formatMajor(value: number | string | null | undefined, currency 
   }
 }
 
+/** Wallet balances are stored in minor units; ASH Coins are the display currency. */
+export function formatAshCoins(value: number | string | null | undefined): string {
+  const num = Number(value ?? 0) || 0;
+  const coins = num / 100;
+  return `${coins.toLocaleString('en', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ASH coins`;
+}
 export function formatISOString(value?: string | null): string {
   if (!value) return '\u2014';
   const d = new Date(value);

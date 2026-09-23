@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { User, GraduationCap, Briefcase, CreditCard, Shield, Save, X, Send, FileDown, Lock } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { User, GraduationCap, Briefcase, Wallet, Shield, Save, X, Send, FileDown, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
 import { ProfileHeader } from './components/ProfileHeader';
@@ -9,18 +10,18 @@ import { ProfileTabs } from './components/ProfileTabs';
 import { PersonalInfoTab } from './components/PersonalInfoTab';
 import { EducationCertTab } from './components/EducationCertTab';
 import { ExperienceSkillsTab } from './components/ExperienceSkillsTab';
-import { PaymentInfoTab } from './components/PaymentInfoTab';
+import { WalletTab } from './components/WalletTab';
 import { SystemSecurityTab } from './components/SystemSecurityTab';
 import { useProfileForm } from './useProfileForm';
 import { ProfileSkeleton } from './components/ProfileSkeleton';
 
-type TabKey = 'personal' | 'education' | 'experience' | 'payment' | 'system';
+type TabKey = 'personal' | 'education' | 'experience' | 'wallet' | 'system';
 
 const TABS = [
   { key: 'personal' as const, label: 'Personal Information', icon: User },
   { key: 'education' as const, label: 'Education & Certifications', icon: GraduationCap },
   { key: 'experience' as const, label: 'Experience & Skills', icon: Briefcase },
-  { key: 'payment' as const, label: 'Payment Info', icon: CreditCard },
+  { key: 'wallet' as const, label: 'Wallet', icon: Wallet },
   { key: 'system' as const, label: 'System & Security', icon: Shield },
 ];
 
@@ -54,6 +55,15 @@ export function ProfileContent() {
   const isEditing = editingTab !== null;
   const canAccessTabs = f.hasPersonalInfo;
   const remindedRef = useRef(false);
+  const searchParams = useSearchParams();
+
+  // Open a specific tab when linked with ?tab=<key> (e.g. the header wallet icon).
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && TABS.some(t => t.key === tab)) {
+      setActiveTab(tab as TabKey);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (remindedRef.current || !f.personalLoaded || editingTab) return;
@@ -202,14 +212,7 @@ export function ProfileContent() {
           {activeTab === 'personal' && <PersonalInfoTab {...personalProps} />}
           {activeTab === 'education' && (canAccessTabs ? <EducationCertTab {...educationProps} /> : <TabLockedPlaceholder tabName="Education & Certifications" />)}
           {activeTab === 'experience' && (canAccessTabs ? <ExperienceSkillsTab {...experienceProps} /> : <TabLockedPlaceholder tabName="Experience & Skills" />)}
-          {activeTab === 'payment' && (
-            <PaymentInfoTab
-              isEditing={editingTab === 'payment'}
-              paymentMethod={f.paymentMethod} onPaymentMethodChange={f.setPaymentMethod}
-              cards={f.savedCards} onAddCard={f.handleAddCard}
-              onUpdateCard={f.handleUpdateCard} onRemoveCard={f.handleRemoveCard}
-            />
-          )}
+          {activeTab === 'wallet' && (canAccessTabs ? <WalletTab /> : <TabLockedPlaceholder tabName="Wallet" />)}
           {activeTab === 'system' && (
             <SystemSecurityTab
               govIdCode={f.idCardNumber}
@@ -223,36 +226,38 @@ export function ProfileContent() {
           )}
         </div>
 
-        <div className="px-6 py-4 border-t border-neutral-gray-light bg-neutral-bg-light/50">
-          <div className="flex items-center justify-end gap-3">
-            {activeTab === 'system' ? (
-              <Button type="button" onClick={handleSaveDraft} loading={saving} className="gap-2 bg-green-600 hover:bg-green-700">
-                <Save className="h-4 w-4" /> Save
-              </Button>
-            ) : isEditing ? (
-              <>
-                <Button type="button" variant="outline" onClick={handleCancel} disabled={saving} className="gap-2">
-                  <X className="h-4 w-4" /> Cancel
+        {activeTab !== 'wallet' && (
+          <div className="px-6 py-4 border-t border-neutral-gray-light bg-neutral-bg-light/50">
+            <div className="flex items-center justify-end gap-3">
+              {activeTab === 'system' ? (
+                <Button type="button" onClick={handleSaveDraft} loading={saving} className="gap-2 bg-green-600 hover:bg-green-700">
+                  <Save className="h-4 w-4" /> Save
                 </Button>
-                <Button type="button" onClick={handleSaveDraft} loading={saving} className="gap-2 bg-white border border-neutral-gray-light text-neutral-black hover:bg-neutral-bg-light">
-                  <FileDown className="h-4 w-4" /> Save as Draft
-                </Button>
-                <Button type="button" onClick={handleSubmit} loading={saving} className="gap-2 bg-green-600 hover:bg-green-700">
-                  <Send className="h-4 w-4" /> Submit
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button type="button" onClick={handleSaveDraft} variant="outline" loading={saving} className="gap-2">
-                  <Save className="h-4 w-4" /> Save as Draft
-                </Button>
-                <Button type="button" onClick={handleStartEdit} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700">
-                  <EditIcon className="h-4 w-4" /> Edit
-                </Button>
-              </>
-            )}
+              ) : isEditing ? (
+                <>
+                  <Button type="button" variant="outline" onClick={handleCancel} disabled={saving} className="gap-2">
+                    <X className="h-4 w-4" /> Cancel
+                  </Button>
+                  <Button type="button" onClick={handleSaveDraft} loading={saving} className="gap-2 bg-white border border-neutral-gray-light text-neutral-black hover:bg-neutral-bg-light">
+                    <FileDown className="h-4 w-4" /> Save as Draft
+                  </Button>
+                  <Button type="button" onClick={handleSubmit} loading={saving} className="gap-2 bg-green-600 hover:bg-green-700">
+                    <Send className="h-4 w-4" /> Submit
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button type="button" onClick={handleSaveDraft} variant="outline" loading={saving} className="gap-2">
+                    <Save className="h-4 w-4" /> Save as Draft
+                  </Button>
+                  <Button type="button" onClick={handleStartEdit} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700">
+                    <EditIcon className="h-4 w-4" /> Edit
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );

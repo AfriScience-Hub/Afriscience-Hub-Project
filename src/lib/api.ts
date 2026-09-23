@@ -18,6 +18,29 @@ function onRefreshed(token: string | null) {
   failedQueue = [];
 }
 
+export async function refreshAccessToken(): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+  });
+  const refreshData = await refreshRes.json().catch(() => ({}));
+  const newAccess =
+    refreshData?.accessToken ||
+    refreshData?.token ||
+    (refreshData as any)?.data?.accessToken ||
+    (refreshData as any)?.data?.token ||
+    null;
+  if (refreshRes.ok && newAccess) {
+    setAccessToken(newAccess);
+    onRefreshed(newAccess);
+  } else {
+    onRefreshed(null);
+  }
+  return newAccess;
+}
+
 function getAccessToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('afrisciencehub_token');
@@ -35,6 +58,30 @@ function clearAuthStorage() {
   // It is sent automatically via `credentials: 'include'` and cleared server-side on logout.
   localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
   localStorage.removeItem('afrisciencehub_user');
+}
+
+function decodeJwtExp(token: string): number | null {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const json = JSON.parse(atob(normalized));
+    return typeof json.exp === 'number' ? json.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * True when the stored access token is missing or expired (with a small buffer).
+ * Opaque (non-JWT) tokens are treated as valid and left to the server to reject.
+ */
+export function isAccessTokenExpired(bufferMs = 30_000): boolean {
+  const token = getAccessToken();
+  if (!token) return true;
+  const exp = decodeJwtExp(token);
+  if (exp === null) return false;
+  return Date.now() >= exp - bufferMs;
 }
 
 async function request<T>(
@@ -116,7 +163,12 @@ async function request<T>(
         onRefreshed(null);
         if (typeof window !== 'undefined') {
           clearAuthStorage();
-          window.location.href = isAdminRequest ? '/admin/login?reason=session_expired' : '/login?reason=session_expired';
+          const loginPath = isAdminRequest ? '/admin/login' : '/login';
+          // Remember where the user was so a successful re-login returns them
+          // to the same page instead of the default landing page.
+          const from = window.location.pathname + window.location.search;
+          const query = `reason=session_expired${from ? `&from=${encodeURIComponent(from)}` : ''}`;
+          window.location.href = `${loginPath}?${query}`;
         }
         throw new Error('Session expired, please sign in again');
       }

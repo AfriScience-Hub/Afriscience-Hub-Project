@@ -38,8 +38,8 @@ interface AfroInnovationListingProps {
   altPhone: string; setAltPhone: (v: string) => void;
   email: string; setEmail: (v: string) => void;
   website: string; setWebsite: (v: string) => void;
-  socialLinks: { linkedin: string; twitter: string; instagram: string; facebook: string };
-  setSocialLinks: (v: { linkedin: string; twitter: string; instagram: string; facebook: string } | ((p: { linkedin: string; twitter: string; instagram: string; facebook: string }) => { linkedin: string; twitter: string; instagram: string; facebook: string })) => void;
+  socialLinks: { x: string; linkedin: string; facebook: string; instagram: string };
+  setSocialLinks: (v: { x: string; linkedin: string; facebook: string; instagram: string } | ((p: { x: string; linkedin: string; facebook: string; instagram: string }) => { x: string; linkedin: string; facebook: string; instagram: string })) => void;
   agreed: boolean;
   setAgreed: (v: boolean) => void;
 }

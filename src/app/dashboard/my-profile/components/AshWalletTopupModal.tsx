@@ -20,14 +20,6 @@ export function AshWalletTopupModal({ open, currency, onClose }: AshWalletTopupM
 
   if (!open) return null;
 
-  const currencySym = (() => {
-    try {
-      return new Intl.NumberFormat('en', { style: 'currency', currency }).format(0).replace(/[\d.,\s]/g, '').trim() || currency;
-    } catch {
-      return currency;
-    }
-  })();
-
   const handleSubmit = async () => {
     const n = Number(amount);
     if (!amount || Number.isNaN(n) || n <= 0) {
@@ -130,10 +122,9 @@ export function AshWalletTopupModal({ open, currency, onClose }: AshWalletTopupM
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-neutral-gray-dark mb-1">
-                Amount to top up <span className="text-neutral-gray-medium">({currency})</span>
+                Amount to top up
               </label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-3 flex items-center text-neutral-gray-medium text-sm">{currencySym}</span>
+              <div className="flex items-center gap-2">
                 <input
                   type="number"
                   inputMode="decimal"
@@ -142,8 +133,9 @@ export function AshWalletTopupModal({ open, currency, onClose }: AshWalletTopupM
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900"
+                  className="flex-1 px-3 py-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light focus:outline-none focus:border-brand-navy-900"
                 />
+                <span className="text-sm font-semibold text-neutral-gray-dark whitespace-nowrap">{currency}</span>
               </div>
               <p className="text-xs text-neutral-gray-medium mt-1">A processing fee of 1.5% applies to this top up.</p>
             </div>

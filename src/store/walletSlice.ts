@@ -1,19 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { api } from '@/lib/api';
 
-export interface WalletLocation {
-  type?: string;
-  continent?: string;
-  continent_code?: string;
-  country?: string;
-  country_code?: string;
-  region?: string;
-  region_code?: string;
-  city?: string;
-  latitude?: number;
-  longitude?: number;
-}
-
 export interface WalletInfo {
   id: string;
   userId: string;
@@ -53,41 +40,25 @@ export interface TopupResult {
   totalAmount: number;
 }
 
-export interface DetectResult {
-  message: string;
-  success: boolean;
-  details: WalletLocation | null;
-}
-
 interface WalletState {
-  detect: DetectResult | null;
-  detectLoading: boolean;
-  detectError: string | null;
   wallet: WalletInfo | null;
   walletLoading: boolean;
   walletError: string | null;
   history: WalletTransaction[];
   historyLoading: boolean;
   historyError: string | null;
-  createLoading: boolean;
-  createError: string | null;
   topup: TopupResult | null;
   topupLoading: boolean;
   topupError: string | null;
 }
 
 const initialState: WalletState = {
-  detect: null,
-  detectLoading: false,
-  detectError: null,
   wallet: null,
   walletLoading: false,
   walletError: null,
   history: [],
   historyLoading: false,
   historyError: null,
-  createLoading: false,
-  createError: null,
   topup: null,
   topupLoading: false,
   topupError: null,
@@ -97,26 +68,8 @@ function extractPendingOrError<T extends { message?: string }>(r: any): string {
   return r?.message || (typeof r === 'string' ? r : 'An error occurred');
 }
 
-export const detectWalletLocation = createAsyncThunk('wallet/detect', async (_, { rejectWithValue }) => {
-  try {
-    const r: any = await api.get('/wallet/detect');
-    const inner = r?.data ?? r;
-    return {
-      message: inner?.message || '',
-      success: inner?.success !== false,
-      details: inner?.details ?? inner ?? null,
-    } as DetectResult;
-  } catch (e: any) { return rejectWithValue(extractPendingOrError(e)); }
-});
-
-export const createWallet = createAsyncThunk('wallet/create', async (_, { rejectWithValue }) => {
-  try {
-    const r: any = await api.post('/wallet/create');
-    const inner = r?.data ?? r;
-    return { message: inner?.message || '' };
-  } catch (e: any) { return rejectWithValue(extractPendingOrError(e)); }
-});
-
+// The wallet is created automatically once the user completes their personal
+// information, so there is no create/detect-location call anymore.
 export const fetchWalletBalance = createAsyncThunk('wallet/balance', async (_, { rejectWithValue }) => {
   try {
     const r: any = await api.get('/wallet/balance');
@@ -160,12 +113,6 @@ const walletSlice = createSlice({
   },
   extraReducers: (b) => {
     b
-      .addCase(detectWalletLocation.pending, (s) => { s.detectLoading = true; s.detectError = null; })
-      .addCase(detectWalletLocation.fulfilled, (s, a) => { s.detectLoading = false; s.detect = a.payload; })
-      .addCase(detectWalletLocation.rejected, (s, a) => { s.detectLoading = false; s.detectError = a.payload as string; })
-      .addCase(createWallet.pending, (s) => { s.createLoading = true; s.createError = null; })
-      .addCase(createWallet.fulfilled, (s) => { s.createLoading = false; })
-      .addCase(createWallet.rejected, (s, a) => { s.createLoading = false; s.createError = a.payload as string; })
       .addCase(fetchWalletBalance.pending, (s) => { s.walletLoading = true; })
       .addCase(fetchWalletBalance.fulfilled, (s, a) => { s.walletLoading = false; s.wallet = a.payload; })
       .addCase(fetchWalletBalance.rejected, (s, a) => { s.walletLoading = false; s.walletError = a.payload as string; })

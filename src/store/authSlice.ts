@@ -38,6 +38,7 @@ export interface SessionsPagination {
 interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
+  hydrated: boolean;
   loading: boolean;
   error: string | null;
   accessToken: string | null;
@@ -222,6 +223,7 @@ export const logoutThunk = createAsyncThunk('auth/logout', async (_, { rejectWit
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
+  hydrated: false,
   loading: false,
   error: null,
   accessToken: null,
@@ -245,6 +247,7 @@ const authSlice = createSlice({
       }
     },
     hydrateFromStorage(state) {
+      state.hydrated = true;
       if (typeof window === 'undefined') return;
       try {
         const stored = localStorage.getItem('afrisciencehub_user');

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
@@ -15,8 +15,11 @@ import MediaGallerySection from './components/MediaGallerySection';
 import DocumentsSection from './components/DocumentsSection';
 import PoliciesSection from './components/PoliciesSection';
 import FormActions from './components/FormActions';
+import { buildInnovationPayload, createInnovation, fetchInnovation, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, updateInnovation } from './innovationApi';
 
 export default function UploadNewListing() {
+  const [editId, setEditId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [selectedType, setSelectedType] = useState<ListingType | null>(null);
   const [step, setStep] = useState<'select' | 'form'>('select');
 
@@ -28,7 +31,7 @@ export default function UploadNewListing() {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
-  const [socialLinks, setSocialLinks] = useState({ twitter: '', linkedin: '', facebook: '', instagram: '' });
+  const [socialLinks, setSocialLinks] = useState({ x: '', linkedin: '', facebook: '', instagram: '' });
   const [innovatorName, setInnovatorName] = useState('');
   const [altPhone, setAltPhone] = useState('');
   const [agreed, setAgreed] = useState(false);
@@ -89,17 +92,76 @@ export default function UploadNewListing() {
     toast.success('Profile image uploaded');
   };
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (!id) return;
+    setEditId(id);
+    setSelectedType('innovation');
+    setStep('form');
+    fetchInnovation(id).then((item: any) => {
+      setName(item.innovationName || item.name || '');
+      setProfileImage(item.image || null);
+      setCountry(item.country || '');
+      setBio(item.shortDescription || item.bio || '');
+      setInnovFields(item.fields || []);
+      setInnovInterests((item.interests || []).map((i: string) => i.replace(/\|/g, ' | ')));
+      setInnovOwnership(OWNERSHIP_REV[item.ownership] || item.ownership || '');
+      setInnovStage(STAGE_REV[item.stage] || item.stage || '');
+      setInnovSdgs((item.sdgs || []).map((s: string) => SDG_REV[s] || s));
+      setInnovMaterials(item.materialsUsed ? String(item.materialsUsed).split(', ').filter(Boolean) : []);
+      setInnovDimensions({
+        length: item.length != null ? String(item.length) : '',
+        width: item.width != null ? String(item.width) : '',
+        height: item.height != null ? String(item.height) : '',
+        unit: String(item.dimensionUnit || 'cm').toLowerCase(),
+      });
+      setInnovWeight({ value: item.weight != null ? String(item.weight) : '', unit: String(item.weightUnit || 'kg').toLowerCase() });
+      setInnovUserGroups((item.userGroups || []).map((g: any) => g.userGroup || g));
+      const lines = (v: unknown) => typeof v === 'string' ? v.split('\n').filter(Boolean) : Array.isArray(v) ? v : [];
+      setInnovApplications(lines(item.applications));
+      setInnovImpact(lines(item.impact));
+      setInnovRecommendations(lines(item.recommendations));
+      setInnovCautions(lines(item.cautions));
+      const docs = item.documents || [];
+      setInnovLicenses(docs.filter((d: any) => d.type === 'CERTIFICATION').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: d.documentFile })));
+      setInnovAwards(docs.filter((d: any) => d.type === 'AWARD').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: d.documentFile })));
+      setInnovGallery((item.media || []).map((m: any) => ({ category: MEDIA_REV[m.category] || m.category, type: 'image' as const, name: m.mediaFile, caption: '' })));
+    }).catch((e: any) => toast.error(e?.message || 'Failed to load innovation'));
+  }, []);
+
+  const handleSubmit = async () => {
     if (!name.trim() || !country) {
       toast.error('Please fill in at least the Name and Country fields');
       return;
     }
-    toast.success('Listing submitted for verification! You will be notified once reviewed.');
+    if (selectedType !== 'innovation') {
+      toast.success('Listing submitted for verification! You will be notified once reviewed.');
+      setStep('select');
+      setSelectedType(null);
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = buildInnovationPayload({
+        name, profileImage, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
+        innovSdgs, innovMaterials, innovDimensions, innovWeight, innovUserGroups, innovApplications,
+        innovImpact, innovRecommendations, innovCautions, innovLicenses, innovAwards, innovGallery,
+      });
+      if (editId) await updateInnovation(editId, payload);
+      else await createInnovation(payload);
+      toast.success(editId ? 'Innovation updated' : 'Innovation submitted');
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to save innovation');
+      setSaving(false);
+      return;
+    }
+    setSaving(false);
+    setEditId(null);
     setStep('select');
     setSelectedType(null);
     setName(''); setProfileImage(null); setCountry(''); setStateRegion('');
     setBio(''); setPhone(''); setEmail(''); setWebsite('');
-    setSocialLinks({ twitter: '', linkedin: '', facebook: '', instagram: '' });
+    setSocialLinks({ x: '', linkedin: '', facebook: '', instagram: '' });
     setServices([]); setGalleryImages([]); setCertifications([]); setPolicies('');
     setInnovFields([]); setInnovInterests([]); setInnovOwnership('');
     setInnovStage(''); setInnovSdgs([]); setInnovMaterials([]);
@@ -233,7 +295,7 @@ export default function UploadNewListing() {
         onCancel={() => { setStep('select'); setSelectedType(null); }}
         onDraft={() => toast.success('Draft saved!')}
         onSubmit={handleSubmit}
-        disabled={!isFormValid}
+        disabled={saving || !isFormValid}
       />
     </div>
   );

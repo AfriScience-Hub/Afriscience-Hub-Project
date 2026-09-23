@@ -13,9 +13,8 @@ import {
   createPortfolio, updatePortfolio,
 } from '@/store/profileSlice';
 import { toast } from 'sonner';
-import { useLocalStorage } from '@/lib/useLocalStorage';
 import { isNoGraduationClassLevel } from './educationLevels';
-import { type SavedCard } from './components/CreditCardPanel';
+import { refreshAccessToken, isAccessTokenExpired } from '@/lib/api';
 
 function uid() { return crypto.randomUUID(); }
 const GENDER_MAP: Record<string, string> = { Male: 'MALE', Female: 'FEMALE', Other: 'OTHER' };
@@ -58,8 +57,6 @@ export function useProfileForm() {
   const [oldPassword, setOldPassword] = useState(''); const [newPassword, setNewPassword] = useState('');
   const [showOldPassword, setShowOldPassword] = useState(false); const [showNewPassword, setShowNewPassword] = useState(false);
   const [securityQuestion, setSecurityQuestion] = useState("What is your mother's maiden name?"); const [securityAnswer, setSecurityAnswer] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [savedCards, setSavedCards] = useLocalStorage<SavedCard[]>('ash:saved-cards', []);
   const [personalLoaded, setPersonalLoaded] = useState(false);
 
   // Single fetch on mount: GET /profile hydrates every tab, plus
@@ -68,8 +65,14 @@ export function useProfileForm() {
   useEffect(() => {
     if (fetchedRef.current.full) return;
     fetchedRef.current.full = true;
-    dispatch(fetchFullProfile()).unwrap().catch(() => {}).finally(() => setPersonalLoaded(true));
-    dispatch(fetchProfileCompletion());
+    (async () => {
+      // If the access token is already expired, refresh it up front so the first
+      // profile request does not pay for a failed call + refresh + retry cycle.
+      if (isAccessTokenExpired()) await refreshAccessToken().catch(() => null);
+      await dispatch(fetchFullProfile()).unwrap().catch(() => {});
+      setPersonalLoaded(true);
+      dispatch(fetchProfileCompletion());
+    })();
   }, [dispatch]);
 
   // Sync personal info from Redux into local state
@@ -110,9 +113,6 @@ export function useProfileForm() {
   const updateLanguageLocal = (id: string, field: string, value: string) => setLanguages(p => p.map(l => l.id === id ? { ...l, [field]: value } : l));
   const addPortfolioLink = () => setPortfolioLinks(p => [...p, { id: uid(), url: '', label: '' }]); const removePortfolioLink = (id: string) => setPortfolioLinks(p => p.filter(x => x.id !== id));
   const updatePortfolioLink = (id: string, field: string, value: string) => setPortfolioLinks(p => p.map(x => x.id === id ? { ...x, [field]: value } : x));
-  const handleAddCard = (c: Omit<SavedCard, 'id'>) => setSavedCards(p => [...p, { ...c, id: uid() }]);
-  const handleUpdateCard = (id: string, c: Omit<SavedCard, 'id'>) => setSavedCards(p => p.map(x => x.id === id ? { ...x, ...c } : x));
-  const handleRemoveCard = (id: string) => setSavedCards(p => p.filter(x => x.id !== id));
 
   const refreshCompletion = useCallback(() => { dispatch(fetchProfileCompletion()); }, [dispatch]);
   const fail = (e: unknown, fallback: string) => {
@@ -183,6 +183,5 @@ export function useProfileForm() {
     showOldPassword, setShowOldPassword, showNewPassword, setShowNewPassword,
     securityQuestion, setSecurityQuestion, securityAnswer, setSecurityAnswer,
     savePersonalInfo, saveSkills, saveEducation, saveExperience, saveLanguages, savePortfolio, saveAll,
-    paymentMethod, setPaymentMethod, savedCards, handleAddCard, handleUpdateCard, handleRemoveCard,
   };
 }

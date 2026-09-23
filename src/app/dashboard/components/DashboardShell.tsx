@@ -5,12 +5,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
+import { useAppSelector } from '@/store/hooks';
 import { getProfileCompletion, SIDEBAR_ITEMS, PATH_TO_TAB, TAB_TO_PATH, MOCK_NOTIFICATIONS, SidebarTab } from '../data';
 import { cn } from '@/lib/utils';
 import Sidebar from './Sidebar';
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated } = useAuth();
+  const hydrated = useAppSelector((s) => s.auth.hydrated);
   const router = useRouter();
   const pathname = usePathname();
   const activeTab: SidebarTab = PATH_TO_TAB[pathname] || 'overview';
@@ -20,12 +22,14 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   const [isNotificationSubmenuOpen, setIsNotificationSubmenuOpen] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Wait until auth has been read from storage, otherwise a refresh briefly
+    // looks logged-out and bounces the user to the login page.
+    if (hydrated && !isAuthenticated) {
       router.replace(`/login?from=${encodeURIComponent(pathname)}`);
     }
-  }, [isAuthenticated, router, pathname]);
+  }, [hydrated, isAuthenticated, router, pathname]);
 
-  if (!isAuthenticated) {
+  if (!hydrated || !isAuthenticated) {
     return null;
   }
 
@@ -47,7 +51,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
               className="w-full flex cursor-pointer items-center justify-between rounded-xl border border-neutral-gray-light bg-white px-4 py-3 shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <Image src={user!.avatar} alt={user!.name} width={32} height={32} className="rounded-full object-cover" />
+                <Image src={user!.avatar} alt={user!.name} width={32} height={32} className="rounded-full object-cover h-12 w-12" />
                 <span className="text-sm font-bold text-neutral-black">
                   {SIDEBAR_ITEMS.find(i => i.key === activeTab)?.label}
                 </span>

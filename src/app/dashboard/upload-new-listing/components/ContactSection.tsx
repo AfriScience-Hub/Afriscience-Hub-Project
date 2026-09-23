@@ -10,8 +10,8 @@ interface ContactSectionProps {
   setEmail: (v: string) => void;
   website: string;
   setWebsite: (v: string) => void;
-  socialLinks: { twitter: string; linkedin: string; facebook: string; instagram: string };
-  setSocialLinks: (v: { twitter: string; linkedin: string; facebook: string; instagram: string } | ((prev: { twitter: string; linkedin: string; facebook: string; instagram: string }) => { twitter: string; linkedin: string; facebook: string; instagram: string })) => void;
+  socialLinks: { x: string; linkedin: string; facebook: string; instagram: string };
+  setSocialLinks: (v: { x: string; linkedin: string; facebook: string; instagram: string } | ((prev: { x: string; linkedin: string; facebook: string; instagram: string }) => { x: string; linkedin: string; facebook: string; instagram: string })) => void;
 }
 
 export default function ContactSection({ phone, setPhone, email, setEmail, website, setWebsite, socialLinks, setSocialLinks }: ContactSectionProps) {
@@ -50,7 +50,7 @@ export default function ContactSection({ phone, setPhone, email, setEmail, websi
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-2">Social Media Links <span className="text-red-500">*</span> <span className="text-[10px] text-neutral-gray-medium font-normal">(provide at least one)</span></label>
           <div className="grid gap-3 sm:grid-cols-2">
-            {(['twitter', 'linkedin', 'facebook', 'instagram'] as const).map(platform => (
+            {(['x', 'linkedin', 'facebook', 'instagram'] as const).map(platform => (
               <div key={platform}>
                 <label className="block text-[11px] font-medium text-neutral-gray-medium mb-1 capitalize">{platform}</label>
                 <input
