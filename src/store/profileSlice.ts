@@ -25,7 +25,7 @@ export interface ProfileState {
   languages: LanguageEntry[]; languagesLoading: boolean; languagesError: string | null;
   portfolio: PortfolioEntry[]; portfolioLoading: boolean; portfolioError: string | null;
   certs: CertEntry[]; certsLoading: boolean; certsError: string | null;
-  completion: number; completionLoading: boolean;
+  completion: number; completionLoading: boolean; completionLoaded: boolean;
   profileLoading: boolean; profileLoaded: boolean; profileError: string | null;
   saveLoading: boolean; saveError: string | null;
 }
@@ -172,14 +172,28 @@ export const fetchFullProfile = createAsyncThunk('profile/fetchFull', async (_, 
       certs: pickFirst<CertEntry>(d.certs, d.certifications, d.certificates),
     };
   } catch (e: any) { return rejectWithValue(e.message); }
+}, {
+  // Only ever one request: skip while in-flight, and skip once already loaded.
+  condition: (_, { getState }) => {
+    const s = (getState() as any).profile;
+    return !s.profileLoading && !s.profileLoaded;
+  },
 });
 
 // Profile + Completion
 export const fetchProfile = createAsyncThunk('profile/fetchProfile', async (_, { rejectWithValue }) => {
   try { const r: any = await api.get('/profile'); return r?.data || r || null; } catch (e: any) { return rejectWithValue(e.message); }
 });
-export const fetchProfileCompletion = createAsyncThunk('profile/fetchCompletion', async (_, { rejectWithValue }) => {
+export const fetchProfileCompletion = createAsyncThunk('profile/fetchCompletion', async (_arg: { force?: boolean } | undefined, { rejectWithValue }) => {
   try { const r: any = await api.get('/profile/completion'); return extractCompletion(r); } catch (e: any) { return rejectWithValue(e.message); }
+}, {
+  // Skip while a request is in-flight, and skip once loaded unless forced
+  // (used after a save to refresh the percentage).
+  condition: (arg, { getState }) => {
+    const s = (getState() as any).profile;
+    if (s.completionLoading) return false;
+    return arg?.force ? true : !s.completionLoaded;
+  },
 });
 export const submitProfileCompletion = createAsyncThunk('profile/submitCompletion', async (_, { rejectWithValue }) => {
   try { const r: any = await api.post('/profile/completion'); return r?.data ?? r; } catch (e: any) { return rejectWithValue(e.message); }
@@ -193,7 +207,7 @@ const initialState: ProfileState = {
   languages: [], languagesLoading: false, languagesError: null,
   portfolio: [], portfolioLoading: false, portfolioError: null,
   certs: [], certsLoading: false, certsError: null,
-  completion: 0, completionLoading: false,
+  completion: 0, completionLoading: false, completionLoaded: false,
   profileLoading: false, profileLoaded: false, profileError: null,
   saveLoading: false, saveError: null,
 };
@@ -264,7 +278,7 @@ const profileSlice = createSlice({
       .addCase(fetchProfile.fulfilled, (s, a) => { s.completionLoading = false; if (a.payload?.personal) s.personal = a.payload.personal; })
       .addCase(fetchProfile.rejected, (s) => { s.completionLoading = false; })
       .addCase(fetchProfileCompletion.pending, (s) => { s.completionLoading = true; })
-      .addCase(fetchProfileCompletion.fulfilled, (s, a) => { s.completionLoading = false; s.completion = typeof a.payload === 'number' ? a.payload : 0; })
+      .addCase(fetchProfileCompletion.fulfilled, (s, a) => { s.completionLoading = false; s.completionLoaded = true; s.completion = typeof a.payload === 'number' ? a.payload : 0; })
       .addCase(fetchProfileCompletion.rejected, (s) => { s.completionLoading = false; })
       .addCase(submitProfileCompletion.fulfilled, (s) => { s.saveLoading = false; });
   },

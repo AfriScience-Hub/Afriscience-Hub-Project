@@ -27,11 +27,14 @@ export function AshWalletTopupModal({ open, currency, onClose }: AshWalletTopupM
       return;
     }
     setErrorMsg('');
-    const kobo = Math.round(n * 100).toString();
+    // Send the plain amount (e.g. "100"); the backend handles the multiplier
+    // and validates it against the allowed maximum.
     try {
-      await dispatch(topUpWallet(kobo)).unwrap();
+      await dispatch(topUpWallet(String(n))).unwrap();
     } catch (e: any) {
-      setErrorMsg(e?.message || 'Top up failed. Please try again.');
+      // rejectWithValue rejects with the raw backend message string; surface it.
+      const actual = typeof e === 'string' ? e : e?.message;
+      setErrorMsg(actual || 'Top up failed. Please try again.');
     }
   };
 

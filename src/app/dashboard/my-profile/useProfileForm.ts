@@ -14,7 +14,6 @@ import {
 } from '@/store/profileSlice';
 import { toast } from 'sonner';
 import { isNoGraduationClassLevel } from './educationLevels';
-import { refreshAccessToken, isAccessTokenExpired } from '@/lib/api';
 
 function uid() { return crypto.randomUUID(); }
 const GENDER_MAP: Record<string, string> = { Male: 'MALE', Female: 'FEMALE', Other: 'OTHER' };
@@ -65,14 +64,8 @@ export function useProfileForm() {
   useEffect(() => {
     if (fetchedRef.current.full) return;
     fetchedRef.current.full = true;
-    (async () => {
-      // If the access token is already expired, refresh it up front so the first
-      // profile request does not pay for a failed call + refresh + retry cycle.
-      if (isAccessTokenExpired()) await refreshAccessToken().catch(() => null);
-      await dispatch(fetchFullProfile()).unwrap().catch(() => {});
-      setPersonalLoaded(true);
-      dispatch(fetchProfileCompletion());
-    })();
+    dispatch(fetchFullProfile()).unwrap().catch(() => {}).finally(() => setPersonalLoaded(true));
+    dispatch(fetchProfileCompletion());
   }, [dispatch]);
 
   // Sync personal info from Redux into local state
@@ -114,7 +107,7 @@ export function useProfileForm() {
   const addPortfolioLink = () => setPortfolioLinks(p => [...p, { id: uid(), url: '', label: '' }]); const removePortfolioLink = (id: string) => setPortfolioLinks(p => p.filter(x => x.id !== id));
   const updatePortfolioLink = (id: string, field: string, value: string) => setPortfolioLinks(p => p.map(x => x.id === id ? { ...x, [field]: value } : x));
 
-  const refreshCompletion = useCallback(() => { dispatch(fetchProfileCompletion()); }, [dispatch]);
+  const refreshCompletion = useCallback(() => { dispatch(fetchProfileCompletion({ force: true })); }, [dispatch]);
   const fail = (e: unknown, fallback: string) => {
     const msg = typeof e === 'string' ? e : e instanceof Error ? e.message : '';
     toast.error(msg || fallback);

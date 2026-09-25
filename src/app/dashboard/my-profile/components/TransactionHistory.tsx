@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Clock, Inbox } from 'lucide-react';
 import { useAppSelector } from '@/store/hooks';
+import type { WalletTransaction } from '@/store/walletSlice';
 import { formatMinor, formatISOString, statusTone } from '../walletUtils';
+import { TransactionDetailModal } from './TransactionDetailModal';
 
 export const GENERAL_TRANSACTIONS = [
   {
@@ -68,16 +70,22 @@ function HoverTip({ text, className }: { text: string; className?: string }) {
 export function TransactionHistory({ filter }: TransactionHistoryProps) {
   const { history, historyLoading, historyError } = useAppSelector((s) => s.wallet);
   const isWallet = filter === 'wallet';
+  const [selected, setSelected] = useState<WalletTransaction | null>(null);
 
   const rows = isWallet ? history : GENERAL_TRANSACTIONS;
   const isEmpty = rows.length === 0;
 
   return (
     <div className="pt-4">
-      <h4 className="text-base font-bold text-neutral-black mb-4 flex items-center gap-2">
-        <Clock className="h-4 w-4 text-neutral-gray-medium" />
-        {isWallet ? 'Wallet Transaction History' : 'Transaction History'}
-      </h4>
+      <div className="mb-4">
+        <h4 className="text-base font-bold text-neutral-black flex items-center gap-2">
+          <Clock className="h-4 w-4 text-neutral-gray-medium" />
+          {isWallet ? 'Wallet Transaction History' : 'Transaction History'}
+        </h4>
+        {isWallet && !isEmpty && (
+          <p className="text-xs text-neutral-gray-medium mt-1">Select a transaction to view its full details.</p>
+        )}
+      </div>
 
       <div className="rounded-lg border border-neutral-gray-light overflow-hidden">
         {isWallet && historyLoading && rows.length === 0 ? (
@@ -92,64 +100,72 @@ export function TransactionHistory({ filter }: TransactionHistoryProps) {
             </p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-neutral-bg-light border-b border-neutral-gray-light">
-                <th className="text-left px-4 py-3 font-medium text-neutral-gray-dark">
-                  {isWallet ? 'Reference' : 'Invoice ID'}
-                </th>
-                <th className="text-left px-4 py-3 font-medium text-neutral-gray-dark">Date</th>
-                <th className="text-left px-4 py-3 font-medium text-neutral-gray-dark">Description</th>
-                <th className="text-right px-4 py-3 font-medium text-neutral-gray-dark">Amount</th>
-                <th className="text-center px-4 py-3 font-medium text-neutral-gray-dark">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-gray-light">
-              {rows.map((tx) => {
-                const general = tx as GeneralTxn;
-                let desc = general.description;
-                let amount = general.amount;
-                let status = general.status;
-                let id = general.id;
-                let date = general.date;
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[680px] text-sm">
+              <thead>
+                <tr className="bg-neutral-bg-light border-b border-neutral-gray-light">
+                  <th className="text-left px-4 py-3 font-medium text-neutral-gray-dark">
+                    {isWallet ? 'Reference' : 'Invoice ID'}
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-neutral-gray-dark">Date</th>
+                  <th className="text-left px-4 py-3 font-medium text-neutral-gray-dark">Description</th>
+                  <th className="text-right px-4 py-3 font-medium text-neutral-gray-dark">Amount</th>
+                  <th className="text-center px-4 py-3 font-medium text-neutral-gray-dark">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-gray-light">
+                {rows.map((tx) => {
+                  const general = tx as GeneralTxn;
+                  let desc = general.description;
+                  let amount = general.amount;
+                  let status = general.status;
+                  let id = general.id;
+                  let date = general.date;
 
-                if (isWallet) {
-                  const w = tx as NonNullable<(typeof history)[number]>;
-                  id = w.reference || w.id;
-                  date = formatISOString(w.createdAt);
-                  desc = w.description || w.type || 'Wallet transaction';
-                  amount = formatMinor(w.amount, w.currency);
-                  status = w.status;
-                }
+                  if (isWallet) {
+                    const w = tx as NonNullable<(typeof history)[number]>;
+                    id = w.reference || w.id;
+                    date = formatISOString(w.createdAt);
+                    desc = w.description || w.type || 'Wallet transaction';
+                    amount = formatMinor(w.amount, 'USD');
+                    status = w.status;
+                  }
 
-                return (
-                  <tr key={tx.id} className="hover:bg-neutral-bg-light transition-colors">
-                    <td className="px-4 py-3 font-medium text-neutral-black">
-                      <HoverTip text={id} className="block max-w-[200px] truncate" />
-                    </td>
-                    <td className="px-4 py-3 text-neutral-gray-medium">
-                      <HoverTip text={date} className="block max-w-[160px] truncate" />
-                    </td>
-                    <td className="px-4 py-3 text-neutral-gray-medium">
-                      <HoverTip text={desc} className="block max-w-[240px] truncate" />
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium text-neutral-black">{amount}</td>
-                    <td className="px-4 py-3 text-center">
-                      <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${statusTone(status)}`}>
-                        {status}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  return (
+                    <tr
+                      key={tx.id}
+                      onClick={() => { if (isWallet) setSelected(tx as WalletTransaction); }}
+                      className={`transition-colors hover:bg-neutral-bg-light ${isWallet ? 'cursor-pointer' : ''}`}
+                    >
+                      <td className="px-4 py-3 font-medium text-neutral-black">
+                        <HoverTip text={id} className="block max-w-[200px] truncate" />
+                      </td>
+                      <td className="px-4 py-3 text-neutral-gray-medium">
+                        <HoverTip text={date} className="block max-w-[160px] truncate" />
+                      </td>
+                      <td className="px-4 py-3 text-neutral-gray-medium">
+                        <HoverTip text={desc} className="block max-w-[240px] truncate" />
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-neutral-black">{amount}</td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${statusTone(status)}`}>
+                          {status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
       {isWallet && historyError && (
         <p className="text-sm text-red-600 mt-2">{historyError}</p>
       )}
+
+      <TransactionDetailModal transaction={selected} onClose={() => setSelected(null)} />
     </div>
   );
 }

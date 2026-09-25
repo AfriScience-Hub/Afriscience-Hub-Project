@@ -4,17 +4,17 @@ import { useEffect, useState } from 'react';
 import { Wallet, Plus, RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchWalletBalance, fetchWalletHistory } from '@/store/walletSlice';
-import { formatAshCoins, getCurrencyForCountryName } from '../walletUtils';
+import { formatMinor } from '../walletUtils';
 import { AshWalletTopupModal } from './AshWalletTopupModal';
 import { TransactionHistory } from './TransactionHistory';
+
+// All wallet money is USD-denominated, regardless of the user's profile country.
+const CURRENCY = 'USD';
 
 export function WalletTab() {
   const dispatch = useAppDispatch();
   const { wallet, walletLoading, walletError } = useAppSelector((s) => s.wallet);
-  const profileCountry = useAppSelector((s) => s.profile.personal?.country);
   const [topupOpen, setTopupOpen] = useState(false);
-
-  const currency = getCurrencyForCountryName(profileCountry) || wallet?.currency || 'NGN';
 
   useEffect(() => {
     dispatch(fetchWalletBalance());
@@ -60,7 +60,7 @@ export function WalletTab() {
         ) : wallet ? (
           <div className="rounded-xl bg-gradient-to-br from-brand-navy-900 to-brand-navy-700 p-6 text-white">
             <p className="text-xs text-neutral-200 mb-1">Available Balance</p>
-            <p className="text-3xl font-bold">{formatAshCoins(wallet.balance)}</p>
+            <p className="text-3xl font-bold">{formatMinor(wallet.balance, CURRENCY)}</p>
           </div>
         ) : (
           <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
@@ -72,7 +72,7 @@ export function WalletTab() {
 
       <TransactionHistory filter="wallet" />
 
-      <AshWalletTopupModal open={topupOpen} currency={currency} onClose={() => setTopupOpen(false)} />
+      <AshWalletTopupModal open={topupOpen} currency={CURRENCY} onClose={() => setTopupOpen(false)} />
     </div>
   );
 }

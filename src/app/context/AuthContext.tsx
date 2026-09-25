@@ -3,6 +3,8 @@
 import React, { createContext, useContext, type ReactNode } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { signupUser, loginUser, verifyUserEmail, logoutThunk, setUser } from '@/store/authSlice';
+import { resetProfile } from '@/store/profileSlice';
+import { resetWallet } from '@/store/walletSlice';
 import type { AuthUser } from '@/store/authSlice';
 export type User = AuthUser;
 
@@ -39,6 +41,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     dispatch(logoutThunk());
+    // Clear cached profile/wallet so the next session (or user) refetches.
+    dispatch(resetProfile());
+    dispatch(resetWallet());
   };
 
   const updateUser = (updates: Partial<AuthUser>) => {

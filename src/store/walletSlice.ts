@@ -68,13 +68,36 @@ function extractPendingOrError<T extends { message?: string }>(r: any): string {
   return r?.message || (typeof r === 'string' ? r : 'An error occurred');
 }
 
+// The backend multiplies every monetary figure by 100, so divide it back out
+// to get the actual value (balance, reserved, before/after, fees, totals).
+function toActual(v: unknown): number {
+  const n = Number(v ?? 0);
+  return Number.isFinite(n) ? n / 100 : 0;
+}
+
+function normalizeWallet(w: any): WalletInfo | null {
+  if (!w) return null;
+  return { ...w, balance: toActual(w.balance), reservedBalance: toActual(w.reservedBalance) } as WalletInfo;
+}
+
+function normalizeTransaction(t: any): WalletTransaction {
+  return {
+    ...t,
+    amount: toActual(t.amount),
+    processingFee: toActual(t.processingFee),
+    totalAmount: toActual(t.totalAmount),
+    balanceBefore: toActual(t.balanceBefore),
+    balanceAfter: toActual(t.balanceAfter),
+  } as WalletTransaction;
+}
+
 // The wallet is created automatically once the user completes their personal
 // information, so there is no create/detect-location call anymore.
 export const fetchWalletBalance = createAsyncThunk('wallet/balance', async (_, { rejectWithValue }) => {
   try {
     const r: any = await api.get('/wallet/balance');
     const inner = r?.data ?? r;
-    return (inner?.details ?? inner ?? null) as WalletInfo | null;
+    return normalizeWallet(inner?.details ?? inner ?? null);
   } catch (e: any) { return rejectWithValue(extractPendingOrError(e)); }
 });
 
@@ -84,23 +107,24 @@ export const fetchWalletHistory = createAsyncThunk('wallet/history', async (_, {
     const inner = r?.data ?? r;
     const list = Array.isArray(inner) ? inner : Array.isArray(inner?.data) ? inner.data : (Array.isArray(r) ? r : []);
     return {
-      transactions: list as WalletTransaction[],
+      transactions: (list as WalletTransaction[]).map(normalizeTransaction),
       pagination: inner?.pagination ?? r?.pagination ?? null,
     };
   } catch (e: any) { return rejectWithValue(extractPendingOrError(e)); }
 });
 
-export const topUpWallet = createAsyncThunk('wallet/topup', async (amountInKobo: string, { rejectWithValue }) => {
+export const topUpWallet = createAsyncThunk('wallet/topup', async (amount: string, { rejectWithValue }) => {
   try {
-    const r: any = await api.post('/wallet/topup', { amountInKobo });
+    // Send the plain amount (e.g. "100"), never kobo/cents. Max is 5000.
+    const r: any = await api.post('/wallet/topup', { amount });
     const inner = r?.data ?? r;
     return {
       paymentLink: inner?.paymentLink || '',
       accessCode: inner?.accessCode || '',
       reference: inner?.reference || '',
-      amount: inner?.amount || '0',
-      processingFee: Number(inner?.processingFee ?? 0),
-      totalAmount: Number(inner?.totalAmount ?? 0),
+      amount: String(toActual(inner?.amount)),
+      processingFee: toActual(inner?.processingFee),
+      totalAmount: toActual(inner?.totalAmount),
     } as TopupResult;
   } catch (e: any) { return rejectWithValue(extractPendingOrError(e)); }
 });
