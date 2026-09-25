@@ -65,7 +65,7 @@ export default function ManageOptionsPage() {
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-1.5 text-[11px] text-neutral-gray-medium mb-1">
+          <div className="flex items-center gap-1.5 text-[11px] text-neutral-gray-medium mb-4">
             <Link href="/admin/dashboard" className="hover:underline">Dashboard</Link>
             <span>›</span>
             <Link href="/admin/categories/afro-innovations" className="hover:underline">Afro-Innovations</Link>

@@ -3,12 +3,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Lightbulb, MoreHorizontal, Eye, Share2, CheckCircle, XCircle, Clock, ArrowRight, Calendar, Filter, ChevronDown, LayoutGrid, Settings2, Inbox } from 'lucide-react';
+import { Lightbulb, MoreHorizontal, Eye, Share2, CheckCircle, XCircle, Clock, ArrowRight, LayoutGrid, Settings2, Inbox } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MOCK_INNOVATIONS, PENDING_APPROVALS, RECENTLY_ADDED, STATS, TABS, INNOVATIONS_BY_CATEGORY, INNOVATIONS_BY_STAGE, GROWTH_DATA } from './data';
+import { MOCK_INNOVATIONS, PENDING_APPROVALS, RECENTLY_ADDED, STATS, INNOVATIONS_BY_CATEGORY, INNOVATIONS_BY_STAGE, GROWTH_DATA } from './data';
 
 export default function AfroInnovationsPage() {
-  const [activeTab, setActiveTab] = useState('Overview');
   const [growthPeriod, setGrowthPeriod] = useState('This Month');
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -24,7 +23,7 @@ export default function AfroInnovationsPage() {
     <div className="space-y-4">
       <div className="flex items-start justify-between">
         <div>
-          <div className="flex items-center gap-1.5 text-[11px] text-neutral-gray-medium mb-0.5">
+          <div className="flex items-center gap-1.5 text-[11px] text-neutral-gray-medium mb-4">
             <span>Dashboard</span><span>/</span><span>Categories</span><span>/</span>
             <span className="text-neutral-black font-medium">Afro Innovations</span>
           </div>
@@ -44,6 +43,14 @@ export default function AfroInnovationsPage() {
           </button>
           {menuOpen && (
             <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-neutral-gray-light rounded-xl shadow-xl py-1.5 z-50 overflow-hidden">
+              <Link
+                href="/admin/categories/afro-innovations/all"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3.5 py-2.5 hover:bg-neutral-bg-light cursor-pointer"
+              >
+                <span className="h-8 w-8 rounded-lg bg-[#453DD8]/10 flex items-center justify-center shrink-0"><LayoutGrid className="h-4 w-4 text-[#453DD8]" /></span>
+                <span className="text-xs font-semibold text-neutral-black">All Innovations</span>
+              </Link>
               <Link
                 href="/admin/categories/afro-innovations/manage-options"
                 onClick={() => setMenuOpen(false)}
@@ -65,7 +72,7 @@ export default function AfroInnovationsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {STATS.map((stat) => (
           <div key={stat.label} className="bg-white rounded-lg border border-neutral-gray-light p-3">
             <div className={`w-7 h-7 rounded-full flex items-center justify-center ${stat.iconBg}`}>
@@ -83,55 +90,7 @@ export default function AfroInnovationsPage() {
         ))}
       </div>
 
-      <div className="border-b border-neutral-gray-light">
-        <div className="flex gap-0 overflow-x-auto">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={cn(
-                "px-3 py-2 text-xs font-medium whitespace-nowrap border-b-2 transition-colors cursor-pointer",
-                activeTab === tab
-                  ? "border-[#453DD8] text-[#453DD8]"
-                  : "border-transparent text-neutral-gray-medium hover:text-neutral-black"
-              )}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1.5 px-2.5 py-1.5 border border-neutral-gray-light rounded-lg text-xs text-neutral-gray-dark cursor-pointer">
-          <Calendar className="h-3.5 w-3.5" />
-          May 20, 2025 - May 27, 2025
-          <ChevronDown className="h-3 w-3" />
-        </div>
-        <select className="px-2.5 py-1.5 text-xs rounded-lg border border-neutral-gray-light text-neutral-gray-dark bg-white cursor-pointer outline-none">
-          <option>All Status</option>
-          <option>Approved</option>
-          <option>Pending</option>
-          <option>Rejected</option>
-        </select>
-        <select className="px-2.5 py-1.5 text-xs rounded-lg border border-neutral-gray-light text-neutral-gray-dark bg-white cursor-pointer outline-none">
-          <option>All Categories</option>
-          <option>Health & Biotech</option>
-          <option>Agriculture & Food</option>
-          <option>Energy & Environment</option>
-        </select>
-        <select className="px-2.5 py-1.5 text-xs rounded-lg border border-neutral-gray-light text-neutral-gray-dark bg-white cursor-pointer outline-none">
-          <option>All Countries</option>
-          <option>Nigeria</option>
-          <option>Kenya</option>
-          <option>South Africa</option>
-        </select>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 border border-neutral-gray-light rounded-lg text-xs font-medium text-neutral-gray-dark hover:bg-neutral-bg-light cursor-pointer">
-          <Filter className="h-3.5 w-3.5" /> Filters
-        </button>
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs font-semibold text-neutral-black">Innovations Growth</h3>
@@ -181,7 +140,7 @@ export default function AfroInnovationsPage() {
 
         <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
           <h3 className="text-xs font-semibold text-neutral-black mb-3">Innovations by Category</h3>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="relative w-32 h-32 flex-shrink-0">
               <svg viewBox="0 0 100 100" className="w-full h-full">
                 <circle cx="50" cy="50" r="40" fill="none" stroke="#3B82F6" strokeWidth="20" strokeDasharray="71.2 255.8" strokeDashoffset="0" />
@@ -211,7 +170,7 @@ export default function AfroInnovationsPage() {
 
         <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
           <h3 className="text-xs font-semibold text-neutral-black mb-3">Innovations by Stage</h3>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="relative w-32 h-32 flex-shrink-0">
               <svg viewBox="0 0 100 100" className="w-full h-full">
                 <circle cx="50" cy="50" r="40" fill="none" stroke="#3B82F6" strokeWidth="20" strokeDasharray="81 246" strokeDashoffset="0" />
@@ -239,13 +198,13 @@ export default function AfroInnovationsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs font-semibold text-neutral-black">Pending Approvals</h3>
-            <button className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium hover:underline cursor-pointer">
+            <Link href="/admin/categories/afro-innovations/submissions" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium hover:underline cursor-pointer">
               View all <ArrowRight className="h-3 w-3" />
-            </button>
+            </Link>
           </div>
           <div className="space-y-3">
             {PENDING_APPROVALS.map((inn) => (
@@ -260,17 +219,17 @@ export default function AfroInnovationsPage() {
               </div>
             ))}
           </div>
-          <button className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium mt-3 hover:underline cursor-pointer">
+          <Link href="/admin/categories/afro-innovations/submissions" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium mt-3 hover:underline cursor-pointer">
             View all pending <ArrowRight className="h-3 w-3" />
-          </button>
+          </Link>
         </div>
 
         <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs font-semibold text-neutral-black">Recently Added</h3>
-            <button className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium hover:underline cursor-pointer">
+            <Link href="/admin/categories/afro-innovations/all" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium hover:underline cursor-pointer">
               View all <ArrowRight className="h-3 w-3" />
-            </button>
+            </Link>
           </div>
           <div className="space-y-3">
             {RECENTLY_ADDED.map((inn) => (
@@ -288,17 +247,17 @@ export default function AfroInnovationsPage() {
               </div>
             ))}
           </div>
-          <button className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium mt-3 hover:underline cursor-pointer">
+          <Link href="/admin/categories/afro-innovations/all" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium mt-3 hover:underline cursor-pointer">
             View all innovations <ArrowRight className="h-3 w-3" />
-          </button>
+          </Link>
         </div>
 
         <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs font-semibold text-neutral-black">Top Viewed Innovations</h3>
-            <button className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium hover:underline cursor-pointer">
+            <Link href="/admin/categories/afro-innovations/all" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium hover:underline cursor-pointer">
               View all <ArrowRight className="h-3 w-3" />
-            </button>
+            </Link>
           </div>
           <div className="space-y-3">
             {MOCK_INNOVATIONS.map((inn, idx) => (
@@ -318,9 +277,9 @@ export default function AfroInnovationsPage() {
               </div>
             ))}
           </div>
-          <button className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium mt-3 hover:underline cursor-pointer">
+          <Link href="/admin/categories/afro-innovations/all" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium mt-3 hover:underline cursor-pointer">
             View full leaderboard <ArrowRight className="h-3 w-3" />
-          </button>
+          </Link>
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@ export default function OptionsTable({ options, onEdit, onToggleStatus }: Props)
   }
 
   return (
-    <div className="overflow-x-auto -mx-4 sm:mx-0">
+    <div className="overflow-x-auto">
       <table className="w-full text-sm min-w-[520px]">
         <thead>
           <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
