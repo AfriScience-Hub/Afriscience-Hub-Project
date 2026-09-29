@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Lightbulb, MoreHorizontal, Eye, Share2, CheckCircle, XCircle, Clock, ArrowRight, LayoutGrid, Settings2, Inbox } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { MOCK_INNOVATIONS, PENDING_APPROVALS, RECENTLY_ADDED, STATS, INNOVATIONS_BY_CATEGORY, INNOVATIONS_BY_STAGE, INNOVATIONS_BY_INTEREST, INNOVATIONS_BY_OWNERSHIP, INNOVATIONS_BY_COUNTRY, GROWTH_DATA } from './data';
 import { DonutCard, NewSubmissionsCard, ReportedInnovationsCard, TopSharedInnovationsCard } from './components/OverviewWidgets';
 
