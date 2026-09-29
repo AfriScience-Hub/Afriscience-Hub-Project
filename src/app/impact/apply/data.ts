@@ -3,6 +3,8 @@ import type { ImpactProgram } from '@/app/data/impactData';
 export interface ProgramDetails {
   summary: string;
   description: string;
+  descriptionBullets?: string[];
+  descriptionOutro?: string;
   eligibility: string[];
   applicationRequirements: string[];
   preApprovalRequirements?: string[];
@@ -69,14 +71,22 @@ export const PROGRAM_DETAILS: Record<ImpactProgram, ProgramDetails> = {
     summary:
       'Access research funding that supports African researchers (at different levels) towards conducting experimental findings that are scientifically and technologically relevant. Create an impact by contributing to scientific knowledge.',
     description:
-      'This program aims at financing experimental findings by African researchers in different scientific and technological fields. Our focus primarily centers on providing support for research scopes that aim to: Tackle problems endemic to African regions; Explore African ecosystems; Discover practical applications of vast African resources; Contribute to global scientific and technological knowledge. Eligible African researchers with the zeal of using their scientific and technological knowledge to transform their communities are invited to apply for this program.',
+      'This program aims at financing experimental findings by African researchers in different scientific and technological fields. Our focus primarily centers on providing support for research scopes that aim to:',
+    descriptionBullets: [
+      'Tackle problems endemic to African regions',
+      'Explore African ecosystems',
+      'Discover practical applications of vast African resources',
+      'Contribute to global scientific and technological knowledge',
+    ],
+    descriptionOutro:
+      'Eligible African researchers with the zeal of using their scientific and technological knowledge to transform their communities are invited to apply for this program.',
     eligibility: [
       'Must be an African currently residing in an African country',
       'Minimum age requirement of 18 years',
       'Can either be an ‘Academic Researcher’ or an ‘Independent Researcher’',
       'Research duration of 2 years max',
       'Research budget not exceeding $1,500',
-      'Research must address at least one of the program scopes (endemic problems, ecosystems, African resources, or global knowledge contribution)',
+      'Research must address at least one of the program scopes (African endemic problems, African ecosystems, African resources, or global knowledge contribution)',
     ],
     applicationRequirements: [
       'Valid government issued ID card of researcher(s)',

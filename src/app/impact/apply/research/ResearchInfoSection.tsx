@@ -60,11 +60,8 @@ export default function ResearchInfoSection({
           <TextInput value={getDisplayResearchLevel(head)} disabled />
         </div>
         <div>
-          <FieldLabel>Number of Researchers</FieldLabel>
+          <FieldLabel info="Lead Researcher + team members">Number of Researchers</FieldLabel>
           <TextInput value={String(researcherCount)} disabled />
-          <p className="text-xs text-neutral-gray-medium mt-1">
-            Head Researcher + team members
-          </p>
         </div>
         <div>
           <FieldLabel required info="How long will it take for your research to be concluded?">
@@ -174,7 +171,7 @@ export default function ResearchInfoSection({
           label="Research Proposal"
           required
           accept=".pdf,.doc,.docx,.txt"
-          hint="Text/document file formats only."
+          hint="To review and approve the scope of your research study for funding, kindly upload a copy of your research proposal document. Uploaded documents are securely stored and protected from unauthorized access."
           file={value.proposalDoc}
           onChange={(f) => onChange({ ...value, proposalDoc: f })}
           onClear={() => onChange({ ...value, proposalDoc: null })}
@@ -183,7 +180,7 @@ export default function ResearchInfoSection({
           label="Research Budget"
           required
           accept=".pdf,.doc,.docx,.txt,.xls,.xlsx"
-          hint="Text/document file formats only."
+          hint="To review and approve the budget of your research study for funding, kindly upload a copy of your research budget estimate document. Uploaded documents are securely stored and protected from unauthorized access."
           file={value.budgetDoc}
           onChange={(f) => onChange({ ...value, budgetDoc: f })}
           onClear={() => onChange({ ...value, budgetDoc: null })}

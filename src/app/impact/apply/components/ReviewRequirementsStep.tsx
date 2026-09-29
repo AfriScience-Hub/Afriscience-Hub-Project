@@ -51,6 +51,18 @@ export default function ReviewRequirementsStep({
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-6">
         <h3 className="font-bold text-blue-900 mb-2">Description</h3>
         <p className="text-sm text-blue-800 leading-relaxed">{details.description}</p>
+        {details.descriptionBullets && (
+          <ul className="mt-2 space-y-1.5 list-disc pl-5">
+            {details.descriptionBullets.map((b) => (
+              <li key={b} className="text-sm text-blue-800 leading-relaxed">
+                {b}
+              </li>
+            ))}
+          </ul>
+        )}
+        {details.descriptionOutro && (
+          <p className="text-sm text-blue-800 leading-relaxed mt-2">{details.descriptionOutro}</p>
+        )}
       </div>
 
       <div className="mb-6">

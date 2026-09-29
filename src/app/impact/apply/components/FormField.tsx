@@ -186,7 +186,7 @@ export function MultiStringList({
 export function SocialHandlesFields({
   value,
   onChange,
-  hintPosition = 'below',
+  hintPosition = 'above',
 }: {
   value: { linkedin: string; instagram: string; twitter: string; facebook: string };
   onChange: (v: typeof value) => void;

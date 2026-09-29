@@ -150,7 +150,9 @@ export function ProceduresBlock({
 }) {
   return (
     <div className="mb-6">
-      <FieldLabel required>Analytical Procedures</FieldLabel>
+      <FieldLabel required info="Provide the details of all major analysis to be carried out on samples.">
+        Analytical Procedures
+      </FieldLabel>
       <div className="space-y-3 mt-2">
         {procedures.map((p, idx) => (
           <div key={idx} className="grid sm:grid-cols-4 gap-2">

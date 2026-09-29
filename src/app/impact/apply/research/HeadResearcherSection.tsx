@@ -1,6 +1,6 @@
 'use client';
 
-import { User, Plus } from 'lucide-react';
+import { User } from 'lucide-react';
 import {
   FieldLabel,
   SectionCard,
@@ -8,10 +8,10 @@ import {
   SelectInput,
   FileUpload,
   SocialHandlesFields,
+  GovernmentIdCardUpload,
 } from '../components/FormField';
 import {
   TITLES,
-  ID_CARD_TYPES,
   RESEARCHER_IDENTITIES,
   ACADEMIC_RESEARCH_LEVELS,
   INDEPENDENT_RESEARCH_LEVELS,
@@ -95,19 +95,10 @@ export default function HeadResearcherSection({
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <FileUpload
-          label="Display Image"
-          required
-          accept="image/*"
-          hint="Upload your facial image only."
-          file={value.displayImage}
-          onChange={(f) => onChange({ ...value, displayImage: f })}
-          onClear={() => onChange({ ...value, displayImage: null })}
-        />
         <div>
           <FieldLabel
             required
-            info="Are you conducting this research for the purpose of obtaining an academic degree or are you researching for the sole purpose of gathering an independent knowledge?"
+            info="Are you conducting this research for an academic degree or independent knowledge?"
           >
             Researcher’s Identity
           </FieldLabel>
@@ -215,83 +206,23 @@ export default function HeadResearcherSection({
         </div>
       )}
 
-      {isIndependent && (
-        <div className="mt-6 rounded-xl border border-neutral-gray-light p-4 bg-neutral-bg-light/40">
-          <h4 className="font-bold text-neutral-black mb-2">Previous Publication Links</h4>
-          <p className="text-xs text-neutral-gray-medium mb-3">
-            Minimum of 7 previous research publication links required.
-          </p>
-          <div className="space-y-2">
-            {value.previousPublications.map((link, idx) => (
-              <TextInput
-                key={idx}
-                type="url"
-                placeholder={`Publication link ${idx + 1}`}
-                value={link}
-                onChange={(e) => {
-                  const previousPublications = [...value.previousPublications];
-                  previousPublications[idx] = e.target.value;
-                  onChange({ ...value, previousPublications });
-                }}
-                required
-              />
-            ))}
-            <button
-              type="button"
-              className="flex items-center gap-1 rounded-lg bg-brand-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-red-700 transition-colors"
-              onClick={() =>
-                onChange({
-                  ...value,
-                  previousPublications: [...value.previousPublications, ''],
-                })
-              }
-            >
-              <Plus className="h-4 w-4" /> Add publication link
-            </button>
-          </div>
-        </div>
-      )}
+      <GovernmentIdCardUpload
+        required
+        idType={value.idCard.type}
+        otherSpecify={value.idCard.otherSpecify}
+        file={value.idCard.file}
+        onChange={(patch) => onChange({ ...value, idCard: { ...value.idCard, ...patch } })}
+      />
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div>
-          <FieldLabel required>Government ID Card Type</FieldLabel>
-          <SelectInput
-            value={value.idCard.type}
-            onChange={(e) =>
-              onChange({ ...value, idCard: { ...value.idCard, type: e.target.value } })
-            }
-            required
-          >
-            <option value="">Select ID card type</option>
-            {ID_CARD_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </SelectInput>
-          {value.idCard.type === 'Other' && (
-            <TextInput
-              className="mt-2"
-              placeholder="Specify ID type"
-              value={value.idCard.otherSpecify}
-              onChange={(e) =>
-                onChange({
-                  ...value,
-                  idCard: { ...value.idCard, otherSpecify: e.target.value },
-                })
-              }
-              required
-            />
-          )}
-        </div>
         <FileUpload
-          label="Upload ID Card"
+          label="Display Image"
           required
           accept="image/*"
-          hint="Picture/image file formats only."
-          file={value.idCard.file}
-          onChange={(f) => onChange({ ...value, idCard: { ...value.idCard, file: f } })}
-          onClear={() => onChange({ ...value, idCard: { ...value.idCard, file: null } })}
+          hint="Upload your facial image only."
+          file={value.displayImage}
+          onChange={(f) => onChange({ ...value, displayImage: f })}
+          onClear={() => onChange({ ...value, displayImage: null })}
         />
         {!degreeDisabled && (
           <FileUpload

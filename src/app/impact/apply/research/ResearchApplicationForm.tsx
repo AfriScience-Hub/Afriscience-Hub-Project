@@ -10,7 +10,6 @@ import {
   getDisplayResearchLevel,
   getResearchCategory,
   hasAtLeastOneSocial,
-  wordCount,
   type ResearchFormState,
 } from './types';
 import HeadResearcherSection from './HeadResearcherSection';
@@ -71,10 +70,6 @@ export default function ResearchApplicationForm({
         return 'Complete academic background information';
       if (!head.schoolIdCard) return 'Upload school ID card';
     }
-    if (head.researcherIdentity === 'Independent Researcher') {
-      const filled = head.previousPublications.filter((l) => l.trim()).length;
-      if (filled < 7) return 'Provide at least 7 previous publication links';
-    }
 
     if (!head.idCard.type || !head.idCard.file) return 'Complete government ID card upload';
     if (head.idCard.type === 'Other' && !head.idCard.otherSpecify)
@@ -108,8 +103,6 @@ export default function ResearchApplicationForm({
     if (!impact.objectives.some((o) => o.trim())) return 'Enter at least one research objective';
     if (!impact.expectedOutcomes.some((o) => o.trim()))
       return 'Enter at least one expected outcome';
-    if (wordCount(impact.researchSummary) > 200)
-      return 'Research summary must be 200 words or fewer';
     if (!form.formUndertaking) return 'Accept the undertaking statement to submit';
 
     return null;
@@ -168,10 +161,8 @@ export default function ResearchApplicationForm({
       />
       <ResearchImpactMediaSection
         impact={form.impact}
-        media={form.media}
         formUndertaking={form.formUndertaking}
         onImpactChange={(impact) => setForm((f) => ({ ...f, impact }))}
-        onMediaChange={(media) => setForm((f) => ({ ...f, media }))}
         onUndertakingChange={(formUndertaking) =>
           setForm((f) => ({ ...f, formUndertaking }))
         }

@@ -56,7 +56,9 @@ export default function TeamMembersSection({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <FieldLabel required>Role</FieldLabel>
+              <FieldLabel required info="Select the role that best describes your contribution to the research.">
+                Role
+              </FieldLabel>
               <SelectInput
                 value={member.role}
                 onChange={(e) => update(member.id, { role: e.target.value })}
@@ -72,7 +74,9 @@ export default function TeamMembersSection({
               </SelectInput>
             </div>
             <div>
-              <FieldLabel required>Title</FieldLabel>
+              <FieldLabel required info="Select the appropriate title that best describes you.">
+                Title
+              </FieldLabel>
               <SelectInput
                 value={member.title}
                 onChange={(e) => update(member.id, { title: e.target.value })}
