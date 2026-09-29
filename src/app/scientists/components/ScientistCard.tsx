@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ProtectedLink } from '@/app/components/ProtectedLink';
 import Image from 'next/image';
 import { MapPin, CheckCircle, Star, GraduationCap, Eye, ThumbsUp, Share2, Archive, ArchiveX } from 'lucide-react';
 import { cn } from '../../../lib/utils';
@@ -145,12 +146,12 @@ export default function ScientistCard({ sci, index, archived, onToggleArchive }:
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <Link href={`/scientists/${sci.id}`} className="flex-1">
+          <ProtectedLink href={`/scientists/${sci.id}`} className="flex-1">
             <Button size="sm" className="w-full bg-brand-navy-900 hover:bg-brand-navy-800 text-xs">View Details</Button>
-          </Link>
-          <Link href={`/scientists/${sci.id}?tab=contact`} className="flex-1">
+          </ProtectedLink>
+          <ProtectedLink href={`/scientists/${sci.id}?tab=contact`} className="flex-1">
             <Button size="sm" variant="outline" className="w-full text-xs">Contact</Button>
-          </Link>
+          </ProtectedLink>
         </div>
       </div>
     </div>

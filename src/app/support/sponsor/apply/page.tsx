@@ -65,15 +65,29 @@ export default function BecomeASponsor() {
         </div>
       </section>
 
-      <Suspense fallback={<div className="container mx-auto px-4 py-12 text-center text-slate-500">Loading form...</div>}>
-        <SponsorshipForm
-          user={user}
-          isAuthenticated={isAuthenticated}
-          isSubmitting={isSubmitting}
-          onSubmit={handleSubmit}
-          onSaveDraft={handleSaveDraft}
-        />
-      </Suspense>
+      {!isAuthenticated ? (
+        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8 text-center">
+            <h2 className="text-2xl font-bold text-neutral-black mb-4">Login Required</h2>
+            <p className="text-neutral-gray-dark mb-6">
+              Please log in to apply to become a sponsor.
+            </p>
+            <Link href={`/login?from=${encodeURIComponent('/support/sponsor/apply')}`}>
+              <Button className="bg-brand-red-600 hover:bg-brand-red-700">Log In</Button>
+            </Link>
+          </div>
+        </section>
+      ) : (
+        <Suspense fallback={<div className="container mx-auto px-4 py-12 text-center text-slate-500">Loading form...</div>}>
+          <SponsorshipForm
+            user={user}
+            isAuthenticated={isAuthenticated}
+            isSubmitting={isSubmitting}
+            onSubmit={handleSubmit}
+            onSaveDraft={handleSaveDraft}
+          />
+        </Suspense>
+      )}
 
       {showPaystackModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ProtectedLink } from '@/app/components/ProtectedLink';
 import Image from 'next/image';
 import {
   MapPin, Star, CheckCircle, Eye, ThumbsUp, Share2, Archive, ArchiveX
@@ -61,9 +62,9 @@ export default function CenterCard({ center, archivedIds, onToggleArchive }: Cen
             {archivedIds.includes(center.id) ? <ArchiveX className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
           </button>
         </div>
-        <Link href={`/specialist-centers/${center.id}`} className="absolute top-3 left-3 flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur text-slate-600 hover:text-brand-navy-900 shadow-sm transition-colors">
+        <ProtectedLink href={`/specialist-centers/${center.id}`} className="absolute top-3 left-3 flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur text-slate-600 hover:text-brand-navy-900 shadow-sm transition-colors">
           <Eye className="h-3.5 w-3.5" />
-        </Link>
+        </ProtectedLink>
         <div className="absolute bottom-3 left-3 right-3 text-white">
           <div className="mb-1">
             <span className={cn(
@@ -126,12 +127,12 @@ export default function CenterCard({ center, archivedIds, onToggleArchive }: Cen
           <span className="flex items-center gap-1" title="Shares"><Share2 className="h-3 w-3" /> {center.shares}</span>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <Link href={`/specialist-centers/${center.id}`} className="w-full">
+          <ProtectedLink href={`/specialist-centers/${center.id}`} className="w-full">
             <Button size="sm" className="w-full bg-brand-navy-900 hover:bg-brand-navy-800 text-xs h-8 px-0">View Details</Button>
-          </Link>
-          <Link href={`/specialist-centers/${center.id}?tab=contact`} className="w-full">
+          </ProtectedLink>
+          <ProtectedLink href={`/specialist-centers/${center.id}?tab=contact`} className="w-full">
             <Button size="sm" variant="outline" className="w-full text-xs h-8 px-0">Contact</Button>
-          </Link>
+          </ProtectedLink>
         </div>
       </div>
     </div>

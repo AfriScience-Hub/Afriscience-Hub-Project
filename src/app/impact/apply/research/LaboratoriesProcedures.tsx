@@ -15,7 +15,7 @@ export function LaboratoriesBlock({
 }) {
   return (
     <div className="mb-6">
-      <FieldLabel required info="Laboratories that will analyze samples.">
+      <FieldLabel required info="Provide the details of the laboratories that will analyze samples.">
         Research Laboratories
       </FieldLabel>
       <div className="space-y-4 mt-2">

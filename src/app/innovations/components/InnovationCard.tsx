@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ProtectedLink } from '../../components/ProtectedLink';
 import Image from 'next/image';
 import { Eye, ThumbsUp, Share2, Archive, ArchiveX, MapPin } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -83,9 +84,9 @@ export default function InnovationCard({ inn, archived, onToggleArchive, onPrevi
         </div>
 
         <div className="mt-4">
-          <Link href={`/innovations/${inn.id}`}>
+          <ProtectedLink href={`/innovations/${inn.id}`}>
             <Button size="sm" className="w-full bg-brand-navy-900 hover:bg-brand-navy-800 text-xs">View Details</Button>
-          </Link>
+          </ProtectedLink>
         </div>
       </div>
     </div>

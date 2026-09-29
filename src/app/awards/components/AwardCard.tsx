@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/Button';
 import { getTypeColor, getTypeIcon, getPositionStyle, getPositionLabel, getTierBadge, usesMedal, isHighTierSponsor } from '../data';
 import Link from 'next/link';
+import { ProtectedLink } from '@/app/components/ProtectedLink';
 import { toast } from 'sonner';
 
 type AwardWinner = {
@@ -155,12 +156,12 @@ export default function AwardCard({ award, onPreview }: AwardCardProps) {
 
         {/* View Details button */}
         <div className="mt-auto">
-          <Link href={`/awards/${award.id}`}>
+          <ProtectedLink href={`/awards/${award.id}`}>
             <Button variant="outline" className="w-full border-brand-navy-900 text-brand-navy-900 hover:bg-brand-navy-900 hover:text-white gap-2">
               <Eye className="h-4 w-4" />
               View Details
             </Button>
-          </Link>
+          </ProtectedLink>
         </div>
       </div>
     </div>

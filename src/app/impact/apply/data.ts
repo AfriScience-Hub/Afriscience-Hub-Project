@@ -80,7 +80,7 @@ export const PROGRAM_DETAILS: Record<ImpactProgram, ProgramDetails> = {
     ],
     applicationRequirements: [
       'Valid government issued ID card of researcher(s)',
-      'Most recent degree certificate of researcher(s) where applicable',
+      'Most recent degree certificate of Lead researcher where applicable',
       'School registration details (for academic researchers only)',
       'Minimum of seven (7) previous research publications (for independent researchers only)',
       'Research proposal document',
@@ -88,7 +88,7 @@ export const PROGRAM_DETAILS: Record<ImpactProgram, ProgramDetails> = {
       'Facial images of researcher(s)',
     ],
     disbursementRequirements: [
-      'Periodic media and progress-report document submissions (information must align with research proposal objectives)',
+      'Periodic media and progress-report document submissions (Information provided in progress report document must be in line with the objectives presented in research proposal)',
     ],
     postCompletionRequirements: [
       'Copy of complete research thesis (to be archived for researchers in AfriScience Hub’s digital library)',

@@ -47,14 +47,14 @@ export default function ResearchImpactMediaSection({
           <MultiStringList
             label="Research Objectives"
             required
-            info="Specific practical operations in the research process."
+            info="Mention the specific practical operations to be done in the research process."
             values={impact.objectives}
             onChange={(objectives) => onImpactChange({ ...impact, objectives })}
           />
           <MultiStringList
             label="Expected Research Outcomes"
             required
-            info="What end-results are you likely to achieve?"
+            info="What end-results are you likely to achieve in the research?"
             values={impact.expectedOutcomes}
             onChange={(expectedOutcomes) => onImpactChange({ ...impact, expectedOutcomes })}
           />

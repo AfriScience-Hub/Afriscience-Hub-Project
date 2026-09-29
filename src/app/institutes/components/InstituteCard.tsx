@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ProtectedLink } from '@/app/components/ProtectedLink';
 import Image from 'next/image';
 import { MapPin, Star, CheckCircle, ThumbsUp, Share2, MessageCircle, Archive, ArchiveX } from 'lucide-react';
 import { cn } from '../../../lib/utils';
@@ -126,12 +127,12 @@ export default function InstituteCard({ inst, index, archived, onToggleArchive }
         </div>
 
         <div className="mt-auto grid grid-cols-2 gap-2">
-          <Link href={`/institutes/${inst.id}`} className="w-full">
+          <ProtectedLink href={`/institutes/${inst.id}`} className="w-full">
             <Button size="sm" variant="outline" className="w-full text-xs h-8 px-0">Details</Button>
-          </Link>
-          <Link href={`/institutes/${inst.id}?tab=contact`} className="w-full">
+          </ProtectedLink>
+          <ProtectedLink href={`/institutes/${inst.id}?tab=contact`} className="w-full">
             <Button size="sm" className="w-full text-xs h-8 px-0 bg-brand-navy-900 hover:bg-brand-navy-800 text-white">Contact</Button>
-          </Link>
+          </ProtectedLink>
         </div>
       </div>
     </div>

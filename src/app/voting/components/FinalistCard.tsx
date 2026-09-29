@@ -3,6 +3,7 @@
 import { Vote, Eye, Archive, Zap, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/Button';
+import { useLoginPrompt } from '@/app/context/LoginPromptContext';
 import { getCompetitionColor, getPositionStyle, getPositionLabel } from '../data';
 
 type Finalist = {
@@ -35,6 +36,7 @@ export default function FinalistCard({
   onBoost,
 }: FinalistCardProps) {
   const canBoost = alreadyVotedThisCategory;
+  const { requireAuth } = useLoginPrompt();
 
   return (
     <div
@@ -121,7 +123,7 @@ export default function FinalistCard({
           ) : (
             <Button
               className="w-full bg-brand-red-600 hover:bg-brand-red-700 py-2.5 gap-2"
-              onClick={() => onVote(finalist)}
+              onClick={() => requireAuth(() => onVote(finalist))}
             >
               <Vote className="h-4 w-4" />
               Vote
@@ -133,7 +135,7 @@ export default function FinalistCard({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onViewWork(finalist)}
+              onClick={() => requireAuth(() => onViewWork(finalist))}
               className="w-full text-xs"
             >
               <Eye className="h-3.5 w-3.5 mr-1" />
@@ -142,7 +144,7 @@ export default function FinalistCard({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => canBoost ? onBoost(finalist.id, finalist.name) : undefined}
+              onClick={() => requireAuth(() => { if (canBoost) onBoost(finalist.id, finalist.name); })}
               className={cn(
                 "w-full text-xs",
                 canBoost

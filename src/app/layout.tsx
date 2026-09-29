@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { StoreProvider } from '@/store/StoreProvider'
 import { AuthProvider } from './context/AuthContext'
+import { LoginPromptProvider } from './context/LoginPromptContext'
 import { Layout } from './components/Layout'
 import { Toaster } from 'sonner'
 import { ScrollToTop } from './components/ScrollToTop'
@@ -22,9 +23,11 @@ export default function RootLayout({
       <body>
         <StoreProvider>
           <AuthProvider>
-            <ScrollToTop />
-            <Toaster position="top-right" richColors closeButton />
-            <Layout>{children}</Layout>
+            <LoginPromptProvider>
+              <ScrollToTop />
+              <Toaster position="top-right" richColors closeButton />
+              <Layout>{children}</Layout>
+            </LoginPromptProvider>
           </AuthProvider>
         </StoreProvider>
       </body>

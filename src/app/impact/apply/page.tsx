@@ -21,12 +21,45 @@ function scrollToTop() {
   document.body.scrollTop = 0;
 }
 
+const STORAGE_KEY = 'ash:impact-apply-progress';
+
 export default function ImpactApplication() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedProgram, setSelectedProgram] = useState('');
   const [hasAgreed, setHasAgreed] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Restore in-progress application on refresh so the user stays on their step.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        const program = typeof saved.selectedProgram === 'string' ? saved.selectedProgram : '';
+        const step = typeof saved.currentStep === 'number' ? saved.currentStep : 1;
+        setSelectedProgram(program);
+        setHasAgreed(!!saved.hasAgreed);
+        // Steps 2+ require a chosen program; otherwise fall back to step 1.
+        setCurrentStep(step >= 2 && !program ? 1 : step);
+      }
+    } catch {
+      /* ignore malformed storage */
+    }
+    setHydrated(true);
+  }, []);
+
+  // Persist progress whenever it changes.
+  useEffect(() => {
+    if (!hydrated || typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ currentStep, selectedProgram, hasAgreed }));
+    } catch {
+      /* ignore storage errors */
+    }
+  }, [currentStep, selectedProgram, hasAgreed, hydrated]);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => scrollToTop());
@@ -47,7 +80,10 @@ export default function ImpactApplication() {
 
   const handleBack = () => setCurrentStep((s) => s - 1);
 
-  const goDashboard = () => router.push('/dashboard?tab=impact');
+  const goDashboard = () => {
+    if (typeof window !== 'undefined') localStorage.removeItem(STORAGE_KEY);
+    router.push('/dashboard?tab=impact');
+  };
 
   if (!isAuthenticated) {
     return (

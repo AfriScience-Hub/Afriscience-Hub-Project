@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ProtectedLink } from '../../components/ProtectedLink';
 import Image from 'next/image';
 import { Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -133,11 +134,11 @@ export default function Sponsor() {
               Partner with us to drive Africa&apos;s advancement in science and technology. Your sponsorship directly supports our programs and helps us expand our footprint across the African continent &amp; beyond.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/support/sponsor/apply">
+              <ProtectedLink href="/support/sponsor/apply">
                 <Button size="lg" className="bg-brand-red-600 hover:bg-brand-red-700 h-12 px-8">
                   Become a Sponsor
                 </Button>
-              </Link>
+              </ProtectedLink>
               <Link href="/support/sponsor/all">
                 <Button size="lg" variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white hover:text-brand-navy-900 backdrop-blur-sm h-12 px-8">
                   View All Sponsors
@@ -193,11 +194,11 @@ export default function Sponsor() {
                   </li>
                 ))}
               </ul>
-              <Link href={`/support/sponsor/apply?tier=${tier.name}`} className="mt-auto">
+              <ProtectedLink href={`/support/sponsor/apply?tier=${tier.name}`} className="mt-auto">
                 <Button className={`w-full ${tier.popular ? 'bg-brand-red-600 hover:bg-brand-red-700' : 'hover:bg-brand-red-600 hover:text-white hover:border-brand-red-600'}`} variant={tier.popular ? 'default' : 'outline'}>
                   Get Started
                 </Button>
-              </Link>
+              </ProtectedLink>
             </div>
           ))}
         </div>

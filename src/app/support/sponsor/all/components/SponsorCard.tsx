@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { ProtectedLink } from '@/app/components/ProtectedLink';
 import Image from 'next/image';
 import { MapPin, Share2, Eye, Archive, ArchiveX } from 'lucide-react';
 import { toast } from 'sonner';
@@ -108,11 +109,11 @@ export function SponsorCard({ sponsor, archivedIds, onToggleArchive }: SponsorCa
           </div>
 
           <div className="flex gap-2 mt-auto">
-            <Link href={`/support/sponsor/${sponsor.id}`} className="flex-1">
+            <ProtectedLink href={`/support/sponsor/${sponsor.id}`} className="block w-full">
               <button className="cursor-pointer w-full h-9 rounded-lg border border-neutral-gray-light text-sm font-medium text-neutral-gray-dark">
                 View Details
               </button>
-            </Link>
+            </ProtectedLink>
           </div>
         </div>
       </div>

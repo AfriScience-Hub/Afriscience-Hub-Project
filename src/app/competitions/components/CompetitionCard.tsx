@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ProtectedLink } from '@/app/components/ProtectedLink';
 import Image from 'next/image';
 import { DollarSign, Calendar, Users, Eye, Share2, Archive } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -76,9 +77,9 @@ export function CompetitionCard({ comp, onPreview }: CompetitionCardProps) {
             <span className="flex items-center gap-2 text-neutral-gray-dark"><Users className="h-3.5 w-3.5 text-neutral-gray-medium" /> Participants:</span>
             <span className="font-medium text-neutral-black">{comp.participants}</span>
           </div>
-          <Link href={`/competitions/${comp.id}`}>
+          <ProtectedLink href={`/competitions/${comp.id}`}>
             <Button className="w-full mt-2 bg-brand-navy-900 hover:bg-brand-navy-800" size="sm">View Details</Button>
-          </Link>
+          </ProtectedLink>
         </div>
       </div>
     </div>

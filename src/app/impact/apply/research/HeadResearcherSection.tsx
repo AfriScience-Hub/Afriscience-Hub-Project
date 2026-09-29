@@ -107,7 +107,7 @@ export default function HeadResearcherSection({
         <div>
           <FieldLabel
             required
-            info="Are you conducting this research for an academic degree or independent knowledge?"
+            info="Are you conducting this research for the purpose of obtaining an academic degree or are you researching for the sole purpose of gathering an independent knowledge?"
           >
             Researcher’s Identity
           </FieldLabel>
@@ -298,7 +298,7 @@ export default function HeadResearcherSection({
             label="Degree Certificate"
             required
             accept="image/*"
-            hint="Upload most recent academic degree certificate."
+            hint="To verify your academic qualification, kindly upload a copy of your most recent academic degree certificate. Uploaded documents are securely stored and protected from unauthorized access."
             file={value.degreeCertificate}
             onChange={(f) => onChange({ ...value, degreeCertificate: f })}
             onClear={() => onChange({ ...value, degreeCertificate: null })}
