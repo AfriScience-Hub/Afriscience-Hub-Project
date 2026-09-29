@@ -54,20 +54,20 @@ export function SponsorSidebar({ sponsor: s, onShare, onImageClick, isArchived, 
             </p>
           </div>
 
-          <div className="space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <Button onClick={onToggleArchive} variant="outline" size="sm" className="flex items-center gap-2">
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <Button onClick={onToggleArchive} variant="outline" size="sm" className="w-full justify-center gap-2">
                 {isArchived ? <ArchiveX className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
                 {isArchived ? 'Unarchive' : 'Archive'}
               </Button>
-              <Button onClick={onShare} variant="outline" size="sm" className="flex items-center gap-2">
+              <Button onClick={onShare} variant="outline" size="sm" className="w-full justify-center gap-2">
                 <Share2 className="h-4 w-4" /> Share
               </Button>
             </div>
             <Button
               asChild
-              className="w-full bg-brand-red-600 hover:bg-brand-red-700 flex items-center gap-2 justify-center"
               size="sm"
+              className="w-full justify-center gap-2 bg-brand-red-600 hover:bg-brand-red-700"
             >
               <a href={`tel:${s.contact.phone}`}>
                 <Phone className="h-4 w-4" /> Call Contact
@@ -77,7 +77,7 @@ export function SponsorSidebar({ sponsor: s, onShare, onImageClick, isArchived, 
               asChild
               variant="outline"
               size="sm"
-              className="w-full flex items-center gap-2 justify-center"
+              className="w-full justify-center gap-2"
             >
               <a href={`sms:${s.contact.phone}`}>
                 <MessageCircle className="h-4 w-4" /> Message Contact

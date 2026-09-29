@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Lightbulb, MoreHorizontal, Eye, Share2, CheckCircle, XCircle, Clock, ArrowRight, LayoutGrid, Settings2, Inbox } from 'lucide-react';
 import { MOCK_INNOVATIONS, PENDING_APPROVALS, RECENTLY_ADDED, STATS, INNOVATIONS_BY_CATEGORY, INNOVATIONS_BY_STAGE, INNOVATIONS_BY_INTEREST, INNOVATIONS_BY_OWNERSHIP, INNOVATIONS_BY_COUNTRY, GROWTH_DATA } from './data';
-import { DonutCard, NewSubmissionsCard, ReportedInnovationsCard, TopSharedInnovationsCard } from './components/OverviewWidgets';
+import { DonutCard, NewSubmissionsCard, RejectedInnovationsCard, TopSharedInnovationsCard } from './components/OverviewWidgets';
 
 export default function AfroInnovationsPage() {
   const [growthPeriod, setGrowthPeriod] = useState('This Month');
@@ -230,8 +230,7 @@ export default function AfroInnovationsPage() {
           </Link>
         </div>
         <NewSubmissionsCard viewHref="/admin/categories/afro-innovations/submissions" />
-        <ReportedInnovationsCard viewHref="/admin/categories/afro-innovations/submissions" />
-        <TopSharedInnovationsCard viewHref="/admin/categories/afro-innovations/all" />
+        <RejectedInnovationsCard viewHref="/admin/categories/afro-innovations/submissions" />        <TopSharedInnovationsCard viewHref="/admin/categories/afro-innovations/all" />
       </div>
     </div>
   );

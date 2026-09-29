@@ -111,12 +111,12 @@ export const NEW_SUBMISSIONS = [
   { id: 105, name: 'AquaSense', meta: 'Clean Water · Rwanda', time: '2 days ago', logo: LOGO },
 ];
 
-export const REPORTED_INNOVATIONS = [
-  { id: 201, name: 'CryptoFarm', reason: 'Misleading claims', reports: 12, logo: LOGO },
-  { id: 202, name: 'QuickMed AI', reason: 'Unverified medical advice', reports: 8, logo: LOGO },
-  { id: 203, name: 'GreenDiesel', reason: 'Plagiarised content', reports: 6, logo: LOGO },
-  { id: 204, name: 'PayFast Africa', reason: 'Spam / duplicate', reports: 4, logo: LOGO },
-  { id: 205, name: 'AgroBoost', reason: 'Inaccurate data', reports: 3, logo: LOGO },
+export const REJECTED_INNOVATIONS = [
+  { id: 201, name: 'CryptoFarm', reason: 'Misleading claims', logo: LOGO },
+  { id: 202, name: 'QuickMed AI', reason: 'Unverified medical advice', logo: LOGO },
+  { id: 203, name: 'GreenDiesel', reason: 'Plagiarised content', logo: LOGO },
+  { id: 204, name: 'PayFast Africa', reason: 'Spam / duplicate', logo: LOGO },
+  { id: 205, name: 'AgroBoost', reason: 'Inaccurate data', logo: LOGO },
 ];
 
 export const TOP_SHARED_INNOVATIONS = [

@@ -36,7 +36,7 @@ function buildSections(story: ImpactStory): BreakdownSection[] {
     return [
       { title: 'Problems before Scholarship Intervention', bullets: d.problemsBefore },
       { title: 'Proposed funding by AfriScience Hub', bullets: d.proposedFunding },
-      { title: 'Expected Annual Outcome', bullets: d.expectedAnnualOutcome },
+      { title: 'Expected Outcome', bullets: d.expectedAnnualOutcome },
       { title: 'Outcome After Intervention', bullets: d.outcomeAfter },
     ];
   }

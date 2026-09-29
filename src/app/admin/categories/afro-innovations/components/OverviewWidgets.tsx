@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Clock, Flag, Share2 } from 'lucide-react';
-import { NEW_SUBMISSIONS, REPORTED_INNOVATIONS, TOP_SHARED_INNOVATIONS } from '../data';
+import { ArrowRight, Clock, Share2 } from 'lucide-react';
+import { NEW_SUBMISSIONS, REJECTED_INNOVATIONS, TOP_SHARED_INNOVATIONS } from '../data';
 
 export interface Slice { name: string; percent: string; count: number; color: string; }
 
@@ -87,19 +87,17 @@ export function NewSubmissionsCard({ viewHref }: { viewHref: string }) {
   );
 }
 
-export function ReportedInnovationsCard({ viewHref }: { viewHref: string }) {
+export function RejectedInnovationsCard({ viewHref }: { viewHref: string }) {
   return (
-    <ListCard title="Reported Innovations" viewHref={viewHref}>
-      {REPORTED_INNOVATIONS.map((inn) => (
+    <ListCard title="Rejected Innovations" viewHref={viewHref}>
+      {REJECTED_INNOVATIONS.map((inn) => (
         <div key={inn.id} className="flex items-start gap-2.5">
           <Image src={inn.logo} alt={inn.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-medium text-neutral-black truncate">{inn.name}</p>
             <p className="text-[9px] text-neutral-gray-medium truncate">{inn.reason}</p>
           </div>
-          <span className="flex items-center gap-1 text-[9px] font-semibold text-red-600 flex-shrink-0">
-            <Flag className="h-3 w-3" />{inn.reports}
-          </span>
+          <span className="px-1.5 py-0.5 rounded text-[8px] font-semibold bg-red-100 text-red-700 flex-shrink-0">Rejected</span>
         </div>
       ))}
     </ListCard>

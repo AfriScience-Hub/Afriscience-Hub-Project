@@ -1,18 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import { Linkedin, Twitter, Instagram, Facebook } from 'lucide-react';
+import { Linkedin, Instagram, Facebook } from 'lucide-react';
 import type { ImpactPerson, ImpactProgram } from '@/app/data/impactData';
 
 const sectionTitle: Record<ImpactProgram, string> = {
   'Career Support': "Owner's Information",
   'Research Support': "Researcher's Information",
   'Educational Scholarship': "Beneficiary's Information",
-};
-
-const positionLabel: Partial<Record<ImpactProgram, string>> = {
-  'Career Support': 'Ownership Position',
-  'Research Support': 'Research Position',
 };
 
 export default function PeopleSection({
@@ -62,19 +57,8 @@ export default function PeopleSection({
             )}
             <div className="min-w-0">
               <p className="font-bold text-neutral-black truncate">{person.name}</p>
-              {person.role && positionLabel[program] && (
-                <p className="text-xs text-neutral-gray-medium mb-2 mt-0.5">
-                  <span className="font-semibold text-neutral-gray-dark">
-                    {positionLabel[program]}:
-                  </span>{' '}
-                  {person.role}
-                </p>
-              )}
-              {!person.role && positionLabel[program] && (
-                <p className="text-xs text-neutral-gray-medium mb-2 mt-0.5">
-                  <span className="font-semibold text-neutral-gray-dark">{positionLabel[program]}:</span>{' '}
-                  —
-                </p>
+              {person.role && (
+                <p className="text-sm text-neutral-black mb-2 mt-0.5 truncate">{person.role}</p>
               )}
               {person.socials && (
                 <div className="flex items-center gap-2 mt-1">
@@ -94,8 +78,11 @@ export default function PeopleSection({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-neutral-gray-medium hover:text-brand-navy-900"
+                      title="X"
                     >
-                      <Twitter className="h-4 w-4" />
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                      </svg>
                     </a>
                   )}
                   {person.socials.instagram && (

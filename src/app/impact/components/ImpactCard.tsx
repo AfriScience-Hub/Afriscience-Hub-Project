@@ -10,6 +10,7 @@ import {
   getCardPrimaryTitle,
   getCardSecondaryMetric,
   getDpBadgeLabel,
+  getProgramLabel,
 } from '@/app/data/impactData';
 import { Button } from '@/app/components/ui/Button';
 import { cn } from '@/lib/utils';
@@ -74,14 +75,17 @@ export default function ImpactCard({ story, onPreview }: ImpactCardProps) {
               </p>
               <p className="text-xs font-bold text-white truncate">{badge}</p>
             </div>
-            <span
-              className={cn(
-                'shrink-0 inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold',
-                isActive ? 'bg-green-500 text-white' : 'bg-neutral-gray-medium text-white'
-              )}
-            >
-              {story.status}
-            </span>
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <span className="text-[10px] font-semibold text-white/80 tracking-wide">{story.year}</span>
+              <span
+                className={cn(
+                  'inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold',
+                  isActive ? 'bg-green-500 text-white' : 'bg-neutral-gray-medium text-white'
+                )}
+              >
+                {story.status}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -89,9 +93,9 @@ export default function ImpactCard({ story, onPreview }: ImpactCardProps) {
       <div className="p-5">
         <h3 className="font-bold text-neutral-black mb-2 line-clamp-2 min-h-[2.5rem]">{title}</h3>
 
-        <p className="text-xs text-neutral-gray-medium mb-1">
-          <span className="font-semibold text-neutral-gray-dark">{secondary.label}:</span>{' '}
-          <span className="font-bold text-brand-red-600">{secondary.value}</span>
+        <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-black px-2 py-1 rounded-2xl bg-red-200 w-max mb-1">
+          <span>{secondary.label}:</span>
+          <span className="font-bold">{secondary.value}</span>
         </p>
 
         <div className="flex items-center gap-1.5 text-xs text-neutral-gray-medium mb-3">
@@ -122,7 +126,7 @@ export default function ImpactCard({ story, onPreview }: ImpactCardProps) {
 
         <div className="flex items-center justify-between gap-3">
           <span className="inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 line-clamp-1">
-            {story.program}
+            {getProgramLabel(story.program)}
           </span>
           <Link href={`/impact/${story.id}`}>
             <Button size="sm" className="bg-brand-navy-900 hover:bg-brand-navy-800 shrink-0">

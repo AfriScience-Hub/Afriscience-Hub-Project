@@ -85,12 +85,12 @@ export function SponsorCard({ sponsor, archivedIds, onToggleArchive }: SponsorCa
         <div className="p-5 flex flex-col flex-1">
           <div className="flex flex-wrap gap-1.5 mb-3">
             {sponsor.industries.slice(0, 3).map((ind, idx) => (
-              <span key={idx} className="text-xs bg-neutral-bg-light text-neutral-gray-dark px-2 py-1 rounded">
+              <span key={idx} className="text-xs bg-brand-red-50 text-brand-red-600 px-2 py-1 rounded">
                 {ind}
               </span>
             ))}
             {sponsor.industries.length > 3 && (
-              <span className="text-xs bg-neutral-bg-light text-neutral-gray-dark px-2 py-1 rounded">
+              <span className="text-xs bg-brand-red-50 text-brand-red-600 px-2 py-1 rounded">
                 +{sponsor.industries.length - 3}
               </span>
             )}

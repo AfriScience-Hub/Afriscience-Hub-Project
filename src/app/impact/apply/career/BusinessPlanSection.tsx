@@ -243,7 +243,7 @@ export default function BusinessPlanSection({
       <div className="mt-6">
         <FieldLabel
           required
-          info="How much revenue are you projecting to generate within the space of 3 business years?"
+          info="How much revenue are you projecting to generate with your projected customer base within the space of 3 business years?"
         >
           Revenue Projection
         </FieldLabel>

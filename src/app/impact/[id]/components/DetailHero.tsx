@@ -6,6 +6,7 @@ import {
   type ImpactStory,
   formatImpactLocation,
   getDetailTitle,
+  getProgramLabel,
 } from '@/app/data/impactData';
 import { toast } from 'sonner';
 
@@ -25,7 +26,7 @@ export default function DetailHero({ story }: { story: ImpactStory }) {
       <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 text-white">
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-sm">
-            {story.program}
+            {getProgramLabel(story.program)}
           </span>
           <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-green-500/80">
             {story.status}

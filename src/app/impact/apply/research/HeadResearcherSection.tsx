@@ -38,7 +38,7 @@ export default function HeadResearcherSection({
 
   return (
     <SectionCard
-      title="Your Information (Head Researcher)"
+      title="Your Information (Lead Researcher)"
       icon={<User className="h-5 w-5 text-brand-red-600" />}
       badge="Required"
     >

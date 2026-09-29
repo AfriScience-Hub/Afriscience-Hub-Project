@@ -462,7 +462,7 @@ export function AfriPresentationsApply({ comp }: Props) {
               <div>
                 <Upload className="h-8 w-8 text-neutral-gray-light mx-auto mb-2" />
                 <p className="text-sm text-neutral-gray-dark leading-relaxed">
-                  To verify your identity, kindly upload a copy of any valid government issued ID card of yours (National ID card, Driver&apos;s license, Voter&apos;s card, International passport, etc.). Uploaded documents are securely stored and protected from unauthorized access.
+                  To verify your identity, kindly upload a copy of the selected valid government issued ID card of yours (National ID card, Driver&apos;s license, Voter&apos;s card, International passport, etc.). Uploaded documents are securely stored and protected from unauthorized access.
                 </p>
                 <p className="text-xs text-neutral-gray-medium mt-2">picture / image file formats only</p>
               </div>

@@ -71,7 +71,7 @@ function ProjectionCard({
     { key: '3', label: 'Year 3', value: year3 },
   ];
   return (
-    <div className={`rounded-xl border p-4 sm:col-span-2 lg:col-span-3 ${tones[tone]}`}>
+    <div className={`rounded-xl border p-4 sm:col-span-2 md:col-span-4 ${tones[tone]}`}>
       <div className="flex items-center gap-2 mb-3">
         <Icon className="h-4 w-4" />
         <p className="text-[11px] font-semibold uppercase tracking-wide opacity-80">{label}</p>
@@ -96,7 +96,7 @@ function ProjectionCard({
 export default function Infographic({ story }: { story: ImpactStory }) {
   return (
     <div className="p-6 sm:p-8 border-b border-neutral-gray-light">
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <Cell icon={DollarSign} label="Funds Utilized" value={story.fundsUtilized} tone="green" />
 
         {story.program === 'Career Support' && story.careerDetails && (

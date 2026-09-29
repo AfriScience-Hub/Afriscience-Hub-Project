@@ -40,6 +40,7 @@ export interface TimelinePhase {
   title: string;
   bullets: string[];
   interval?: string;
+  phase?: string;
 }
 
 export interface BreakdownSection {
@@ -240,7 +241,8 @@ export const IMPACT_STORIES: ImpactStory[] = [
     },
     timeline: [
       {
-        interval: 'Q1 2024',
+        phase: 'Before',
+        interval: 'January 2024',
         title: 'Career Proposal & Verification',
         bullets: [
           'Application reviewed and eligibility verified',
@@ -248,23 +250,18 @@ export const IMPACT_STORIES: ImpactStory[] = [
         ],
       },
       {
-        interval: 'Q2 2024',
-        title: 'Business & Market Survey',
-        bullets: [
-          'Farmer demand survey across three LGAs',
-          'Competitor and pricing analysis completed',
-        ],
-      },
-      {
-        interval: 'Q3 2024',
+        phase: 'During',
+        interval: 'February - March 2024',
         title: 'Funding & Setup',
         bullets: [
+          'Farmer demand survey across three LGAs',
           'Disbursement of startup equipment funds',
           'Workshop fit-out and staff onboarding',
         ],
       },
       {
-        interval: 'Q4 2024',
+        phase: 'After',
+        interval: 'April 2024',
         title: 'Project Completion',
         bullets: [
           'Three kiosks operational',
@@ -340,10 +337,9 @@ export const IMPACT_STORIES: ImpactStory[] = [
       ],
     },
     timeline: [
-      { interval: 'Q1 2023', title: 'Career Proposal & Verification', bullets: ['Proposal approved', 'Site inspection completed'] },
-      { interval: 'Q2 2023', title: 'Business & Market Survey', bullets: ['Hospital needs assessment across 5 facilities'] },
-      { interval: 'Q3 2023', title: 'Funding & Setup', bullets: ['Workshop commissioned', 'Tools procured'] },
-      { interval: 'Q4 2023', title: 'Project Completion', bullets: ['Service contracts signed', 'Final report accepted'] },
+      { phase: 'Before', interval: 'January 2023', title: 'Career Proposal & Verification', bullets: ['Proposal approved', 'Site inspection completed'] },
+      { phase: 'During', interval: 'February - March 2023', title: 'Funding & Setup', bullets: ['Hospital needs assessment across 5 facilities', 'Workshop commissioned', 'Tools procured'] },
+      { phase: 'After', interval: 'April 2023', title: 'Project Completion', bullets: ['Service contracts signed', 'Final report accepted'] },
     ],
     mediaGallery: [
       { label: 'Business & Market Survey', items: [media('Survey', 'Hospital equipment audit')] },
@@ -372,19 +368,19 @@ export const IMPACT_STORIES: ImpactStory[] = [
       {
         name: 'Dr. Amara Okafor',
         image: face('Amara O'),
-        role: 'Principal Investigator',
+        role: 'Lead Researcher',
         socials: { linkedin: 'https://linkedin.com', twitter: 'https://twitter.com' },
       },
       {
         name: 'Mr. James Wekesa',
         image: face('James W'),
-        role: 'Field Research Lead',
+        role: 'Co-researcher',
         socials: { linkedin: 'https://linkedin.com' },
       },
       {
         name: 'Ms. Amina Yusuf',
         image: face('Amina Y'),
-        role: 'Laboratory Analyst',
+        role: 'Supervisor',
         socials: { instagram: 'https://instagram.com' },
       },
     ],
@@ -438,15 +434,9 @@ export const IMPACT_STORIES: ImpactStory[] = [
       ],
     },
     timeline: [
-      { interval: 'Q1 2024', title: 'Research Proposal & Verification', bullets: ['Proposal peer-reviewed', 'Ethics clearance secured'] },
-      { interval: 'Q2 2024', title: 'Research Materials Acquisition', bullets: ['Reagents and kits procured', 'Lab readiness verified'] },
-      { interval: 'Q3–Q4 2024', title: 'Sample Collection & Analysis', bullets: ['Field sampling completed', 'Sequencing batch 1–3 analyzed'] },
-      {
-        interval: 'Q1 2025',
-        title: 'Result Interpretations & Statistical Representations',
-        bullets: ['Association models finalized', 'Visualization dashboards prepared'],
-      },
-      { interval: 'Q2 2025', title: 'Publication', bullets: ['Manuscript drafted', 'Preprint released'] },
+      { phase: 'Before', interval: 'January 2024', title: 'Research Proposal & Verification', bullets: ['Proposal peer-reviewed', 'Ethics clearance secured'] },
+      { phase: 'During', interval: 'February - August 2024', title: 'Sample Collection & Analysis', bullets: ['Reagents and kits procured', 'Field sampling completed', 'Sequencing batches analyzed'] },
+      { phase: 'After', interval: 'September 2024', title: 'Publication', bullets: ['Association models finalized', 'Preprint released'] },
     ],
     mediaGallery: [
       { label: 'Materials Acquisition', items: [media('Materials', 'Lab kit inventory')] },
@@ -500,11 +490,9 @@ export const IMPACT_STORIES: ImpactStory[] = [
       publicationLinks: [{ label: 'Journal article', url: 'https://example.com/journal' }],
     },
     timeline: [
-      { interval: 'Q1 2023', title: 'Research Proposal & Verification', bullets: ['Doctoral proposal approved'] },
-      { interval: 'Q2 2023', title: 'Research Materials Acquisition', bullets: ['Seed and sensors acquired'] },
-      { interval: 'Q3 2023 – Q3 2024', title: 'Sample Collection & Analysis', bullets: ['Two season trials completed'] },
-      { interval: 'Q4 2024', title: 'Result Interpretations & Statistical Representations', bullets: ['Yield models published internally'] },
-      { interval: 'Q1 2025', title: 'Publication', bullets: ['Peer-reviewed article released'] },
+      { phase: 'Before', interval: 'January 2023', title: 'Research Proposal & Verification', bullets: ['Doctoral proposal approved'] },
+      { phase: 'During', interval: 'February 2023 - October 2024', title: 'Sample Collection & Analysis', bullets: ['Seed and sensors acquired', 'Two season trials completed'] },
+      { phase: 'After', interval: 'November 2024', title: 'Publication', bullets: ['Yield models finalized', 'Peer-reviewed article released'] },
     ],
     mediaGallery: [
       { label: 'Materials Acquisition', items: [media('Seeds', 'Seed preparation')] },
@@ -559,12 +547,13 @@ export const IMPACT_STORIES: ImpactStory[] = [
       ],
     },
     timeline: [
-      { interval: 'Q1 2025', title: 'Scholarship Proposal & Verification', bullets: ['Eligibility verified', 'Aptitude screening passed'] },
-      { interval: 'Q2 2025', title: 'Annual Clearance & Funding', bullets: ['Institution clearance confirmed', 'Funds disbursed'] },
-      { interval: 'Q4 2025', title: 'Project Completion', bullets: ['End-of-year transcript submitted'] },
+      { phase: 'Before', interval: 'January 2025', title: 'Scholarship Proposal & Verification', bullets: ['Eligibility verified', 'Aptitude screening passed'] },
+      { phase: 'During', interval: 'February - October 2025', title: 'Annual Clearance & Funding', bullets: ['Institution clearance confirmed', 'Funds disbursed'] },
+      { phase: 'After', interval: 'December 2025', title: 'Project Completion', bullets: ['End-of-year transcript submitted'] },
     ],
     mediaGallery: [
       { label: 'Screening Exercise', items: [media('Screening', 'Aptitude screening day')] },
+      { label: 'Award Ceremony', items: [media('Award', 'Scholarship award ceremony')] },
       { label: 'Clearance & Funding', items: [media('Clearance', 'Campus registration')] },
       { label: 'Project Completion', items: [media('Complete', 'Academic year milestone')] },
     ],
@@ -603,12 +592,13 @@ export const IMPACT_STORIES: ImpactStory[] = [
       outcomeAfter: ['MSc completed with distinction', 'Thesis archived by department'],
     },
     timeline: [
-      { interval: 'Q1 2024', title: 'Scholarship Proposal & Verification', bullets: ['Documents verified', 'Renewal CGPA confirmed'] },
-      { interval: 'Q2 2024', title: 'Annual Clearance & Funding', bullets: ['Fees cleared', 'Research stipend released'] },
-      { interval: 'Q3 2024', title: 'Project Completion', bullets: ['Graduation confirmed'] },
+      { phase: 'Before', interval: 'January 2024', title: 'Scholarship Proposal & Verification', bullets: ['Documents verified', 'Renewal CGPA confirmed'] },
+      { phase: 'During', interval: 'February - September 2024', title: 'Annual Clearance & Funding', bullets: ['Fees cleared', 'Research stipend released'] },
+      { phase: 'After', interval: 'October 2024', title: 'Project Completion', bullets: ['Graduation confirmed'] },
     ],
     mediaGallery: [
       { label: 'Screening Exercise', items: [media('Screening', 'Document screening')] },
+      { label: 'Award Ceremony', items: [media('Award', 'Scholarship award ceremony')] },
       { label: 'Clearance & Funding', items: [media('Clearance', 'Fee clearance')] },
       { label: 'Project Completion', items: [media('Graduation', 'Graduation ceremony')] },
     ],
@@ -617,6 +607,10 @@ export const IMPACT_STORIES: ImpactStory[] = [
 
 export function formatImpactLocation(loc: ImpactLocation): string {
   return `${loc.stateRegion}, ${loc.country}`;
+}
+
+export function getProgramLabel(program: ImpactProgram): string {
+  return program === 'Educational Scholarship' ? 'Educational Scholarship (Tertiary)' : program;
 }
 
 export function getCardPrimaryTitle(story: ImpactStory): string {
