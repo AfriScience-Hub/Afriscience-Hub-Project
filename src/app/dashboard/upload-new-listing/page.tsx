@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
+import { useAuth } from '@/app/context/AuthContext';
 import { LISTING_TYPES, AFRICAN_COUNTRIES, GALLERY_CATEGORIES, type ListingType, type ServiceEntry } from './data';
 import ListingTypeSelector from './components/ListingTypeSelector';
 import BasicProfileSection from './components/BasicProfileSection';
@@ -16,8 +17,16 @@ import DocumentsSection from './components/DocumentsSection';
 import PoliciesSection from './components/PoliciesSection';
 import FormActions from './components/FormActions';
 import { buildInnovationPayload, createInnovation, fetchInnovation, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, updateInnovation } from './innovationApi';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchWalletBalance } from '@/store/walletSlice';
+import { fetchFullProfile } from '@/store/profileSlice';
+
+const MIN_ASH_COINS = 300;
 
 export default function UploadNewListing() {
+  const dispatch = useAppDispatch();
+  const { user } = useAuth();
+  const personal = useAppSelector((s) => s.profile.personal);
   const [editId, setEditId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [selectedType, setSelectedType] = useState<ListingType | null>(null);
@@ -33,6 +42,7 @@ export default function UploadNewListing() {
   const [website, setWebsite] = useState('');
   const [socialLinks, setSocialLinks] = useState({ x: '', linkedin: '', facebook: '', instagram: '' });
   const [innovatorName, setInnovatorName] = useState('');
+  const [innovatorUsername, setInnovatorUsername] = useState('');
   const [altPhone, setAltPhone] = useState('');
   const [agreed, setAgreed] = useState(false);
 
@@ -129,6 +139,23 @@ export default function UploadNewListing() {
     }).catch((e: any) => toast.error(e?.message || 'Failed to load innovation'));
   }, []);
 
+  // Make sure the profile is loaded so the innovator info can be prefilled.
+  useEffect(() => { dispatch(fetchFullProfile()); }, [dispatch]);
+
+  // Prefill the innovator's information from the profile whenever the form is
+  // opened. Only empty fields are filled, so anything the user types or edits
+  // is never overwritten.
+  useEffect(() => {
+    if (step !== 'form') return;
+    const fullName = personal ? [personal.firstname, personal.middlename, personal.surname].filter(Boolean).join(' ') : '';
+    if (fullName) setInnovatorName(v => v || fullName);
+    if (personal?.username) setInnovatorUsername(v => v || personal.username);
+    if (personal?.phone) setPhone(v => v || personal.phone);
+    if (personal?.website) setWebsite(v => v || personal.website);
+    const email = (personal as any)?.email || user?.email;
+    if (email) setEmail(v => v || email);
+  }, [personal, step, user?.email]);
+
   const handleSubmit = async () => {
     if (!name.trim() || !country) {
       toast.error('Please fill in at least the Name and Country fields');
@@ -142,6 +169,18 @@ export default function UploadNewListing() {
     }
     setSaving(true);
     try {
+      // Submitting an innovation costs 300 ASH coins — verify the balance first.
+      const wallet = await dispatch(fetchWalletBalance()).unwrap().catch(() => null);
+      const balance = wallet ? Number(wallet.balance) : 0;
+      if (!wallet || balance < MIN_ASH_COINS) {
+        toast.error(
+          wallet
+            ? `Not enough balance. You need at least ${MIN_ASH_COINS} ASH coins to submit an innovation (your balance is ${balance.toLocaleString()} ASH coins).`
+            : 'Could not verify your wallet balance. Please try again.',
+        );
+        setSaving(false);
+        return;
+      }
       const payload = buildInnovationPayload({
         name, profileImage, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
         innovSdgs, innovMaterials, innovDimensions, innovWeight, innovUserGroups, innovApplications,
@@ -169,7 +208,7 @@ export default function UploadNewListing() {
     setInnovWeight({ value: '', unit: 'kg' }); setInnovUserGroups([]);
     setInnovApplications([]); setInnovImpact([]); setInnovRecommendations([]); setInnovCautions([]);
     setInnovLicenses([]); setInnovAwards([]); setInnovGallery([]);
-    setInnovatorName(''); setAltPhone('');
+    setInnovatorName(''); setAltPhone(''); setInnovatorUsername('');
   };
 
   if (step === 'select') {
@@ -222,6 +261,7 @@ export default function UploadNewListing() {
           innovAwards={innovAwards} setInnovAwards={setInnovAwards}
           innovGallery={innovGallery} setInnovGallery={setInnovGallery}
           innovatorName={innovatorName} setInnovatorName={setInnovatorName}
+          username={innovatorUsername} setUsername={setInnovatorUsername}
           phone={phone} setPhone={setPhone}
           altPhone={altPhone} setAltPhone={setAltPhone}
           email={email} setEmail={setEmail}

@@ -15,9 +15,13 @@ interface Props {
 
 export default function OptionDialog({ open, onClose, onSave, initial, tabLabel }: Props) {
   const [name, setName] = useState('');
+  const [note, setNote] = useState('');
 
   useEffect(() => {
-    if (open) setName(initial?.name ?? '');
+    if (open) {
+      setName(initial?.name ?? '');
+      setNote(initial?.note ?? '');
+    }
   }, [open, initial]);
 
   if (!open) return null;
@@ -27,8 +31,9 @@ export default function OptionDialog({ open, onClose, onSave, initial, tabLabel 
       toast.error('Name is required');
       return;
     }
-    if (initial) onSave({ ...initial, name: name.trim() });
-    else onSave({ id: `${Date.now()}`, name: name.trim(), status: 'Active', count: 0 });
+    const trimmedNote = note.trim() || undefined;
+    if (initial) onSave({ ...initial, name: name.trim(), note: trimmedNote });
+    else onSave({ id: `${Date.now()}`, name: name.trim(), status: 'Active', count: 0, note: trimmedNote });
     toast.success(initial ? 'Option updated' : 'Option added');
     onClose();
   };
@@ -51,6 +56,19 @@ export default function OptionDialog({ open, onClose, onSave, initial, tabLabel 
               placeholder={`e.g. ${tabLabel} name`}
               className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
               autoFocus
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-xs font-semibold text-neutral-black flex items-center gap-1">
+              Note
+              <span title="Extra information shown as an info tooltip beside the option." className="cursor-help text-[#453DD8]">&#9432;</span>
+            </span>
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={3}
+              placeholder="Extra info shown as an info tooltip beside this option..."
+              className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none resize-none"
             />
           </label>
         </div>

@@ -3,36 +3,55 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, MapPin, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, MapPin, LayoutGrid, BadgeCheck, Layers, ShieldCheck } from 'lucide-react';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
 import { SUBMISSIONS } from '../submissions/data';
 import type { SubmissionRecord } from '../submissions/data';
 import SubmissionDetailModal from '../submissions/components/SubmissionDetailModal';
-import { INNOVATION_FIELDS, INNOVATION_STAGES, AFRICAN_COUNTRIES } from '@/app/data/mockData';
+import { INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS, AFRICAN_COUNTRIES } from '@/app/data/mockData';
+
+const distinct = (items: string[]) => new Set(items).size;
 
 export default function AllInnovationsPage() {
-  const live = useMemo(() => SUBMISSIONS.filter((r) => r.status === 'Published'), []);
+  const [records, setRecords] = useState<SubmissionRecord[]>(SUBMISSIONS);
   const [search, setSearch] = useState('');
   const [fieldFilter, setFieldFilter] = useState('All Fields');
+  const [interestFilter, setInterestFilter] = useState('All Interests');
   const [stageFilter, setStageFilter] = useState('All Stages');
   const [countryFilter, setCountryFilter] = useState('All Countries');
+  const [verifiedFilter, setVerifiedFilter] = useState('All');
   const [selected, setSelected] = useState<SubmissionRecord | null>(null);
   const [page, setPage] = useState(1);
   const perPage = 10;
 
+  const live = useMemo(() => records.filter((r) => r.status === 'Published'), [records]);
+
   const filtered = useMemo(() => live.filter((r) => {
     if (search && !`${r.innovation.name} ${r.submitter.name}`.toLowerCase().includes(search.toLowerCase())) return false;
     if (fieldFilter !== 'All Fields' && r.innovation.field !== fieldFilter) return false;
+    if (interestFilter !== 'All Interests' && !r.innovation.interests.includes(interestFilter)) return false;
     if (stageFilter !== 'All Stages' && r.innovation.stage !== stageFilter) return false;
     if (countryFilter !== 'All Countries' && r.innovation.country !== countryFilter) return false;
+    if (verifiedFilter === 'Verified' && !r.verified) return false;
+    if (verifiedFilter === 'Unverified' && r.verified) return false;
     return true;
-  }), [live, search, fieldFilter, stageFilter, countryFilter]);
+  }), [live, search, fieldFilter, interestFilter, stageFilter, countryFilter, verifiedFilter]);
 
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
 
-  const countryCount = new Set(live.map((r) => r.innovation.country)).size;
-  const fieldCount = new Set(live.map((r) => r.innovation.field)).size;
+  const toggleVerify = (id: string) => setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, verified: !r.verified } : r)));
+  const saveRecord = (updated: SubmissionRecord) => setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+
+  const stats = {
+    live: live.length,
+    countries: distinct(live.map((r) => r.innovation.country)),
+    fields: distinct(live.map((r) => r.innovation.field)),
+    interests: distinct(live.flatMap((r) => r.innovation.interests)),
+    stages: distinct(live.map((r) => r.innovation.stage)),
+    ownership: distinct(live.map((r) => r.innovation.ownership)),
+    sdgs: distinct(live.flatMap((r) => r.innovation.sdgs)),
+  };
 
   return (
     <div className="space-y-4">
@@ -53,10 +72,14 @@ export default function AllInnovationsPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <StatCard iconBg="bg-emerald-100 text-emerald-600" icon={<CheckCircle className="h-4 w-4" />} label="Live Innovations" value={live.length} />
-        <StatCard iconBg="bg-blue-100 text-blue-600" icon={<MapPin className="h-4 w-4" />} label="Countries" value={countryCount} />
-        <StatCard iconBg="bg-purple-100 text-purple-600" icon={<LayoutGrid className="h-4 w-4" />} label="Fields" value={fieldCount} />
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <StatCard iconBg="bg-emerald-100 text-emerald-600" icon={<CheckCircle className="h-4 w-4" />} label="Live Innovations" value={stats.live} />
+        <StatCard iconBg="bg-blue-100 text-blue-600" icon={<MapPin className="h-4 w-4" />} label="Countries" value={stats.countries} />
+        <StatCard iconBg="bg-purple-100 text-purple-600" icon={<LayoutGrid className="h-4 w-4" />} label="Fields" value={stats.fields} />
+        <StatCard iconBg="bg-amber-100 text-amber-600" icon={<Layers className="h-4 w-4" />} label="Interests" value={stats.interests} />
+        <StatCard iconBg="bg-indigo-100 text-indigo-600" icon={<Layers className="h-4 w-4" />} label="Stages" value={stats.stages} />
+        <StatCard iconBg="bg-teal-100 text-teal-600" icon={<ShieldCheck className="h-4 w-4" />} label="Ownership Types" value={stats.ownership} />
+        <StatCard iconBg="bg-green-100 text-green-600" icon={<BadgeCheck className="h-4 w-4" />} label="SDGs" value={stats.sdgs} />
       </div>
 
       <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
@@ -67,25 +90,36 @@ export default function AllInnovationsPage() {
         <select value={fieldFilter} onChange={(e) => setFieldFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Fields</option>{INNOVATION_FIELDS.map((f) => <option key={f} value={f}>{f}</option>)}
         </select>
+        <select value={interestFilter} onChange={(e) => setInterestFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
+          <option>All Interests</option>{INNOVATION_INTERESTS.map((i) => <option key={i} value={i}>{i}</option>)}
+        </select>
         <select value={stageFilter} onChange={(e) => setStageFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Stages</option>{INNOVATION_STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
         <select value={countryFilter} onChange={(e) => setCountryFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Countries</option>{AFRICAN_COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
+        <select value={verifiedFilter} onChange={(e) => setVerifiedFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
+          <option value="All">All Verification</option>
+          <option value="Verified">Verified</option>
+          <option value="Unverified">Unverified</option>
+        </select>
       </div>
 
       <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[960px]">
+          <table className="w-full text-sm min-w-[1360px]">
             <thead>
               <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Innovation</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Submitted By</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Published On</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Field</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Interests</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Stage</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Ownership</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Country</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Published By</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Status</th>
                 <th className="text-right px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Actions</th>
               </tr>
@@ -111,18 +145,28 @@ export default function AllInnovationsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">
-                    {r.publishedBy?.date || r.submittedOn}<br />
-                    <span className="text-[11px] text-neutral-gray-medium">{r.submittedTime}</span>
-                  </td>
+                  <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.publishedBy?.date || r.submittedOn}</td>
                   <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700 whitespace-nowrap">{r.innovation.field}</span></td>
+                  <td className="px-3 py-2.5">
+                    <div className="flex flex-wrap gap-1 max-w-[180px]">
+                      {r.innovation.interests.map((i) => <span key={i} className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 whitespace-nowrap">{i}</span>)}
+                    </div>
+                  </td>
                   <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.innovation.stage}</span></td>
+                  <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.ownership}</td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.country}</td>
-                  <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-emerald-50 text-emerald-700">Live</span></td>
+                  <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.publishedBy ? `${r.publishedBy.name}` : '—'}<br /><span className="text-[11px] text-neutral-gray-medium">{r.publishedBy?.date || ''}</span></td>
+                  <td className="px-3 py-2.5">
+                    <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-emerald-50 text-emerald-700">Live</span>
+                    {r.verified && <span className="ml-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-blue-50 text-blue-700">Verified</span>}
+                  </td>
                   <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                     <TableActionMenu
                       triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
-                      items={[{ label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) }]}
+                      items={[
+                        { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
+                        { label: r.verified ? 'Unverify' : 'Verify', icon: <BadgeCheck className="h-3.5 w-3.5" />, onClick: () => toggleVerify(r.id) },
+                      ]}
                     />
                   </td>
                 </tr>
@@ -137,13 +181,15 @@ export default function AllInnovationsPage() {
             {Array.from({ length: totalPages }).slice(0, 5).map((_, i) => (
               <button key={i} onClick={() => setPage(i + 1)} className={`h-7 w-7 rounded text-xs font-semibold cursor-pointer ${page === i + 1 ? 'bg-[#453DD8] text-white' : 'border border-neutral-gray-light bg-white'}`}>{i + 1}</button>
             ))}
+            {totalPages > 5 && <span className="px-1">…</span>}
+            {totalPages > 5 && <button onClick={() => setPage(totalPages)} className={`h-7 w-7 rounded text-xs font-semibold cursor-pointer ${page === totalPages ? 'bg-[#453DD8] text-white' : 'border border-neutral-gray-light'}`}>{totalPages}</button>}
             <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="h-7 w-7 rounded border border-neutral-gray-light grid place-items-center disabled:opacity-40 cursor-pointer">›</button>
-            <span className="ml-1 px-2 py-1 rounded border border-neutral-gray-light bg-white">{perPage} / page</span>
+            <span className="ml-2 px-2 py-1 rounded border border-neutral-gray-light bg-white">{perPage} / page</span>
           </div>
         </div>
       </div>
 
-      <SubmissionDetailModal submission={selected} open={!!selected} onClose={() => setSelected(null)} onApprove={() => {}} onReject={() => {}} />
+      <SubmissionDetailModal submission={selected} open={!!selected} onClose={() => setSelected(null)} onApprove={() => {}} onReject={() => {}} onSave={saveRecord} />
     </div>
   );
 }

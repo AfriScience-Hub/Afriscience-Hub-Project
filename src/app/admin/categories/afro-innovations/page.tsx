@@ -5,7 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Lightbulb, MoreHorizontal, Eye, Share2, CheckCircle, XCircle, Clock, ArrowRight, LayoutGrid, Settings2, Inbox } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MOCK_INNOVATIONS, PENDING_APPROVALS, RECENTLY_ADDED, STATS, INNOVATIONS_BY_CATEGORY, INNOVATIONS_BY_STAGE, GROWTH_DATA } from './data';
+import { MOCK_INNOVATIONS, PENDING_APPROVALS, RECENTLY_ADDED, STATS, INNOVATIONS_BY_CATEGORY, INNOVATIONS_BY_STAGE, INNOVATIONS_BY_INTEREST, INNOVATIONS_BY_OWNERSHIP, INNOVATIONS_BY_COUNTRY, GROWTH_DATA } from './data';
+import { DonutCard, NewSubmissionsCard, ReportedInnovationsCard, TopSharedInnovationsCard } from './components/OverviewWidgets';
 
 export default function AfroInnovationsPage() {
   const [growthPeriod, setGrowthPeriod] = useState('This Month');
@@ -138,64 +139,12 @@ export default function AfroInnovationsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
-          <h3 className="text-xs font-semibold text-neutral-black mb-3">Innovations by Category</h3>
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="relative w-32 h-32 flex-shrink-0">
-              <svg viewBox="0 0 100 100" className="w-full h-full">
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#3B82F6" strokeWidth="20" strokeDasharray="71.2 255.8" strokeDashoffset="0" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#22C55E" strokeWidth="20" strokeDasharray="55.1 271.9" strokeDashoffset="-71.2" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#A855F7" strokeWidth="20" strokeDasharray="47 279.8" strokeDashoffset="-126.3" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#F97316" strokeWidth="20" strokeDasharray="35.6 291.4" strokeDashoffset="-173.3" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#EC4899" strokeWidth="20" strokeDasharray="22.7 304.3" strokeDashoffset="-208.9" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#D1D5DB" strokeWidth="20" strokeDasharray="21 306" strokeDashoffset="-231.6" />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-lg font-bold text-neutral-black">312</p>
-                <p className="text-[9px] text-neutral-gray-medium">Total</p>
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              {INNOVATIONS_BY_CATEGORY.map((type) => (
-                <div key={type.name} className="flex items-center gap-2">
-                  <span className={cn("w-2 h-2 rounded-full flex-shrink-0", type.color)} />
-                  <span className="text-[10px] text-neutral-gray-dark flex-1">{type.name}</span>
-                  <span className="text-[10px] text-neutral-gray-medium">{type.percent}</span>
-                  <span className="text-[9px] text-neutral-gray-medium">({type.count})</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <DonutCard title="Innovations by Category" total={312} slices={INNOVATIONS_BY_CATEGORY} />
 
-        <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
-          <h3 className="text-xs font-semibold text-neutral-black mb-3">Innovations by Stage</h3>
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="relative w-32 h-32 flex-shrink-0">
-              <svg viewBox="0 0 100 100" className="w-full h-full">
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#3B82F6" strokeWidth="20" strokeDasharray="81 246" strokeDashoffset="0" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#22C55E" strokeWidth="20" strokeDasharray="71.8 255.2" strokeDashoffset="-81" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#A855F7" strokeWidth="20" strokeDasharray="54.1 272.9" strokeDashoffset="-152.8" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#F97316" strokeWidth="20" strokeDasharray="30.8 296.2" strokeDashoffset="-206.9" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#D1D5DB" strokeWidth="20" strokeDasharray="14.6 312.4" strokeDashoffset="-237.7" />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-lg font-bold text-neutral-black">312</p>
-                <p className="text-[9px] text-neutral-gray-medium">Total</p>
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              {INNOVATIONS_BY_STAGE.map((stage) => (
-                <div key={stage.name} className="flex items-center gap-2">
-                  <span className={cn("w-2 h-2 rounded-full flex-shrink-0", stage.color)} />
-                  <span className="text-[10px] text-neutral-gray-dark flex-1">{stage.name}</span>
-                  <span className="text-[10px] text-neutral-gray-medium">{stage.percent}</span>
-                  <span className="text-[9px] text-neutral-gray-medium">({stage.count})</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <DonutCard title="Innovations by Stage" total={312} slices={INNOVATIONS_BY_STAGE} />
+        <DonutCard title="Innovations by Interest" total={312} slices={INNOVATIONS_BY_INTEREST} />
+        <DonutCard title="Innovations by Ownership" total={312} slices={INNOVATIONS_BY_OWNERSHIP} />
+        <DonutCard title="Innovations by Country" total={312} slices={INNOVATIONS_BY_COUNTRY} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -281,6 +230,9 @@ export default function AfroInnovationsPage() {
             View full leaderboard <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
+        <NewSubmissionsCard viewHref="/admin/categories/afro-innovations/submissions" />
+        <ReportedInnovationsCard viewHref="/admin/categories/afro-innovations/submissions" />
+        <TopSharedInnovationsCard viewHref="/admin/categories/afro-innovations/all" />
       </div>
     </div>
   );

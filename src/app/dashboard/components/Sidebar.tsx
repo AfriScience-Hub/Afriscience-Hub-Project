@@ -34,14 +34,9 @@ export default function Sidebar({
               <p className="text-[11px] text-white/60 truncate">{user.email}</p>
             </div>
           </div>
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider">Profile Completion</span>
-              <span className="text-[11px] font-bold text-white">{completion.pct}%</span>
-            </div>
-            <div className="h-1.5 rounded-full bg-white/20 overflow-hidden">
-              <div className="h-full rounded-full bg-brand-red-500 transition-all duration-500" style={{ width: `${completion.pct}%` }} />
-            </div>
+          <div className="mt-4 flex items-center justify-between">
+            <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider">Profile Completion</span>
+            <span className="text-[11px] font-bold text-white">{completion.pct}%</span>
           </div>
         </div>
 

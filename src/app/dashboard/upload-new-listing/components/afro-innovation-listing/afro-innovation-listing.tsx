@@ -34,6 +34,7 @@ interface AfroInnovationListingProps {
   innovAwards: LicenseDoc[]; setInnovAwards: (v: LicenseDoc[] | ((p: LicenseDoc[]) => LicenseDoc[])) => void;
   innovGallery: GalleryFile[]; setInnovGallery: (v: GalleryFile[] | ((p: GalleryFile[]) => GalleryFile[])) => void;
   innovatorName: string; setInnovatorName: (v: string) => void;
+  username: string; setUsername: (v: string) => void;
   phone: string; setPhone: (v: string) => void;
   altPhone: string; setAltPhone: (v: string) => void;
   email: string; setEmail: (v: string) => void;
@@ -81,6 +82,7 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
       <CollapsibleSection title="Innovator's Information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
         <InnovatorInfoSection
           innovatorName={props.innovatorName} setInnovatorName={props.setInnovatorName}
+          username={props.username} setUsername={props.setUsername}
           phone={props.phone} setPhone={props.setPhone}
           altPhone={props.altPhone} setAltPhone={props.setAltPhone}
           email={props.email} setEmail={props.setEmail}

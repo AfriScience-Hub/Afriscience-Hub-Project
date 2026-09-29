@@ -119,11 +119,11 @@ function MultiSelectField({ label, placeholder, options, value, onChange, max, r
     <div ref={ref}>
       <label className="mb-2 block text-sm font-medium text-neutral-black">{label} {required && <span className="text-red-500">*</span>}</label>
       <button type="button" onClick={() => setOpen(v => !v)}
-        className="flex h-10 w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-neutral-gray-light bg-white px-4 text-sm text-left text-neutral-black outline-none focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
-        <span className={value.length ? 'text-neutral-black' : 'text-neutral-gray-medium'}>{value.length ? value.join(', ') : placeholder}</span>
+        className="flex min-h-10 w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-neutral-gray-light bg-white px-4 py-2 text-left outline-none focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+        <span className={`min-w-0 flex-1 truncate text-xs sm:text-sm ${value.length ? 'text-neutral-black' : 'text-neutral-gray-medium'}`}>{value.length ? value.join(', ') : placeholder}</span>
         <ChevronDown size={15} className={`shrink-0 text-neutral-gray-medium transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-      <p className="mt-1 text-xs text-neutral-gray-medium">{value.length}/{max} selected</p>
+      <p className="mt-1 text-[11px] text-neutral-gray-medium sm:text-xs">{value.length}/{max} selected</p>
       {open && (
         <div className="mt-2 max-h-60 overflow-y-auto rounded-lg border border-neutral-gray-light bg-white p-2 shadow-sm">
           {options.map(opt => {
@@ -159,8 +159,8 @@ function SingleSelectField({ label, placeholder, options, value, onChange, requi
     <div ref={ref}>
       <label className="mb-2 block text-sm font-medium text-neutral-black">{label} {required && <span className="text-red-500">*</span>}</label>
       <button type="button" onClick={() => setOpen(v => !v)}
-        className="flex h-10 w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-neutral-gray-light bg-white px-4 text-sm text-left text-neutral-black outline-none focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
-        <span className={value ? 'text-neutral-black' : 'text-neutral-gray-medium'}>{value || placeholder}</span>
+        className="flex min-h-10 w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-neutral-gray-light bg-white px-4 py-2 text-left outline-none focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+        <span className={`min-w-0 flex-1 truncate text-xs sm:text-sm ${value ? 'text-neutral-black' : 'text-neutral-gray-medium'}`}>{value || placeholder}</span>
         <ChevronDown size={15} className={`shrink-0 text-neutral-gray-medium transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (

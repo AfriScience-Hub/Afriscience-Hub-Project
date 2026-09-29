@@ -22,14 +22,21 @@ export default function OptionsTable({ options, onEdit, onToggleStatus }: Props)
           <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
             <th className="text-left px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Name</th>
             <th className="text-left px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Status</th>
-            <th className="text-left px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Innovations Using</th>
+            <th className="text-left px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Usage</th>
             <th className="text-right px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Actions</th>
           </tr>
         </thead>
         <tbody>
           {options.map((opt) => (
             <tr key={opt.id} className="border-b border-neutral-gray-light/60 last:border-0 hover:bg-neutral-bg-light/40">
-              <td className="px-4 py-3 text-xs font-medium text-neutral-black">{opt.name}</td>
+              <td className="px-4 py-3 text-xs font-medium text-neutral-black">
+                <span className="inline-flex items-center gap-1.5">
+                  {opt.name}
+                  {opt.note && (
+                    <span title={opt.note} aria-label="Note" className="cursor-help text-[#453DD8]">&#9432;</span>
+                  )}
+                </span>
+              </td>
               <td className="px-4 py-3">
                 <span
                   className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold ${

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Lightbulb, Search, Plus, LayoutGrid, Heart, Flag, Users, Award, Globe, PackageCheck } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Search, Plus, LayoutGrid, Heart, Flag, Users, Award, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MANAGE_TABS, DUMMY_OPTIONS, TAB_DESCRIPTIONS } from './data';
 import type { ManageTab, ManagedOption } from './data';
@@ -16,7 +16,6 @@ const TAB_ICONS: Record<ManageTab, React.ComponentType<{ className?: string }>> 
   Ownership: Users,
   SDGs: Award,
   Countries: Globe,
-  Availability: PackageCheck,
 };
 
 export default function ManageOptionsPage() {

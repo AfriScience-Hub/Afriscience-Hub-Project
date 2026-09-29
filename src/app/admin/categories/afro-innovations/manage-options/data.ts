@@ -5,9 +5,10 @@ export interface ManagedOption {
   name: string;
   status: OptionStatus;
   count: number;
+  note?: string;
 }
 
-export type ManageTab = 'Fields' | 'Interests' | 'Stages' | 'Ownership' | 'SDGs' | 'Countries' | 'Availability';
+export type ManageTab = 'Fields' | 'Interests' | 'Stages' | 'Ownership' | 'SDGs' | 'Countries';
 
 export const MANAGE_TABS: { id: ManageTab; label: string }[] = [
   { id: 'Fields', label: 'Fields' },
@@ -16,7 +17,6 @@ export const MANAGE_TABS: { id: ManageTab; label: string }[] = [
   { id: 'Ownership', label: 'Ownership' },
   { id: 'SDGs', label: 'SDGs' },
   { id: 'Countries', label: 'Countries' },
-  { id: 'Availability', label: 'Availability' },
 ];
 
 export const DUMMY_OPTIONS: Record<ManageTab, ManagedOption[]> = {
@@ -30,18 +30,18 @@ export const DUMMY_OPTIONS: Record<ManageTab, ManagedOption[]> = {
     { id: 'f7', name: 'Other', status: 'Inactive', count: 5 },
   ],
   Interests: [
-    { id: 'i1', name: 'Climate Action', status: 'Active', count: 54 },
-    { id: 'i2', name: 'Food Security', status: 'Active', count: 61 },
-    { id: 'i3', name: 'Healthcare Access', status: 'Active', count: 42 },
-    { id: 'i4', name: 'Clean Energy', status: 'Active', count: 39 },
+    { id: 'i1', name: 'Climate Action', status: 'Active', count: 54, note: 'Innovations focused on climate mitigation or adaptation.' },
+    { id: 'i2', name: 'Food Security', status: 'Active', count: 61, note: 'Solutions improving food availability and access.' },
+    { id: 'i3', name: 'Healthcare Access', status: 'Active', count: 42, note: 'Improving access to affordable healthcare.' },
+    { id: 'i4', name: 'Clean Energy', status: 'Active', count: 39, note: 'Renewable and clean energy solutions.' },
     { id: 'i5', name: 'Youth Employment', status: 'Inactive', count: 8 },
   ],
   Stages: [
-    { id: 's1', name: 'Idea', status: 'Active', count: 21 },
-    { id: 's2', name: 'Prototype', status: 'Active', count: 48 },
-    { id: 's3', name: 'Early Stage', status: 'Active', count: 67 },
-    { id: 's4', name: 'Growth Stage', status: 'Active', count: 38 },
-    { id: 's5', name: 'Mature', status: 'Active', count: 18 },
+    { id: 's1', name: 'Idea', status: 'Active', count: 21, note: 'Concept stage — no prototype yet.' },
+    { id: 's2', name: 'Prototype', status: 'Active', count: 48, note: 'A working model exists for testing.' },
+    { id: 's3', name: 'Early Stage', status: 'Active', count: 67, note: 'Validated and used by early adopters.' },
+    { id: 's4', name: 'Growth Stage', status: 'Active', count: 38, note: 'Scaling to more users and markets.' },
+    { id: 's5', name: 'Mature', status: 'Active', count: 18, note: 'Established and stable in the market.' },
     { id: 's6', name: 'Archived', status: 'Inactive', count: 6 },
   ],
   Ownership: [
@@ -65,12 +65,6 @@ export const DUMMY_OPTIONS: Record<ManageTab, ManagedOption[]> = {
     { id: 'c5', name: 'Rwanda', status: 'Active', count: 22 },
     { id: 'c6', name: 'Ethiopia', status: 'Inactive', count: 3 },
   ],
-  Availability: [
-    { id: 'a1', name: 'Available Now', status: 'Active', count: 156 },
-    { id: 'a2', name: 'Licensing', status: 'Active', count: 43 },
-    { id: 'a3', name: 'Partnership Open', status: 'Active', count: 38 },
-    { id: 'a4', name: 'Not Available', status: 'Inactive', count: 12 },
-  ],
 };
 
 export const TAB_DESCRIPTIONS: Record<ManageTab, string> = {
@@ -80,5 +74,4 @@ export const TAB_DESCRIPTIONS: Record<ManageTab, string> = {
   Ownership: 'Ownership indicates who owns or leads the innovation.',
   SDGs: 'SDGs link innovations to sustainable development goals.',
   Countries: 'Countries control which geography filters appear.',
-  Availability: 'Availability controls where innovations can be available.',
 };

@@ -3,12 +3,12 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, XCircle, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, XCircle, ShieldCheck, Clock } from 'lucide-react';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
 import { SUBMISSIONS } from './data';
 import type { SubmissionRecord, SubmissionStatus } from './data';
 import SubmissionDetailModal from './components/SubmissionDetailModal';
-import { INNOVATION_FIELDS, INNOVATION_STAGES, AFRICAN_COUNTRIES } from '@/app/data/mockData';
+import { INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS, INNOVATION_OWNERSHIP, INNOVATION_SDGS, AFRICAN_COUNTRIES } from '@/app/data/mockData';
 
 export default function SubmissionsPage() {
   const [records, setRecords] = useState<SubmissionRecord[]>(SUBMISSIONS);
@@ -16,6 +16,9 @@ export default function SubmissionsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('All Status');
   const [fieldFilter, setFieldFilter] = useState<string>('All Fields');
   const [stageFilter, setStageFilter] = useState<string>('All Stages');
+  const [interestFilter, setInterestFilter] = useState<string>('All Interests');
+  const [ownershipFilter, setOwnershipFilter] = useState<string>('All Ownership');
+  const [sdgFilter, setSdgFilter] = useState<string>('All SDGs');
   const [countryFilter, setCountryFilter] = useState<string>('All Countries');
   const [selected, setSelected] = useState<SubmissionRecord | null>(null);
   const [page, setPage] = useState(1);
@@ -27,10 +30,13 @@ export default function SubmissionsPage() {
       if (statusFilter !== 'All Status' && r.status !== statusFilter) return false;
       if (fieldFilter !== 'All Fields' && r.innovation.field !== fieldFilter) return false;
       if (stageFilter !== 'All Stages' && r.innovation.stage !== stageFilter) return false;
+      if (interestFilter !== 'All Interests' && !r.innovation.interests.includes(interestFilter)) return false;
+      if (ownershipFilter !== 'All Ownership' && r.innovation.ownership !== ownershipFilter) return false;
+      if (sdgFilter !== 'All SDGs' && !r.innovation.sdgs.includes(sdgFilter)) return false;
       if (countryFilter !== 'All Countries' && r.innovation.country !== countryFilter) return false;
       return true;
     });
-  }, [records, search, statusFilter, fieldFilter, stageFilter, countryFilter]);
+  }, [records, search, statusFilter, fieldFilter, stageFilter, interestFilter, ownershipFilter, sdgFilter, countryFilter]);
 
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
@@ -38,6 +44,7 @@ export default function SubmissionsPage() {
   const updateStatus = (id: string, status: SubmissionStatus) => {
     setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, status, publishedBy: status === 'Published' ? { name: 'Claire Nwanyanwu', date: new Date().toLocaleDateString(), avatar: r.submitter.avatar } : r.publishedBy } : r)));
   };
+  const saveRecord = (updated: SubmissionRecord) => setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
 
   const total = records.length;
   const pending = records.filter((r) => r.status === 'Pending Review').length;
@@ -80,6 +87,15 @@ export default function SubmissionsPage() {
         <select value={stageFilter} onChange={(e) => setStageFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Stages</option>{INNOVATION_STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
+        <select value={interestFilter} onChange={(e) => setInterestFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
+          <option>All Interests</option>{INNOVATION_INTERESTS.map((i) => <option key={i} value={i}>{i}</option>)}
+        </select>
+        <select value={ownershipFilter} onChange={(e) => setOwnershipFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
+          <option>All Ownership</option>{INNOVATION_OWNERSHIP.map((o) => <option key={o} value={o}>{o}</option>)}
+        </select>
+        <select value={sdgFilter} onChange={(e) => setSdgFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
+          <option>All SDGs</option>{INNOVATION_SDGS.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
         <select value={countryFilter} onChange={(e) => setCountryFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Countries</option>{AFRICAN_COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
@@ -87,16 +103,18 @@ export default function SubmissionsPage() {
 
       <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[900px]">
+          <table className="w-full text-sm min-w-[1180px]">
             <thead>
               <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Innovation</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Submitted By</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Submitted On</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Field</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Interests</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Stage</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Ownership</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Country</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Status</th>
-                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Published By</th>
                 <th className="text-right px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Actions</th>
               </tr>
             </thead>
@@ -123,22 +141,22 @@ export default function SubmissionsPage() {
                   </td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.submittedOn}<br /><span className="text-[11px] text-neutral-gray-medium">{r.submittedTime}</span></td>
                   <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700 whitespace-nowrap">{r.innovation.field}</span></td>
-                  <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.innovation.stage}</span></td>
-                  <td className="px-3 py-2.5"><span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${r.status === 'Pending Review' ? 'bg-amber-50 text-amber-700' : r.status === 'Published' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{r.status}</span></td>
                   <td className="px-3 py-2.5">
-                    {r.publishedBy ? (
-                      <div className="flex gap-1.5 items-center">
-                        <Image src={r.publishedBy.avatar} alt={r.publishedBy.name} width={24} height={24} className="rounded-full object-cover shrink-0 h-8 w-8" />
-                        <div><p className="text-xs font-medium text-neutral-black truncate">{r.publishedBy.name}</p><p className="text-[11px] text-neutral-gray-medium">{r.publishedBy.date}</p></div>
-                      </div>
-                    ) : <span className="text-xs text-neutral-gray-medium">—</span>}
+                    <div className="flex flex-wrap gap-1 max-w-[180px]">
+                      {r.innovation.interests.map((i) => <span key={i} className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 whitespace-nowrap">{i}</span>)}
+                    </div>
                   </td>
+                  <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.innovation.stage}</span></td>
+                  <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.ownership}</td>
+                  <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.country}</td>
+                  <td className="px-3 py-2.5"><span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${r.status === 'Pending Review' ? 'bg-amber-50 text-amber-700' : r.status === 'Published' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{r.status}</span></td>
                   <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                     <TableActionMenu
                       triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                       items={[
                         { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
                         { label: 'Approve', icon: <CheckCircle className="h-3.5 w-3.5" />, onClick: () => updateStatus(r.id, 'Published') },
+                        { label: 'Pending', icon: <Clock className="h-3.5 w-3.5" />, onClick: () => updateStatus(r.id, 'Pending Review') },
                         { label: 'Reject', icon: <XCircle className="h-3.5 w-3.5" />, onClick: () => updateStatus(r.id, 'Rejected'), danger: true },
                       ]}
                     />
@@ -149,7 +167,7 @@ export default function SubmissionsPage() {
           </table>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-4 py-3 border-t border-neutral-gray-light text-xs text-neutral-gray-medium">
-          <span>Showing {(page - 1) * perPage + 1} to {Math.min(page * perPage, filtered.length)} of {filtered.length} submissions</span>
+          <span>Showing {filtered.length === 0 ? 0 : (page - 1) * perPage + 1} to {Math.min(page * perPage, filtered.length)} of {filtered.length} submissions</span>
           <div className="flex items-center gap-1 flex-wrap">
             <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="h-7 w-7 rounded border border-neutral-gray-light grid place-items-center disabled:opacity-40 cursor-pointer">‹</button>
             {Array.from({ length: totalPages }).slice(0, 5).map((_, i) => (
@@ -163,7 +181,7 @@ export default function SubmissionsPage() {
         </div>
       </div>
 
-      <SubmissionDetailModal submission={selected} open={!!selected} onClose={() => setSelected(null)} onApprove={(id) => updateStatus(id, 'Published')} onReject={(id) => updateStatus(id, 'Rejected')} />
+      <SubmissionDetailModal submission={selected} open={!!selected} onClose={() => setSelected(null)} onApprove={(id) => updateStatus(id, 'Published')} onReject={(id) => updateStatus(id, 'Rejected')} onSave={saveRecord} />
     </div>
   );
 }

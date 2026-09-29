@@ -48,20 +48,20 @@ export const STATS = [
 export const TABS = ['Overview', 'Recent Innovations', 'Top Rated', 'Top Viewed', 'Top Categories', 'Geographic Distribution'];
 
 export const INNOVATIONS_BY_CATEGORY = [
-  { name: 'Health & Biotech', percent: '28.2%', count: 88, color: 'bg-blue-500' },
-  { name: 'Agriculture & Food', percent: '21.8%', count: 68, color: 'bg-green-500' },
-  { name: 'Energy & Environment', percent: '18.6%', count: 58, color: 'bg-purple-500' },
-  { name: 'Education & Learning', percent: '14.1%', count: 44, color: 'bg-orange-500' },
-  { name: 'ICT & Software', percent: '9.0%', count: 28, color: 'bg-pink-500' },
-  { name: 'Others', percent: '8.3%', count: 26, color: 'bg-gray-300' },
+  { name: 'Health & Biotech', percent: '28.2%', count: 88, color: '#3B82F6' },
+  { name: 'Agriculture & Food', percent: '21.8%', count: 68, color: '#22C55E' },
+  { name: 'Energy & Environment', percent: '18.6%', count: 58, color: '#A855F7' },
+  { name: 'Education & Learning', percent: '14.1%', count: 44, color: '#F97316' },
+  { name: 'ICT & Software', percent: '9.0%', count: 28, color: '#EC4899' },
+  { name: 'Others', percent: '8.3%', count: 26, color: '#D1D5DB' },
 ];
 
 export const INNOVATIONS_BY_STAGE = [
-  { name: 'Prototype', percent: '32.1%', count: 100, color: 'bg-blue-500' },
-  { name: 'In Development', percent: '28.5%', count: 89, color: 'bg-green-500' },
-  { name: 'Early Stage', percent: '21.5%', count: 67, color: 'bg-purple-500' },
-  { name: 'Growth Stage', percent: '12.2%', count: 38, color: 'bg-orange-500' },
-  { name: 'Mature', percent: '5.8%', count: 18, color: 'bg-gray-300' },
+  { name: 'Prototype', percent: '32.1%', count: 100, color: '#3B82F6' },
+  { name: 'In Development', percent: '28.5%', count: 89, color: '#22C55E' },
+  { name: 'Early Stage', percent: '21.5%', count: 67, color: '#A855F7' },
+  { name: 'Growth Stage', percent: '12.2%', count: 38, color: '#F97316' },
+  { name: 'Mature', percent: '5.8%', count: 18, color: '#D1D5DB' },
 ];
 
 export const GROWTH_DATA = [
@@ -77,4 +77,52 @@ export const QUICK_ACTIONS = [
   { label: 'Manage Content', description: 'View and manage all innovations', icon: 'content' },
   { label: 'View Approvals', description: 'Review pending submissions', icon: 'approvals' },
   { label: 'Add Innovation', description: 'Create a new innovation', icon: 'add' },
+];
+
+export const INNOVATIONS_BY_INTEREST = [
+  { name: 'Investment | Partnership', percent: '32.4%', count: 101, color: '#3B82F6' },
+  { name: 'Purchase | Trade', percent: '26.1%', count: 81, color: '#22C55E' },
+  { name: 'Marketing', percent: '18.8%', count: 59, color: '#A855F7' },
+  { name: 'Training | Mentorship', percent: '13.5%', count: 42, color: '#F97316' },
+  { name: 'Sensitization', percent: '9.2%', count: 29, color: '#EC4899' },
+];
+
+export const INNOVATIONS_BY_OWNERSHIP = [
+  { name: 'Private', percent: '41.0%', count: 128, color: '#3B82F6' },
+  { name: 'Academic', percent: '22.4%', count: 70, color: '#22C55E' },
+  { name: 'Corporate', percent: '17.3%', count: 54, color: '#A855F7' },
+  { name: 'NGO | Charity', percent: '11.5%', count: 36, color: '#F97316' },
+  { name: 'Government | Public', percent: '7.8%', count: 24, color: '#EC4899' },
+];
+
+export const INNOVATIONS_BY_COUNTRY = [
+  { name: 'Nigeria', percent: '29.5%', count: 92, color: '#3B82F6' },
+  { name: 'Kenya', percent: '23.7%', count: 74, color: '#22C55E' },
+  { name: 'South Africa', percent: '19.6%', count: 61, color: '#A855F7' },
+  { name: 'Ghana', percent: '15.4%', count: 48, color: '#F97316' },
+  { name: 'Rwanda', percent: '11.8%', count: 37, color: '#EC4899' },
+];
+
+export const NEW_SUBMISSIONS = [
+  { id: 101, name: 'HydroBloom', meta: 'AgriTech · Nigeria', time: '2 hours ago', logo: LOGO },
+  { id: 102, name: 'MediLink', meta: 'Health Tech · Kenya', time: '5 hours ago', logo: LOGO },
+  { id: 103, name: 'SolarGrid', meta: 'Energy · Ghana', time: '1 day ago', logo: LOGO },
+  { id: 104, name: 'EduSpark', meta: 'Education · South Africa', time: '1 day ago', logo: LOGO },
+  { id: 105, name: 'AquaSense', meta: 'Clean Water · Rwanda', time: '2 days ago', logo: LOGO },
+];
+
+export const REPORTED_INNOVATIONS = [
+  { id: 201, name: 'CryptoFarm', reason: 'Misleading claims', reports: 12, logo: LOGO },
+  { id: 202, name: 'QuickMed AI', reason: 'Unverified medical advice', reports: 8, logo: LOGO },
+  { id: 203, name: 'GreenDiesel', reason: 'Plagiarised content', reports: 6, logo: LOGO },
+  { id: 204, name: 'PayFast Africa', reason: 'Spam / duplicate', reports: 4, logo: LOGO },
+  { id: 205, name: 'AgroBoost', reason: 'Inaccurate data', reports: 3, logo: LOGO },
+];
+
+export const TOP_SHARED_INNOVATIONS = [
+  { id: 301, name: 'Solar Water Purifier', meta: 'Clean Water Solution', shares: 1842, logo: LOGO },
+  { id: 302, name: 'AfriCrop AI', meta: 'Agriculture', shares: 1520, logo: LOGO },
+  { id: 303, name: 'PowerGen Hybrid', meta: 'Energy', shares: 1284, logo: LOGO },
+  { id: 304, name: 'MedAlert Africa', meta: 'Health Tech', shares: 986, logo: LOGO },
+  { id: 305, name: 'EcoBrick', meta: 'Recycling Solution', shares: 741, logo: LOGO },
 ];

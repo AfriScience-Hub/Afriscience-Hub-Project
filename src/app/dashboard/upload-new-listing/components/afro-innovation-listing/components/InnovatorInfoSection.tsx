@@ -1,10 +1,12 @@
 'use client';
 
-import { Phone, Mail, Globe } from 'lucide-react';
+import { Phone, Mail, Globe, AtSign } from 'lucide-react';
 
 interface InnovatorInfoSectionProps {
   innovatorName: string;
   setInnovatorName: (v: string) => void;
+  username: string;
+  setUsername: (v: string) => void;
   phone: string;
   setPhone: (v: string) => void;
   altPhone: string;
@@ -20,7 +22,7 @@ interface InnovatorInfoSectionProps {
 }
 
 export default function InnovatorInfoSection({
-  innovatorName, setInnovatorName, phone, setPhone, altPhone, setAltPhone,
+  innovatorName, setInnovatorName, username, setUsername, phone, setPhone, altPhone, setAltPhone,
   email, setEmail, website, setWebsite, socialLinks, setSocialLinks, agreed, setAgreed,
 }: InnovatorInfoSectionProps) {
   const hasAnySocial = Object.values(socialLinks).some(v => v.trim().length > 0);
@@ -36,6 +38,16 @@ export default function InnovatorInfoSection({
           className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
           placeholder="Input Innovator's Name"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-neutral-black mb-1">Username <span className="text-red-500">*</span></label>
+        <div className="relative">
+          <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium pointer-events-none" />
+          <input type="text" value={username} onChange={e => setUsername(e.target.value)}
+            className="w-full rounded-lg border border-neutral-gray-light pl-10 pr-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+            placeholder="yourusername" />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
