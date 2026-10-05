@@ -10,6 +10,8 @@ import ListingTypeSelector from './components/ListingTypeSelector';
 import BasicProfileSection from './components/BasicProfileSection';
 import CategorySpecificSection from './components/CategorySpecificSection';
 import AfroInnovationListing from './components/afro-innovation-listing/afro-innovation-listing';
+import SpecialistCenterListing from './components/specialist-center-listing/specialist-center-listing';
+import ScientistListing from './components/scientist-listing/scientist-listing';
 import ContactSection from './components/ContactSection';
 import ServicesSection from './components/ServicesSection';
 import MediaGallerySection from './components/MediaGallerySection';
@@ -237,7 +239,11 @@ export default function UploadNewListing() {
         </div>
       </div>
 
-      {selectedType === 'innovation' ? (
+      {selectedType === 'center' ? (
+        <SpecialistCenterListing onCancel={() => { setStep('select'); setSelectedType(null); }} />
+      ) : selectedType === 'scientist' ? (
+        <ScientistListing onCancel={() => { setStep('select'); setSelectedType(null); }} />
+      ) : selectedType === 'innovation' ? (
         <AfroInnovationListing
           name={name} setName={setName}
           profileImage={profileImage} setProfileImage={setProfileImage}
@@ -308,7 +314,7 @@ export default function UploadNewListing() {
         </>
       )}
 
-      {selectedType !== 'innovation' && (
+      {selectedType !== 'innovation' && selectedType !== 'center' && selectedType !== 'scientist' && (
         <>
           <ServicesSection
             services={services} setServices={setServices}
@@ -331,12 +337,14 @@ export default function UploadNewListing() {
         </>
       )}
 
-      <FormActions
-        onCancel={() => { setStep('select'); setSelectedType(null); }}
-        onDraft={() => toast.success('Draft saved!')}
-        onSubmit={handleSubmit}
-        disabled={saving || !isFormValid}
-      />
+      {selectedType !== 'center' && selectedType !== 'scientist' && (
+        <FormActions
+          onCancel={() => { setStep('select'); setSelectedType(null); }}
+          onDraft={() => toast.success('Draft saved!')}
+          onSubmit={handleSubmit}
+          disabled={saving || !isFormValid}
+        />
+      )}
     </div>
   );
 }

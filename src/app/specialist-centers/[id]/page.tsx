@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  MapPin, Star, Share2, ThumbsUp, CheckCircle, Eye, Building2, Phone
+  MapPin, Star, Share2, ThumbsUp, CheckCircle, Eye, Building2, Phone, MessageCircle
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { SPECIALIST_CENTERS } from '@/app/data/mockData';
@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { ContactServiceProviderModal } from '@/app/components/modals/ContactServiceProviderModal';
 import { MessagingModal } from '@/app/components/modals/MessagingModal';
+import ImagePreviewModal from '../components/ImagePreviewModal';
 import TabButton from './components/TabButton';
 import OverviewTab from './components/OverviewTab';
 import LicensesTab from './components/LicensesTab';
@@ -20,16 +21,15 @@ import GalleryTab from './components/GalleryTab';
 import ReviewsTab from './components/ReviewsTab';
 import ContactTab from './components/ContactTab';
 import Sidebar from './components/Sidebar';
-import PolicyModal from './components/PolicyModal';
 
 function SpecialistCenterDetailsContent() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'overview');
   const [openAlbum, setOpenAlbum] = useState<string | null>(null);
-  const [showPolicyModal, setShowPolicyModal] = useState(false);
   const [isBookServiceOpen, setIsBookServiceOpen] = useState(false);
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
+  const [isDpPreviewOpen, setIsDpPreviewOpen] = useState(false);
 
   const center = SPECIALIST_CENTERS.find(c => c.id === id);
 
@@ -56,13 +56,18 @@ function SpecialistCenterDetailsContent() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6">
           <div className="flex flex-col lg:flex-row gap-6 -mt-12 relative z-10">
             <div className="flex-shrink-0">
-              <div className="relative h-32 w-32 md:h-40 md:w-40 rounded-xl border-4 border-white bg-white shadow-lg overflow-hidden flex-shrink-0">
+              <button
+                type="button"
+                title="Preview"
+                onClick={() => setIsDpPreviewOpen(true)}
+                className="relative block h-32 w-32 md:h-40 md:w-40 cursor-pointer overflow-hidden rounded-xl border-4 border-white bg-white shadow-lg transition-opacity hover:opacity-90"
+              >
                 <Image src={center.image} alt={center.name} fill className="object-cover" sizes="160px" style={{ objectFit: 'cover' }} />
-              </div>
-              <div className="mt-3 flex items-center gap-1.5 justify-center">
+              </button>
+              <div className="mt-3 flex items-center justify-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 w-fit mx-auto lg:mx-0">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={cn("h-4 w-4", i < Math.round(center.rating) ? "text-amber-500 fill-current" : "text-neutral-gray-light")} />
+                    <Star key={i} className={cn("h-3.5 w-3.5", i < Math.round(center.rating) ? "text-amber-500 fill-current" : "text-neutral-gray-light")} />
                   ))}
                 </div>
                 <span className="font-bold text-neutral-black text-sm">{center.rating}</span>
@@ -88,6 +93,23 @@ function SpecialistCenterDetailsContent() {
                       </span>
                     )}
                   </div>
+                  <h1 className="text-3xl font-bold text-neutral-black leading-tight mb-1">{center.name}</h1>
+                  {center.motto && <p className="text-neutral-gray-medium italic mb-2">&ldquo;{center.motto}&rdquo;</p>}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-neutral-gray-dark mb-3">
+                    <span className="flex items-center gap-1.5">
+                      <Building2 className="h-4 w-4 text-neutral-gray-medium" />
+                      {center.address}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-neutral-gray-medium text-[13px]">
+                      <MapPin className="h-3.5 w-3.5 text-neutral-gray-medium" />
+                      {center.country}{center.state ? `, ${center.state}` : ''}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {(center.categories || []).slice(0, 3).map(cat => (
+                      <span key={cat} className="text-xs px-2 py-1 rounded-full bg-brand-red-100 text-brand-red-600 font-medium">{cat}</span>
+                    ))}
+                  </div>
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <span className="px-2 py-0.5 rounded bg-brand-navy-100 text-brand-navy-900 text-xs font-bold border border-brand-navy-100">
                       {center.field}
@@ -95,23 +117,6 @@ function SpecialistCenterDetailsContent() {
                     <span className="px-2 py-0.5 rounded bg-neutral-bg-light text-neutral-gray-dark text-xs font-bold border border-neutral-gray-light">
                       {center.ownership}
                     </span>
-                  </div>
-                  <h1 className="text-3xl font-bold text-neutral-black leading-tight mb-1">{center.name}</h1>
-                  {center.motto && <p className="text-neutral-gray-medium italic mb-2">&ldquo;{center.motto}&rdquo;</p>}
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-neutral-gray-dark mb-3">
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4 text-neutral-gray-medium" />
-                      {center.country}{center.state ? `, ${center.state}` : ''}
-                    </span>
-                    <span className="flex items-center gap-1.5 text-neutral-gray-medium text-[13px]">
-                      <Building2 className="h-3.5 w-3.5 text-neutral-gray-medium" />
-                      {center.address}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 mb-4">
-                    {(center.categories || []).slice(0, 3).map(cat => (
-                      <span key={cat} className="text-xs px-2 py-1 rounded-full bg-brand-red-100 text-brand-red-600 font-medium">{cat}</span>
-                    ))}
                   </div>
                 </div>
 
@@ -126,9 +131,12 @@ function SpecialistCenterDetailsContent() {
                     </p>
                   )}
                   <div className="flex gap-2">
-                    <div className="flex-1 grid grid-cols-2 gap-2">
+                    <div className="flex-1 grid grid-cols-3 gap-2">
                       <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Call">
                         <Phone className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Message" onClick={() => setIsMessagingOpen(true)}>
+                        <MessageCircle className="h-4 w-4" />
                       </Button>
                       <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Like">
                         <ThumbsUp className="h-4 w-4" />
@@ -151,6 +159,10 @@ function SpecialistCenterDetailsContent() {
                 <button className="flex items-center gap-1.5 hover:text-brand-red-600 transition-colors">
                   <ThumbsUp className="h-4 w-4" />
                   <span className="font-semibold text-neutral-gray-dark">{(center.likes / 1000).toFixed(1)}k</span> Likes
+                </button>
+                <button className="flex items-center gap-1.5 hover:text-brand-red-600 transition-colors cursor-pointer" onClick={() => setActiveTab('reviews')}>
+                  <MessageCircle className="h-4 w-4" />
+                  <span className="font-semibold text-neutral-gray-dark">{center.reviews || 0}</span> Reviews
                 </button>
                 <button className="flex items-center gap-1.5 hover:text-brand-navy-900 transition-colors">
                   <Share2 className="h-4 w-4" />
@@ -176,7 +188,7 @@ function SpecialistCenterDetailsContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {activeTab === 'overview' && (
-              <OverviewTab center={center} onShowPolicies={() => setShowPolicyModal(true)} />
+              <OverviewTab center={center} />
             )}
             {activeTab === 'licenses' && (
               <LicensesTab center={center} />
@@ -196,12 +208,6 @@ function SpecialistCenterDetailsContent() {
         </div>
       </div>
 
-      <PolicyModal
-        show={showPolicyModal}
-        policies={center.policies}
-        onClose={() => setShowPolicyModal(false)}
-      />
-
       <ContactServiceProviderModal
         isOpen={isBookServiceOpen}
         onClose={() => setIsBookServiceOpen(false)}
@@ -218,6 +224,10 @@ function SpecialistCenterDetailsContent() {
         providerName={center.name}
         providerImage={center.image}
       />
+
+      {isDpPreviewOpen && (
+        <ImagePreviewModal src={center.image} alt={center.name} onClose={() => setIsDpPreviewOpen(false)} />
+      )}
     </div>
   );
 }

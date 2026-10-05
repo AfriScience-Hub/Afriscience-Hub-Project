@@ -131,7 +131,9 @@ export default function SchoolSection({
           />
         </div>
         <div>
-          <FieldLabel required>Current CGPA</FieldLabel>
+          <FieldLabel required info="Minimum CGPA of 3.0 at time of application.">
+            Current CGPA
+          </FieldLabel>
           <TextInput
             type="number"
             step="0.01"
@@ -142,10 +144,9 @@ export default function SchoolSection({
             placeholder="e.g. 3.50"
             required
           />
-          <p className="text-xs text-neutral-gray-medium mt-1">Minimum CGPA of 3.0 at time of application.</p>
         </div>
         <FileUpload
-          label="School Registration / Student ID"
+          label="Student ID"
           required
           accept="image/*,.pdf"
           hint="Upload your school ID card or registration document."

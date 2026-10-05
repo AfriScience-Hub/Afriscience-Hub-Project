@@ -108,7 +108,7 @@ export default function HeadProprietorSection({
         />
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <div className="mt-4 space-y-4">
         <div>
           <FieldLabel required>Employment Letter / Training Certificate</FieldLabel>
           <SelectInput

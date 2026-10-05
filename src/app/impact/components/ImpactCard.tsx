@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ProtectedLink } from '@/app/components/ProtectedLink';
 import Image from 'next/image';
 import { Eye, MapPin, Users, DollarSign, Share2, Archive } from 'lucide-react';
 import { toast } from 'sonner';
@@ -128,11 +129,11 @@ export default function ImpactCard({ story, onPreview }: ImpactCardProps) {
           <span className="inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 line-clamp-1">
             {getProgramLabel(story.program)}
           </span>
-          <Link href={`/impact/${story.id}`}>
+          <ProtectedLink href={`/impact/${story.id}`}>
             <Button size="sm" className="bg-brand-navy-900 hover:bg-brand-navy-800 shrink-0">
               View Details
             </Button>
-          </Link>
+          </ProtectedLink>
         </div>
       </div>
     </div>

@@ -115,10 +115,12 @@ export default function ReviewRequirementsStep({
         </div>
       )}
 
-      <div className="mb-6">
-        <h3 className="font-bold text-neutral-black mb-3">Post-Completion Requirements</h3>
-        <BulletList items={details.postCompletionRequirements} />
-      </div>
+      {details.postCompletionRequirements && details.postCompletionRequirements.length > 0 && (
+        <div className="mb-6">
+          <h3 className="font-bold text-neutral-black mb-3">Post-Completion Requirements</h3>
+          <BulletList items={details.postCompletionRequirements} />
+        </div>
+      )}
 
       <div className="bg-green-50 border border-green-200 rounded-lg p-5 mb-6">
         <h3 className="font-bold text-green-900 mb-3">Overall Program Impact</h3>

@@ -1,24 +1,5 @@
 'use client';
 
-export const FIELD_DESCRIPTIONS: Record<string, string> = {
-  'Medical': 'Centers focused on human health, diagnostics, and clinical services.',
-  'Engineering': 'Centers specializing in engineering design, testing, and research.',
-  'Pharmaceutical': 'Drug development, testing, quality control, and pharmaceutical research.',
-  'Computer & ICT': 'Information technology, cybersecurity, AI, and digital services.',
-  'Hybrid': 'Multi-disciplinary centers spanning two or more scientific fields.',
-  'Veterinary': 'Animal health, livestock science, and wildlife conservation centers.',
-  'Agriculture': 'Crop science, farming technology, and agricultural research.',
-  'Food & Nutrition': 'Food safety, nutrition science, and quality assurance centers.',
-  'Physics': 'Applied and theoretical physics research and testing centers.',
-  'Chemistry': 'Chemical analysis, synthesis, and research laboratories.',
-  'Biology': 'Biological research, microbiology, and biotechnology centers.',
-  'Environmental': 'Climate research, conservation, and environmental management.',
-  'Industry & Manufacturing': 'Industrial automation, quality engineering, and manufacturing research.',
-  'Energy & Power': 'Renewable energy, power systems, and energy research.',
-  'Waste & Recycling': 'Waste management, recycling technology, and environmental cleanup.',
-  'Astronomy & Space': 'Space science, astrophysics, and satellite technology centers.'
-};
-
 export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   'Basic Clinical Diagnostics': 'General medical tests and screenings',
   'Blood | Transfusion': 'Blood banking and transfusion services',
@@ -48,6 +29,23 @@ export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   'Renal': 'Kidney-related diagnostics and treatment',
   'Respiratory': 'Lung and breathing disorder services',
   'Sensory': 'Eye, ear, and sensory organ services',
+};
+
+export const SERVICE_DESCRIPTIONS: Record<string, string> = {
+  'Diagnosis (Screening)': 'Testing and screening to identify conditions, defects or quality issues.',
+  'Guidance & Counseling': 'Expert advice and advisory sessions for clients and partners.',
+  'Monitoring': 'Ongoing observation, tracking and reporting of systems, samples or environments.',
+  'Prevention & Control': 'Programs and measures that prevent risks, outbreaks or defects.',
+  'Quality Control & Assurance': 'Inspection and standards checks to guarantee consistent quality.',
+  'Research & Development': 'Original research, experimentation and development of new solutions.',
+  'Result Interpretation': 'Professional analysis and explanation of test or research results.',
+  'Safety & Compliance': 'Audits and checks that ensure adherence to safety and regulations.',
+  'Sales': 'Sale of products, samples, kits or equipment related to the field.',
+  'Surgery': 'Surgical procedures and operative interventions.',
+  'Training (Industrial)': 'Industrial skills training, workshops and capacity building.',
+  'Transplant': 'Transplant procedures and associated laboratory support.',
+  'Treatment': 'Therapeutic and corrective interventions for clients.',
+  'Workspace & Accommodation': 'Provision of laboratories, workspaces or accommodation.'
 };
 
 export const COUNTRIES = [

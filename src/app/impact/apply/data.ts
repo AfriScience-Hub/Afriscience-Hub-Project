@@ -12,7 +12,7 @@ export interface ProgramDetails {
   approvalRequirements?: string[];
   renewalRequirement?: string[];
   honoraryAwardRequirements?: string[];
-  postCompletionRequirements: string[];
+  postCompletionRequirements?: string[];
   overallProgramImpact: string[];
   undertaking: string;
 }
@@ -121,9 +121,9 @@ export const PROGRAM_DETAILS: Record<ImpactProgram, ProgramDetails> = {
       'This program aims at providing financial support to high-performing African tertiary students of science and technology that are struggling to finance their educational journey. Our focus is to assist these students absorb the financial stress that comes with their education, which may negatively affect their academic performance. Qualified students will be selected after an aptitude test screening, and will be required to maintain a certain performance-benchmark in order to continue benefiting from this scholarship program. Interested African tertiary students that are eligible for this scholarship program are invited to apply.',
     eligibility: [
       'Must be an African currently residing in an African country',
-      'Minimum age requirement of 18 years',
       'Must be currently enrolled in a recognized African tertiary academic institution',
       'Minimum CGPA score of 3.0 at the time of application',
+      'Must provide the details of at least one (1) guardian',
     ],
     applicationRequirements: [
       'Valid government issued ID card of applicant',
@@ -140,10 +140,6 @@ export const PROGRAM_DETAILS: Record<ImpactProgram, ProgramDetails> = {
     honoraryAwardRequirements: [
       'Final academic graduation with first class honors degree certification',
       'Field specific assessment test score of 80% and above',
-    ],
-    postCompletionRequirements: [
-      'Maintain renewal CGPA benchmark where applicable',
-      'Submit academic progress evidence as requested by AfriScience Hub',
     ],
     overallProgramImpact: [
       'Scholarship Funding (Undergraduates – $500 max. & Postgraduates – $700 max. annually)',

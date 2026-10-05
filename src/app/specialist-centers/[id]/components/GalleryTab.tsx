@@ -4,11 +4,11 @@ import Image from 'next/image';
 import { Images, ImageIcon, ArrowLeft, PlayCircle } from 'lucide-react';
 
 const GALLERY_LABELS: Record<string, string> = {
-  frontGate: 'Front Gate',
-  compound: 'Compound / Premise',
-  hallways: 'Hallways / Lobbies',
-  operationsRoom: 'Operations Room / Wards',
-  instruments: 'Instruments Room',
+  frontGate: 'Front View',
+  compound: 'Compound/Premise',
+  hallways: 'Hallways/Lobbies',
+  operationsRoom: 'Operations Space',
+  instruments: 'Instruments',
   laboratories: 'Laboratories',
   libraries: 'Libraries',
   offices: 'Offices',
@@ -24,7 +24,8 @@ interface GalleryTabProps {
 }
 
 export default function GalleryTab({ gallery, openAlbum, onSetOpenAlbum }: GalleryTabProps) {
-  const galleryEntries = gallery ? Object.entries(gallery).filter(([, imgs]) => imgs.length > 0) : [];
+  const galleryEntries = Object.keys(GALLERY_LABELS).map(key => [key, gallery?.[key] || []] as [string, string[]]);
+  const filledCount = galleryEntries.filter(([, imgs]) => imgs.length > 0).length;
   const totalMedia = galleryEntries.reduce((sum, [, imgs]) => sum + imgs.length, 0);
 
   return (
@@ -35,49 +36,47 @@ export default function GalleryTab({ gallery, openAlbum, onSetOpenAlbum }: Galle
             <h3 className="text-lg font-bold text-neutral-black flex items-center gap-2">
               <Images className="h-5 w-5 text-brand-red-600" /> Media Gallery
             </h3>
-            <span className="text-xs text-neutral-gray-medium">{totalMedia} items · {galleryEntries.length} albums</span>
+            <span className="text-xs text-neutral-gray-medium">{totalMedia} items · {filledCount} of {galleryEntries.length} albums · Max 10 files per album</span>
           </div>
 
-          {galleryEntries.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {galleryEntries.map(([category, items]) => {
-                const cover = items[0];
-                const count = items.length;
-                const label = GALLERY_LABELS[category] || category.replace(/([A-Z])/g, ' $1');
-                return (
-                  <button
-                    key={category}
-                    onClick={() => onSetOpenAlbum(category)}
-                    className="group relative aspect-square rounded-xl overflow-hidden bg-neutral-bg-light border border-neutral-gray-light hover:shadow-lg hover:border-brand-red-600/40 transition-all text-left"
-                  >
-                    <div className="absolute inset-0">
-                      {isVideoFile(cover) ? (
-                        <div className="h-full w-full bg-brand-navy-900 flex items-center justify-center">
-                          <PlayCircle className="h-12 w-12 text-white/60" />
-                        </div>
-                      ) : (
-                        <Image src={cover} alt={label} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 50vw, 33vw" />
-                      )}
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                    <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-black/60 text-white rounded-full px-2 py-1 backdrop-blur-sm">
-                      <Images className="h-3 w-3" />
-                      <span className="text-[10px] font-bold">{count}</span>
-                    </div>
-                    <div className="absolute bottom-0 inset-x-0 p-3 z-10">
-                      <p className="text-white text-sm font-bold capitalize truncate">{label}</p>
-                      <p className="text-white/70 text-[10px]">{count} {count === 1 ? 'item' : 'items'}</p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-white rounded-xl border border-dashed border-neutral-gray-light">
-              <ImageIcon className="h-12 w-12 text-neutral-gray-light mx-auto mb-4" />
-              <p className="text-neutral-gray-medium">No media items available yet.</p>
-            </div>
-          )}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+            {galleryEntries.map(([category, items]) => {
+              const cover = items[0];
+              const count = items.length;
+              const label = GALLERY_LABELS[category] || category.replace(/([A-Z])/g, ' $1');
+              return (
+                <button
+                  key={category}
+                  onClick={() => onSetOpenAlbum(category)}
+                  className="group relative aspect-square rounded-xl overflow-hidden bg-neutral-bg-light border border-neutral-gray-light hover:shadow-lg hover:border-brand-red-600/40 transition-all text-left"
+                >
+                  <div className="absolute inset-0">
+                    {!cover ? (
+                      <div className="h-full w-full flex flex-col items-center justify-center gap-2 bg-neutral-bg-light text-neutral-gray-medium">
+                        <ImageIcon className="h-8 w-8 text-neutral-gray-light" />
+                        <span className="text-[10px] font-medium">No media yet</span>
+                      </div>
+                    ) : isVideoFile(cover) ? (
+                      <div className="h-full w-full bg-brand-navy-900 flex items-center justify-center">
+                        <PlayCircle className="h-12 w-12 text-white/60" />
+                      </div>
+                    ) : (
+                      <Image src={cover} alt={label} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 50vw, 33vw" />
+                    )}
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-black/60 text-white rounded-full px-2 py-1 backdrop-blur-sm">
+                    <Images className="h-3 w-3" />
+                    <span className="text-[10px] font-bold">{count}</span>
+                  </div>
+                  <div className="absolute bottom-0 inset-x-0 p-3 z-10">
+                    <p className="text-white text-sm font-bold capitalize truncate">{label}</p>
+                    <p className="text-white/70 text-[10px]">{count} {count === 1 ? 'item' : 'items'}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </>
       ) : (
         <>
@@ -96,22 +95,29 @@ export default function GalleryTab({ gallery, openAlbum, onSetOpenAlbum }: Galle
               {(gallery?.[openAlbum] || []).length} items
             </span>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {(gallery?.[openAlbum] || []).map((item: string, idx: number) => (
-              <div key={idx} className="group relative aspect-square rounded-xl overflow-hidden bg-neutral-bg-light border border-neutral-gray-light hover:shadow-lg transition-all cursor-pointer">
-                {isVideoFile(item) ? (
-                  <div className="relative h-full w-full">
-                    <video src={item} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
-                      <PlayCircle className="h-12 w-12 text-white opacity-80" />
+          {(gallery?.[openAlbum] || []).length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-xl border border-dashed border-neutral-gray-light">
+              <ImageIcon className="h-12 w-12 text-neutral-gray-light mx-auto mb-4" />
+              <p className="text-neutral-gray-medium">No media items in this album yet.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {(gallery?.[openAlbum] || []).map((item: string, idx: number) => (
+                <div key={idx} className="group relative aspect-square rounded-xl overflow-hidden bg-neutral-bg-light border border-neutral-gray-light hover:shadow-lg transition-all cursor-pointer">
+                  {isVideoFile(item) ? (
+                    <div className="relative h-full w-full">
+                      <video src={item} className="h-full w-full object-cover" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+                        <PlayCircle className="h-12 w-12 text-white opacity-80" />
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <Image src={item} alt={`${openAlbum} ${idx + 1}`} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 50vw, 33vw" />
-                )}
-              </div>
-            ))}
-          </div>
+                  ) : (
+                    <Image src={item} alt={`${openAlbum} ${idx + 1}`} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 50vw, 33vw" />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>

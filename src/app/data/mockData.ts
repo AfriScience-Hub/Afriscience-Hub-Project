@@ -496,15 +496,35 @@ export const INSTITUTES = [
 ];
 
 export const SCIENTIST_FIELDS = [
-  'Medical', 'Engineering', 'Pharmaceutical', 'Computer & ICT', 'Hybrid', 
-  'Veterinary', 'Agriculture', 'Food & Nutrition', 'Physics', 'Chemistry', 
-  'Biology', 'Environmental', 'Industry & Manufacturing', 'Energy & Power', 
+  'Hybrid', 'Medical', 'Engineering', 'Pharmaceutical', 'Computer & ICT', 'Veterinary',
+  'Agriculture', 'Food & Nutrition', 'Mathematics & Statistics', 'Physics', 'Chemistry',
+  'Biology', 'Environmental', 'Industrial & Manufacturing', 'Energy & Power',
   'Waste & Recycling', 'Astronomy & Space'
 ];
 
 export const SCIENTIST_DEGREES = [
-  'Field Experts | No Degrees', 'Associate', 'Bachelors', 'Diplomas', 'Masters', 'Doctoral', 'Others'
+  'Field Expert | No Degree', 'Associate', 'Bachelors', 'Diplomas', 'Masters', 'Doctoral', 'Others'
 ];
+
+export const PROFESSIONS_BY_FIELD: Record<string, string[]> = {
+  'Hybrid': ['Interdisciplinary Researcher', 'Systems Scientist', 'Cross-functional Consultant', 'Research Program Lead'],
+  'Medical': ['Medical Doctor', 'Clinical Researcher', 'Public Health Specialist', 'Medical Laboratory Scientist', 'Surgeon', 'Radiologist'],
+  'Engineering': ['Civil Engineer', 'Mechanical Engineer', 'Electrical Engineer', 'Structural Engineer', 'Chemical Engineer', 'Project Manager'],
+  'Pharmaceutical': ['Clinical Pharmacologist', 'Drug Discovery Scientist', 'Toxicologist', 'Pharmacist', 'Formulation Scientist', 'Regulatory Affairs Specialist'],
+  'Computer & ICT': ['Software Engineer', 'Data Scientist', 'Machine Learning Engineer', 'Cybersecurity Analyst', 'Data Analyst', 'Systems Architect'],
+  'Veterinary': ['Veterinary Surgeon', 'Animal Nutritionist', 'Veterinary Epidemiologist', 'Wildlife Conservationist', 'Aquaculture Specialist'],
+  'Agriculture': ['Agronomist', 'Soil Scientist', 'Agricultural Economist', 'Precision Farming Specialist', 'Plant Breeder'],
+  'Food & Nutrition': ['Food Scientist', 'Nutritionist', 'Food Safety Analyst', 'Dietitian', 'Quality Assurance Officer'],
+  'Mathematics & Statistics': ['Statistician', 'Actuary', 'Biostatistician', 'Operations Research Analyst', 'Mathematical Modeler'],
+  'Physics': ['Physicist', 'Optical Scientist', 'Geophysicist', 'Nuclear Scientist', 'Acoustics Engineer'],
+  'Chemistry': ['Analytical Chemist', 'Organic Chemist', 'Biochemist', 'Material Scientist', 'Quality Control Chemist'],
+  'Biology': ['Microbiologist', 'Molecular Biologist', 'Ecologist', 'Biotechnologist', 'Marine Biologist'],
+  'Environmental': ['Environmental Scientist', 'Climate Researcher', 'Conservation Biologist', 'Environmental Impact Assessor', 'Hydrologist'],
+  'Industrial & Manufacturing': ['Industrial Engineer', 'Manufacturing Engineer', 'Quality Engineer', 'Process Engineer', 'Automation Specialist'],
+  'Energy & Power': ['Renewable Energy Engineer', 'Power Systems Engineer', 'Energy Analyst', 'Grid Specialist', 'Solar Installer'],
+  'Waste & Recycling': ['Waste Management Specialist', 'Recycling Process Engineer', 'Circular Economy Analyst', 'Sanitation Specialist'],
+  'Astronomy & Space': ['Astrophysicist', 'Satellite Engineer', 'Space Weather Scientist', 'Planetary Scientist', 'Radio Astronomer']
+};
 
 export const SCIENTIST_SERVICES = [
   'Architecture & Framework Design', 'Building & Construction', 'Consultancy', 
@@ -512,7 +532,7 @@ export const SCIENTIST_SERVICES = [
   'Fabrication & Installation', 'Fieldwork', 'Job Applicant', 
   'Lab Analysis & Equipment Expert', 'Modeling & Simulation', 
   'Project Management', 'Repairs & Maintenance', 'Research & Development', 
-  'Writing & Documentations', 'Others'
+  'Writing & Documentations'
 ];
 
 export const SCIENTISTS = [
@@ -534,6 +554,7 @@ export const SCIENTISTS = [
     shares: 210,
     verified: true,
     bookingsCount: 340,
+    responseTime: '< 2 hours',
     status: 'Online',
     image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1000',
     bio: 'Dedicated Clinical Pharmacologist with over 12 years of experience in drug discovery and toxicology. Passionate about developing affordable medicines for tropical diseases and mentoring the next generation of African scientists.',
@@ -543,6 +564,10 @@ export const SCIENTISTS = [
       { service: 'Consultancy', range: '₦100,000 - ₦150,000' },
       { service: 'Research & Development', range: '₦500,000 - ₦1,000,000' },
       { service: 'Education & Training', range: '₦150,000 - ₦200,000' }
+    ],
+    otherFees: [
+      { name: 'Travel / Home Service Fee', amount: '₦20,000' },
+      { name: 'Report Duplication', amount: '₦5,000' }
     ],
     certifications: [
       { name: 'PhD in Pharmacology', issuer: 'University of Lagos', year: '2015' },
@@ -561,13 +586,21 @@ export const SCIENTISTS = [
       { user: 'Pharm. Emeka Obi', role: 'Colleague', content: 'Dr. Amara is a brilliant mind. Her insights saved our project months of work.', rating: 5 },
       { user: 'Sarah Johnson', role: 'Student', content: 'Her mentorship program helped me secure my masters scholarship abroad.', rating: 5 }
     ],
+    gallery: [
+      'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1581093458791-9f302e6d862e?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1559137781-875af01c14bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800',
+      'https://images.unsplash.com/photo-1609819390597-783ccdfc2529?auto=format&fit=crop&q=80&w=800'
+    ],
     availability: { workDays: 'Monday - Friday', time: '9:00 AM - 5:00 PM (WAT)' },
     contact: {
       phone: '+234 800 123 4567',
       email: 'amara.okafor@sciencehub.ng',
       website: 'www.amaraokafor.com',
       linkedin: 'linkedin.com/in/amaraokafor',
-      twitter: '@dramara'
+      twitter: '@dramara',
+      instagram: 'instagram.com/amaraokafor',
+      facebook: 'facebook.com/amaraokafor'
     }
   },
   {
@@ -588,6 +621,7 @@ export const SCIENTISTS = [
     shares: 150,
     verified: true,
     bookingsCount: 120,
+    responseTime: '< 6 hours',
     status: 'Offline',
     image: 'https://images.unsplash.com/photo-1537511446984-935f663eb1f4?auto=format&fit=crop&q=80&w=1000',
     bio: 'Structural Engineer specializing in sustainable urban infrastructure. Expert in low-cost housing projects and green building materials.',
@@ -597,6 +631,10 @@ export const SCIENTISTS = [
       { service: 'Building & Construction', range: 'R 50,000 - R 100,000' },
       { service: 'Consultancy', range: 'R 5,000 - R 10,000' },
       { service: 'Project Management', range: 'R 20,000 - R 40,000' }
+    ],
+    otherFees: [
+      { name: 'Site Survey Fee', amount: 'R 8,000' },
+      { name: 'Document Review', amount: 'R 2,500' }
     ],
     certifications: [
       { name: 'MSc Civil Engineering', issuer: 'University of Cape Town', year: '2012' },
@@ -612,12 +650,20 @@ export const SCIENTISTS = [
     testimonials: [
       { user: 'BuildRight Contractors', role: 'Client', content: 'David\'s designs are both innovative and structurally sound. A pleasure to work with.', rating: 5 }
     ],
+    gallery: [
+      'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=800'
+    ],
     availability: { workDays: 'Monday - Friday', time: '8:00 AM - 4:00 PM (SAST)' },
     contact: {
       phone: '+27 72 123 4567',
       email: 'david.nkosi@engprojects.co.za',
       website: 'www.nkosiengineering.co.za',
-      linkedin: 'linkedin.com/in/davidnkosi'
+      linkedin: 'linkedin.com/in/davidnkosi',
+      twitter: '@engnkosi',
+      instagram: 'instagram.com/davidnkosi',
+      facebook: 'facebook.com/davidnkosi'
     }
   },
   {
@@ -638,6 +684,7 @@ export const SCIENTISTS = [
     shares: 90,
     verified: false,
     bookingsCount: 85,
+    responseTime: '< 3 hours',
     status: 'Online',
     image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=1000',
     bio: 'Passionate about leveraging Artificial Intelligence to solve real-world problems in agriculture and logistics. Skilled in Python, R, and TensorFlow.',
@@ -646,6 +693,10 @@ export const SCIENTISTS = [
     serviceCost: [
       { service: 'Modeling & Simulation', range: '₵ 2,000 - ₵ 5,000' },
       { service: 'Education & Training', range: '₵ 500 - ₵ 1,000' }
+    ],
+    otherFees: [
+      { name: 'Dashboard Setup', amount: '₵ 1,500' },
+      { name: 'Data Cleaning Surcharge', amount: '₵ 800' }
     ],
     certifications: [
       { name: 'BSc Computer Science', issuer: 'Ashesi University', year: '2020' },
@@ -661,12 +712,21 @@ export const SCIENTISTS = [
     testimonials: [
       { user: 'AgriTech Startups', role: 'Client', content: 'Sarah\'s models improved our yield predictions by 20%.', rating: 5 }
     ],
+    gallery: [
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800'
+    ],
     availability: { workDays: 'Monday - Saturday', time: '10:00 AM - 6:00 PM (GMT)' },
     contact: {
       phone: '+233 50 123 4567',
       email: 'sarah.mensah@datahub.gh',
       website: 'www.sarahmensah.dev',
-      twitter: '@sarahcodes'
+      twitter: '@sarahcodes',
+      linkedin: 'linkedin.com/in/sarahmensah',
+      instagram: 'instagram.com/sarahmensah',
+      facebook: 'facebook.com/sarahmensah'
     }
   },
   {
@@ -687,6 +747,7 @@ export const SCIENTISTS = [
     shares: 110,
     verified: true,
     bookingsCount: 210,
+    responseTime: '< 1 hour',
     status: 'Online',
     image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=1000',
     bio: 'Experienced veterinarian with a focus on livestock health and production. Helping farmers maximize productivity through better animal care.',
@@ -695,6 +756,10 @@ export const SCIENTISTS = [
     serviceCost: [
       { service: 'Fieldwork', range: 'EGP 1,000 - EGP 2,000' },
       { service: 'Consultancy', range: 'EGP 500 - EGP 1,000' }
+    ],
+    otherFees: [
+      { name: 'Farm Visit Travel Fee', amount: 'EGP 700' },
+      { name: 'After-hours Callout', amount: 'EGP 1,200' }
     ],
     certifications: [
       { name: 'DVM (Doctor of Veterinary Medicine)', issuer: 'Cairo University', year: '2010' }
@@ -709,11 +774,20 @@ export const SCIENTISTS = [
     testimonials: [
       { user: 'Nile Dairy Farms', role: 'Client', content: 'Dr. Ahmed helped us control a major outbreak. Highly recommended.', rating: 5 }
     ],
+    gallery: [
+      'https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1595246140625-573b715d11dc?auto=format&fit=crop&q=80&w=800'
+    ],
     availability: { workDays: 'Sunday - Thursday', time: '8:00 AM - 3:00 PM (EET)' },
     contact: {
       phone: '+20 10 1234 5678',
       email: 'ahmed.vet@cairoanimals.eg',
-      website: 'www.drahmedvet.eg'
+      website: 'www.drahmedvet.eg',
+      linkedin: 'linkedin.com/in/ahmedibrahim',
+      twitter: '@drahmedvet',
+      instagram: 'instagram.com/drahmedvet',
+      facebook: 'facebook.com/drahmedvet'
     }
   }
 ];
@@ -1991,9 +2065,9 @@ export const AWARD_TYPES = ["Developers Award", "Sponsorships Award", "Competiti
 export const AWARD_YEARS = [2026, 2025, 2024];
 
 export const CENTER_FIELDS = [
-  'Medical', 'Engineering', 'Pharmaceutical', 'Computer & ICT', 'Hybrid',
-  'Veterinary', 'Agriculture', 'Food & Nutrition', 'Physics', 'Chemistry',
-  'Biology', 'Environmental', 'Industry & Manufacturing', 'Energy & Power',
+  'Hybrid', 'Medical', 'Engineering', 'Pharmaceutical', 'Computer & ICT', 'Veterinary',
+  'Agriculture', 'Food & Nutrition', 'Mathematics & Statistics', 'Physics', 'Chemistry',
+  'Biology', 'Environmental', 'Industrial & Manufacturing', 'Energy & Power',
   'Waste & Recycling', 'Astronomy & Space'
 ];
 
@@ -2040,9 +2114,13 @@ export const CENTER_CATEGORIES_BY_FIELD: Record<string, string[]> = {
     'Climate Research', 'Conservation Biology', 'Water Resources', 'Pollution Control',
     'Waste Management', 'Environmental Impact Assessment'
   ],
-  'Industry & Manufacturing': [
+  'Industrial & Manufacturing': [
     'Industrial Automation', 'Quality Engineering', 'Process Optimization',
     'Supply Chain Technology', 'Additive Manufacturing'
+  ],
+  'Mathematics & Statistics': [
+    'Applied Mathematics', 'Actuarial Science', 'Statistics & Data Analysis',
+    'Operations Research', 'Mathematical Modeling', 'Probability & Risk'
   ],
   'Energy & Power': ['Solar Energy', 'Wind Power', 'Bioenergy', 'Grid Systems', 'Hydropower', 'Nuclear Energy'],
   'Waste & Recycling': [
@@ -2084,6 +2162,9 @@ export const SPECIALIST_CENTERS = [
     shares: 720,
     verified: true,
     bookingsCount: 1240,
+    responseTime: '< 2 hours',
+    workDays: 'Mon – Sat',
+    workHours: '8:00 AM – 6:00 PM',
     image: 'https://images.unsplash.com/photo-1758101512269-660feabf64fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     description: 'Lagos Biomedical Diagnostics Center is a premier medical diagnostics facility offering cutting-edge screening, blood analysis, and molecular genetic testing. Our state-of-the-art laboratory serves over 1,000 patients monthly with fast, accurate results.',
     services: ['Diagnosis (Screening)', 'Result Interpretation', 'Research & Development', 'Training (Industrial)', 'Quality Control & Assurance'],
@@ -2130,7 +2211,7 @@ export const SPECIALIST_CENTERS = [
       offices: ['https://images.unsplash.com/photo-1559137781-875af01c14bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'],
       others: ['https://images.unsplash.com/photo-1581093458791-9f302e6d862e?auto=format&fit=crop&q=80&w=800']
     },
-    contact: { phone: '+234 800 555 1234', email: 'info@lagosbiomedical.ng', website: 'www.lagosbiomedical.ng', linkedin: 'linkedin.com/company/lagosbiomedical', twitter: '@LagosBiomed', mapCoords: { lat: 6.4281, lng: 3.4219 } }
+    contact: { phone: '+234 800 555 1234', email: 'info@lagosbiomedical.ng', website: 'www.lagosbiomedical.ng', linkedin: 'linkedin.com/company/lagosbiomedical', twitter: '@LagosBiomed', instagram: 'instagram.com/lagosbiomedical', facebook: 'facebook.com/lagosbiomedical', mapCoords: { lat: 6.4281, lng: 3.4219 } }
   },
   {
     id: 'center-2',
@@ -2152,6 +2233,9 @@ export const SPECIALIST_CENTERS = [
     shares: 450,
     verified: true,
     bookingsCount: 380,
+    responseTime: '< 4 hours',
+    workDays: 'Mon – Fri',
+    workHours: '9:00 AM – 5:00 PM',
     image: 'https://images.unsplash.com/photo-1742970936099-b68c962278c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     description: 'Specializing in climate change research, conservation biology, and sustainable resource management across East Africa.',
     services: ['Research & Development', 'Monitoring', 'Quality Control & Assurance', 'Training (Industrial)', 'Guidance & Counseling'],
@@ -2177,7 +2261,7 @@ export const SPECIALIST_CENTERS = [
       { user: 'Kenya Wildlife Service', role: 'Partner Organization', content: 'A reliable partner for our environmental monitoring initiatives.', rating: 4 }
     ],
     gallery: { compound: ['https://images.unsplash.com/photo-1742970936099-b68c962278c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'], laboratories: ['https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800'], others: ['https://images.unsplash.com/photo-1769259047014-83149b3c9ca7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'] },
-    contact: { phone: '+254 700 987 654', email: 'contact@nairobienviro.ke', website: 'www.nairobienviro.ke', twitter: '@NairobiEnviro', mapCoords: { lat: -1.2921, lng: 36.8219 } }
+    contact: { phone: '+254 700 987 654', email: 'contact@nairobienviro.ke', website: 'www.nairobienviro.ke', twitter: '@NairobiEnviro', linkedin: 'linkedin.com/company/nairobienviro', instagram: 'instagram.com/nairobienviro', facebook: 'facebook.com/nairobienviro', mapCoords: { lat: -1.2921, lng: 36.8219 } }
   },
   {
     id: 'center-3',
@@ -2199,6 +2283,9 @@ export const SPECIALIST_CENTERS = [
     shares: 340,
     verified: true,
     bookingsCount: 290,
+    responseTime: '< 6 hours',
+    workDays: 'Mon – Fri',
+    workHours: '8:30 AM – 5:00 PM',
     image: 'https://images.unsplash.com/photo-1769259047014-83149b3c9ca7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     description: 'Cutting-edge agricultural technology center focused on food security, smart farming, and sustainable crop development.',
     services: ['Research & Development', 'Diagnosis (Screening)', 'Training (Industrial)', 'Quality Control & Assurance'],
@@ -2218,7 +2305,7 @@ export const SPECIALIST_CENTERS = [
     awards: [{ title: 'Best AgriTech Lab in West Africa', year: '2024' }, { title: 'FAO Innovation Partner', year: '2023' }],
     testimonials: [{ user: 'Dr. Kofi Mensah', role: 'Agri-Scientist', content: 'Precision farming tools they developed increased yields by 35% for our partner farms.', rating: 5 }],
     gallery: { compound: ['https://images.unsplash.com/photo-1769259047014-83149b3c9ca7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'], laboratories: ['https://images.unsplash.com/photo-1609819390597-783ccdfc2529?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'] },
-    contact: { phone: '+233 30 234 5678', email: 'info@accraagritech.gh', website: 'www.accraagritech.gh', mapCoords: { lat: 5.6037, lng: -0.1870 } }
+    contact: { phone: '+233 30 234 5678', email: 'info@accraagritech.gh', website: 'www.accraagritech.gh', linkedin: 'linkedin.com/company/accraagritech', twitter: '@AccraAgriTech', instagram: 'instagram.com/accraagritech', facebook: 'facebook.com/accraagritech', mapCoords: { lat: 5.6037, lng: -0.1870 } }
   },
   {
     id: 'center-4',
@@ -2240,6 +2327,9 @@ export const SPECIALIST_CENTERS = [
     shares: 580,
     verified: true,
     bookingsCount: 920,
+    responseTime: '< 3 hours',
+    workDays: 'Sun – Thu',
+    workHours: '9:00 AM – 6:00 PM',
     image: 'https://images.unsplash.com/photo-1757578097654-fdae0f7cf008?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     description: 'A leading pharmaceutical testing and quality assurance center serving North and East Africa.',
     services: ['Quality Control & Assurance', 'Research & Development', 'Diagnosis (Screening)', 'Safety & Compliance', 'Result Interpretation'],
@@ -2255,7 +2345,7 @@ export const SPECIALIST_CENTERS = [
     awards: [{ title: 'Top Pharma Lab MENA Region', year: '2022' }],
     testimonials: [{ user: 'Pharma Egypt Ltd.', role: 'Client', content: 'Their quality control testing is thorough and fast.', rating: 5 }, { user: 'Dr. Heba Mostafa', role: 'Pharmacologist', content: 'Professional team with deep expertise in bioequivalence studies.', rating: 4 }],
     gallery: { laboratories: ['https://images.unsplash.com/photo-1757578097654-fdae0f7cf008?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'], instruments: ['https://images.unsplash.com/photo-1766297247072-93fd815afef3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'] },
-    contact: { phone: '+20 2 2345 6789', email: 'info@cairopharmalab.eg', website: 'www.cairopharmalab.eg', linkedin: 'linkedin.com/company/cairopharmalab', mapCoords: { lat: 30.0444, lng: 31.2357 } }
+    contact: { phone: '+20 2 2345 6789', email: 'info@cairopharmalab.eg', website: 'www.cairopharmalab.eg', linkedin: 'linkedin.com/company/cairopharmalab', twitter: '@CairoPharmaLab', instagram: 'instagram.com/cairopharmalab', facebook: 'facebook.com/cairopharmalab', mapCoords: { lat: 30.0444, lng: 31.2357 } }
   },
   {
     id: 'center-5',
@@ -2277,6 +2367,9 @@ export const SPECIALIST_CENTERS = [
     shares: 290,
     verified: true,
     bookingsCount: 560,
+    responseTime: '< 1 hour',
+    workDays: 'Mon – Sat',
+    workHours: '7:00 AM – 7:00 PM',
     image: 'https://images.unsplash.com/photo-1735837893073-fef13dedc842?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     description: 'Government-backed veterinary research institute focused on livestock disease control and wildlife conservation medicine.',
     services: ['Diagnosis (Screening)', 'Treatment', 'Research & Development', 'Prevention & Control', 'Training (Industrial)'],
@@ -2292,7 +2385,7 @@ export const SPECIALIST_CENTERS = [
     awards: [{ title: 'OIE Excellence in Veterinary Science', year: '2023' }, { title: 'Best Government Lab in Southern Africa', year: '2021' }],
     testimonials: [{ user: 'Dr. Sipho Ndlovu', role: 'State Veterinarian', content: 'Their rapid response during the FMD outbreak saved thousands of livestock.', rating: 5 }, { user: 'Kruger National Park', role: 'Partner', content: 'Invaluable partner in our wildlife health monitoring programs.', rating: 5 }],
     gallery: { frontGate: ['https://images.unsplash.com/photo-1735837893073-fef13dedc842?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'], laboratories: ['https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800'], others: ['https://images.unsplash.com/photo-1766297247072-93fd815afef3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'] },
-    contact: { phone: '+27 11 555 0987', email: 'research@jvri.gov.za', website: 'www.jvri.gov.za', mapCoords: { lat: -26.1496, lng: 28.0383 } }
+    contact: { phone: '+27 11 555 0987', email: 'research@jvri.gov.za', website: 'www.jvri.gov.za', linkedin: 'linkedin.com/company/jvri', twitter: '@JVRI_SA', instagram: 'instagram.com/jvri', facebook: 'facebook.com/jvri', mapCoords: { lat: -26.1496, lng: 28.0383 } }
   },
   {
     id: 'center-6',
@@ -2314,6 +2407,9 @@ export const SPECIALIST_CENTERS = [
     shares: 490,
     verified: false,
     bookingsCount: 410,
+    responseTime: '< 30 mins',
+    workDays: 'Mon – Fri',
+    workHours: '24/7 (SOC Desk)',
     image: 'https://images.unsplash.com/photo-1744868562210-fffb7fa882d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     description: 'A next-generation cybersecurity and AI research center serving governments and enterprises across East and Central Africa.',
     services: ['Diagnosis (Screening)', 'Monitoring', 'Training (Industrial)', 'Research & Development', 'Safety & Compliance'],
@@ -2329,7 +2425,7 @@ export const SPECIALIST_CENTERS = [
     awards: [{ title: 'Best Cybersecurity Startup East Africa', year: '2024' }],
     testimonials: [{ user: 'Bank of Kigali', role: 'Client', content: 'Their penetration testing identified critical vulnerabilities we had missed for years.', rating: 5 }, { user: 'Rwanda ICT Chamber', role: 'Partner', content: 'A flagship center for digital security in East Africa.', rating: 5 }],
     gallery: { compound: ['https://images.unsplash.com/photo-1744868562210-fffb7fa882d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'], offices: ['https://images.unsplash.com/photo-1559137781-875af01c14bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'] },
-    contact: { phone: '+250 78 888 1234', email: 'info@kigalicyber.rw', website: 'www.kigalicyber.rw', twitter: '@KigaliCyber', linkedin: 'linkedin.com/company/kigalicyber', mapCoords: { lat: -1.9403, lng: 30.0587 } }
+    contact: { phone: '+250 78 888 1234', email: 'info@kigalicyber.rw', website: 'www.kigalicyber.rw', twitter: '@KigaliCyber', linkedin: 'linkedin.com/company/kigalicyber', instagram: 'instagram.com/kigalicyber', facebook: 'facebook.com/kigalicyber', mapCoords: { lat: -1.9403, lng: 30.0587 } }
   },
   {
     id: 'center-7',
@@ -2351,6 +2447,9 @@ export const SPECIALIST_CENTERS = [
     shares: 210,
     verified: true,
     bookingsCount: 180,
+    responseTime: '< 8 hours',
+    workDays: 'Mon – Fri',
+    workHours: '8:00 AM – 4:30 PM',
     image: 'https://images.unsplash.com/photo-1763114613273-ec505136d03a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     description: 'An inter-governmental research station dedicated to renewable energy solutions for West Africa.',
     services: ['Research & Development', 'Monitoring', 'Training (Industrial)', 'Guidance & Counseling'],
@@ -2365,7 +2464,7 @@ export const SPECIALIST_CENTERS = [
     awards: [],
     testimonials: [{ user: 'ECOWAS Commission', role: 'Partner', content: 'A critical institution for advancing renewable energy across the region.', rating: 4 }],
     gallery: { compound: ['https://images.unsplash.com/photo-1763114613273-ec505136d03a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'] },
-    contact: { phone: '+221 33 800 1234', email: 'info@dakarenergy.sn', website: 'www.dakarenergy.sn', mapCoords: { lat: 14.7167, lng: -17.4677 } }
+    contact: { phone: '+221 33 800 1234', email: 'info@dakarenergy.sn', website: 'www.dakarenergy.sn', linkedin: 'linkedin.com/company/dakarenergy', twitter: '@DakarEnergy', instagram: 'instagram.com/dakarenergy', facebook: 'facebook.com/dakarenergy', mapCoords: { lat: 14.7167, lng: -17.4677 } }
   },
   {
     id: 'center-8',
@@ -2387,6 +2486,9 @@ export const SPECIALIST_CENTERS = [
     shares: 150,
     verified: true,
     bookingsCount: 220,
+    responseTime: '< 5 hours',
+    workDays: 'Mon – Fri',
+    workHours: '8:00 AM – 5:00 PM',
     image: 'https://images.unsplash.com/photo-1609819390597-783ccdfc2529?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
     description: 'A government-run food safety and nutrition center ensuring food quality standards across Uganda and the East African Community.',
     services: ['Quality Control & Assurance', 'Diagnosis (Screening)', 'Research & Development', 'Safety & Compliance', 'Training (Industrial)'],
@@ -2402,7 +2504,7 @@ export const SPECIALIST_CENTERS = [
     awards: [{ title: 'EAC Food Safety Excellence', year: '2023' }],
     testimonials: [{ user: 'Uganda Manufacturers Association', role: 'Client', content: 'Essential service for food exporters. Their certifications are recognized across the EAC.', rating: 4 }],
     gallery: { laboratories: ['https://images.unsplash.com/photo-1609819390597-783ccdfc2529?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800'] },
-    contact: { phone: '+256 41 234 5678', email: 'info@kampalafoodsafety.ug', website: 'www.kampalafoodsafety.ug', mapCoords: { lat: 0.3476, lng: 32.5825 } }
+    contact: { phone: '+256 41 234 5678', email: 'info@kampalafoodsafety.ug', website: 'www.kampalafoodsafety.ug', linkedin: 'linkedin.com/company/kampalafoodsafety', twitter: '@KampalaFoodSafe', instagram: 'instagram.com/kampalafoodsafety', facebook: 'facebook.com/kampalafoodsafety', mapCoords: { lat: 0.3476, lng: 32.5825 } }
   }
 ];
 

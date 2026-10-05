@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Target, ImageIcon, Users } from 'lucide-react';
+import { ArrowLeft, Target, Users } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { toast } from 'sonner';
 import {
@@ -10,7 +10,6 @@ import {
   TextArea,
   MultiStringList,
 } from '../components/FormField';
-import MediaGroupUpload from '../components/MediaGroupUpload';
 import {
   createInitialScholarshipForm,
   hasAtLeastOneSocial,
@@ -146,17 +145,6 @@ export default function ScholarshipApplicationForm({
               }))
             }
           />
-          <MultiStringList
-            label="Outcomes After Intervention"
-            info="What were the actual results that were achieved with this scholarship intervention?"
-            values={form.impact.outcomesAfterIntervention}
-            onChange={(outcomesAfterIntervention) =>
-              setForm((f) => ({
-                ...f,
-                impact: { ...f.impact, outcomesAfterIntervention },
-              }))
-            }
-          />
           <div>
             <FieldLabel>Your Story</FieldLabel>
             <TextArea
@@ -170,43 +158,6 @@ export default function ScholarshipApplicationForm({
               placeholder="Give a detailed background story, highlighting the events and circumstances that surrounds your academic journey and need for support (1000 words max)."
             />
           </div>
-        </div>
-      </SectionCard>
-
-      <SectionCard
-        title="Media Gallery"
-        icon={<ImageIcon className="h-5 w-5 text-brand-red-600" />}
-        defaultOpen={false}
-      >
-        <div className="grid gap-6">
-          <MediaGroupUpload
-            label="Screening Exercise"
-            files={form.media.screeningExercise}
-            onChange={(screeningExercise) =>
-              setForm((f) => ({ ...f, media: { ...f.media, screeningExercise } }))
-            }
-          />
-          <MediaGroupUpload
-            label="Clearance & Funding"
-            files={form.media.clearanceFunding}
-            onChange={(clearanceFunding) =>
-              setForm((f) => ({ ...f, media: { ...f.media, clearanceFunding } }))
-            }
-          />
-          <MediaGroupUpload
-            label="Project Completion"
-            files={form.media.projectCompletion}
-            onChange={(projectCompletion) =>
-              setForm((f) => ({ ...f, media: { ...f.media, projectCompletion } }))
-            }
-          />
-          <MediaGroupUpload
-            label="Award Ceremony"
-            files={form.media.awardCeremony}
-            onChange={(awardCeremony) =>
-              setForm((f) => ({ ...f, media: { ...f.media, awardCeremony } }))
-            }
-          />
         </div>
       </SectionCard>
 

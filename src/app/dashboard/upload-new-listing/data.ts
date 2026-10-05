@@ -46,3 +46,10 @@ export const COMPETITION_TYPES = ['Afri–Anime', 'Afri–Presentations', 'Afri�
 export const AWARD_TYPES = ["Developer's Award", "Sponsorship Award", "Competition's Award", "Donation's Award"];
 
 export const GALLERY_CATEGORIES = ['Workspaces', 'Projects', 'Facilities', 'Events', 'Other Media'];
+
+export const CURRENCIES = [
+  'USD', 'EUR', 'GBP', 'NGN', 'GHS', 'KES', 'TZS', 'UGX', 'ZAR',
+  'EGP', 'RWF', 'XOF', 'XAF', 'MAD', 'ZMW', 'BWP'
+];
+
+export const YEARS = Array.from({ length: 30 }, (_, i) => String(2026 - i));

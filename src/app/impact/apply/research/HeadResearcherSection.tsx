@@ -214,7 +214,7 @@ export default function HeadResearcherSection({
         onChange={(patch) => onChange({ ...value, idCard: { ...value.idCard, ...patch } })}
       />
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <div className="mt-4 space-y-4">
         <FileUpload
           label="Display Image"
           required
@@ -236,7 +236,7 @@ export default function HeadResearcherSection({
           />
         )}
         {degreeDisabled && (
-          <p className="text-xs text-neutral-gray-medium sm:col-span-2">
+          <p className="text-xs text-neutral-gray-medium">
             Degree certificate upload is not required for Undergraduate Research.
           </p>
         )}

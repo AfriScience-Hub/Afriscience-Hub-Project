@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Search, Filter, SlidersHorizontal } from 'lucide-react';
 import {
   IMPACT_STORIES,
@@ -32,6 +32,12 @@ export default function Impact() {
 
   const toggleSection = (key: string) =>
     setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  // Returning to the main impact page ends the apply flow, so drop the saved
+  // apply progress — the user can pick a program from scratch again.
+  useEffect(() => {
+    if (typeof window !== 'undefined') localStorage.removeItem('ash:impact-apply-progress');
+  }, []);
 
   const activeFilterCount =
     (selectedProgram ? 1 : 0) +

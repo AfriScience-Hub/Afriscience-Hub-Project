@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { SCIENTISTS } from '../data/mockData';
 import { Button } from '../components/ui/Button';
@@ -11,10 +11,11 @@ import ScientistCard from './components/ScientistCard';
 
 export default function Scientists() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFields, setSelectedFields] = useState<string[]>([]);
+  const [selectedField, setSelectedField] = useState('');
   const [selectedProfessions, setSelectedProfessions] = useState<string[]>([]);
+  const [selectedDegree, setSelectedDegree] = useState('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedState, setSelectedState] = useState<string>('');
   const [archivedIds, setArchivedIds] = useState<string[]>([]);
@@ -22,6 +23,7 @@ export default function Scientists() {
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
     fields: false,
     profession: false,
+    degree: true,
     services: true,
     status: false,
     country: false,
@@ -31,38 +33,50 @@ export default function Scientists() {
   const toggleSection = (key: string) =>
     setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
 
-  const allProfessions = useMemo(() => {
-    const profs = new Set<string>();
-    SCIENTISTS.forEach(sci => sci.professions.forEach(p => profs.add(p)));
-    return Array.from(profs).sort();
-  }, []);
+  const handleFieldChange = (field: string) => {
+    if (selectedField === field) {
+      setSelectedField('');
+    } else {
+      setSelectedField(field);
+      setCollapsedSections(prev => ({ ...prev, profession: false }));
+    }
+    setSelectedProfessions([]);
+  };
 
   const filteredScientists = SCIENTISTS.filter(sci => {
-    const matchesSearch =
-      sci.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sci.field.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sci.location.toLowerCase().includes(searchTerm.toLowerCase());
+    const q = searchTerm.toLowerCase();
+    const matchesSearch = !q ||
+      sci.name.toLowerCase().includes(q) ||
+      sci.field.toLowerCase().includes(q) ||
+      sci.location.toLowerCase().includes(q) ||
+      sci.country.toLowerCase().includes(q) ||
+      (sci.degrees || []).some(d => d.toLowerCase().includes(q)) ||
+      sci.professions.some(p => p.toLowerCase().includes(q)) ||
+      sci.services.some(s => s.toLowerCase().includes(q)) ||
+      (sci.scopes || []).some(s => s.toLowerCase().includes(q));
 
-    const matchesField = selectedFields.length === 0 || selectedFields.includes(sci.field);
+    const matchesField = !selectedField || sci.field === selectedField;
     const matchesProfession = selectedProfessions.length === 0 || sci.professions.some(p => selectedProfessions.includes(p));
+    const matchesDegree = !selectedDegree || (sci.degrees || []).includes(selectedDegree);
     const matchesService = selectedServices.length === 0 || sci.services.some(s => selectedServices.includes(s));
-    const matchesStatus = selectedStatus.length === 0 || selectedStatus.includes(sci.status);
+    const matchesStatus = !selectedStatus || sci.status === selectedStatus;
     const matchesCountry = !selectedCountry || sci.country === selectedCountry;
     const matchesState = !selectedState || sci.state === selectedState;
 
-    return matchesSearch && matchesField && matchesProfession && matchesService && matchesStatus && matchesCountry && matchesState;
+    return matchesSearch && matchesField && matchesProfession && matchesDegree && matchesService && matchesStatus && matchesCountry && matchesState;
   });
 
   const resetFilters = () => {
-    setSelectedFields([]);
+    setSelectedField('');
     setSelectedProfessions([]);
+    setSelectedDegree('');
     setSelectedServices([]);
-    setSelectedStatus([]);
+    setSelectedStatus('');
     setSelectedCountry('');
     setSelectedState('');
   };
 
-  const activeFilterCount = selectedFields.length + selectedProfessions.length + selectedServices.length + selectedStatus.length + (selectedCountry ? 1 : 0) + (selectedState ? 1 : 0);
+  const activeFilterCount = (selectedField ? 1 : 0) + selectedProfessions.length + (selectedDegree ? 1 : 0) + selectedServices.length + (selectedStatus ? 1 : 0) + (selectedCountry ? 1 : 0) + (selectedState ? 1 : 0);
 
   const toggleArchive = (id: string) => {
     if (archivedIds.includes(id)) {
@@ -87,10 +101,12 @@ export default function Scientists() {
         <div className="flex flex-col lg:flex-row gap-8">
 
           <ScientistFilters
-            selectedFields={selectedFields}
-            setSelectedFields={setSelectedFields}
+            selectedField={selectedField}
+            handleFieldChange={handleFieldChange}
             selectedProfessions={selectedProfessions}
             setSelectedProfessions={setSelectedProfessions}
+            selectedDegree={selectedDegree}
+            setSelectedDegree={setSelectedDegree}
             selectedServices={selectedServices}
             setSelectedServices={setSelectedServices}
             selectedStatus={selectedStatus}
@@ -99,7 +115,6 @@ export default function Scientists() {
             setSelectedCountry={setSelectedCountry}
             selectedState={selectedState}
             setSelectedState={setSelectedState}
-            allProfessions={allProfessions}
             showFilters={showFilters}
             collapsedSections={collapsedSections}
             toggleSection={toggleSection}
@@ -112,7 +127,7 @@ export default function Scientists() {
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-gray-medium" />
               <input
                 type="text"
-                placeholder="Search Scientists by name, field, or expertise..."
+                placeholder="Search scientists and technologists by name, fields, profession, degrees, services, scopes, country or keyword..."
                 className="w-full rounded-xl border border-neutral-gray-light pl-12 pr-4 py-3 shadow-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -124,11 +139,10 @@ export default function Scientists() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredScientists.map((sci, index) => (
+              {filteredScientists.map((sci) => (
                 <ScientistCard
                   key={sci.id}
                   sci={sci}
-                  index={index}
                   archived={archivedIds.includes(sci.id)}
                   onToggleArchive={() => toggleArchive(sci.id)}
                 />

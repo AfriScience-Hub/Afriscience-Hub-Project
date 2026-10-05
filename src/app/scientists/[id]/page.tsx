@@ -7,7 +7,7 @@ import Image from 'next/image';
 import {
   MapPin, Star, Share2, CheckCircle, GraduationCap,
   Eye, ThumbsUp, MessageCircle, Archive, ArchiveX,
-  Phone, Briefcase
+  Phone, Briefcase, Mail
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { SCIENTISTS } from '@/app/data/mockData';
@@ -15,10 +15,12 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { ContactServiceProviderModal } from '@/app/components/modals/ContactServiceProviderModal';
 import { MessagingModal } from '@/app/components/modals/MessagingModal';
+import ImagePreviewModal from '../components/ImagePreviewModal';
 import TabButton from './components/TabButton';
 import ProfileTab from './components/ProfileTab';
 import AchievementsTab from './components/AchievementsTab';
 import ReviewsTab from './components/ReviewsTab';
+import MediaGalleryTab from './components/MediaGalleryTab';
 import ContactTab from './components/ContactTab';
 import Sidebar from './components/Sidebar';
 
@@ -31,6 +33,7 @@ export default function ScientistDetails() {
   const [sharesCount, setSharesCount] = useState(0);
   const [isBookServiceOpen, setIsBookServiceOpen] = useState(false);
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
+  const [isDpPreviewOpen, setIsDpPreviewOpen] = useState(false);
 
   const scientist = SCIENTISTS.find(sci => sci.id === id);
 
@@ -87,7 +90,8 @@ export default function ScientistDetails() {
       {/* HEADER SECTION */}
       <div className="bg-white border-b border-neutral-gray-light">
         <div className="h-48 md:h-64 w-full bg-brand-navy-900 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-navy-900 via-brand-navy-800 to-brand-navy-700 opacity-90" />
+          <Image src={scientist.image} alt={scientist.name} fill sizes="100vw" className="object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900/85 via-brand-navy-900/40 to-transparent" />
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
         </div>
 
@@ -95,16 +99,21 @@ export default function ScientistDetails() {
           <div className="flex flex-col lg:flex-row gap-6 -mt-12 relative z-10">
 
             <div className="flex-shrink-0 flex flex-col items-center">
-              <div className="h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
+              <button
+                type="button"
+                title="Preview"
+                onClick={() => setIsDpPreviewOpen(true)}
+                className="block h-32 w-32 md:h-40 md:w-40 cursor-pointer overflow-hidden rounded-full border-4 border-white bg-white shadow-lg transition-opacity hover:opacity-90"
+              >
                 <Image src={scientist.image} alt={scientist.name} fill className="object-cover" sizes="160px" />
-              </div>
-              <div className="flex items-center gap-1 mt-3">
+              </button>
+              <div className="mt-3 flex items-center justify-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 w-fit">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={cn("h-4 w-4", i < Math.floor(scientist.rating) ? "text-amber-500 fill-current" : "text-neutral-gray-light")} />
+                    <Star key={i} className={cn("h-3.5 w-3.5", i < Math.round(scientist.rating) ? "text-amber-500 fill-current" : "text-neutral-gray-light")} />
                   ))}
                 </div>
-                <span className="text-sm font-bold text-neutral-black ml-1">{scientist.rating}</span>
+                <span className="font-bold text-neutral-black text-sm">{scientist.rating}</span>
                 <span className="text-xs text-neutral-gray-medium">({scientist.reviews})</span>
               </div>
             </div>
@@ -129,7 +138,7 @@ export default function ScientistDetails() {
                   </div>
                   <h1 className="text-3xl font-bold text-neutral-black leading-tight mb-1">{scientist.name}</h1>
                   <p className="text-brand-red-600 font-medium mb-2">{scientist.professions.slice(0, 3).join(' \u2022 ')}</p>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-neutral-gray-dark mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-neutral-gray-dark mb-3">
                     <span className="flex items-center gap-1.5">
                       <GraduationCap className="h-4 w-4 text-neutral-gray-medium" />
                       {scientist.degrees.slice(0, 3).join(', ')}
@@ -138,6 +147,11 @@ export default function ScientistDetails() {
                     <span className="flex items-center gap-1.5">
                       <MapPin className="h-4 w-4 text-neutral-gray-medium" />
                       {scientist.location}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <span className="px-2 py-0.5 rounded bg-brand-navy-100 text-brand-navy-900 text-xs font-bold border border-brand-navy-100">
+                      {scientist.field}
                     </span>
                   </div>
                 </div>
@@ -158,7 +172,7 @@ export default function ScientistDetails() {
                         <Phone className="h-4 w-4" />
                       </Button>
                       <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Message" onClick={() => setIsMessagingOpen(true)}>
-                        <MessageCircle className="h-4 w-4" />
+                        <Mail className="h-4 w-4" />
                       </Button>
                     </div>
                     <div className="flex gap-2 flex-shrink-0">
@@ -201,6 +215,7 @@ export default function ScientistDetails() {
             <TabButton active={activeTab === 'profile'} onClick={() => setActiveTab('profile')}>Profile & Services</TabButton>
             <TabButton active={activeTab === 'achievements'} onClick={() => setActiveTab('achievements')}>Achievements</TabButton>
             <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')}>Reviews</TabButton>
+            <TabButton active={activeTab === 'gallery'} onClick={() => setActiveTab('gallery')}>Media Gallery</TabButton>
             <TabButton active={activeTab === 'contact'} onClick={() => setActiveTab('contact')}>Contact Info</TabButton>
           </div>
         </div>
@@ -215,6 +230,7 @@ export default function ScientistDetails() {
             {activeTab === 'profile' && <ProfileTab scientist={scientist} />}
             {activeTab === 'achievements' && <AchievementsTab scientist={scientist} />}
             {activeTab === 'reviews' && <ReviewsTab scientist={scientist} />}
+            {activeTab === 'gallery' && <MediaGalleryTab gallery={scientist.gallery} />}
             {activeTab === 'contact' && <ContactTab scientist={scientist} />}
           </div>
 
@@ -241,6 +257,10 @@ export default function ScientistDetails() {
         providerName={scientist.name}
         providerImage={scientist.image}
       />
+
+      {isDpPreviewOpen && (
+        <ImagePreviewModal src={scientist.image} alt={scientist.name} onClose={() => setIsDpPreviewOpen(false)} />
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Clock, ShieldCheck } from 'lucide-react';
+import { Calendar, Clock, Star, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/components/ui/Button';
 
@@ -11,7 +11,7 @@ interface SidebarProps {
 export default function Sidebar({ scientist }: SidebarProps) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light sticky top-24">
-      <h3 className="text-sm font-bold text-neutral-gray-dark uppercase tracking-wider mb-4">Availability</h3>
+      <h3 className="text-sm font-bold text-neutral-gray-dark uppercase tracking-wider mb-4">Professional Highlights</h3>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-black">Status</span>
@@ -24,32 +24,48 @@ export default function Sidebar({ scientist }: SidebarProps) {
             {scientist.status}
           </span>
         </div>
+
         <div className="flex items-center justify-between">
-          <span className="text-sm text-neutral-black">Response Time</span>
-          <span className="text-sm text-neutral-gray-dark font-medium">Within 24hrs</span>
+          <span className="text-sm text-neutral-black">Field</span>
+          <span className="text-sm text-brand-navy-900 font-medium">{scientist.field}</span>
         </div>
 
-        {/* Work Days */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-neutral-black">Response Time</span>
+          <span className="text-sm text-brand-navy-900 font-medium">{scientist.responseTime || 'Within 24hrs'}</span>
+        </div>
+
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-black flex items-center gap-1.5">
             <Calendar className="h-3.5 w-3.5 text-neutral-gray-medium" /> Work Days
           </span>
           <span className="text-sm text-neutral-gray-dark font-medium">
-            {(scientist as any).availability?.workDays || 'Mon - Fri'}
+            {scientist.availability?.workDays || 'Mon - Fri'}
           </span>
         </div>
 
-        {/* Time */}
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-black flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5 text-neutral-gray-medium" /> Time
+            <Clock className="h-3.5 w-3.5 text-neutral-gray-medium" /> Work Hours
           </span>
           <span className="text-sm text-neutral-gray-dark font-medium">
-            {(scientist as any).availability?.time || '9 AM - 5 PM'}
+            {scientist.availability?.time || '9 AM - 5 PM'}
           </span>
         </div>
 
-        {/* Certifications quick list */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-neutral-black">Bookings</span>
+          <span className="text-sm text-neutral-gray-dark font-medium">{scientist.bookingsCount || 0}+</span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-neutral-black">Rating</span>
+          <div className="flex items-center gap-1">
+            <Star className="h-3 w-3 text-amber-500 fill-current" />
+            <span className="text-sm font-bold text-neutral-black">{scientist.rating}</span>
+          </div>
+        </div>
+
         {scientist.certifications && scientist.certifications.length > 0 && (
           <div className="pt-4 border-t border-neutral-gray-light">
             <p className="text-xs font-bold text-neutral-gray-dark uppercase mb-2">Certifications</p>

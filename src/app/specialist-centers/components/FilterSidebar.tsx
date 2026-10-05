@@ -8,19 +8,19 @@ import {
 } from '@/app/data/mockData';
 import { cn } from '@/lib/utils';
 import InfoTooltip from './InfoTooltip';
-import { FIELD_DESCRIPTIONS, CATEGORY_DESCRIPTIONS, COUNTRIES, STATES } from '../data';
+import { CATEGORY_DESCRIPTIONS, COUNTRIES, STATES } from '../data';
 
 interface FilterSidebarProps {
   selectedField: string;
   onFieldChange: (field: string) => void;
   selectedCategories: string[];
   onCategoryToggle: (cat: string) => void;
-  selectedOwnership: string[];
-  onOwnershipToggle: (own: string) => void;
+  selectedOwnership: string;
+  onOwnershipChange: (own: string) => void;
   selectedServices: string[];
   onServiceToggle: (svc: string) => void;
-  selectedStatus: string[];
-  onStatusToggle: (st: string) => void;
+  selectedStatus: string;
+  onStatusChange: (st: string) => void;
   selectedCountry: string;
   onCountryChange: (country: string) => void;
   selectedState: string;
@@ -36,9 +36,9 @@ interface FilterSidebarProps {
 export default function FilterSidebar({
   selectedField, onFieldChange,
   selectedCategories, onCategoryToggle,
-  selectedOwnership, onOwnershipToggle,
+  selectedOwnership, onOwnershipChange,
   selectedServices, onServiceToggle,
-  selectedStatus, onStatusToggle,
+  selectedStatus, onStatusChange,
   selectedCountry, onCountryChange,
   selectedState, onStateChange,
   collapsedSections, onToggleSection,
@@ -92,7 +92,6 @@ export default function FilterSidebar({
                       className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5"
                     />
                     <span className="flex-1 text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{field}</span>
-                    {FIELD_DESCRIPTIONS[field] && <InfoTooltip text={FIELD_DESCRIPTIONS[field]} />}
                   </label>
                 ))}
               </div>
@@ -177,8 +176,8 @@ export default function FilterSidebar({
             >
               <span className="flex items-center gap-1.5">
                 Ownership
-                {selectedOwnership.length > 0 && (
-                  <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">{selectedOwnership.length}</span>
+                {selectedOwnership && (
+                  <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">1</span>
                 )}
               </span>
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.ownership && "rotate-180")} />
@@ -188,10 +187,11 @@ export default function FilterSidebar({
                 {CENTER_OWNERSHIP_OPTIONS.map((own) => (
                   <label key={own} className="flex items-center gap-2 cursor-pointer group">
                     <input
-                      type="checkbox"
-                      checked={selectedOwnership.includes(own)}
-                      onChange={() => onOwnershipToggle(own)}
-                      className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5"
+                      type="radio"
+                      name="center-ownership"
+                      checked={selectedOwnership === own}
+                      onChange={() => onOwnershipChange(own)}
+                      className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5"
                     />
                     <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{own}</span>
                   </label>
@@ -208,8 +208,8 @@ export default function FilterSidebar({
             >
               <span className="flex items-center gap-1.5">
                 Status
-                {selectedStatus.length > 0 && (
-                  <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">{selectedStatus.length}</span>
+                {selectedStatus && (
+                  <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">1</span>
                 )}
               </span>
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.status && "rotate-180")} />
@@ -219,10 +219,11 @@ export default function FilterSidebar({
                 {['Online', 'Offline'].map((status) => (
                   <label key={status} className="flex items-center gap-2 cursor-pointer group">
                     <input
-                      type="checkbox"
-                      checked={selectedStatus.includes(status)}
-                      onChange={() => onStatusToggle(status)}
-                      className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5"
+                      type="radio"
+                      name="center-status"
+                      checked={selectedStatus === status}
+                      onChange={() => onStatusChange(status)}
+                      className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5"
                     />
                     <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{status}</span>
                   </label>

@@ -8,8 +8,9 @@ import {
   SelectInput,
   FileUpload,
   SocialHandlesFields,
+  GovernmentIdCardUpload,
 } from '../components/FormField';
-import { TITLES, ID_CARD_TYPES } from '../data';
+import { TITLES } from '../data';
 import { emptySocials, emptyIdCard, type Guardian } from './types';
 
 export function createGuardian(): Guardian {
@@ -66,7 +67,7 @@ export default function GuardianSection({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <FieldLabel required>
+              <FieldLabel required info="Select the appropriate title that best describes your guardian.">
                 Title
               </FieldLabel>
               <SelectInput
@@ -108,12 +109,13 @@ export default function GuardianSection({
           <div className="mt-4">
             <FieldLabel>Social Handles</FieldLabel>
             <SocialHandlesFields
+              hintPosition="above"
               value={guardian.socials}
               onChange={(socials) => update(guardian.id, { socials })}
             />
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 space-y-4">
             <FileUpload
               label="Display Image"
               accept="image/*"
@@ -122,41 +124,11 @@ export default function GuardianSection({
               onChange={(f) => update(guardian.id, { displayImage: f })}
               onClear={() => update(guardian.id, { displayImage: null })}
             />
-            <div>
-              <FieldLabel required>Government ID Card Type</FieldLabel>
-              <SelectInput
-                value={guardian.idCard.type}
-                onChange={(e) =>
-                  update(guardian.id, { idCard: { ...guardian.idCard, type: e.target.value } })
-                }
-              >
-                <option value="">Select ID card type</option>
-                {ID_CARD_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </SelectInput>
-              {guardian.idCard.type === 'Other' && (
-                <TextInput
-                  className="mt-2"
-                  placeholder="Specify ID type"
-                  value={guardian.idCard.otherSpecify}
-                  onChange={(e) =>
-                    update(guardian.id, {
-                      idCard: { ...guardian.idCard, otherSpecify: e.target.value },
-                    })
-                  }
-                />
-              )}
-            </div>
-            <FileUpload
-              label="Upload ID Card"
-              accept="image/*"
-              hint="To verify guardian's identity. Documents are securely stored."
+            <GovernmentIdCardUpload
+              idType={guardian.idCard.type}
+              otherSpecify={guardian.idCard.otherSpecify}
               file={guardian.idCard.file}
-              onChange={(f) => update(guardian.id, { idCard: { ...guardian.idCard, file: f } })}
-              onClear={() => update(guardian.id, { idCard: { ...guardian.idCard, file: null } })}
+              onChange={(patch) => update(guardian.id, { idCard: { ...guardian.idCard, ...patch } })}
             />
           </div>
         </div>

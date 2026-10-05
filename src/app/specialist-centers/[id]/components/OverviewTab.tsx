@@ -1,6 +1,8 @@
 'use client';
 
-import { Building2, PenTool, Flag, DollarSign, FileText, ChevronRight } from 'lucide-react';
+import { Building2, PenTool, Flag, DollarSign, FileText } from 'lucide-react';
+import InfoTooltip from '../../components/InfoTooltip';
+import { SERVICE_DESCRIPTIONS } from '../../data';
 
 interface ServiceCost {
   service: string;
@@ -21,10 +23,9 @@ interface OverviewTabProps {
     otherFees?: OtherFee[];
     policies?: string[];
   };
-  onShowPolicies: () => void;
 }
 
-export default function OverviewTab({ center, onShowPolicies }: OverviewTabProps) {
+export default function OverviewTab({ center }: OverviewTabProps) {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
@@ -39,10 +40,11 @@ export default function OverviewTab({ center, onShowPolicies }: OverviewTabProps
           <PenTool className="h-5 w-5 text-brand-red-600" /> Services
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {(center.services || []).slice(0, 5).map((service, idx) => (
+          {(center.services || []).map((service, idx) => (
             <div key={idx} className="flex items-center gap-3 p-3 rounded-lg border border-neutral-gray-light bg-neutral-bg-light/50">
-              <div className="h-2 w-2 rounded-full bg-brand-red-600" />
-              <span className="text-neutral-gray-dark text-sm font-medium">{service}</span>
+              <div className="h-2 w-2 rounded-full bg-brand-red-600 flex-shrink-0" />
+              <span className="text-neutral-gray-dark text-sm font-medium flex-1">{service}</span>
+              {SERVICE_DESCRIPTIONS[service] && <InfoTooltip text={SERVICE_DESCRIPTIONS[service]} />}
             </div>
           ))}
         </div>
@@ -65,7 +67,7 @@ export default function OverviewTab({ center, onShowPolicies }: OverviewTabProps
 
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
         <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2 uppercase tracking-wide">
-          <DollarSign className="h-5 w-5 text-green-600" /> Service Fee
+          <DollarSign className="h-5 w-5 text-green-600" /> Service Fees
         </h3>
         {center.serviceCost && center.serviceCost.length > 0 ? (
           <div className="overflow-hidden rounded-lg border border-neutral-gray-light">
@@ -124,19 +126,11 @@ export default function OverviewTab({ center, onShowPolicies }: OverviewTabProps
           <FileText className="h-5 w-5 text-neutral-gray-dark" /> Engagement Policies
         </h3>
         {center.policies && center.policies.length > 0 ? (
-          <>
-            <ul className="list-disc list-inside space-y-2 text-sm text-neutral-gray-dark">
-              {center.policies.slice(0, 2).map((policy, idx) => (
-                <li key={idx}>{policy}</li>
-              ))}
-            </ul>
-            <button
-              onClick={onShowPolicies}
-              className="mt-3 text-sm text-brand-red-600 hover:underline font-medium flex items-center gap-1"
-            >
-              {center.policies.length > 2 ? 'View All Policies' : 'View All'} <ChevronRight className="h-3.5 w-3.5" />
-            </button>
-          </>
+          <ul className="list-disc list-inside space-y-2 text-sm text-neutral-gray-dark">
+            {center.policies.map((policy, idx) => (
+              <li key={idx}>{policy}</li>
+            ))}
+          </ul>
         ) : (
           <p className="text-sm text-neutral-gray-medium italic">No policies listed.</p>
         )}

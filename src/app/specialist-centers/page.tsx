@@ -15,9 +15,9 @@ export default function SpecialistCentersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedField, setSelectedField] = useState<string>('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedOwnership, setSelectedOwnership] = useState<string[]>([]);
+  const [selectedOwnership, setSelectedOwnership] = useState<string>('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedState, setSelectedState] = useState('');
   const [archivedIds, setArchivedIds] = useState<string[]>([]);
@@ -35,19 +35,23 @@ export default function SpecialistCentersPage() {
     return CENTER_CATEGORIES_BY_FIELD[selectedField] || [];
   }, [selectedField]);
 
-  const activeFilterCount = (selectedField ? 1 : 0) + selectedCategories.length + selectedOwnership.length + selectedServices.length + selectedStatus.length + (selectedCountry ? 1 : 0) + (selectedState ? 1 : 0);
+  const activeFilterCount = (selectedField ? 1 : 0) + selectedCategories.length + (selectedOwnership ? 1 : 0) + selectedServices.length + (selectedStatus ? 1 : 0) + (selectedCountry ? 1 : 0) + (selectedState ? 1 : 0);
 
   const filteredCenters = SPECIALIST_CENTERS.filter(center => {
-    const matchesSearch = !searchTerm ||
-      center.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      center.field.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      center.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      center.categories.some(c => c.toLowerCase().includes(searchTerm.toLowerCase()));
+    const q = searchTerm.toLowerCase();
+    const matchesSearch = !q ||
+      center.name.toLowerCase().includes(q) ||
+      center.field.toLowerCase().includes(q) ||
+      center.location.toLowerCase().includes(q) ||
+      center.ownership.toLowerCase().includes(q) ||
+      center.categories.some(c => c.toLowerCase().includes(q)) ||
+      center.services.some(s => s.toLowerCase().includes(q)) ||
+      (center.scopes || []).some(s => s.toLowerCase().includes(q));
     const matchesField = !selectedField || center.field === selectedField;
     const matchesCategory = selectedCategories.length === 0 || center.categories.some(c => selectedCategories.includes(c));
-    const matchesOwnership = selectedOwnership.length === 0 || selectedOwnership.includes(center.ownership);
+    const matchesOwnership = !selectedOwnership || center.ownership === selectedOwnership;
     const matchesServices = selectedServices.length === 0 || center.services.some(s => selectedServices.includes(s));
-    const matchesStatus = selectedStatus.length === 0 || selectedStatus.includes(center.status);
+    const matchesStatus = !selectedStatus || center.status === selectedStatus;
     const matchesCountry = !selectedCountry || center.country === selectedCountry;
     const matchesState = !selectedState || center.state === selectedState;
     return matchesSearch && matchesField && matchesCategory && matchesOwnership && matchesServices && matchesStatus && matchesCountry && matchesState;
@@ -55,6 +59,10 @@ export default function SpecialistCentersPage() {
 
   const toggleFilter = (value: string, setter: React.Dispatch<React.SetStateAction<string[]>>) => {
     setter(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
+  };
+
+  const selectSingle = (value: string, current: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    setter(current === value ? '' : value);
   };
 
   const toggleArchive = (id: string) => {
@@ -71,9 +79,9 @@ export default function SpecialistCentersPage() {
     setSearchTerm('');
     setSelectedField('');
     setSelectedCategories([]);
-    setSelectedOwnership([]);
+    setSelectedOwnership('');
     setSelectedServices([]);
-    setSelectedStatus([]);
+    setSelectedStatus('');
     setSelectedCountry('');
     setSelectedState('');
   };
@@ -94,7 +102,7 @@ export default function SpecialistCentersPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-black">Find Specialist Centers</h1>
-          <p className="mt-2 text-neutral-gray-dark">Discover specialized clinics, stations, centers, and establishments that render services in specific scientific & technological fields.</p>
+          <p className="mt-2 text-neutral-gray-dark">Reach out to establishments globally that render services in specialized scientific &amp; technological fields. Discover clinics, workshops, industries, stations, farms and more centers.</p>
           <Button variant="outline" className="mt-4 lg:hidden flex items-center gap-2" onClick={() => setShowFilters(!showFilters)}>
             <SlidersHorizontal className="h-4 w-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
@@ -111,11 +119,11 @@ export default function SpecialistCentersPage() {
             selectedCategories={selectedCategories}
             onCategoryToggle={(cat) => toggleFilter(cat, setSelectedCategories)}
             selectedOwnership={selectedOwnership}
-            onOwnershipToggle={(own) => toggleFilter(own, setSelectedOwnership)}
+            onOwnershipChange={(own) => selectSingle(own, selectedOwnership, setSelectedOwnership)}
             selectedServices={selectedServices}
             onServiceToggle={(svc) => toggleFilter(svc, setSelectedServices)}
             selectedStatus={selectedStatus}
-            onStatusToggle={(st) => toggleFilter(st, setSelectedStatus)}
+            onStatusChange={(st) => selectSingle(st, selectedStatus, setSelectedStatus)}
             selectedCountry={selectedCountry}
             onCountryChange={(c) => { setSelectedCountry(c); setSelectedState(''); }}
             selectedState={selectedState}
@@ -133,7 +141,7 @@ export default function SpecialistCentersPage() {
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-gray-medium" />
               <input
                 type="text"
-                placeholder="Search centers by name, field, category, or location..."
+                placeholder="Search centers by name, fields, categories, services, scopes, ownership, location or keyword..."
                 className="w-full rounded-xl border border-neutral-gray-light pl-12 pr-4 py-3 shadow-sm focus:border-brand-red-600 focus:outline-none focus:ring-1 focus:ring-brand-red-600 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

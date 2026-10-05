@@ -8,8 +8,9 @@ import {
   SelectInput,
   FileUpload,
   SocialHandlesFields,
+  GovernmentIdCardUpload,
 } from '../components/FormField';
-import { TITLES, ID_CARD_TYPES } from '../data';
+import { TITLES } from '../data';
 import { ACADEMIC_LEVELS } from './types';
 import type { ScholarshipFormState } from './types';
 
@@ -20,6 +21,8 @@ export default function ApplicantSection({
   value: ScholarshipFormState['applicant'];
   onChange: (v: ScholarshipFormState['applicant']) => void;
 }) {
+  const degreeDisabled = value.academicLevel === 'Undergraduate';
+
   return (
     <SectionCard
       title="Your Information (Beneficiary)"
@@ -28,7 +31,7 @@ export default function ApplicantSection({
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <FieldLabel required>
+          <FieldLabel required info="Select the appropriate title that best describes you.">
             Title
           </FieldLabel>
           <SelectInput
@@ -69,12 +72,13 @@ export default function ApplicantSection({
       <div className="mt-4">
         <FieldLabel required>Social Handles</FieldLabel>
         <SocialHandlesFields
+          hintPosition="above"
           value={value.socials}
           onChange={(socials) => onChange({ ...value, socials })}
         />
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <div className="mt-4 space-y-4">
         <div>
           <FieldLabel required>Academic Level</FieldLabel>
           <SelectInput
@@ -108,67 +112,29 @@ export default function ApplicantSection({
           onChange={(f) => onChange({ ...value, displayImage: f })}
           onClear={() => onChange({ ...value, displayImage: null })}
         />
-        <div>
-          <FieldLabel required>Government ID Card Type</FieldLabel>
-          <SelectInput
-            value={value.idCard.type}
-            onChange={(e) =>
-              onChange({
-                ...value,
-                idCard: { ...value.idCard, type: e.target.value },
-              })
-            }
-            required
-          >
-            <option value="">Select ID card type</option>
-            {ID_CARD_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </SelectInput>
-          {value.idCard.type === 'Other' && (
-            <TextInput
-              className="mt-2"
-              placeholder="Specify ID type"
-              value={value.idCard.otherSpecify}
-              onChange={(e) =>
-                onChange({
-                  ...value,
-                  idCard: { ...value.idCard, otherSpecify: e.target.value },
-                })
-              }
-              required
-            />
-          )}
-        </div>
-        <FileUpload
-          label="Upload ID Card"
+        <GovernmentIdCardUpload
           required
-          accept="image/*"
-          hint="To verify your identity. Documents are securely stored."
+          note="To verify your identity, kindly upload a copy of the selected ID card. Uploaded documents are securely stored and protected from unauthorized access."
+          idType={value.idCard.type}
+          otherSpecify={value.idCard.otherSpecify}
           file={value.idCard.file}
-          onChange={(f) =>
-            onChange({
-              ...value,
-              idCard: { ...value.idCard, file: f },
-            })
-          }
-          onClear={() =>
-            onChange({
-              ...value,
-              idCard: { ...value.idCard, file: null },
-            })
-          }
+          onChange={(patch) => onChange({ ...value, idCard: { ...value.idCard, ...patch } })}
         />
-        <FileUpload
-          label="Degree Certificate (where applicable)"
-          accept="image/*,.pdf"
-          hint="Optional — upload if you already hold a prior tertiary certificate."
-          file={value.degreeCertificate}
-          onChange={(f) => onChange({ ...value, degreeCertificate: f })}
-          onClear={() => onChange({ ...value, degreeCertificate: null })}
-        />
+        {!degreeDisabled && (
+          <FileUpload
+            label="Degree Certificate (where applicable)"
+            accept="image/*,.pdf"
+            hint="To verify your academic portfolio, kindly upload a copy of your most recent academic degree certificate. Uploaded documents are securely stored and protected from unauthorized access."
+            file={value.degreeCertificate}
+            onChange={(f) => onChange({ ...value, degreeCertificate: f })}
+            onClear={() => onChange({ ...value, degreeCertificate: null })}
+          />
+        )}
+        {degreeDisabled && (
+          <p className="text-xs text-neutral-gray-medium">
+            Degree certificate upload is not required for Undergraduate applicants.
+          </p>
+        )}
       </div>
     </SectionCard>
   );

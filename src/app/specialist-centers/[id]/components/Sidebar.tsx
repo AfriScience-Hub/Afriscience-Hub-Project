@@ -20,6 +20,9 @@ interface SidebarProps {
     status: string;
     field: string;
     ownership: string;
+    responseTime?: string;
+    workDays?: string;
+    workHours?: string;
     bookingsCount?: number;
     rating: number;
     certifications?: Certification[];
@@ -52,6 +55,18 @@ export default function Sidebar({ center, onBookService }: SidebarProps) {
           <div className="flex items-center justify-between">
             <span className="text-sm text-neutral-black">Ownership</span>
             <span className="text-sm text-neutral-gray-dark font-medium">{center.ownership}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-neutral-black">Response Time</span>
+            <span className="text-sm text-brand-navy-900 font-medium">{center.responseTime || '—'}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-neutral-black">Work Days</span>
+            <span className="text-sm text-neutral-gray-dark font-medium">{center.workDays || '—'}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-neutral-black">Work Hours</span>
+            <span className="text-sm text-neutral-gray-dark font-medium">{center.workHours || '—'}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-neutral-black">Bookings</span>

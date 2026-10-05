@@ -1,8 +1,10 @@
 'use client';
 
 import {
-  Briefcase, PenTool, Flag, DollarSign, ShieldCheck, Award, FileText
+  Briefcase, PenTool, Flag, DollarSign, FileText
 } from 'lucide-react';
+import InfoTooltip from '@/app/components/ui/InfoTooltip';
+import { SCIENTIST_SERVICE_DESCRIPTIONS } from '../../data';
 
 interface ProfileTabProps {
   scientist: any;
@@ -27,10 +29,11 @@ export default function ProfileTab({ scientist }: ProfileTabProps) {
           <PenTool className="h-5 w-5 text-brand-red-600" /> Services
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {scientist.services?.slice(0, 5).map((service: string, idx: number) => (
+          {(scientist.services || []).map((service: string, idx: number) => (
             <div key={idx} className="flex items-center gap-3 p-3 rounded-lg border border-neutral-gray-light bg-neutral-bg-light/50">
-              <div className="h-2 w-2 rounded-full bg-brand-red-600" />
-              <span className="text-neutral-gray-dark text-sm font-medium">{service}</span>
+              <div className="h-2 w-2 rounded-full bg-brand-red-600 flex-shrink-0" />
+              <span className="text-neutral-gray-dark text-sm font-medium flex-1">{service}</span>
+              {SCIENTIST_SERVICE_DESCRIPTIONS[service] && <InfoTooltip text={SCIENTIST_SERVICE_DESCRIPTIONS[service]} />}
             </div>
           ))}
         </div>
@@ -81,26 +84,33 @@ export default function ProfileTab({ scientist }: ProfileTabProps) {
         )}
       </section>
 
-      {/* Certifications */}
+      {/* Other Charges */}
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-        <div className="mb-4">
-          <h3 className="text-lg font-bold text-neutral-black flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-brand-navy-900" /> Certifications & Degrees
-          </h3>
-        </div>
-        <div className="grid gap-3">
-          {scientist.certifications?.map((cert: any, idx: number) => (
-            <div key={idx} className="flex items-start gap-4 p-4 rounded-lg border border-neutral-gray-light bg-neutral-bg-light/30">
-              <div className="h-10 w-10 rounded-full bg-brand-red-100 flex items-center justify-center text-brand-red-600 flex-shrink-0">
-                <Award className="h-5 w-5" />
-              </div>
-              <div>
-                <h4 className="font-bold text-neutral-black text-sm">{cert.name}</h4>
-                <p className="text-xs text-neutral-gray-medium">{cert.issuer} &bull; {cert.year}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
+          <DollarSign className="h-5 w-5 text-amber-600" /> Other Charges
+        </h3>
+        {scientist.otherFees && scientist.otherFees.length > 0 ? (
+          <div className="overflow-hidden rounded-lg border border-neutral-gray-light">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-neutral-bg-light text-neutral-gray-dark font-semibold border-b border-neutral-gray-light">
+                <tr>
+                  <th className="px-4 py-3">Charge</th>
+                  <th className="px-4 py-3">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-gray-light">
+                {scientist.otherFees.map((fee: any, idx: number) => (
+                  <tr key={idx} className="hover:bg-neutral-bg-light/50">
+                    <td className="px-4 py-3 font-medium text-neutral-black">{fee.name}</td>
+                    <td className="px-4 py-3 text-brand-navy-900 font-bold">{fee.amount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-sm text-neutral-gray-medium italic">No additional charges listed.</p>
+        )}
       </section>
 
       {/* Engagement Policies */}
@@ -108,13 +118,11 @@ export default function ProfileTab({ scientist }: ProfileTabProps) {
         <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
           <FileText className="h-5 w-5 text-neutral-gray-dark" /> Engagement Policies
         </h3>
-        <div className="max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-          <ul className="list-disc list-inside space-y-2 text-sm text-neutral-gray-dark">
-            {scientist.policies?.map((policy: string, idx: number) => (
-              <li key={idx}>{policy}</li>
-            ))}
-          </ul>
-        </div>
+        <ul className="list-disc list-inside space-y-2 text-sm text-neutral-gray-dark">
+          {(scientist.policies || []).map((policy: string, idx: number) => (
+            <li key={idx}>{policy}</li>
+          ))}
+        </ul>
       </section>
     </div>
   );

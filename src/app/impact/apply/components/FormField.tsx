@@ -222,12 +222,14 @@ export function GovernmentIdCardUpload({
   file,
   onChange,
   required,
+  note,
 }: {
   idType: string;
   otherSpecify: string;
   file: File | null;
   onChange: (patch: { type?: string; otherSpecify?: string; file?: File | null }) => void;
   required?: boolean;
+  note?: string;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
@@ -296,10 +298,8 @@ export function GovernmentIdCardUpload({
           <div>
             <Upload className="h-8 w-8 text-neutral-gray-light mx-auto mb-2" />
             <p className="text-sm text-neutral-gray-dark leading-relaxed">
-              To verify your identity, kindly upload a copy of the selected valid government issued ID card
-              of yours (National ID card, Driver&apos;s license, Voter&apos;s card, International
-              passport, etc.). Uploaded documents are securely stored and protected from
-              unauthorized access.
+              {note ??
+                "To verify your identity, kindly upload a copy of the selected valid government issued ID card of yours (National ID card, Driver's license, Voter's card, International passport, etc.). Uploaded documents are securely stored and protected from unauthorized access."}
             </p>
             <p className="text-xs text-neutral-gray-medium mt-2">picture / image file formats only</p>
           </div>

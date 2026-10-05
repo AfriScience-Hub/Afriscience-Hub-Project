@@ -12,6 +12,9 @@ export default function ReviewsTab({ scientist }: ReviewsTabProps) {
     <div className="space-y-8 animate-in fade-in duration-300" id="reviews">
       {/* Rating Summary */}
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+        <h3 className="text-lg font-bold text-neutral-black mb-6 flex items-center gap-2">
+          <Star className="h-5 w-5 text-amber-500" /> Star-rating Chart
+        </h3>
         <div className="flex flex-col sm:flex-row gap-8 items-center">
           <div className="text-center">
             <div className="text-5xl font-bold text-neutral-black">{scientist.rating}</div>
@@ -45,7 +48,7 @@ export default function ReviewsTab({ scientist }: ReviewsTabProps) {
       {/* Reviews list */}
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
         <h3 className="text-lg font-bold text-neutral-black mb-6 flex items-center gap-2">
-          <MessageCircle className="h-5 w-5 text-brand-red-600" /> Client Reviews
+          <MessageCircle className="h-5 w-5 text-brand-red-600" /> Client Reviews &amp; Testimonials
         </h3>
         <div className="space-y-6">
           {scientist.testimonials && scientist.testimonials.length > 0 ? scientist.testimonials.map((review: any, idx: number) => (

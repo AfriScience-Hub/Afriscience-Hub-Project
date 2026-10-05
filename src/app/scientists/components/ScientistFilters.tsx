@@ -2,12 +2,12 @@
 
 import { Filter, ChevronDown } from 'lucide-react';
 import { cn } from '../../../lib/utils';
-import { SCIENTIST_FIELDS, SCIENTIST_SERVICES } from '../../data/mockData';
+import { SCIENTIST_FIELDS, SCIENTIST_DEGREES, SCIENTIST_SERVICES, PROFESSIONS_BY_FIELD } from '../../data/mockData';
 
 const COUNTRIES = [
   'Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi',
   'Cameroon', 'Cape Verde', 'Central African Republic', 'Chad', 'Comoros',
-  'Congo (DRC)', 'Congo (Republic)', 'Côte d\'Ivoire', 'Djibouti', 'Egypt',
+  'Congo (DRC)', 'Congo (Republic)', "Côte d'Ivoire", 'Djibouti', 'Egypt',
   'Equatorial Guinea', 'Eritrea', 'Eswatini', 'Ethiopia', 'Gabon', 'Gambia',
   'Ghana', 'Guinea', 'Guinea-Bissau', 'Kenya', 'Lesotho', 'Liberia', 'Libya',
   'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco',
@@ -30,19 +30,20 @@ const STATES: Record<string, string[]> = {
 };
 
 type ScientistFiltersProps = {
-  selectedFields: string[];
-  setSelectedFields: (val: string[]) => void;
+  selectedField: string;
+  handleFieldChange: (field: string) => void;
   selectedProfessions: string[];
   setSelectedProfessions: (val: string[]) => void;
+  selectedDegree: string;
+  setSelectedDegree: (val: string) => void;
   selectedServices: string[];
   setSelectedServices: (val: string[]) => void;
-  selectedStatus: string[];
-  setSelectedStatus: (val: string[]) => void;
+  selectedStatus: string;
+  setSelectedStatus: (val: string) => void;
   selectedCountry: string;
   setSelectedCountry: (val: string) => void;
   selectedState: string;
   setSelectedState: (val: string) => void;
-  allProfessions: string[];
   showFilters: boolean;
   collapsedSections: Record<string, boolean>;
   toggleSection: (key: string) => void;
@@ -50,24 +51,36 @@ type ScientistFiltersProps = {
   resetFilters: () => void;
 };
 
+const inputCls = 'border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5';
+
 export default function ScientistFilters({
-  selectedFields, setSelectedFields,
+  selectedField, handleFieldChange,
   selectedProfessions, setSelectedProfessions,
+  selectedDegree, setSelectedDegree,
   selectedServices, setSelectedServices,
   selectedStatus, setSelectedStatus,
   selectedCountry, setSelectedCountry,
   selectedState, setSelectedState,
-  allProfessions,
   showFilters,
   collapsedSections, toggleSection,
   activeFilterCount, resetFilters,
 }: ScientistFiltersProps) {
-  const toggleFilter = (item: string, current: string[], set: (val: string[]) => void) => {
-    if (current.includes(item)) {
-      set(current.filter(i => i !== item));
-    } else {
-      set([...current, item]);
-    }
+  const availableProfessions = selectedField ? PROFESSIONS_BY_FIELD[selectedField] || [] : [];
+
+  const toggleProfession = (item: string) => {
+    setSelectedProfessions(
+      selectedProfessions.includes(item)
+        ? selectedProfessions.filter(i => i !== item)
+        : [...selectedProfessions, item]
+    );
+  };
+
+  const toggleService = (item: string) => {
+    setSelectedServices(
+      selectedServices.includes(item)
+        ? selectedServices.filter(i => i !== item)
+        : [...selectedServices, item]
+    );
   };
 
   return (
@@ -92,13 +105,13 @@ export default function ScientistFilters({
         </div>
 
         <div className="space-y-0 divide-y divide-neutral-gray-light">
-          {/* Fields */}
+          {/* Fields (1 selection at a time) */}
           <div className="py-4 first:pt-0">
             <button onClick={() => toggleSection('fields')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Fields
-                {selectedFields.length > 0 && (
-                  <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">{selectedFields.length}</span>
+                {selectedField && (
+                  <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">1</span>
                 )}
               </span>
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.fields && "rotate-180")} />
@@ -107,9 +120,8 @@ export default function ScientistFilters({
               <div className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar animate-in fade-in duration-200">
                 {SCIENTIST_FIELDS.map((field) => (
                   <label key={field} className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked={selectedFields.includes(field)}
-                      onChange={() => toggleFilter(field, selectedFields, setSelectedFields)}
-                      className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600" />
+                    <input type="radio" name="scientist-field" checked={selectedField === field}
+                      onChange={() => handleFieldChange(field)} className={inputCls} />
                     <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{field}</span>
                   </label>
                 ))}
@@ -117,7 +129,7 @@ export default function ScientistFilters({
             )}
           </div>
 
-          {/* Profession */}
+          {/* Profession (professions under the selected field) */}
           <div className="py-4">
             <button onClick={() => toggleSection('profession')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
@@ -128,14 +140,44 @@ export default function ScientistFilters({
               </span>
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.profession && "rotate-180")} />
             </button>
+            {selectedField && (
+              <p className="text-[10px] text-neutral-gray-medium mt-1">
+                Showing professions for: <span className="font-bold text-brand-navy-900">{selectedField}</span>
+              </p>
+            )}
             {!collapsedSections.profession && (
               <div className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar animate-in fade-in duration-200">
-                {allProfessions.map((prof) => (
+                {availableProfessions.length > 0 ? availableProfessions.map((prof) => (
                   <label key={prof} className="flex items-center gap-2 cursor-pointer group">
                     <input type="checkbox" checked={selectedProfessions.includes(prof)}
-                      onChange={() => toggleFilter(prof, selectedProfessions, setSelectedProfessions)}
-                      className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600" />
+                      onChange={() => toggleProfession(prof)} className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
                     <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{prof}</span>
+                  </label>
+                )) : (
+                  <p className="text-xs text-neutral-gray-medium italic">Select a field to see professions.</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Degree (1 selection at a time) */}
+          <div className="py-4">
+            <button onClick={() => toggleSection('degree')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors cursor-pointer">
+              <span className="flex items-center gap-1.5">
+                Degree
+                {selectedDegree && (
+                  <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">1</span>
+                )}
+              </span>
+              <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.degree && "rotate-180")} />
+            </button>
+            {!collapsedSections.degree && (
+              <div className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar animate-in fade-in duration-200">
+                {SCIENTIST_DEGREES.map((degree) => (
+                  <label key={degree} className="flex items-center gap-2 cursor-pointer group">
+                    <input type="radio" name="scientist-degree" checked={selectedDegree === degree}
+                      onChange={() => setSelectedDegree(selectedDegree === degree ? '' : degree)} className={inputCls} />
+                    <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{degree}</span>
                   </label>
                 ))}
               </div>
@@ -158,8 +200,7 @@ export default function ScientistFilters({
                 {SCIENTIST_SERVICES.map((svc) => (
                   <label key={svc} className="flex items-center gap-2 cursor-pointer group">
                     <input type="checkbox" checked={selectedServices.includes(svc)}
-                      onChange={() => toggleFilter(svc, selectedServices, setSelectedServices)}
-                      className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600" />
+                      onChange={() => toggleService(svc)} className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
                     <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors truncate" title={svc}>{svc}</span>
                   </label>
                 ))}
@@ -167,13 +208,13 @@ export default function ScientistFilters({
             )}
           </div>
 
-          {/* Status */}
+          {/* Status (1 selection at a time) */}
           <div className="py-4">
             <button onClick={() => toggleSection('status')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-0 hover:text-brand-red-600 transition-colors cursor-pointer">
               <span className="flex items-center gap-1.5">
                 Status
-                {selectedStatus.length > 0 && (
-                  <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">{selectedStatus.length}</span>
+                {selectedStatus && (
+                  <span className="text-[10px] font-bold text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">1</span>
                 )}
               </span>
               <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", !collapsedSections.status && "rotate-180")} />
@@ -182,9 +223,8 @@ export default function ScientistFilters({
               <div className="mt-3 space-y-2 animate-in fade-in duration-200">
                 {['Online', 'Offline'].map((status) => (
                   <label key={status} className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked={selectedStatus.includes(status)}
-                      onChange={() => toggleFilter(status, selectedStatus, setSelectedStatus)}
-                      className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600" />
+                    <input type="radio" name="scientist-status" checked={selectedStatus === status}
+                      onChange={() => setSelectedStatus(selectedStatus === status ? '' : status)} className={inputCls} />
                     <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{status}</span>
                   </label>
                 ))}

@@ -14,7 +14,7 @@ export default function ScientistHeader({ showFilters, setShowFilters, activeFil
   return (
     <div className="mb-8">
       <h1 className="text-3xl font-bold text-neutral-black">Find Scientists & Technologists</h1>
-      <p className="mt-2 text-neutral-gray-dark">Connect with verified experts across African science and innovation ecosystems.</p>
+      <p className="mt-2 text-neutral-gray-dark">Connect with global science and technology experts that can provide services across various African innovation ecosystems.</p>
       <Button
         variant="outline"
         className="mt-4 lg:hidden flex items-center gap-2"
