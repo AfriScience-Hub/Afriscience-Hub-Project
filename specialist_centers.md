@@ -73,7 +73,7 @@
 
 ### Center Information
 * **Fields:** Select Field *(Max 1 selection: Hybrid, Medical, Engineering, Pharmaceutical, Computer & ICT, Veterinary, Agriculture, Food & Nutrition, Mathematics & Statistics, Physics, Chemistry, Biology, Environmental, Industrial & Manufacturing, Energy & Power, Waste & Recycling, Astronomy & Space)*
-* **Categories:** Select Categories *(Max 4 selections; entries made via admin dashboard. If "Other" is selected, user must specify)*
+* **Categories:** Select Categories *(Max 4 selections. If "Other" is selected, user must specify)*
 * **Ownership:** Select Ownership *(Max 1 selection: Private, Government | Public, Academic, Mission, Corporate, Inter-Government, NGO | Charity, Other. Specify if "Other")*
 * **Services:** Select Services *(Multiple selections allowed; entries made via admin dashboard)*
 * **Service Fee:** Input Service 1 (Service Name, Description, Cost Range, Currency). Auto-lists all selected services.

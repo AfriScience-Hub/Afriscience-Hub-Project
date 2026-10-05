@@ -120,14 +120,13 @@ export default function ScientistProfileSection({ profile, onChange }: Scientist
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">
             Short Bio / Description <span className="text-red-500">*</span>
-            <span className="text-[10px] font-normal text-neutral-gray-medium"> (tell us more about yourself, qualifications, skills, career, etc.)</span>
           </label>
           <textarea
             value={profile.bio}
             onChange={(e) => onChange({ bio: e.target.value })}
             rows={5}
             className={`${inputClass} resize-none`}
-            placeholder="Tell us more about yourself..."
+            placeholder="Tell us more about yourself, qualifications, skills, career, etc. (1000 words max)"
           />
           <p className={`mt-1 text-xs ${wordCount > 1000 ? 'text-red-500' : 'text-neutral-gray-medium'}`}>{wordCount}/1000 words</p>
         </div>

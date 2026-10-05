@@ -15,14 +15,17 @@ import { ACADEMIC_YEARS, type ScholarshipFormState } from './types';
 export default function SchoolSection({
   value,
   academicLevel,
+  academicLevelOther,
   onChange,
 }: {
   value: ScholarshipFormState['school'];
   academicLevel: string;
+  academicLevelOther: string;
   onChange: (v: ScholarshipFormState['school']) => void;
 }) {
   const states = value.country ? COUNTRY_STATES[value.country] || [] : [];
   const years = ACADEMIC_YEARS[academicLevel] || ACADEMIC_YEARS['Undergraduate'];
+  const resolvedLevel = academicLevel === 'Other' ? academicLevelOther.trim() : academicLevel;
 
   return (
     <SectionCard
@@ -35,7 +38,7 @@ export default function SchoolSection({
         <div>
           <FieldLabel required>Scholarship Level</FieldLabel>
           <TextInput
-            value={academicLevel ? `${academicLevel} Scholarship` : ''}
+            value={resolvedLevel ? `${resolvedLevel} Scholarship` : ''}
             disabled
             placeholder="Auto-filled from Academic Level"
           />
@@ -153,6 +156,15 @@ export default function SchoolSection({
           file={value.schoolIdCard}
           onChange={(f) => onChange({ ...value, schoolIdCard: f })}
           onClear={() => onChange({ ...value, schoolIdCard: null })}
+        />
+        <FileUpload
+          label="Transcript"
+          required
+          accept="image/*,.txt,.doc,.docx"
+          hint="To validate your academic performance, kindly upload a copy of your current transcript. Uploaded documents are securely stored and protected from unauthorized access. Image & text file formats only."
+          file={value.transcript}
+          onChange={(f) => onChange({ ...value, transcript: f })}
+          onClear={() => onChange({ ...value, transcript: null })}
         />
       </div>
     </SectionCard>

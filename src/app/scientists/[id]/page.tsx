@@ -103,7 +103,7 @@ export default function ScientistDetails() {
                 type="button"
                 title="Preview"
                 onClick={() => setIsDpPreviewOpen(true)}
-                className="block h-32 w-32 md:h-40 md:w-40 cursor-pointer overflow-hidden rounded-full border-4 border-white bg-white shadow-lg transition-opacity hover:opacity-90"
+                className="relative block h-32 w-32 md:h-40 md:w-40 cursor-pointer overflow-hidden rounded-full border-4 border-white bg-white shadow-lg transition-opacity hover:opacity-90"
               >
                 <Image src={scientist.image} alt={scientist.name} fill className="object-cover" sizes="160px" />
               </button>

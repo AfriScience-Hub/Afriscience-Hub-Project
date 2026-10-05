@@ -26,7 +26,7 @@ export type ScholarshipFormState = {
   applicant: {
     title: string;
     name: string;
-    idTag: string;
+    username: string;
     phone: string;
     email: string;
     socials: SocialHandles;
@@ -48,6 +48,7 @@ export type ScholarshipFormState = {
     matricNo: string;
     currentCgpa: string;
     schoolIdCard: File | null;
+    transcript: File | null;
   };
   guardians: Guardian[];
   impact: {
@@ -82,7 +83,7 @@ export function createInitialScholarshipForm(user: {
     applicant: {
       title: '',
       name: user.name || '',
-      idTag: `ASH-ES-APP-${Date.now().toString().slice(-6)}`,
+      username: user.email?.split('@')[0] || '',
       phone: user.phone || '',
       email: user.email || '',
       socials: emptySocials(),
@@ -104,6 +105,7 @@ export function createInitialScholarshipForm(user: {
       matricNo: '',
       currentCgpa: '',
       schoolIdCard: null,
+      transcript: null,
     },
     guardians: [
       {

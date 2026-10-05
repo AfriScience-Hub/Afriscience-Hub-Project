@@ -95,7 +95,6 @@ export default function CenterCard({ center, archivedIds, onToggleArchive }: Cen
         <div className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 backdrop-blur-sm">
           <Star className="h-2.5 w-2.5 text-amber-400 fill-current" />
           <span className="text-[10px] font-bold text-white">{center.rating}</span>
-          <span className="text-[10px] text-white/80">({center.reviews} reviews)</span>
         </div>
       </div>
       <div className="flex flex-1 flex-col p-3.5">

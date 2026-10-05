@@ -7,9 +7,7 @@ interface YourInfoSectionProps {
 }
 
 export function YourInfoSection({ user }: YourInfoSectionProps) {
-  const idTag = user?.email
-    ? `ASH-${user.email.split('@')[0].toUpperCase()}`
-    : 'ASH-********';
+  const username = user?.email ? user.email.split('@')[0] : '';
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8">
@@ -28,9 +26,9 @@ export function YourInfoSection({ user }: YourInfoSectionProps) {
           </p>
         </div>
         <div>
-          <label className="block text-xs font-medium text-neutral-gray-medium mb-1">ID Tag</label>
+          <label className="block text-xs font-medium text-neutral-gray-medium mb-1">Username</label>
           <p className="text-sm font-semibold text-neutral-black bg-neutral-bg-light rounded-lg px-4 py-3">
-            {idTag}
+            {username || 'Not logged in'}
           </p>
         </div>
       </div>

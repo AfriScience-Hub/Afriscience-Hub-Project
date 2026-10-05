@@ -55,6 +55,7 @@ export default function ScholarshipApplicationForm({
     const cgpa = parseFloat(school.currentCgpa);
     if (Number.isNaN(cgpa) || cgpa < 3.0) return 'Current CGPA must be at least 3.0';
     if (!school.schoolIdCard) return 'Upload school registration / ID document';
+    if (!school.transcript) return 'Upload academic transcript';
 
     for (const g of guardians) {
       if (!g.title || !g.name || !g.phone) return 'Complete guardian details';
@@ -109,7 +110,8 @@ export default function ScholarshipApplicationForm({
       />
       <SchoolSection
         value={form.school}
-        academicLevel={form.applicant.academicLevel || form.applicant.academicLevelOther}
+        academicLevel={form.applicant.academicLevel}
+        academicLevelOther={form.applicant.academicLevelOther}
         onChange={(school) => setForm((f) => ({ ...f, school }))}
       />
       <GuardianSection

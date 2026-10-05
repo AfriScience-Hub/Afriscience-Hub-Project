@@ -7,7 +7,7 @@ export interface YourInformation {
   fullName: string;
   phone: string;
   email: string;
-  idTag: string;
+  username: string;
 }
 
 interface YourInformationSectionProps {
@@ -15,11 +15,11 @@ interface YourInformationSectionProps {
 }
 
 export default function YourInformationSection({ info }: YourInformationSectionProps) {
-  const fields: { label: string; value: string; placeholder: string }[] = [
-    { label: 'Full Name', value: info.fullName, placeholder: 'Auto-populated by platform' },
-    { label: 'Phone Number', value: info.phone, placeholder: 'Auto-populated by platform' },
-    { label: 'E-mail Address', value: info.email, placeholder: 'Auto-populated by platform' },
-    { label: 'ID Tag', value: info.idTag, placeholder: 'Auto-populated by platform' },
+  const fields: { label: string; value: string }[] = [
+    { label: 'Full Name', value: info.fullName },
+    { label: 'Phone Number', value: info.phone },
+    { label: 'E-mail Address', value: info.email },
+    { label: 'Username', value: info.username },
   ];
 
   return (
@@ -34,7 +34,6 @@ export default function YourInformationSection({ info }: YourInformationSectionP
                 type="text"
                 value={field.value}
                 readOnly
-                placeholder={field.placeholder}
                 className="w-full cursor-not-allowed rounded-lg border border-neutral-gray-light bg-neutral-bg-light px-4 py-2.5 text-sm text-neutral-gray-dark"
               />
             </div>

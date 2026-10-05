@@ -38,7 +38,7 @@ export type CareerFormState = {
   head: {
     title: string;
     name: string;
-    idTag: string;
+    username: string;
     phone: string;
     email: string;
     socials: SocialHandles;
@@ -123,12 +123,11 @@ export function createInitialCareerForm(user: {
   email?: string;
   phone?: string;
 }): CareerFormState {
-  const idTag = `ASH-CS-APP-${Date.now().toString().slice(-6)}`;
   return {
     head: {
       title: '',
       name: user.name || '',
-      idTag,
+      username: user.email?.split('@')[0] || '',
       phone: user.phone || '',
       email: user.email || '',
       socials: emptySocials(),

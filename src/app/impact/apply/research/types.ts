@@ -44,7 +44,7 @@ export type ResearchFormState = {
   head: {
     title: string;
     name: string;
-    idTag: string;
+    username: string;
     phone: string;
     email: string;
     socials: SocialHandles;
@@ -134,7 +134,7 @@ export function createInitialResearchForm(user: {
     head: {
       title: '',
       name: user.name || '',
-      idTag: `ASH-RS-APP-${Date.now().toString().slice(-6)}`,
+      username: user.email?.split('@')[0] || '',
       phone: user.phone || '',
       email: user.email || '',
       socials: emptySocials(),

@@ -65,8 +65,8 @@ export default function HeadResearcherSection({
           <TextInput value={value.name} disabled />
         </div>
         <div>
-          <FieldLabel>ID Tag</FieldLabel>
-          <TextInput value={value.idTag} disabled />
+          <FieldLabel>Username</FieldLabel>
+          <TextInput value={value.username} disabled />
         </div>
         <div>
           <FieldLabel required>Phone Number</FieldLabel>

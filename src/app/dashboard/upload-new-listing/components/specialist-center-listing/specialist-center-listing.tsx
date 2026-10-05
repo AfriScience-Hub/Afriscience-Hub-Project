@@ -55,9 +55,9 @@ export default function SpecialistCenterListing({ onCancel }: SpecialistCenterLi
   const fullName = personal ? [personal.firstname, personal.middlename, personal.surname].filter(Boolean).join(' ') : (user?.name || '');
   const profilePhone = personal?.phone || user?.phone || '';
   const profileEmail = (personal as any)?.email || user?.email || '';
-  const idTag = (personal as any)?.username || profileEmail.split('@')[0] || '—';
+  const username = (personal as any)?.username || profileEmail.split('@')[0] || '—';
 
-  const yourInfo: YourInformation = { fullName, phone: profilePhone, email: profileEmail, idTag };
+  const yourInfo: YourInformation = { fullName, phone: profilePhone, email: profileEmail, username };
 
   useEffect(() => {
     setIdentity(prev => ({

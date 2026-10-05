@@ -57,7 +57,7 @@
 
 ### Professional Details
 * **Field:** Select Field *(Max 1 selection: Hybrid, Medical, Engineering, Pharmaceutical, Computer & ICT, Veterinary, Agriculture, Food & Nutrition, Mathematics & Statistics, Physics, Chemistry, Biology, Environmental, Industrial & Manufacturing, Energy & Power, Waste & Recycling, Astronomy & Space)*
-* **Profession:** Select Profession *(Max 4 selections; entries made via admin dashboard. If "Other" is selected, user must specify)*
+* **Profession:** Select Profession *(Max 4 selections. If "Other" is selected, user must specify)*
 * **Degree:** Select Degree *(Max 1 selection: Field Expert | No Degree, Associate, Bachelors, Diplomas, Masters, Doctoral, Others. Upload Degree Certificate to verify academic qualification)*
 * **Services:** Select Services *(Multiple selections allowed: Architecture & Framework Design, Building & Construction, Consultancy, Content Creation, Education & Training, Entrepreneurship & Business, Fabrication & Installation, Fieldwork, Job Applicant, Lab Analysis & Equipment Expert, Modeling & Simulation, Project Management, Repairs & Maintenance, Research & Development, Writing & Documentations)*
 * **Service Cost:** Input Service 1 (Service Name, Description, Cost Range, Currency). Automatically lists inputs for all selected services.
