@@ -5,6 +5,7 @@ import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import { LISTING_TYPES, AFRICAN_COUNTRIES, GALLERY_CATEGORIES, type ListingType, type ServiceEntry } from './data';
 import ListingTypeSelector from './components/ListingTypeSelector';
 import BasicProfileSection from './components/BasicProfileSection';
@@ -18,6 +19,7 @@ import MediaGallerySection from './components/MediaGallerySection';
 import DocumentsSection from './components/DocumentsSection';
 import PoliciesSection from './components/PoliciesSection';
 import FormActions from './components/FormActions';
+import { uploadFile } from '@/lib/upload';
 import { buildInnovationPayload, createInnovation, fetchInnovation, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, updateInnovation } from './innovationApi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchWalletBalance } from '@/store/walletSlice';
@@ -28,6 +30,7 @@ const MIN_ASH_COINS = 300;
 export default function UploadNewListing() {
   const dispatch = useAppDispatch();
   const { user } = useAuth();
+  const router = useRouter();
   const personal = useAppSelector((s) => s.profile.personal);
   const [editId, setEditId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -37,6 +40,8 @@ export default function UploadNewListing() {
   const [name, setName] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [profileImageKey, setProfileImageKey] = useState<string | null>(null);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
   const [country, setCountry] = useState('');
   const [stateRegion, setStateRegion] = useState('');
   const [bio, setBio] = useState('');
@@ -52,8 +57,8 @@ export default function UploadNewListing() {
   const [services, setServices] = useState<ServiceEntry[]>([]);
   const [newService, setNewService] = useState<ServiceEntry>({ id: '', name: '', description: '', costRange: '' });
 
-  const [galleryImages, setGalleryImages] = useState<{ category: string; name: string }[]>([]);
-  const [certifications, setCertifications] = useState<{ name: string; file: string }[]>([]);
+  const [galleryImages, setGalleryImages] = useState<{ category: string; file: File; name: string; previewUrl: string }[]>([]);
+  const [certifications, setCertifications] = useState<{ name: string; file: File; previewUrl: string }[]>([]);
   const [policies, setPolicies] = useState('');
 
   const [instClass, setInstClass] = useState('');
@@ -92,6 +97,16 @@ export default function UploadNewListing() {
 
   const handleProfileImageUpload = () => {};
 
+  // Helper to extract storage key from a full URL
+  const extractKeyFromUrl = (url: string | null): string | null => {
+    if (!url) return null;
+    // If it's already a key (no protocol), return as-is
+    if (!url.startsWith('http')) return url;
+    // Extract key from bucket URL: https://bucket.s3.region.amazonaws.com/uploads/xxx
+    const match = url.match(/\/uploads\/(.+)$/);
+    return match ? `uploads/${match[1]}` : null;
+  };
+
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('id');
     if (!id) return;
@@ -100,7 +115,10 @@ export default function UploadNewListing() {
     setStep('form');
     fetchInnovation(id).then((item: any) => {
       setName(item.innovationName || item.name || '');
-      setProfileImage(item.image || null);
+      const imageUrl = item.image || null;
+      setProfileImage(imageUrl);
+      setProfileImagePreview(imageUrl); // for preview in edit mode
+      setProfileImageKey(extractKeyFromUrl(imageUrl));
       setCountry(item.country || '');
       setBio(item.shortDescription || item.bio || '');
       setInnovFields(item.fields || []);
@@ -126,6 +144,14 @@ export default function UploadNewListing() {
       setInnovLicenses(docs.filter((d: any) => d.type === 'CERTIFICATION').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: d.documentFile })));
       setInnovAwards(docs.filter((d: any) => d.type === 'AWARD').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: d.documentFile })));
       setInnovGallery((item.media || []).map((m: any) => ({ category: MEDIA_REV[m.category] || m.category, type: 'image' as const, name: m.mediaFile, caption: '' })));
+      // Innovator info from the innovation record (if present)
+      if (item.innovatorName) setInnovatorName(item.innovatorName);
+      if (item.innovatorUsername) setInnovatorUsername(item.innovatorUsername);
+      if (item.phone) setPhone(item.phone);
+      if (item.altPhone) setAltPhone(item.altPhone);
+      if (item.email) setEmail(item.email);
+      if (item.website) setWebsite(item.website);
+      if (item.socialLinks) setSocialLinks(item.socialLinks);
     }).catch((e: any) => toast.error(e?.message || 'Failed to load innovation'));
   }, []);
 
@@ -171,14 +197,68 @@ export default function UploadNewListing() {
         setSaving(false);
         return;
       }
+
+      // Upload profile image if a new file was selected
+      let finalProfileImageKey = profileImageKey;
+      if (profileImageFile) {
+        try {
+          const uploaded = await uploadFile(profileImageFile);
+          finalProfileImageKey = uploaded.key;
+        } catch {
+          toast.error('Failed to upload profile image. Please try again.');
+          setSaving(false);
+          return;
+        }
+      }
+
+      // Upload gallery images
+      let finalInnovGallery = innovGallery;
+      if (galleryImages.length > 0) {
+        try {
+          const uploadedGallery = await Promise.all(
+            galleryImages.map(async item => {
+              const uploaded = await uploadFile(item.file);
+              return { category: item.category, type: 'image' as const, name: uploaded.key, caption: '' };
+            })
+          );
+          finalInnovGallery = uploadedGallery;
+        } catch {
+          toast.error('Failed to upload gallery images. Please try again.');
+          setSaving(false);
+          return;
+        }
+      }
+
+      // Upload certifications
+      let finalInnovLicenses = innovLicenses;
+      let finalInnovAwards = innovAwards;
+      if (certifications.length > 0) {
+        try {
+          const uploadedCerts = await Promise.all(
+            certifications.map(async item => {
+              const uploaded = await uploadFile(item.file);
+              return { title: item.name, issuer: '', date: new Date().getFullYear().toString(), file: uploaded.key };
+            })
+          );
+          // Split into licenses and awards (for simplicity, all go to licenses)
+          finalInnovLicenses = uploadedCerts;
+        } catch {
+          toast.error('Failed to upload certifications. Please try again.');
+          setSaving(false);
+          return;
+        }
+      }
+
       const payload = buildInnovationPayload({
-        name, profileImage: profileImageKey, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
+        name, profileImage: finalProfileImageKey, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
         innovSdgs, innovMaterials, innovDimensions, innovWeight, innovUserGroups, innovApplications,
         innovImpact, innovRecommendations, innovCautions, innovLicenses, innovAwards, innovGallery,
       });
       if (editId) await updateInnovation(editId, payload);
       else await createInnovation(payload);
       toast.success(editId ? 'Innovation updated' : 'Innovation submitted');
+      // Navigate to listings page after successful submission
+      setTimeout(() => router.push('/dashboard/listings'), 1500);
     } catch (e: any) {
       toast.error(e?.message || 'Failed to save innovation');
       setSaving(false);
@@ -188,7 +268,7 @@ export default function UploadNewListing() {
     setEditId(null);
     setStep('select');
     setSelectedType(null);
-    setName(''); setProfileImage(null); setProfileImageKey(null); setCountry(''); setStateRegion('');
+    setName(''); setProfileImage(null); setProfileImageKey(null); setProfileImageFile(null); setProfileImagePreview(null); setCountry(''); setStateRegion('');
     setBio(''); setPhone(''); setEmail(''); setWebsite('');
     setSocialLinks({ x: '', linkedin: '', facebook: '', instagram: '' });
     setServices([]); setGalleryImages([]); setCertifications([]); setPolicies('');
@@ -218,7 +298,7 @@ export default function UploadNewListing() {
             {selectedTypeInfo && <selectedTypeInfo.icon className="h-6 w-6 text-brand-red-600" />}
             <div>
               <h2 className="text-xl font-bold text-neutral-black">New {selectedTypeInfo?.label} Listing</h2>
-              <p className="text-sm text-neutral-gray-medium">Fill in the details below. Fields marked * are required.</p>
+              <p className="text-sm text-neutral-gray-medium">Fill in the details below. Fields marked <span className="text-brand-red-600">*</span> are required.</p>
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={() => { setStep('select'); setSelectedType(null); }}>
@@ -234,8 +314,10 @@ export default function UploadNewListing() {
       ) : selectedType === 'innovation' ? (
         <AfroInnovationListing
           name={name} setName={setName}
-          profileImage={profileImage} setProfileImage={setProfileImage}
+          profileImage={profileImagePreview || profileImage} setProfileImage={setProfileImage}
           profileImageKey={profileImageKey} setProfileImageKey={setProfileImageKey}
+          profileImageFile={profileImageFile} setProfileImageFile={setProfileImageFile}
+          profileImagePreview={profileImagePreview} setProfileImagePreview={setProfileImagePreview}
           country={country} setCountry={setCountry}
           bio={bio} setBio={setBio}
           AFRICAN_COUNTRIES={AFRICAN_COUNTRIES}

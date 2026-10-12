@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
 import CollapsibleSection from '../CollapsibleSection';
 import FormActions from '../FormActions';
+import { useRouter } from 'next/navigation';
 import YourInformationSection, { type YourInformation } from './components/YourInformationSection';
 import CenterIdentitySection from './components/CenterIdentitySection';
 import CenterInformationSection from './components/CenterInformationSection';
@@ -17,6 +18,7 @@ import CenterDocumentsSection from './components/CenterDocumentsSection';
 import CenterGallerySection from './components/CenterGallerySection';
 import UndertakingSection from '../UndertakingSection';
 import type { CenterDocEntry, CenterFees, CenterIdentity, CenterInformation } from './types';
+import type { MediaItem } from './components/CenterGallerySection';
 
 const EMPTY_IDENTITY: CenterIdentity = {
   profileImage: null, backgroundImage: null, name: '', motto: '', address: '',
@@ -38,6 +40,7 @@ interface SpecialistCenterListingProps {
 export default function SpecialistCenterListing({ onCancel }: SpecialistCenterListingProps) {
   const dispatch = useAppDispatch();
   const { user } = useAuth();
+  const router = useRouter();
   const personal = useAppSelector((s) => s.profile.personal);
 
   const [identity, setIdentity] = useState<CenterIdentity>(EMPTY_IDENTITY);
@@ -47,7 +50,7 @@ export default function SpecialistCenterListing({ onCancel }: SpecialistCenterLi
   const [policies, setPolicies] = useState<string[]>([]);
   const [licenses, setLicenses] = useState<CenterDocEntry[]>([]);
   const [awards, setAwards] = useState<CenterDocEntry[]>([]);
-  const [gallery, setGallery] = useState<Record<string, string[]>>({});
+  const [gallery, setGallery] = useState<Record<string, MediaItem[]>>({});
   const [agreed, setAgreed] = useState(false);
 
   useEffect(() => { dispatch(fetchFullProfile()); }, [dispatch]);
@@ -105,6 +108,7 @@ export default function SpecialistCenterListing({ onCancel }: SpecialistCenterLi
     toast.success('Your listing will be submitted for review by the AfriScience Hub Team. Once approved, it will be published on the platform. Your listing will earn a \u201cVerified Badge\u201d once all submitted documents are successfully verified.');
     resetForm();
     onCancel();
+    setTimeout(() => router.push('/dashboard/listings'), 1500);
   };
 
   return (

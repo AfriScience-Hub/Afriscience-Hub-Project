@@ -20,17 +20,27 @@ interface ListingCardProps {
 }
 
 export function ListingCard({ listing, onEdit, onPreview }: ListingCardProps) {
+  const formatStatus = (status: string) => {
+    return status
+      .split('_')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+  };
+
+  const displayStatus = formatStatus(listing.status);
+  const statusColor = listing.status === 'Verified' ? "bg-green-100 text-green-700" :
+    listing.status === 'Pending_Verification' || listing.status === 'Pending Verification' ? "bg-amber-100 text-amber-700" :
+      "bg-red-100 text-red-700";
+
   return (
     <div className="rounded-xl border border-neutral-gray-light overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative h-36">
         {listing.image ? <img src={listing.image} alt={listing.name} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-neutral-bg-light" />}
         <span className={cn(
           "absolute top-2 right-2 px-2.5 py-1 rounded-full text-[10px] font-bold",
-          listing.status === 'Verified' ? "bg-green-100 text-green-700" :
-            listing.status === 'Pending Verification' ? "bg-amber-100 text-amber-700" :
-              "bg-red-100 text-red-700"
+          statusColor
         )}>
-          {listing.status}
+          {displayStatus}
         </span>
       </div>
       <div className="p-4">

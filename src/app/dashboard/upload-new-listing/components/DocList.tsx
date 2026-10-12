@@ -4,13 +4,13 @@ import { Plus, X, FileText, Upload } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { toast } from 'sonner';
 import { YEARS } from '../data';
-import { uploadFile } from '@/lib/upload';
 
 export interface DocEntry {
   name: string;
   issuer: string;
   year: string;
-  file: string;
+  file: File | null;
+  previewUrl: string | null;
 }
 
 interface DocListProps {
@@ -20,7 +20,14 @@ interface DocListProps {
   onChange: (entries: DocEntry[]) => void;
 }
 
-const EMPTY_DOC: DocEntry = { name: '', issuer: '', year: '', file: '' };
+const EMPTY_DOC: DocEntry = { name: '', issuer: '', year: '', file: null, previewUrl: null };
+
+function truncateName(name: string, max = 30): string {
+  if (name.length <= max) return name;
+  const ext = name.split('.').pop() || '';
+  const base = name.slice(0, name.length - ext.length - 1);
+  return `${base.slice(0, max - ext.length - 3)}...${ext}`;
+}
 
 export default function DocList({ label, addLabel, entries, onChange }: DocListProps) {
   const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-3 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
@@ -29,18 +36,24 @@ export default function DocList({ label, addLabel, entries, onChange }: DocListP
     onChange(entries.map((entry, i) => (i === idx ? { ...entry, ...patch } : entry)));
   };
 
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const file = e.target.files?.[0];
     if (file) {
-      try {
-        const uploaded = await uploadFile(file);
-        update(idx, { file: uploaded.key });
-        toast.success('Document uploaded');
-      } catch {
-        toast.error('Failed to upload document');
-      }
+      const previewUrl = URL.createObjectURL(file);
+      update(idx, { file, previewUrl });
+      toast.success('Document added');
     }
     e.target.value = '';
+  };
+
+  const removeFile = (idx: number) => {
+    onChange(entries.map((entry, i) => {
+      if (i === idx) {
+        if (entry.previewUrl?.startsWith('blob:')) URL.revokeObjectURL(entry.previewUrl);
+        return { ...entry, file: null, previewUrl: null };
+      }
+      return entry;
+    }));
   };
 
   return (
@@ -68,9 +81,13 @@ export default function DocList({ label, addLabel, entries, onChange }: DocListP
               </div>
               <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-brand-red-300 px-3 py-2 text-xs font-medium text-brand-red-600 transition-colors hover:bg-brand-red-50">
                 <input type="file" accept=".pdf,image/*" onChange={(e) => handleFile(e, idx)} className="hidden" />
-                <Upload className="h-3.5 w-3.5" /> {entry.file || 'Upload Document'}
+                <Upload className="h-3.5 w-3.5" /> {entry.previewUrl ? 'File added' : 'Upload Document'}
               </label>
-              {entry.file && <p className="flex items-center gap-1 text-[11px] text-neutral-gray-medium"><FileText className="h-3 w-3" /> {entry.file}</p>}
+              {entry.previewUrl && (
+                <p className="flex items-center gap-1 text-[11px] text-neutral-gray-medium truncate max-w-[250px]">
+                  <FileText className="h-3 w-3" /> {truncateName(entry.file?.name || 'File')}
+                </p>
+              )}
             </div>
           </div>
         ))}

@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
 import FormActions from '../FormActions';
 import UndertakingSection from '../UndertakingSection';
+import { useRouter } from 'next/navigation';
 import { type DocEntry } from '../DocList';
 import ScientistProfileSection from './components/ScientistProfileSection';
 import ProfessionalDetailsSection from './components/ProfessionalDetailsSection';
@@ -16,6 +17,7 @@ import ScientistDocumentsSection from './components/ScientistDocumentsSection';
 import ScientistGallerySection from './components/ScientistGallerySection';
 import ScientistContactSection from './components/ScientistContactSection';
 import type { ProfessionalDetails, ScientistContact, ScientistFees, ScientistProfile } from './types';
+import type { MediaItem } from './components/ScientistGallerySection';
 
 const EMPTY_PROFILE: ScientistProfile = {
   profileImage: null, backgroundImage: null, name: '', country: '', stateRegion: '', bio: '',
@@ -39,6 +41,7 @@ interface ScientistListingProps {
 export default function ScientistListing({ onCancel }: ScientistListingProps) {
   const dispatch = useAppDispatch();
   const { user } = useAuth();
+  const router = useRouter();
   const personal = useAppSelector((s) => s.profile.personal);
 
   const [profile, setProfile] = useState<ScientistProfile>(EMPTY_PROFILE);
@@ -48,7 +51,7 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
   const [policies, setPolicies] = useState<string[]>([]);
   const [certifications, setCertifications] = useState<DocEntry[]>([]);
   const [achievements, setAchievements] = useState<DocEntry[]>([]);
-  const [media, setMedia] = useState<string[]>([]);
+  const [media, setMedia] = useState<MediaItem[]>([]);
   const [contact, setContact] = useState<ScientistContact>(EMPTY_CONTACT);
   const [agreed, setAgreed] = useState(false);
 
@@ -103,6 +106,7 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
     toast.success('Your listing will be submitted for review by the AfriScience Hub Team. Once approved, it will be published on the platform. Your listing will earn a \u201cVerified Badge\u201d once all submitted documents are successfully verified.');
     resetForm();
     onCancel();
+    setTimeout(() => router.push('/dashboard/listings'), 1500);
   };
 
   return (

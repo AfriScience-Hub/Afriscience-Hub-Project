@@ -49,5 +49,6 @@ export interface CenterDocEntry {
   name: string;
   issuer: string;
   year: string;
-  file: string;
+  file: File | null;
+  previewUrl: string | null;
 }

@@ -1,10 +1,9 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { X, ImagePlus } from 'lucide-react';
-import { toast } from 'sonner';
-import { uploadFile } from '@/lib/upload';
+import { normalizeFileSrc } from '@/lib/files';
 
 interface InnovationIdentitySectionProps {
   name: string;
@@ -13,6 +12,10 @@ interface InnovationIdentitySectionProps {
   setProfileImage: (v: string | null) => void;
   profileImageKey: string | null;
   setProfileImageKey: (v: string | null) => void;
+  profileImageFile: File | null;
+  setProfileImageFile: (v: File | null) => void;
+  profileImagePreview: string | null;
+  setProfileImagePreview: (v: string | null) => void;
   country: string;
   setCountry: (v: string) => void;
   bio: string;
@@ -23,34 +26,62 @@ interface InnovationIdentitySectionProps {
 export default function InnovationIdentitySection({
   name, setName, profileImage, setProfileImage,
   profileImageKey, setProfileImageKey,
+  profileImageFile, setProfileImageFile,
+  profileImagePreview, setProfileImagePreview,
   country, setCountry, bio, setBio, AFRICAN_COUNTRIES,
 }: InnovationIdentitySectionProps) {
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Clean up object URL on unmount
+  useEffect(() => {
+    return () => {
+      if (profileImagePreview && profileImagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(profileImagePreview);
+      }
+    };
+  }, [profileImagePreview]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
-      try {
-        const uploaded = await uploadFile(file);
-        setProfileImage(uploaded.url);
-        setProfileImageKey(uploaded.key);
-      } catch {
-        toast.error('Failed to upload image. Please try again.');
-      }
+      // Store the file for later upload on submit
+      setProfileImageFile(file);
+      // Create a local preview URL for immediate display
+      const previewUrl = URL.createObjectURL(file);
+      setProfileImagePreview(previewUrl);
     }
     e.target.value = '';
   };
 
-  const handleRemoveImage = () => setProfileImage(null);
+  const handleRemoveImage = () => {
+    if (profileImagePreview && profileImagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(profileImagePreview);
+    }
+    setProfileImage(null);
+    setProfileImageKey(null);
+    setProfileImageFile(null);
+    setProfileImagePreview(null);
+  };
+
+  // Resolve the image source (handles storage keys, blob URLs, signed URLs)
+  const resolvedImage = normalizeFileSrc(profileImagePreview || profileImage);
 
   return (
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-neutral-black mb-2">Profile Image <span className="text-red-500">*</span></label>
         <div className="flex items-center gap-4">
-          {profileImage ? (
+          {(resolvedImage || profileImage) ? (
             <div className="relative">
-              <Image src={profileImage} alt="Profile" width={80} height={80} className="rounded-xl object-cover border border-neutral-gray-light h-20 w-20" />
+              {resolvedImage && (
+                <Image
+                  src={resolvedImage}
+                  alt="Profile"
+                  width={80}
+                  height={80}
+                  className="rounded-xl object-cover border border-neutral-gray-light h-20 w-20"
+                />
+              )}
               <button onClick={handleRemoveImage} className="absolute -top-2 -right-2 h-5 w-5 cursor-pointer rounded-full bg-red-500 text-white flex items-center justify-center">
                 <X className="h-3 w-3" />
               </button>

@@ -5,6 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import { User, GraduationCap, Briefcase, Wallet, Shield, Save, X, Send, FileDown, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAuth } from '@/app/context/AuthContext';
 import { ProfileHeader } from './components/ProfileHeader';
 import { ProfileTabs } from './components/ProfileTabs';
 import { PersonalInfoTab } from './components/PersonalInfoTab';
@@ -52,6 +54,8 @@ export function ProfileContent() {
   const [activeTab, setActiveTab] = useState<TabKey>('personal');
   const [editingTab, setEditingTab] = useState<TabKey | null>(null);
   const f = useProfileForm();
+  const { updateUser } = useAuth();
+  const profile = useAppSelector((s) => s.profile);
   const isEditing = editingTab !== null;
   const canAccessTabs = f.hasPersonalInfo;
   const remindedRef = useRef(false);
@@ -64,6 +68,19 @@ export function ProfileContent() {
       setActiveTab(tab as TabKey);
     }
   }, [searchParams]);
+
+  // Sync signed avatar from /profile to auth state so Header, Sidebar, etc. show it
+  const avatarSyncedRef = useRef(false);
+  useEffect(() => {
+    if (avatarSyncedRef.current) return;
+    if (!f.personalLoaded || !profile.personal) return;
+    const p = profile.personal as any;
+    const signedAvatar = p.displayPhoto || p.avatarUrl || p.avatar || p.photo;
+    if (signedAvatar) {
+      updateUser({ avatar: signedAvatar });
+      avatarSyncedRef.current = true;
+    }
+  }, [f.personalLoaded, profile.personal, updateUser]);
 
   useEffect(() => {
     if (remindedRef.current || !f.personalLoaded || editingTab) return;

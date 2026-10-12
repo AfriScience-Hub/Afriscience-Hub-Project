@@ -3,17 +3,29 @@
 import { ImagePlus, Upload, X, Images } from 'lucide-react';
 import { toast } from 'sonner';
 import CollapsibleSection from '../../CollapsibleSection';
-import { uploadFile } from '@/lib/upload';
 
 const MAX_MEDIA_FILES = 10;
 
+export interface MediaItem {
+  file: File;
+  previewUrl: string;
+  name: string;
+}
+
 interface ScientistGallerySectionProps {
-  media: string[];
-  onChange: (media: string[]) => void;
+  media: MediaItem[];
+  onChange: React.Dispatch<React.SetStateAction<MediaItem[]>>;
+}
+
+function truncateName(name: string, max = 30): string {
+  if (name.length <= max) return name;
+  const ext = name.split('.').pop() || '';
+  const base = name.slice(0, name.length - ext.length - 1);
+  return `${base.slice(0, max - ext.length - 3)}...${ext}`;
 }
 
 export default function ScientistGallerySection({ media, onChange }: ScientistGallerySectionProps) {
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (media.length >= MAX_MEDIA_FILES) {
@@ -21,14 +33,18 @@ export default function ScientistGallerySection({ media, onChange }: ScientistGa
       e.target.value = '';
       return;
     }
-    try {
-      const uploaded = await uploadFile(file);
-      onChange([...media, uploaded.url || uploaded.key]);
-      toast.success('Media file added');
-    } catch {
-      toast.error('Failed to upload media');
-    }
+    const previewUrl = URL.createObjectURL(file);
+    onChange(prev => [...prev, { file, previewUrl, name: file.name }]);
+    toast.success('Media file added');
     e.target.value = '';
+  };
+
+  const removeFile = (idx: number) => {
+    onChange(prev => {
+      const item = prev[idx];
+      if (item.previewUrl.startsWith('blob:')) URL.revokeObjectURL(item.previewUrl);
+      return prev.filter((_, i) => i !== idx);
+    });
   };
 
   return (
@@ -45,12 +61,12 @@ export default function ScientistGallerySection({ media, onChange }: ScientistGa
 
         {media.length > 0 && (
           <ul className="space-y-2">
-            {media.map((file, idx) => (
-              <li key={`${file}-${idx}`} className="flex items-center justify-between gap-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light px-3 py-2">
-                <span className="truncate text-sm text-neutral-black">{file}</span>
+            {media.map((item, idx) => (
+              <li key={`${item.name}-${idx}`} className="flex items-center justify-between gap-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light px-3 py-2">
+                <span className="truncate text-sm text-neutral-black">{truncateName(item.name)}</span>
                 <button
                   type="button"
-                  onClick={() => onChange(media.filter((_, i) => i !== idx))}
+                  onClick={() => removeFile(idx)}
                   className="flex-shrink-0 cursor-pointer text-red-400 hover:text-red-600"
                 >
                   <X className="h-4 w-4" />

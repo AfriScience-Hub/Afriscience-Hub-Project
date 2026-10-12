@@ -128,7 +128,7 @@ export const signupAdmin = createAsyncThunk(
   'auth/signupAdmin',
   async (payload: { firstName: string; lastName: string; email: string; password: string; confirmPassword: string }, { rejectWithValue }) => {
     try {
-      const data = await api.post('/admin/register', payload as any);
+      const data = await api.post('/admin/auth/register', payload as any);
       return data;
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -274,9 +274,11 @@ const authSlice = createSlice({
         if (stored) {
           const parsed = JSON.parse(stored);
           // Re-normalize anything an older build persisted: drops the hard-coded
-          // placeholder avatar and unresolvable/expired storage keys.
+          // placeholder avatar. If normalization returns undefined (expired cache),
+          // keep the raw key so Avatar can at least show initials.
           if (parsed && typeof parsed.avatar === 'string') {
-            parsed.avatar = normalizeFileSrc(parsed.avatar);
+            const normalized = normalizeFileSrc(parsed.avatar);
+            parsed.avatar = normalized ?? parsed.avatar;
           }
           state.user = parsed;
           state.isAuthenticated = true;
@@ -349,8 +351,14 @@ const authSlice = createSlice({
       })
       .addCase(fetchCurrentUser.fulfilled, (s, a) => {
         // /auth/me may omit the avatar — keep the one we already have in that case.
+        // If it provides one, normalize it (resolve keys, drop legacy placeholders).
+        // IMPORTANT: Never overwrite a valid avatar with undefined.
         const incoming = a.payload;
-        s.user = !incoming.avatar && s.user ? { ...incoming, avatar: s.user.avatar } : incoming;
+        const normalizedAvatar = incoming.avatar ? normalizeFileSrc(incoming.avatar) : undefined;
+        const merged = !normalizedAvatar && s.user?.avatar
+          ? { ...incoming, avatar: s.user.avatar }
+          : { ...incoming, avatar: normalizedAvatar ?? s.user?.avatar };
+        s.user = merged;
         s.isAuthenticated = true;
         if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
       })

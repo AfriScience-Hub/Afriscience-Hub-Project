@@ -100,14 +100,16 @@ export function normalizeFileSrc(value?: string | null): string | undefined {
     const key = bucketKeyOf(v);
     if (/X-Amz-/i.test(v)) {
       // Signed → use it, but never hand out an expired one (it would just 403).
+      // If expired, fall back to the raw key so callers can attempt to load it.
       if (!signedUrlExpired(v)) return v;
-      return key ? cachedUrlFor(key) : undefined;
+      return key ?? v;
     }
     // Unsigned bucket link is really just the storage key.
-    if (key) return cachedUrlFor(key);
+    if (key) return cachedUrlFor(key) ?? `https://${key}`; // attempt to load, will 403 if private
     return v;
   }
 
   // Bare object key → the signed URL from the upload response (if we still have it).
-  return cachedUrlFor(v.replace(/^\/+/, ''));
+  // If no cached URL, return the raw key so callers can attempt to load it.
+  return cachedUrlFor(v.replace(/^\/+/, '')) ?? `https://afriscience-buckset.s3.eu-north-1.amazonaws.com/${v.replace(/^\/+/, '')}`;
 }

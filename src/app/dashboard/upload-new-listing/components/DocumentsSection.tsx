@@ -4,28 +4,44 @@ import { useState } from 'react';
 import { FileText, X, Upload } from 'lucide-react';
 import CollapsibleSection from './CollapsibleSection';
 import { toast } from 'sonner';
-import { uploadFile } from '@/lib/upload';
+
+interface DocItem {
+  name: string;
+  file: File;
+  previewUrl: string;
+}
 
 interface DocumentsSectionProps {
-  certifications: { name: string; file: string }[];
-  setCertifications: React.Dispatch<React.SetStateAction<{ name: string; file: string }[]>>;
+  certifications: DocItem[];
+  setCertifications: React.Dispatch<React.SetStateAction<DocItem[]>>;
+}
+
+function truncateName(name: string, max = 30): string {
+  if (name.length <= max) return name;
+  const ext = name.split('.').pop() || '';
+  const base = name.slice(0, name.length - ext.length - 1);
+  return `${base.slice(0, max - ext.length - 3)}...${ext}`;
 }
 
 export default function DocumentsSection({ certifications, setCertifications }: DocumentsSectionProps) {
   const [docName, setDocName] = useState('');
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !docName.trim()) return;
-    try {
-      const uploaded = await uploadFile(file);
-      setCertifications(prev => [...prev, { name: docName.trim(), file: uploaded.key }]);
-      setDocName('');
-      toast.success('Document uploaded');
-    } catch {
-      toast.error('Failed to upload document');
-    }
+    const previewUrl = URL.createObjectURL(file);
+    setCertifications(prev => [...prev, { name: docName.trim(), file, previewUrl }]);
+    setDocName('');
+    toast.success('Document added');
     e.target.value = '';
+  };
+
+  const removeCert = (idx: number) => {
+    setCertifications(prev => {
+      const item = prev[idx];
+      if (item.previewUrl.startsWith('blob:')) URL.revokeObjectURL(item.previewUrl);
+      return prev.filter((_, i) => i !== idx);
+    });
   };
 
   return (
@@ -38,9 +54,9 @@ export default function DocumentsSection({ certifications, setCertifications }: 
               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-neutral-gray-light bg-neutral-bg-light">
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-brand-red-600" />
-                  <p className="text-sm text-neutral-black">{cert.name}</p>
+                  <p className="text-sm text-neutral-black truncate max-w-[200px]">{truncateName(cert.name)}</p>
                 </div>
-                <button onClick={() => setCertifications(prev => prev.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-600">
+                <button onClick={() => removeCert(idx)} className="text-red-400 hover:text-red-600">
                   <X className="h-4 w-4" />
                 </button>
               </div>
