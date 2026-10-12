@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import React from 'react';
-import Link from 'next/link';
+import SafeLink from './SafeLink';
 import { Linkedin, Facebook, Twitter, Youtube, Instagram } from 'lucide-react';
 import footerLogoSrc from "../../assets/littleLogo.png";
 import { Button } from './ui/Button';
@@ -71,23 +71,23 @@ export function Footer() {
 
             {/* Social Media Handles */}
             <div className="flex gap-4 pt-2">
-              <a href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
+              <a suppressHydrationWarning href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
                 <span className="sr-only">LinkedIn</span>
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
+              <a suppressHydrationWarning href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
                 <span className="sr-only">Facebook</span>
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
+              <a suppressHydrationWarning href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
                 <span className="sr-only">Twitter</span>
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
+              <a suppressHydrationWarning href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
                 <span className="sr-only">YouTube</span>
                 <Youtube className="h-5 w-5" />
               </a>
-              <a href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
+              <a suppressHydrationWarning href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
                 <span className="sr-only">Instagram</span>
                 <Instagram className="h-5 w-5" />
               </a>
@@ -100,14 +100,14 @@ export function Footer() {
               Quick Links
             </h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="hover:text-brand-red-600">About Us</Link></li>
-              <li><Link href="/institutes" className="hover:text-brand-red-600">Institutes</Link></li>
-              <li><Link href="/scientists" className="hover:text-brand-red-600">Scientists & Technologists</Link></li>
-              <li><Link href="/specialist-centers" className="hover:text-brand-red-600">Specialist Centers</Link></li>
-              <li><Link href="/innovations" className="hover:text-brand-red-600">Afro-Innovations</Link></li>
-              <li><Link href="/competitions" className="hover:text-brand-red-600">Competitions</Link></li>
-              <li><Link href="/awards" className="hover:text-brand-red-600">Awards</Link></li>
-              <li><Link href="/voting" className="hover:text-brand-red-600">Voting</Link></li>
+              <li><SafeLink href="/about" className="hover:text-brand-red-600">About Us</SafeLink></li>
+              <li><SafeLink href="/institutes" className="hover:text-brand-red-600">Institutes</SafeLink></li>
+              <li><SafeLink href="/scientists" className="hover:text-brand-red-600">Scientists & Technologists</SafeLink></li>
+              <li><SafeLink href="/specialist-centers" className="hover:text-brand-red-600">Specialist Centers</SafeLink></li>
+              <li><SafeLink href="/innovations" className="hover:text-brand-red-600">Afro-Innovations</SafeLink></li>
+              <li><SafeLink href="/competitions" className="hover:text-brand-red-600">Competitions</SafeLink></li>
+              <li><SafeLink href="/awards" className="hover:text-brand-red-600">Awards</SafeLink></li>
+              <li><SafeLink href="/voting" className="hover:text-brand-red-600">Voting</SafeLink></li>
             </ul>
           </div>
 
@@ -117,11 +117,11 @@ export function Footer() {
               Support
             </h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/faq" className="hover:text-brand-red-600">FAQ</Link></li>
-              <li><Link href="/contact" className="hover:text-brand-red-600">Contact Us</Link></li>
-              <li><Link href="/privacy-policy" className="hover:text-brand-red-600">Privacy Policy</Link></li>
-              <li><Link href="/terms-of-service" className="hover:text-brand-red-600">Terms of Service</Link></li>
-              <li><Link href="/cookie-policy" className="hover:text-brand-red-600">Cookie Policy</Link></li>
+              <li><SafeLink href="/faq" className="hover:text-brand-red-600">FAQ</SafeLink></li>
+              <li><SafeLink href="/contact" className="hover:text-brand-red-600">Contact Us</SafeLink></li>
+              <li><SafeLink href="/privacy-policy" className="hover:text-brand-red-600">Privacy Policy</SafeLink></li>
+              <li><SafeLink href="/terms-of-service" className="hover:text-brand-red-600">Terms of Service</SafeLink></li>
+              <li><SafeLink href="/cookie-policy" className="hover:text-brand-red-600">Cookie Policy</SafeLink></li>
             </ul>
           </div>
 
@@ -131,11 +131,11 @@ export function Footer() {
               Support AfriScienceHub
             </h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/support/sponsor" className="hover:text-brand-red-600">Sponsor AfriScienceHub</Link></li>
-              <li><Link href="/support/donate" className="hover:text-brand-red-600">Donate to Projects</Link></li>
-              <li><Link href="/impact" className="hover:text-brand-red-600">Impact Stories</Link></li>
-              <li><Link href="/support/volunteer" className="hover:text-brand-red-600">Become a Volunteer</Link></li>
-              <li><Link href="/support" className="hover:text-brand-red-600">Partnership Opportunities</Link></li>
+              <li><SafeLink href="/support/sponsor" className="hover:text-brand-red-600">Sponsor AfriScienceHub</SafeLink></li>
+              <li><SafeLink href="/support/donate" className="hover:text-brand-red-600">Donate to Projects</SafeLink></li>
+              <li><SafeLink href="/impact" className="hover:text-brand-red-600">Impact Stories</SafeLink></li>
+              <li><SafeLink href="/support/volunteer" className="hover:text-brand-red-600">Become a Volunteer</SafeLink></li>
+              <li><SafeLink href="/support" className="hover:text-brand-red-600">Partnership Opportunities</SafeLink></li>
             </ul>
           </div>
 

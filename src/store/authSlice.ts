@@ -1,11 +1,12 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { api } from '@/lib/api';
+import { normalizeFileSrc } from '@/lib/files';
 
 export interface AuthUser {
   name: string;
   email: string;
   phone: string;
-  avatar: string;
+  avatar?: string;
   role?: string;
 }
 
@@ -49,8 +50,6 @@ interface AuthState {
   sessionsError: string | null;
 }
 
-const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1670881391783-9c55ba592f93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzIzODM4NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080';
-
 // The refresh token is an HttpOnly cookie set/cleared by the backend
 // (login sets it, /auth/refresh or /admin/auth/refresh reads it, /auth/logout
 // clears it). It is sent automatically via `credentials: 'include'` and is
@@ -66,11 +65,15 @@ function persistTokens(data: any) {
 function extractUser(data: any, fallbackIdentifier?: string): AuthUser {
   const u = data?.details || data?.user || data?.data?.user || data?.data || {};
   const isEmail = fallbackIdentifier?.includes('@');
+  const rawAvatar = u.avatar || u.avatarUrl || u.displayPhotoUrl || u.displayPhoto || u.photo || u.profileImage || u.image;
   return {
     name: u.name || u.fullName || u.firstName || (fallbackIdentifier ? (isEmail ? fallbackIdentifier.split('@')[0] : 'User') : 'User'),
     email: u.email || (isEmail ? fallbackIdentifier || '' : ''),
     phone: u.phone || (!isEmail ? fallbackIdentifier || '' : ''),
-    avatar: u.avatar || DEFAULT_AVATAR,
+    // Only accept values we can actually render: signed URLs, or a bare object
+    // key resolved through the URL captured at upload time. Keys/placeholder
+    // art that can't be resolved resolve to undefined → the initials fallback.
+    avatar: normalizeFileSrc(rawAvatar),
     role: u.role,
   };
 }
@@ -189,6 +192,18 @@ export const refreshUserToken = createRefreshThunk('auth/refreshUser', '/auth/re
 // Admin session refresh — POST /api/v1/admin/auth/refresh (not shared with users)
 export const refreshAdminToken = createRefreshThunk('auth/refreshAdmin', '/admin/auth/refresh');
 
+export const fetchCurrentUser = createAsyncThunk(
+  'auth/fetchCurrentUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await api.get('/auth/me');
+      return extractUser(data);
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 export const fetchSessions = createAsyncThunk(
   'auth/fetchSessions',
   async (params: { page?: number; limit?: number } | undefined, { rejectWithValue }) => {
@@ -239,10 +254,15 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setUser(state, action: PayloadAction<AuthUser | null>) {
-      state.user = action.payload;
-      state.isAuthenticated = !!action.payload;
+      // Normalize on the way in so a raw storage key, an expired signed URL or
+      // the legacy placeholder avatar can never be persisted again.
+      const payload = action.payload
+        ? { ...action.payload, avatar: normalizeFileSrc(action.payload.avatar) }
+        : action.payload;
+      state.user = payload;
+      state.isAuthenticated = !!payload;
       if (typeof window !== 'undefined') {
-        if (action.payload) localStorage.setItem('afrisciencehub_user', JSON.stringify(action.payload));
+        if (payload) localStorage.setItem('afrisciencehub_user', JSON.stringify(payload));
         else localStorage.removeItem('afrisciencehub_user');
       }
     },
@@ -252,7 +272,13 @@ const authSlice = createSlice({
       try {
         const stored = localStorage.getItem('afrisciencehub_user');
         if (stored) {
-          state.user = JSON.parse(stored);
+          const parsed = JSON.parse(stored);
+          // Re-normalize anything an older build persisted: drops the hard-coded
+          // placeholder avatar and unresolvable/expired storage keys.
+          if (parsed && typeof parsed.avatar === 'string') {
+            parsed.avatar = normalizeFileSrc(parsed.avatar);
+          }
+          state.user = parsed;
           state.isAuthenticated = true;
         }
         state.accessToken = localStorage.getItem('afrisciencehub_token');
@@ -320,6 +346,13 @@ const authSlice = createSlice({
       })
       .addCase(logoutThunk.fulfilled, (s) => {
         s.user = null; s.isAuthenticated = false; s.accessToken = null; s.refreshToken = null;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (s, a) => {
+        // /auth/me may omit the avatar — keep the one we already have in that case.
+        const incoming = a.payload;
+        s.user = !incoming.avatar && s.user ? { ...incoming, avatar: s.user.avatar } : incoming;
+        s.isAuthenticated = true;
+        if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
       })
       .addCase(fetchSessions.pending, (s) => { s.sessionsLoading = true; s.sessionsError = null; })
       .addCase(fetchSessions.fulfilled, (s, a) => {

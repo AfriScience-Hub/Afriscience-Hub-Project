@@ -58,9 +58,16 @@ export function WalletTab() {
             <p className="text-sm text-neutral-gray-medium">Loading wallet&hellip;</p>
           </div>
         ) : wallet ? (
-          <div className="rounded-xl bg-gradient-to-br from-brand-navy-900 to-brand-navy-700 p-6 text-white">
-            <p className="text-xs text-neutral-200 mb-1">Available Balance</p>
-            <p className="text-3xl font-bold">{formatMinor(wallet.balance, CURRENCY)}</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl bg-gradient-to-br from-brand-navy-900 to-brand-navy-700 p-6 text-white">
+              <p className="text-xs text-neutral-200 mb-1">Available Balance</p>
+              <p className="text-3xl font-bold">{formatMinor(wallet.balance, CURRENCY)}</p>
+            </div>
+            <div className="rounded-xl bg-gradient-to-br from-amber-700 to-amber-500 p-6 text-white">
+              <p className="text-xs text-amber-100 mb-1">Reserved Balance</p>
+              <p className="text-3xl font-bold">{formatMinor(wallet.reservedBalance ?? 0, CURRENCY)}</p>
+              <p className="text-[11px] text-amber-100/90 mt-2">Held while a listing is pending review. Refunded if rejected.</p>
+            </div>
           </div>
         ) : (
           <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">

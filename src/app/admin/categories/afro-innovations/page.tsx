@@ -1,23 +1,60 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Lightbulb, MoreHorizontal, Eye, Share2, CheckCircle, XCircle, Clock, ArrowRight, LayoutGrid, Settings2, Inbox } from 'lucide-react';
-import { MOCK_INNOVATIONS, PENDING_APPROVALS, RECENTLY_ADDED, STATS, INNOVATIONS_BY_CATEGORY, INNOVATIONS_BY_STAGE, INNOVATIONS_BY_INTEREST, INNOVATIONS_BY_OWNERSHIP, INNOVATIONS_BY_COUNTRY, GROWTH_DATA } from './data';
-import { DonutCard, NewSubmissionsCard, RejectedInnovationsCard, TopSharedInnovationsCard } from './components/OverviewWidgets';
+import {
+  Lightbulb, MoreHorizontal, ArrowRight, Loader2,
+  LayoutGrid, Settings2, Inbox,
+  Eye, Clock, CheckCircle, XCircle, Share2,
+} from 'lucide-react';
+import { DonutCard, ListCard, EmptyState } from './components/OverviewWidgets';
+import { fetchAdminInnovations, mapAdminInnovation } from './api';
 
 export default function AfroInnovationsPage() {
-  const [growthPeriod, setGrowthPeriod] = useState('This Month');
+  const [records, setRecords] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const h = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false); };
     document.addEventListener('mousedown', h);
     return () => document.removeEventListener('mousedown', h);
   }, []);
 
-  const maxGrowth = Math.max(...GROWTH_DATA.map((d) => d.value));
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const raw = await fetchAdminInnovations();
+        if (!cancelled) setRecords(raw.map(mapAdminInnovation));
+      } catch {
+        /* error toast is shown on the list pages; keep silent here */
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const total = records.length;
+  const pending = records.filter((r: any) => r.status === 'Pending Review').length;
+  const approved = records.filter((r: any) => r.status === 'Published').length;
+  const rejected = records.filter((r: any) => r.status === 'Rejected').length;
+
+  const stats = [
+    { label: 'Total Innovations', value: loading ? '…' : String(total), change: '', positive: true, iconBg: 'bg-purple-100 text-purple-600', icon: 'lightbulb' },
+    { label: 'Pending Approval', value: loading ? '…' : String(pending), change: '', positive: false, iconBg: 'bg-orange-100 text-orange-600', icon: 'clock' },
+    { label: 'Approved', value: loading ? '…' : String(approved), change: '', positive: true, iconBg: 'bg-green-100 text-green-600', icon: 'check' },
+    { label: 'Rejected', value: loading ? '…' : String(rejected), change: '', positive: false, iconBg: 'bg-red-100 text-red-600', icon: 'x' },
+    { label: 'Total Views', value: '—', change: 'No data yet', positive: true, iconBg: 'bg-blue-100 text-blue-600', icon: 'eye' },
+    { label: 'Total Shares', value: '—', change: 'No data yet', positive: true, iconBg: 'bg-teal-100 text-teal-600', icon: 'share' },
+  ];
+
+  const pendingList = records.filter((r: any) => r.status === 'Pending Review').slice(0, 5);
+  const rejectedList = records.filter((r: any) => r.status === 'Rejected').slice(0, 5);
+  const recentList = records.filter((r: any) => r.status === 'Published').slice(0, 5);
 
   return (
     <div className="space-y-4">
@@ -72,8 +109,9 @@ export default function AfroInnovationsPage() {
         </div>
       </div>
 
+      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {STATS.map((stat) => (
+        {stats.map((stat) => (
           <div key={stat.label} className="bg-white rounded-lg border border-neutral-gray-light p-3">
             <div className={`w-7 h-7 rounded-full flex items-center justify-center ${stat.iconBg}`}>
               {stat.icon === 'lightbulb' && <Lightbulb className="h-3.5 w-3.5" />}
@@ -85,152 +123,118 @@ export default function AfroInnovationsPage() {
             </div>
             <p className="text-lg font-bold text-neutral-black mt-1.5">{stat.value}</p>
             <p className="text-[10px] text-neutral-gray-medium mt-0.5">{stat.label}</p>
-            <p className={`text-[10px] mt-0.5 ${stat.positive ? 'text-green-600' : 'text-red-500'}`}>{stat.change}</p>
+            {stat.change && (
+              <p className={`text-[10px] mt-0.5 ${stat.positive ? 'text-green-600' : 'text-red-500'}`}>{stat.change}</p>
+            )}
           </div>
         ))}
       </div>
 
+      {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-semibold text-neutral-black">Innovations Growth</h3>
-            <select
-              value={growthPeriod}
-              onChange={(e) => setGrowthPeriod(e.target.value)}
-              className="text-[10px] px-2 py-1 rounded border border-neutral-gray-light text-neutral-gray-dark bg-white cursor-pointer outline-none"
-            >
-              <option>This Month</option>
-              <option>Last Month</option>
-            </select>
-          </div>
-          <div className="relative h-40">
-            <svg viewBox="0 0 400 160" className="w-full h-full">
-              <defs>
-                <linearGradient id="innGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#453DD8" stopOpacity="0.2" />
-                  <stop offset="100%" stopColor="#453DD8" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <path
-                d={`M 0 ${160 - (GROWTH_DATA[0].value / maxGrowth) * 140} ${GROWTH_DATA.map((d, i) => `L ${(i / (GROWTH_DATA.length - 1)) * 400} ${160 - (d.value / maxGrowth) * 140}`).join(' ')} L 400 160 L 0 160 Z`}
-                fill="url(#innGrad)"
-              />
-              <polyline
-                points={GROWTH_DATA.map((d, i) => `${(i / (GROWTH_DATA.length - 1)) * 400},${160 - (d.value / maxGrowth) * 140}`).join(' ')}
-                fill="none"
-                stroke="#453DD8"
-                strokeWidth="2"
-              />
-              {GROWTH_DATA.map((d, i) => (
-                <circle key={i} cx={(i / (GROWTH_DATA.length - 1)) * 400} cy={160 - (d.value / maxGrowth) * 140} r="3" fill="#453DD8" stroke="white" strokeWidth="2" />
-              ))}
-              {GROWTH_DATA.map((d, i) => (
-                <text key={i} x={(i / (GROWTH_DATA.length - 1)) * 400} y="155" textAnchor="middle" className="text-[8px] fill-neutral-gray-medium">{d.label}</text>
-              ))}
-              {[0, 50, 100, 150, 200, 250, 300, 350].map((v) => (
-                <text key={v} x="0" y={160 - (v / maxGrowth) * 140 - 2} className="text-[7px] fill-neutral-gray-medium">{v}</text>
-              ))}
-            </svg>
-            <div className="absolute top-2 right-2 bg-white border border-neutral-gray-light rounded px-2 py-1 shadow-sm">
-              <p className="text-[10px] font-bold text-neutral-black">312</p>
-              <p className="text-[8px] text-green-600">↑ 18.3%</p>
-            </div>
-          </div>
+          <h3 className="text-xs font-semibold text-neutral-black mb-3">Innovations Growth</h3>
+          <EmptyState />
         </div>
-
-        <DonutCard title="Innovations by Category" total={312} slices={INNOVATIONS_BY_CATEGORY} />
-
-        <DonutCard title="Innovations by Stage" total={312} slices={INNOVATIONS_BY_STAGE} />
-        <DonutCard title="Innovations by Interest" total={312} slices={INNOVATIONS_BY_INTEREST} />
-        <DonutCard title="Innovations by Ownership" total={312} slices={INNOVATIONS_BY_OWNERSHIP} />
-        <DonutCard title="Innovations by Country" total={312} slices={INNOVATIONS_BY_COUNTRY} />
+        <DonutCard title="Innovations by Category" total="—" slices={[]} />
+        <DonutCard title="Innovations by Stage" total="—" slices={[]} />
+        <DonutCard title="Innovations by Interest" total="—" slices={[]} />
+        <DonutCard title="Innovations by Ownership" total="—" slices={[]} />
+        <DonutCard title="Innovations by Country" total="—" slices={[]} />
       </div>
 
+      {/* Lists */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-semibold text-neutral-black">Pending Approvals</h3>
-            <Link href="/admin/categories/afro-innovations/submissions" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium hover:underline cursor-pointer">
-              View all <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {PENDING_APPROVALS.map((inn) => (
-              <div key={inn.id} className="flex items-start gap-2.5">
-                <Image src={inn.logo} alt={inn.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />
+        <ListCard title="Pending Approvals" viewHref="/admin/categories/afro-innovations/submissions">
+          {loading ? (
+            <div className="py-6 text-center"><Loader2 className="h-5 w-5 animate-spin text-brand-red-600 mx-auto" /></div>
+          ) : pendingList.length === 0 ? (
+            <EmptyState message="No pending submissions." />
+          ) : (
+            pendingList.map((r: any) => (
+              <div key={r.id} className="flex items-start gap-2.5">
+                {r.innovation.logo && <Image src={r.innovation.logo} alt={r.innovation.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />}
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-medium text-neutral-black truncate">{inn.name}</p>
-                  <p className="text-[9px] text-neutral-gray-medium">{inn.description || inn.category}</p>
-                  <p className="text-[9px] text-neutral-gray-medium">Submitted: {inn.submitted}</p>
+                  <p className="text-[11px] font-medium text-neutral-black truncate">{r.innovation.name}</p>
+                  <p className="text-[9px] text-neutral-gray-medium">{r.innovation.description}</p>
+                  <p className="text-[9px] text-neutral-gray-medium">Submitted: {r.submittedOn}</p>
                 </div>
                 <span className="px-1.5 py-0.5 rounded text-[8px] font-semibold bg-orange-100 text-orange-700 flex-shrink-0">Pending</span>
               </div>
-            ))}
-          </div>
-          <Link href="/admin/categories/afro-innovations/submissions" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium mt-3 hover:underline cursor-pointer">
-            View all pending <ArrowRight className="h-3 w-3" />
-          </Link>
-        </div>
+            ))
+          )}
+        </ListCard>
 
-        <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-semibold text-neutral-black">Recently Added</h3>
-            <Link href="/admin/categories/afro-innovations/all" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium hover:underline cursor-pointer">
-              View all <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {RECENTLY_ADDED.map((inn) => (
-              <div key={inn.id} className="flex items-start gap-2.5">
-                <Image src={inn.logo} alt={inn.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />
+        <ListCard title="Recently Added" viewHref="/admin/categories/afro-innovations/all">
+          {loading ? (
+            <div className="py-6 text-center"><Loader2 className="h-5 w-5 animate-spin text-brand-red-600 mx-auto" /></div>
+          ) : recentList.length === 0 ? (
+            <EmptyState message="No approved innovations yet." />
+          ) : (
+            recentList.map((r: any) => (
+              <div key={r.id} className="flex items-start gap-2.5">
+                {r.innovation.logo && <Image src={r.innovation.logo} alt={r.innovation.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />}
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-medium text-neutral-black truncate">{inn.name}</p>
+                  <p className="text-[11px] font-medium text-neutral-black truncate">{r.innovation.name}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-[9px] text-neutral-gray-medium">{inn.category}</span>
+                    <span className="text-[9px] text-neutral-gray-medium">{r.innovation.stage}</span>
                     <span className="text-[9px] text-neutral-gray-medium">·</span>
-                    <span className="text-[9px] text-neutral-gray-medium">{inn.submitted}</span>
+                    <span className="text-[9px] text-neutral-gray-medium">{r.submittedOn}</span>
                   </div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded text-[8px] font-semibold bg-green-100 text-green-700 flex-shrink-0">Approved</span>
               </div>
-            ))}
-          </div>
-          <Link href="/admin/categories/afro-innovations/all" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium mt-3 hover:underline cursor-pointer">
-            View all innovations <ArrowRight className="h-3 w-3" />
-          </Link>
-        </div>
+            ))
+          )}
+        </ListCard>
 
-        <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-semibold text-neutral-black">Top Viewed Innovations</h3>
-            <Link href="/admin/categories/afro-innovations/all" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium hover:underline cursor-pointer">
-              View all <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {MOCK_INNOVATIONS.map((inn, idx) => (
-              <div key={inn.id} className="flex items-center gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-[#453DD8] text-white flex items-center justify-center text-[9px] font-bold flex-shrink-0">
-                  {idx + 1}
-                </span>
-                <Image src={inn.logo} alt={inn.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />
+        <ListCard title="Top Viewed Innovations" viewHref="/admin/categories/afro-innovations/all">
+          <EmptyState />
+        </ListCard>
+
+        <ListCard title="New Submissions" viewHref="/admin/categories/afro-innovations/submissions">
+          {loading ? (
+            <div className="py-6 text-center"><Loader2 className="h-5 w-5 animate-spin text-brand-red-600 mx-auto" /></div>
+          ) : pendingList.length === 0 ? (
+            <EmptyState message="No new submissions." />
+          ) : (
+            pendingList.map((r: any) => (
+              <div key={r.id} className="flex items-start gap-2.5">
+                {r.innovation.logo && <Image src={r.innovation.logo} alt={r.innovation.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />}
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-medium text-neutral-black truncate">{inn.name}</p>
-                  <p className="text-[9px] text-neutral-gray-medium">{inn.description || inn.category}</p>
+                  <p className="text-[11px] font-medium text-neutral-black truncate">{r.innovation.name}</p>
+                  <p className="text-[9px] text-neutral-gray-medium">{r.innovation.description}</p>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] text-neutral-gray-medium flex-shrink-0">
-                  <Eye className="h-3 w-3" />
-                  <span>{inn.views?.toLocaleString()}</span>
-                </div>
+                <span className="flex items-center gap-1 text-[9px] text-neutral-gray-medium flex-shrink-0">
+                  <Clock className="h-3 w-3" />{r.submittedOn}
+                </span>
               </div>
-            ))}
-          </div>
-          <Link href="/admin/categories/afro-innovations/all" className="flex items-center gap-1 text-[10px] text-[#453DD8] font-medium mt-3 hover:underline cursor-pointer">
-            View full leaderboard <ArrowRight className="h-3 w-3" />
-          </Link>
-        </div>
-        <NewSubmissionsCard viewHref="/admin/categories/afro-innovations/submissions" />
-        <RejectedInnovationsCard viewHref="/admin/categories/afro-innovations/submissions" />        <TopSharedInnovationsCard viewHref="/admin/categories/afro-innovations/all" />
+            ))
+          )}
+        </ListCard>
+
+        <ListCard title="Rejected Innovations" viewHref="/admin/categories/afro-innovations/submissions">
+          {loading ? (
+            <div className="py-6 text-center"><Loader2 className="h-5 w-5 animate-spin text-brand-red-600 mx-auto" /></div>
+          ) : rejectedList.length === 0 ? (
+            <EmptyState message="No rejected innovations." />
+          ) : (
+            rejectedList.map((r: any) => (
+              <div key={r.id} className="flex items-start gap-2.5">
+                {r.innovation.logo && <Image src={r.innovation.logo} alt={r.innovation.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-medium text-neutral-black truncate">{r.innovation.name}</p>
+                  <p className="text-[9px] text-neutral-gray-medium truncate">{r.reasonForRejection || 'No reason provided.'}</p>
+                </div>
+                <span className="px-1.5 py-0.5 rounded text-[8px] font-semibold bg-red-100 text-red-700 flex-shrink-0">Rejected</span>
+              </div>
+            ))
+          )}
+        </ListCard>
+
+        <ListCard title="Top Shared Innovations" viewHref="/admin/categories/afro-innovations/all">
+          <EmptyState />
+        </ListCard>
       </div>
     </div>
   );

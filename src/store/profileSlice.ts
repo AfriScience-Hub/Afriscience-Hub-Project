@@ -2,12 +2,13 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { api } from '@/lib/api';
 
 export interface PersonalInfo {
-  id?: string; firstname: string; middlename: string; surname: string;
-  username: string; gender: string; dateOfBirth: string; bio: string;
+  id?: string; fullName?: string; firstname?: string; middlename?: string; surname?: string;
+  email?: string; username: string; gender: string; dateOfBirth: string; bio: string;
   phone: string; address: string; city: string; state: string;
   lga: string; country: string; postalCode: string;
   idCardType: string; idCardNumber: string; employmentStatus: string;
-  website: string;
+  website: string; avatar?: string; displayPhoto?: string; displayPhotoUrl?: string; avatarUrl?: string; photo?: string;
+  idCardFile?: string; idCardUrl?: string; cvFile?: string; cvUrl?: string; cv?: string;
 }
 
 export interface SkillEntry { id: string; name: string; }
@@ -17,6 +18,13 @@ export interface LanguageEntry { id: string; language: string; proficiency: stri
 export interface PortfolioEntry { id: string; label: string; link: string; }
 export interface CertEntry { id: string; title: string; issuer: string; year: number; file: string; }
 
+export interface CompletionSection {
+  required?: boolean;
+  completed?: boolean;
+  missingFields?: string[];
+  records?: number;
+}
+
 export interface ProfileState {
   personal: PersonalInfo | null; personalLoading: boolean; personalError: string | null;
   skills: SkillEntry[]; skillsLoading: boolean; skillsError: string | null;
@@ -25,7 +33,9 @@ export interface ProfileState {
   languages: LanguageEntry[]; languagesLoading: boolean; languagesError: string | null;
   portfolio: PortfolioEntry[]; portfolioLoading: boolean; portfolioError: string | null;
   certs: CertEntry[]; certsLoading: boolean; certsError: string | null;
-  completion: number; completionLoading: boolean; completionLoaded: boolean;
+  completion: number; completionCompleted: boolean;
+  completionSections: Record<string, CompletionSection> | null;
+  completionLoading: boolean; completionLoaded: boolean;
   profileLoading: boolean; profileLoaded: boolean; profileError: string | null;
   saveLoading: boolean; saveError: string | null;
 }
@@ -49,17 +59,28 @@ function pickFirst<T>(...vals: unknown[]): T[] {
   return [];
 }
 
-function extractCompletion(v: any): number {
+function extractCompletion(v: any): { percentage: number; completed: boolean; sections: Record<string, CompletionSection> | null } {
   const root = v?.data ?? v;
   const candidates = [
     root?.completion, root?.completionRate, root?.completionPercentage,
-    root?.percentage, root?.percent, root?.rate, root,
+    root?.percentage, root?.percent, root?.rate,
   ];
+  let percentage = 0;
   for (const c of candidates) {
     const n = typeof c === 'string' ? Number(c) : c;
-    if (typeof n === 'number' && Number.isFinite(n)) return Math.max(0, Math.min(100, Math.round(n)));
+    if (typeof n === 'number' && Number.isFinite(n)) {
+      percentage = Math.max(0, Math.min(100, Math.round(n)));
+      break;
+    }
   }
-  return 0;
+  const sections = root?.sections && typeof root.sections === 'object' && !Array.isArray(root.sections)
+    ? (root.sections as Record<string, CompletionSection>)
+    : null;
+  return {
+    percentage,
+    completed: root?.completed === true || percentage === 100,
+    sections,
+  };
 }
 
 // Personal
@@ -150,7 +171,7 @@ export const updateCert = createAsyncThunk('profile/updateCert', async (p: { id:
 function looksLikePersonal(v: unknown): v is Record<string, any> {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
   const o = v as Record<string, any>;
-  return typeof o.firstname === 'string' || typeof o.surname === 'string' || typeof o.phone === 'string';
+  return typeof o.fullName === 'string' || typeof o.firstname === 'string' || typeof o.surname === 'string' || typeof o.phone === 'string' || typeof o.email === 'string';
 }
 
 export const fetchFullProfile = createAsyncThunk('profile/fetchFull', async (_, { rejectWithValue }) => {
@@ -207,7 +228,8 @@ const initialState: ProfileState = {
   languages: [], languagesLoading: false, languagesError: null,
   portfolio: [], portfolioLoading: false, portfolioError: null,
   certs: [], certsLoading: false, certsError: null,
-  completion: 0, completionLoading: false, completionLoaded: false,
+  completion: 0, completionCompleted: false, completionSections: null,
+  completionLoading: false, completionLoaded: false,
   profileLoading: false, profileLoaded: false, profileError: null,
   saveLoading: false, saveError: null,
 };
@@ -278,7 +300,13 @@ const profileSlice = createSlice({
       .addCase(fetchProfile.fulfilled, (s, a) => { s.completionLoading = false; if (a.payload?.personal) s.personal = a.payload.personal; })
       .addCase(fetchProfile.rejected, (s) => { s.completionLoading = false; })
       .addCase(fetchProfileCompletion.pending, (s) => { s.completionLoading = true; })
-      .addCase(fetchProfileCompletion.fulfilled, (s, a) => { s.completionLoading = false; s.completionLoaded = true; s.completion = typeof a.payload === 'number' ? a.payload : 0; })
+      .addCase(fetchProfileCompletion.fulfilled, (s, a) => {
+        s.completionLoading = false;
+        s.completionLoaded = true;
+        s.completion = a.payload.percentage;
+        s.completionCompleted = a.payload.completed;
+        s.completionSections = a.payload.sections;
+      })
       .addCase(fetchProfileCompletion.rejected, (s) => { s.completionLoading = false; })
       .addCase(submitProfileCompletion.fulfilled, (s) => { s.saveLoading = false; });
   },

@@ -53,6 +53,8 @@ export interface SubmissionRecord {
   verified?: boolean;
   publishedBy: { name: string; date: string; avatar: string } | null;
   innovator: SubmissionInnovator;
+  reasonForRejection?: string;
+  reviewedBy?: string;
 }
 
 const AVATAR = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100';

@@ -3,12 +3,16 @@
 import { useRef } from 'react';
 import Image from 'next/image';
 import { X, ImagePlus } from 'lucide-react';
+import { toast } from 'sonner';
+import { uploadFile } from '@/lib/upload';
 
 interface InnovationIdentitySectionProps {
   name: string;
   setName: (v: string) => void;
   profileImage: string | null;
   setProfileImage: (v: string | null) => void;
+  profileImageKey: string | null;
+  setProfileImageKey: (v: string | null) => void;
   country: string;
   setCountry: (v: string) => void;
   bio: string;
@@ -18,16 +22,21 @@ interface InnovationIdentitySectionProps {
 
 export default function InnovationIdentitySection({
   name, setName, profileImage, setProfileImage,
+  profileImageKey, setProfileImageKey,
   country, setCountry, bio, setBio, AFRICAN_COUNTRIES,
 }: InnovationIdentitySectionProps) {
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = () => setProfileImage(typeof reader.result === 'string' ? reader.result : null);
-      reader.readAsDataURL(file);
+      try {
+        const uploaded = await uploadFile(file);
+        setProfileImage(uploaded.url);
+        setProfileImageKey(uploaded.key);
+      } catch {
+        toast.error('Failed to upload image. Please try again.');
+      }
     }
     e.target.value = '';
   };

@@ -30,6 +30,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'placehold.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'afriscience-buckset.s3.eu-north-1.amazonaws.com',
+      },
     ],
   },
 };

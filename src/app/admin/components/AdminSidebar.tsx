@@ -12,6 +12,7 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logoutThunk } from '@/store/authSlice';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { Avatar } from '@/app/components/Avatar';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -66,13 +67,7 @@ export default function AdminSidebar() {
         <div className="border-t border-white/10">
           <Link href="/admin/profile" className="p-4 block hover:bg-white/5 transition-colors">
             <div className="flex items-center gap-3 px-2 py-2">
-              <Image
-                src={user?.avatar || 'https://images.unsplash.com/photo-1670881391783-9c55ba592f93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzIzODM4NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'}
-                alt="Admin"
-                width={40}
-                height={40}
-                className="rounded-full object-cover w-10 h-10"
-              />
+              <Avatar src={user?.avatar} name={user?.name || 'Admin'} size="md" />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-white truncate">{user?.name || 'Claire Iwuanyanwu'}</p>
                 <p className="text-[10px] text-gray-400 truncate">{user?.email || 'Super Admin'}</p>

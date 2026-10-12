@@ -10,6 +10,8 @@ import {
 } from '@/app/data/mockData';
 import { cn } from '@/lib/utils';
 import type { ProfessionalDetails } from '../types';
+import { toast } from 'sonner';
+import { uploadFile } from '@/lib/upload';
 
 const MAX_PROFESSIONS = 4;
 
@@ -42,9 +44,17 @@ export default function ProfessionalDetailsSection({ details, onChange }: Profes
     });
   };
 
-  const handleCertificate = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCertificate = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) onChange({ degreeCertificate: file.name });
+    if (file) {
+      try {
+        const uploaded = await uploadFile(file);
+        onChange({ degreeCertificate: uploaded.url || uploaded.key });
+        toast.success('Certificate uploaded');
+      } catch {
+        toast.error('Failed to upload certificate');
+      }
+    }
     e.target.value = '';
   };
 

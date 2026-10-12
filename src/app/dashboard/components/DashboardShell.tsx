@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
@@ -10,6 +9,7 @@ import { fetchProfileCompletion } from '@/store/profileSlice';
 import { SIDEBAR_ITEMS, PATH_TO_TAB, TAB_TO_PATH, MOCK_NOTIFICATIONS, SidebarTab } from '../data';
 import { cn } from '@/lib/utils';
 import Sidebar from './Sidebar';
+import { Avatar } from '@/app/components/Avatar';
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated } = useAuth();
@@ -60,7 +60,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
               className="w-full flex cursor-pointer items-center justify-between rounded-xl border border-neutral-gray-light bg-white px-4 py-3 shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <Image src={user!.avatar} alt={user!.name} width={32} height={32} className="rounded-full object-cover h-12 w-12" />
+                <Avatar src={user!.avatar} name={user!.name} size="lg" />
                 <span className="text-sm font-bold text-neutral-black">
                   {SIDEBAR_ITEMS.find(i => i.key === activeTab)?.label}
                 </span>

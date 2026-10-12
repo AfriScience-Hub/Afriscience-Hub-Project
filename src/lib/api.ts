@@ -91,8 +91,9 @@ async function request<T>(
   const url = `${BASE_URL}${endpoint}`;
   const token = getAccessToken();
 
+  const isFormData = options.body instanceof FormData;
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
@@ -118,10 +119,11 @@ async function request<T>(
   if (!res.ok) {
     const msg = (data.message || data.error || '').toLowerCase();
     const isExpired = (res.status === 401 || res.status === 400) && (msg.includes('expired') || msg.includes('token'));
+    const isAdminNotVerified = res.status === 403 && msg.includes('not verified');
     const isAdminRequest = endpoint.startsWith('/admin');
     const refreshEndpoint = isAdminRequest ? '/admin/auth/refresh' : '/auth/refresh';
 
-    if (isExpired && !_retry && endpoint !== refreshEndpoint) {
+    if ((isExpired || isAdminNotVerified) && !_retry && endpoint !== refreshEndpoint) {
       if (isRefreshing) {
         return new Promise<ApiResponse<T>>((resolve, reject) => {
           failedQueue.push({

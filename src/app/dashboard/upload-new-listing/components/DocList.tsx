@@ -4,6 +4,7 @@ import { Plus, X, FileText, Upload } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { toast } from 'sonner';
 import { YEARS } from '../data';
+import { uploadFile } from '@/lib/upload';
 
 export interface DocEntry {
   name: string;
@@ -28,9 +29,17 @@ export default function DocList({ label, addLabel, entries, onChange }: DocListP
     onChange(entries.map((entry, i) => (i === idx ? { ...entry, ...patch } : entry)));
   };
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const file = e.target.files?.[0];
-    if (file) update(idx, { file: file.name });
+    if (file) {
+      try {
+        const uploaded = await uploadFile(file);
+        update(idx, { file: uploaded.key });
+        toast.success('Document uploaded');
+      } catch {
+        toast.error('Failed to upload document');
+      }
+    }
     e.target.value = '';
   };
 

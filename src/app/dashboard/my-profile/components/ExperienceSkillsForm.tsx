@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Trash2, Upload, CheckCircle, X } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { INDUSTRIES, COUNTRIES } from '@/lib/data';
 
 interface PastJob {
@@ -56,10 +56,6 @@ interface ExperienceSkillsTabProps {
   onAddPortfolioLink: () => void;
   onRemovePortfolioLink: (id: string) => void;
   onPortfolioLinkChange: (id: string, field: keyof Omit<PortfolioLink, 'id'>, value: string) => void;
-  cvFile: File | null;
-  cvFileName: string;
-  handleCvUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onCvClear?: () => void;
 }
 
 export function ExperienceForm(props: ExperienceSkillsTabProps) {
@@ -259,27 +255,6 @@ export function ExperienceForm(props: ExperienceSkillsTabProps) {
             </button>
           </div>
         ))}
-      </div>
-
-      <div className="pt-4 border-t border-neutral-gray-light">
-        <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Upload CV <span className="text-red-600">*</span></label>
-        <div className="flex items-center gap-3">
-          <input type="file" accept=".pdf" onChange={props.handleCvUpload} className="hidden" id="cv-upload" />
-          <label htmlFor="cv-upload" className="px-4 py-2 rounded-lg border border-neutral-gray-light bg-white hover:bg-neutral-bg-light cursor-pointer inline-flex items-center gap-2 transition-colors">
-            <Upload className="h-4 w-4" /> Choose File
-          </label>
-          {props.cvFileName && (
-            <button type="button" onClick={() => props.onCvClear?.()} className="text-red-500 hover:text-red-700 cursor-pointer" title="Remove file">
-              <X className="h-4 w-4" />
-            </button>
-          )}
-          <span className="text-sm text-neutral-gray-medium">{props.cvFileName || 'No file chosen'}</span>
-        </div>
-        {props.cvFile && (
-          <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
-            <CheckCircle className="h-3 w-3" /> CV added
-          </p>
-        )}
       </div>
     </div>
   );

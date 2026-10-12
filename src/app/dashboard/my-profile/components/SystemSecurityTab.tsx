@@ -117,10 +117,6 @@ export function SystemSecurityTab(props: SystemSecurityTabProps) {
             <p className="text-xs text-neutral-gray-medium mb-1">User Role</p>
             <span className="inline-flex px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">User</span>
           </div>
-          <div>
-            <p className="text-xs text-neutral-gray-medium mb-1">ID Tag</p>
-            <p className="text-sm font-medium text-neutral-black">{props.govIdCode}</p>
-          </div>
         </div>
       </div>
 

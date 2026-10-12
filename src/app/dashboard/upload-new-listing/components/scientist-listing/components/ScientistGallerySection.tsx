@@ -3,6 +3,7 @@
 import { ImagePlus, Upload, X, Images } from 'lucide-react';
 import { toast } from 'sonner';
 import CollapsibleSection from '../../CollapsibleSection';
+import { uploadFile } from '@/lib/upload';
 
 const MAX_MEDIA_FILES = 10;
 
@@ -12,7 +13,7 @@ interface ScientistGallerySectionProps {
 }
 
 export default function ScientistGallerySection({ media, onChange }: ScientistGallerySectionProps) {
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (media.length >= MAX_MEDIA_FILES) {
@@ -20,8 +21,13 @@ export default function ScientistGallerySection({ media, onChange }: ScientistGa
       e.target.value = '';
       return;
     }
-    onChange([...media, file.name]);
-    toast.success('Media file added');
+    try {
+      const uploaded = await uploadFile(file);
+      onChange([...media, uploaded.url || uploaded.key]);
+      toast.success('Media file added');
+    } catch {
+      toast.error('Failed to upload media');
+    }
     e.target.value = '';
   };
 

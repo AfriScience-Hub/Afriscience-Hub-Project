@@ -1,15 +1,33 @@
 'use client';
 
+import { useState } from 'react';
 import { FileText, X, Upload } from 'lucide-react';
 import CollapsibleSection from './CollapsibleSection';
+import { toast } from 'sonner';
+import { uploadFile } from '@/lib/upload';
 
 interface DocumentsSectionProps {
   certifications: { name: string; file: string }[];
-  setCertifications: (v: { name: string; file: string }[] | ((prev: { name: string; file: string }[]) => { name: string; file: string }[])) => void;
-  handleAddCertification: () => void;
+  setCertifications: React.Dispatch<React.SetStateAction<{ name: string; file: string }[]>>;
 }
 
-export default function DocumentsSection({ certifications, setCertifications, handleAddCertification }: DocumentsSectionProps) {
+export default function DocumentsSection({ certifications, setCertifications }: DocumentsSectionProps) {
+  const [docName, setDocName] = useState('');
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !docName.trim()) return;
+    try {
+      const uploaded = await uploadFile(file);
+      setCertifications(prev => [...prev, { name: docName.trim(), file: uploaded.key }]);
+      setDocName('');
+      toast.success('Document uploaded');
+    } catch {
+      toast.error('Failed to upload document');
+    }
+    e.target.value = '';
+  };
+
   return (
     <CollapsibleSection title="Certifications & Documents" icon={<FileText className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
       <div className="space-y-4">
@@ -29,13 +47,13 @@ export default function DocumentsSection({ certifications, setCertifications, ha
             ))}
           </div>
         )}
-        <button
-          type="button"
-          onClick={handleAddCertification}
-          className="inline-flex items-center gap-2 rounded-lg border border-dashed border-brand-red-300 px-4 py-3 text-sm font-medium text-brand-red-600 hover:bg-brand-red-50 transition-colors w-full justify-center"
-        >
-          <Upload className="h-4 w-4" /> Upload Document (PDF, JPG, PNG)
-        </button>
+        <div className="flex gap-2">
+          <input type="text" value={docName} onChange={e => setDocName(e.target.value)} placeholder="Document name" className="flex-1 w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm" />
+          <label className="inline-flex items-center gap-1 cursor-pointer rounded-lg border border-dashed border-brand-red-300 px-4 py-2.5 text-sm font-medium text-brand-red-600 hover:bg-brand-red-50 transition-colors">
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={handleUpload} />
+            <Upload className="h-4 w-4" /> Upload
+          </label>
+        </div>
       </div>
     </CollapsibleSection>
   );

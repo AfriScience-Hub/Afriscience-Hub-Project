@@ -1,17 +1,19 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, XCircle, ShieldCheck, Clock } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, XCircle, ShieldCheck, Clock, Loader2 } from 'lucide-react';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
-import { SUBMISSIONS } from './data';
+import { toast } from 'sonner';
 import type { SubmissionRecord, SubmissionStatus } from './data';
 import SubmissionDetailModal from './components/SubmissionDetailModal';
 import { INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS, INNOVATION_OWNERSHIP, INNOVATION_SDGS, AFRICAN_COUNTRIES } from '@/app/data/mockData';
+import { fetchAdminInnovations, mapAdminInnovation, approveInnovation, rejectInnovation } from '../api';
 
 export default function SubmissionsPage() {
-  const [records, setRecords] = useState<SubmissionRecord[]>(SUBMISSIONS);
+  const [records, setRecords] = useState<SubmissionRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All Status');
   const [fieldFilter, setFieldFilter] = useState<string>('All Fields');
@@ -41,9 +43,48 @@ export default function SubmissionsPage() {
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
 
-  const updateStatus = (id: string, status: SubmissionStatus) => {
-    setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, status, publishedBy: status === 'Published' ? { name: 'Claire Nwanyanwu', date: new Date().toLocaleDateString(), avatar: r.submitter.avatar } : r.publishedBy } : r)));
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const raw = await fetchAdminInnovations();
+        if (!cancelled) setRecords(raw.map(mapAdminInnovation));
+      } catch (e: any) {
+        toast.error(e?.message || 'Failed to load innovations');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleApprove = async (id: string) => {
+    try {
+      await approveInnovation(id);
+      setRecords(prev => prev.map(r => r.id === id ? { ...r, status: 'Published', publishedBy: { name: 'Admin', date: new Date().toLocaleDateString(), avatar: '' } } : r));
+      toast.success('Innovation approved');
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to approve innovation');
+    }
   };
+
+  const handleReject = async (id: string) => {
+    const reason = window.prompt('Enter the reason for rejection:');
+    if (!reason || !reason.trim()) return;
+    try {
+      await rejectInnovation(id, reason.trim());
+      setRecords(prev => prev.map(r => r.id === id ? { ...r, status: 'Rejected', reasonForRejection: reason.trim() } : r));
+      toast.success('Innovation rejected');
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to reject innovation');
+    }
+  };
+
+  const handlePending = (id: string) => {
+    setRecords(prev => prev.map(r => r.id === id ? { ...r, status: 'Pending Review' } : r));
+    toast.info('Marked as pending review');
+  };
+
   const saveRecord = (updated: SubmissionRecord) => setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
 
   const total = records.length;
@@ -119,7 +160,15 @@ export default function SubmissionsPage() {
               </tr>
             </thead>
             <tbody>
-              {paginated.map((r) => (
+              {loading && (
+                <tr>
+                  <td colSpan={10} className="p-8 text-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-brand-red-600 mx-auto mb-2" />
+                    <p className="text-sm text-neutral-gray-medium">Loading innovations&hellip;</p>
+                  </td>
+                </tr>
+              )}
+              {!loading && paginated.map((r) => (
                 <tr key={r.id} onClick={() => setSelected(r)} className="border-b border-neutral-gray-light/60 last:border-0 hover:bg-neutral-bg-light/40 cursor-pointer">
                   <td className="px-3 py-2.5">
                     <div className="flex gap-2.5 items-start max-w-[220px]">
@@ -155,9 +204,9 @@ export default function SubmissionsPage() {
                       triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                       items={[
                         { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
-                        { label: 'Approve', icon: <CheckCircle className="h-3.5 w-3.5" />, onClick: () => updateStatus(r.id, 'Published') },
-                        { label: 'Pending', icon: <Clock className="h-3.5 w-3.5" />, onClick: () => updateStatus(r.id, 'Pending Review') },
-                        { label: 'Reject', icon: <XCircle className="h-3.5 w-3.5" />, onClick: () => updateStatus(r.id, 'Rejected'), danger: true },
+                        { label: 'Approve', icon: <CheckCircle className="h-3.5 w-3.5" />, onClick: () => handleApprove(r.id) },
+                        { label: 'Pending', icon: <Clock className="h-3.5 w-3.5" />, onClick: () => handlePending(r.id) },
+                        { label: 'Reject', icon: <XCircle className="h-3.5 w-3.5" />, onClick: () => handleReject(r.id), danger: true },
                       ]}
                     />
                   </td>
@@ -181,7 +230,7 @@ export default function SubmissionsPage() {
         </div>
       </div>
 
-      <SubmissionDetailModal submission={selected} open={!!selected} onClose={() => setSelected(null)} onApprove={(id) => updateStatus(id, 'Published')} onReject={(id) => updateStatus(id, 'Rejected')} onSave={saveRecord} />
+      <SubmissionDetailModal submission={selected} open={!!selected} onClose={() => setSelected(null)} onApprove={handleApprove} onReject={handleReject} onSave={saveRecord} />
     </div>
   );
 }

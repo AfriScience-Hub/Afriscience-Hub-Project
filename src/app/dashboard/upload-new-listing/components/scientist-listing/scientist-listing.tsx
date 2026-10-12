@@ -54,7 +54,7 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
 
   useEffect(() => { dispatch(fetchFullProfile()); }, [dispatch]);
 
-  const fullName = personal ? [personal.firstname, personal.middlename, personal.surname].filter(Boolean).join(' ') : (user?.name || '');
+  const fullName = personal?.fullName || (personal ? [personal.firstname, personal.middlename, personal.surname].filter(Boolean).join(' ') : (user?.name || ''));
   const profilePhone = personal?.phone || user?.phone || '';
   const profileEmail = (personal as any)?.email || user?.email || '';
 

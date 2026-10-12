@@ -1,4 +1,4 @@
-import { Building2, Beaker, Microscope, Lightbulb, Trophy, Award } from 'lucide-react';
+import { Building2, Beaker, Microscope, Lightbulb } from 'lucide-react';
 
 export interface ServiceEntry {
   id: string;
@@ -12,8 +12,6 @@ export const LISTING_TYPES = [
   { id: 'scientist', label: 'Scientist / Technologist', icon: Beaker, description: 'Individual scientist, researcher, or technologist' },
   { id: 'center', label: 'Specialist Center', icon: Microscope, description: 'Specialized research or innovation center' },
   { id: 'innovation', label: 'Afro-Innovation', icon: Lightbulb, description: 'African-born innovation or product' },
-  { id: 'competition', label: 'Competition', icon: Trophy, description: 'Science competition or challenge' },
-  { id: 'award', label: 'Award', icon: Award, description: 'Award or recognition program' },
 ] as const;
 
 export type ListingType = typeof LISTING_TYPES[number]['id'];

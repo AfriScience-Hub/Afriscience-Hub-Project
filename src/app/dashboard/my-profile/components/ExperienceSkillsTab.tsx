@@ -56,10 +56,6 @@ interface ExperienceSkillsTabProps {
   onAddPortfolioLink: () => void;
   onRemovePortfolioLink: (id: string) => void;
   onPortfolioLinkChange: (id: string, field: keyof Omit<PortfolioLink, 'id'>, value: string) => void;
-  cvFile: File | null;
-  cvFileName: string;
-  handleCvUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onCvClear?: () => void;
 }
 
 function ExperienceDisplay(props: ExperienceSkillsTabProps) {
@@ -147,10 +143,6 @@ function ExperienceDisplay(props: ExperienceSkillsTabProps) {
           </div>
         </SectionCard>
       )}
-
-      <SectionCard title="CV">
-        <Field label="CV File" value={props.cvFileName || 'Not uploaded'} />
-      </SectionCard>
     </div>
   );
 }

@@ -4,10 +4,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, Bell, ChevronDown, User, LogOut } from 'lucide-react';
-import Image from 'next/image';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logoutThunk } from '@/store/authSlice';
 import { toast } from 'sonner';
+import { Avatar } from '@/app/components/Avatar';
 
 interface AdminHeaderProps {
   onToggleSidebar?: () => void;
@@ -71,13 +71,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
             onClick={() => setOpen((v) => !v)}
             className="flex items-center gap-2 pl-3 border-l border-neutral-gray-light cursor-pointer"
           >
-            <Image
-              src={user?.avatar || 'https://images.unsplash.com/photo-1670881391783-9c55ba592f93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzIzODM4NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'}
-              alt="Admin"
-              width={36}
-              height={36}
-              className="rounded-full object-cover w-10 h-10"
-            />
+            <Avatar src={user?.avatar} name={displayName} size="md" />
             <div className="hidden sm:block text-left">
               <p className="text-sm font-semibold text-neutral-black leading-none">{displayName}</p>
               <p className="text-[10px] text-neutral-gray-medium">Super Admin</p>

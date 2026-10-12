@@ -2,11 +2,14 @@
 import { Provider } from 'react-redux';
 import { store } from './index';
 import { useEffect } from 'react';
-import { hydrateFromStorage } from './authSlice';
+import { hydrateFromStorage, fetchCurrentUser } from './authSlice';
 
 function Hydrator({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     store.dispatch(hydrateFromStorage());
+    if (typeof window !== 'undefined' && localStorage.getItem('afrisciencehub_token')) {
+      store.dispatch(fetchCurrentUser());
+    }
   }, []);
   return <>{children}</>;
 }

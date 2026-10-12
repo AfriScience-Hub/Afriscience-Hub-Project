@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useRef, useEffect } from 'react';
+import SafeLink from './SafeLink';
 import { useRouter } from 'next/navigation';
 import {
   Menu, X, Search, ChevronDown, Building2, Beaker, Microscope, Lightbulb, Trophy, Vote, Award,
@@ -25,6 +25,7 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import { NotificationDropdown } from './NotificationDropdown';
 import { SearchDirectory } from './SearchDirectory';
+import { Avatar } from './Avatar';
 
 interface HeaderProps {
   isSearchOpen: boolean;
@@ -140,13 +141,7 @@ function ProfileDropdown() {
         className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-red-600 focus:ring-offset-2"
         aria-label="Profile menu"
       >
-        <Image
-          src={user.avatar}
-          alt={user.name}
-          width={40}
-          height={40}
-          className="h-10 w-10 rounded-full object-cover border-2 border-brand-navy-100 hover:border-brand-red-600 transition-colors"
-        />
+        <Avatar src={user.avatar} name={user.name} size="md" />
       </button>
 
       {open && (
@@ -160,7 +155,7 @@ function ProfileDropdown() {
           {/* Menu Items */}
           <div className="py-1">
             {menuItems.map(item => (
-              <Link
+              <SafeLink
                 key={item.label}
                 href={item.path}
                 onClick={() => setOpen(false)}
@@ -168,20 +163,20 @@ function ProfileDropdown() {
               >
                 <item.icon className="h-4 w-4" />
                 {item.label}
-              </Link>
+              </SafeLink>
             ))}
           </div>
 
           {/* Support AfriScienceHub */}
           <div className="border-t border-neutral-gray-light py-1">
-            <Link
+            <SafeLink
               href="/support"
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600 transition-colors"
             >
               <Heart className="h-4 w-4" />
               Support AfriScienceHub
-            </Link>
+            </SafeLink>
           </div>
 
           {/* Logout */}
@@ -216,9 +211,9 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center">
+            <SafeLink href="/" className="flex items-center">
               <Image src={logoImg.src} alt="AFRISCIENCE HUB" width={0} height={0} sizes="100vw" className="h-10 w-auto" />
-            </Link>
+            </SafeLink>
           </div>
 
           {/* Desktop Navigation */}
@@ -227,9 +222,9 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link href="/" className={navigationMenuTriggerStyle()}>
+                    <SafeLink href="/" className={navigationMenuTriggerStyle()}>
                       Home
-                    </Link>
+                    </SafeLink>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
@@ -247,7 +242,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                               {group.items.map((item) => (
                                 <li key={item.id}>
                                   <NavigationMenuLink asChild>
-                                    <Link
+                                    <SafeLink
                                       href={item.path}
                                       className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600"
                                     >
@@ -258,7 +253,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                                       <p className="line-clamp-2 text-xs leading-snug text-neutral-gray-dark mt-1">
                                         {item.description}
                                       </p>
-                                    </Link>
+                                    </SafeLink>
                                   </NavigationMenuLink>
                                 </li>
                               ))}
@@ -272,25 +267,25 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link href="/about" className={navigationMenuTriggerStyle()}>
+                    <SafeLink href="/about" className={navigationMenuTriggerStyle()}>
                       About
-                    </Link>
+                    </SafeLink>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link href="/contact" className={navigationMenuTriggerStyle()}>
+                    <SafeLink href="/contact" className={navigationMenuTriggerStyle()}>
                       Contact
-                    </Link>
+                    </SafeLink>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link href="/impact" className={navigationMenuTriggerStyle()}>
+                    <SafeLink href="/impact" className={navigationMenuTriggerStyle()}>
                       Impact
-                    </Link>
+                    </SafeLink>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
@@ -300,7 +295,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                     <ul className="grid w-[350px] gap-3 p-4">
                       <li>
                         <NavigationMenuLink asChild>
-                          <Link
+                          <SafeLink
                             href="/support/sponsor"
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                           >
@@ -311,12 +306,12 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                             <p className="line-clamp-2 text-xs leading-snug text-neutral-gray-dark mt-1">
                               Support the platform's overall mission and development.
                             </p>
-                          </Link>
+                          </SafeLink>
                         </NavigationMenuLink>
                       </li>
                       <li>
                         <NavigationMenuLink asChild>
-                          <Link
+                          <SafeLink
                             href="/support/donate"
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                           >
@@ -327,12 +322,12 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                             <p className="line-clamp-2 text-xs leading-snug text-neutral-gray-dark mt-1">
                               Support specific initiatives like competitions and research.
                             </p>
-                          </Link>
+                          </SafeLink>
                         </NavigationMenuLink>
                       </li>
                       <li>
                         <NavigationMenuLink asChild>
-                          <Link
+                          <SafeLink
                             href="/support/volunteer"
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                           >
@@ -343,7 +338,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                             <p className="line-clamp-2 text-xs leading-snug text-neutral-gray-dark mt-1">
                               Contribute time and expertise to grow the ecosystem.
                             </p>
-                          </Link>
+                          </SafeLink>
                         </NavigationMenuLink>
                       </li>
                     </ul>
@@ -367,14 +362,14 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
 
             {mounted && isAuthenticated ? (
               <div className="flex items-center gap-3">
-                <Link
+                <SafeLink
                   href="/dashboard/my-profile?tab=wallet"
                   aria-label="Wallet"
                   title="Wallet"
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-navy-900 transition-colors"
                 >
                   <Wallet className="h-5 w-5" />
-                </Link>
+                </SafeLink>
                 <NotificationDropdown
                   categories={[
                     { id: 'impact', label: 'Impact Applications', icon: UsersIcon, count: 3, path: '/dashboard/notifications?filter=impact' },
@@ -387,25 +382,19 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link href="/login">
+                <SafeLink href="/login">
                   <Button variant="default" size="sm" className="bg-brand-red-600 hover:bg-brand-red-700">
                     Login
                   </Button>
-                </Link>
+                </SafeLink>
               </div>
             )}
           </div>
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center gap-2">
-            {mounted && isAuthenticated && user?.avatar && (
-              <Image
-                src={user.avatar}
-                alt={user.name}
-                width={32}
-                height={32}
-                className="rounded-full object-cover border-2 border-brand-navy-100 h-10 w-10"
-              />
+            {mounted && isAuthenticated && user && (
+              <Avatar src={user.avatar} name={user.name} size="md" />
             )}
             <Button
               variant="ghost"
@@ -431,7 +420,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
             {/* If authenticated, show user info at top */}
             {mounted && isAuthenticated && user && (
               <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-neutral-bg-light rounded-lg">
-                <Image src={user.avatar} alt={user.name} width={40} height={40} className="rounded-full object-cover border-2 border-brand-navy-100 h-10 w-10" />
+                <Avatar src={user.avatar} name={user.name} size="md" />
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-neutral-black truncate">{user.name}</p>
                   <p className="text-xs text-neutral-gray-medium truncate">{user.email}</p>
@@ -439,13 +428,13 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
               </div>
             )}
 
-            <Link
+            <SafeLink
               href="/"
               className="block rounded-md px-3 py-2 text-base font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600"
               onClick={() => setIsMenuOpen(false)}
             >
               Home
-            </Link>
+            </SafeLink>
 
             {/* Mobile Explore Dropdown */}
             <div>
@@ -469,7 +458,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                         {group.label}
                       </p>
                       {group.items.map((item) => (
-                        <Link
+                        <SafeLink
                           key={item.id}
                           href={item.path}
                           className="block rounded-md px-3 py-2 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600"
@@ -479,7 +468,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                             <item.icon className="h-4 w-4" />
                             {item.name}
                           </div>
-                        </Link>
+                        </SafeLink>
                       ))}
                     </div>
                   ))}
@@ -487,27 +476,27 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
               )}
             </div>
 
-            <Link
+            <SafeLink
               href="/about"
               className="block rounded-md px-3 py-2 text-base font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600"
               onClick={() => setIsMenuOpen(false)}
             >
               About
-            </Link>
-            <Link
+            </SafeLink>
+            <SafeLink
               href="/contact"
               className="block rounded-md px-3 py-2 text-base font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600"
               onClick={() => setIsMenuOpen(false)}
             >
               Contact
-            </Link>
-            <Link
+            </SafeLink>
+            <SafeLink
               href="/impact"
               className="block rounded-md px-3 py-2 text-base font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600"
               onClick={() => setIsMenuOpen(false)}
             >
               Impact
-            </Link>
+            </SafeLink>
 
             {/* Mobile Support Dropdown */}
             <div>
@@ -525,7 +514,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
               </button>
               {isMobileSupportOpen && (
                 <div className="ml-4 mt-2 space-y-1 border-l-2 border-neutral-gray-light pl-4">
-                  <Link
+                  <SafeLink
                     href="/support/sponsor"
                     className="block rounded-md px-3 py-2 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                     onClick={() => setIsMenuOpen(false)}
@@ -534,8 +523,8 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                       <Sparkles className="h-4 w-4" />
                       Sponsor AfriScienceHub
                     </div>
-                  </Link>
-                  <Link
+                  </SafeLink>
+                  <SafeLink
                     href="/support/donate"
                     className="block rounded-md px-3 py-2 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                     onClick={() => setIsMenuOpen(false)}
@@ -544,8 +533,8 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                       <HandCoins className="h-4 w-4" />
                       Donate to Projects
                     </div>
-                  </Link>
-                  <Link
+                  </SafeLink>
+                  <SafeLink
                     href="/support/volunteer"
                     className="block rounded-md px-3 py-2 text-sm font-medium text-neutral-gray-dark hover:bg-neutral-bg-light hover:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                     onClick={() => setIsMenuOpen(false)}
@@ -554,7 +543,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                       <UsersIcon className="h-4 w-4" />
                       Become a Volunteer
                     </div>
-                  </Link>
+                  </SafeLink>
                 </div>
               )}
             </div>
@@ -562,21 +551,21 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
             <div className="mt-4 border-t pt-4 space-y-2">
               {mounted && isAuthenticated ? (
                 <>
-                  <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
+                  <SafeLink href="/profile" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start gap-2">
                       <User className="h-4 w-4" /> My Profile
                     </Button>
-                  </Link>
-                  <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                  </SafeLink>
+                  <SafeLink href="/dashboard" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start gap-2">
                       <LayoutDashboard className="h-4 w-4" /> My Dashboard
                     </Button>
-                  </Link>
-                  <Link href="/dashboard/settings" onClick={() => setIsMenuOpen(false)}>
+                  </SafeLink>
+                  <SafeLink href="/dashboard/settings" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start gap-2">
                       <Settings className="h-4 w-4" /> Settings
                     </Button>
-                  </Link>
+                  </SafeLink>
                   <Button
                     variant="ghost"
                     className="w-full justify-start gap-2 text-brand-red-600 hover:text-brand-red-700"
@@ -587,9 +576,9 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                 </>
               ) : (
                 <>
-                  <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                  <SafeLink href="/login" onClick={() => setIsMenuOpen(false)}>
                     <Button className="w-full justify-center bg-brand-red-600 hover:bg-brand-red-700">Login</Button>
-                  </Link>
+                  </SafeLink>
                 </>
               )}
             </div>

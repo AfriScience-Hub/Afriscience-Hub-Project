@@ -2,12 +2,11 @@
 
 import { Upload, X } from 'lucide-react';
 import { Field, SectionCard } from './FieldDisplay';
+import { FilePreview } from './DocumentPreview';
 
 interface PersonalInfoTabProps {
   isEditing: boolean;
-  firstName: string; onFirstNameChange: (v: string) => void;
-  middleName: string; onMiddleNameChange: (v: string) => void;
-  surname: string; onSurnameChange: (v: string) => void;
+  fullName: string; onFullNameChange: (v: string) => void;
   username: string; onUsernameChange: (v: string) => void;
   gender: string; onGenderChange: (v: string) => void;
   dateOfBirth: string; onDateOfBirthChange: (v: string) => void;
@@ -15,10 +14,12 @@ interface PersonalInfoTabProps {
   idCardNumber: string; onIdCardNumberChange: (v: string) => void;
   idCardFile: File | null;
   idCardFileName: string;
+  idCardKey: string;
+  idCardUrl: string;
   handleIdCardUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onIdCardClear?: () => void;
   bio: string; onBioChange: (v: string) => void;
-  email: string; onEmailChange: (v: string) => void;
+  email: string;
   phone: string; onPhoneChange: (v: string) => void;
   altPhone: string; onAltPhoneChange: (v: string) => void;
   address: string; onAddressChange: (v: string) => void;
@@ -28,6 +29,13 @@ interface PersonalInfoTabProps {
   country: string; onCountryChange: (v: string) => void;
   zipCode: string; onZipCodeChange: (v: string) => void;
   website: string; onWebsiteChange: (v: string) => void;
+  // CV
+  cvFile: File | null;
+  cvFileName: string;
+  cvKey: string;
+  cvUrl: string;
+  handleCvUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  clearCv?: () => void;
 }
 
 function PersonalDisplay(props: PersonalInfoTabProps) {
@@ -35,15 +43,14 @@ function PersonalDisplay(props: PersonalInfoTabProps) {
     <div className="space-y-6">
       <SectionCard title="Personal Information">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <Field label="First Name" value={props.firstName} />
-          <Field label="Middle Name" value={props.middleName} />
-          <Field label="Surname" value={props.surname} />
+          <Field label="Full Name" value={props.fullName} />
           <Field label="Username" value={props.username} />
           <Field label="Gender" value={props.gender} />
           <Field label="Date of Birth" value={props.dateOfBirth ? new Date(props.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null} />
           <Field label="ID Card Type" value={props.idCardType} />
           <Field label="ID Card Number" value={props.idCardNumber} />
-          <Field label="ID Card File" value={props.idCardFileName || 'Not uploaded'} />
+          <FilePreview label="ID Card File" title="ID Card" src={props.idCardUrl || props.idCardKey || props.idCardFileName} localFile={props.idCardFile} />
+          <FilePreview label="CV File" title="CV" src={props.cvUrl || props.cvKey || props.cvFileName} localFile={props.cvFile} />
         </div>
         <div className="mt-3">
           <Field label="Bio / About Me" value={props.bio} />
@@ -52,7 +59,10 @@ function PersonalDisplay(props: PersonalInfoTabProps) {
 
       <SectionCard title="Contact Information">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <Field label="Email" value={props.email} />
+          <div>
+            <label className="block text-xs text-neutral-gray-medium mb-1">Email</label>
+            <p className="text-sm font-medium text-neutral-black">{props.email || '—'}</p>
+          </div>
           <Field label="Phone Number" value={props.phone} />
           <Field label="Alternative Number" value={props.altPhone} />
           <Field label="Address" value={props.address} />
@@ -77,25 +87,49 @@ function PersonalDisplay(props: PersonalInfoTabProps) {
 
 function PersonalForm(props: PersonalInfoTabProps) {
   const inputClass = "w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900";
+
+  const FileUploadField = ({ label, required, accept, fileName, src, title, localFile, onUpload, onClear, children }: {
+    label: string;
+    required?: boolean;
+    accept: string;
+    fileName: string;
+    src?: string;
+    title: string;
+    localFile?: File | null;
+    onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onClear?: () => void;
+    children?: React.ReactNode;
+  }) => (
+    <div className="mt-4">
+      <label className="block text-sm font-medium text-neutral-gray-dark mb-2">
+        {label} {required && <span className="text-red-600">*</span>}
+      </label>
+      {children}
+      <div className="flex flex-wrap items-center gap-3">
+        <input type="file" accept={accept} onChange={onUpload} className="hidden" id={`file-upload-${label.toLowerCase().replace(/\s+/g, '-')}`} />
+        <label htmlFor={`file-upload-${label.toLowerCase().replace(/\s+/g, '-')}`} className="px-4 py-2 rounded-lg border border-neutral-gray-light bg-white hover:bg-neutral-bg-light cursor-pointer inline-flex items-center gap-2 transition-colors">
+          <Upload className="h-4 w-4" /> Choose File
+        </label>
+        {fileName && (
+          <button type="button" onClick={() => onClear?.()} className="text-red-500 hover:text-red-700 cursor-pointer" title="Remove file">
+            <X className="h-4 w-4" />
+          </button>
+        )}
+        {fileName || src ? <FilePreview title={title} src={src || fileName} localFile={localFile} /> : <span className="text-sm text-neutral-gray-medium">No file chosen</span>}
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-bold text-neutral-black">Personal Information</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <div>
-            <label className="block text-sm font-medium text-neutral-gray-dark mb-2">First Name <span className="text-red-600">*</span></label>
-            <input type="text" value={props.firstName} onChange={e => props.onFirstNameChange(e.target.value)} className={inputClass} required />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Middle Name</label>
-            <input type="text" value={props.middleName} onChange={e => props.onMiddleNameChange(e.target.value)} className={inputClass} />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Surname <span className="text-red-600">*</span></label>
-            <input type="text" value={props.surname} onChange={e => props.onSurnameChange(e.target.value)} className={inputClass} required />
-          </div>
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          <div>
+            <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Full Name <span className="text-red-600">*</span></label>
+            <input type="text" value={props.fullName} className={`${inputClass} bg-neutral-bg-light cursor-not-allowed`} readOnly />
+            <p className="text-xs text-neutral-gray-medium mt-1">Full name cannot be changed</p>
+          </div>
           <div>
             <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Username <span className="text-red-600">*</span></label>
             <input type="text" value={props.username} onChange={e => props.onUsernameChange(e.target.value)} className={inputClass} required />
@@ -130,22 +164,29 @@ function PersonalForm(props: PersonalInfoTabProps) {
             <input type="text" value={props.idCardNumber} onChange={e => props.onIdCardNumberChange(e.target.value)} className={inputClass} required />
           </div>
         </div>
-        <div className="mt-4">
-          <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Upload ID Card <span className="text-red-600">*</span></label>
-          <p className="text-xs text-neutral-gray-medium mb-2">To verify your identity, upload a copy of a valid government-issued ID card.</p>
-          <div className="flex items-center gap-3">
-            <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={props.handleIdCardUpload} className="hidden" id="id-card-upload" />
-            <label htmlFor="id-card-upload" className="px-4 py-2 rounded-lg border border-neutral-gray-light bg-white hover:bg-neutral-bg-light cursor-pointer inline-flex items-center gap-2 transition-colors">
-              <Upload className="h-4 w-4" /> Choose File
-            </label>
-            {props.idCardFileName && (
-              <button type="button" onClick={() => props.onIdCardClear?.()} className="text-red-500 hover:text-red-700 cursor-pointer" title="Remove file">
-                <X className="h-4 w-4" />
-              </button>
-            )}
-            <span className="text-sm text-neutral-gray-medium">{props.idCardFileName || 'No file chosen'}</span>
-          </div>
-        </div>
+        <FileUploadField
+          label="Upload ID Card"
+          required
+          accept=".pdf,.jpg,.jpeg,.png"
+          fileName={props.idCardFileName}
+          src={props.idCardUrl || props.idCardKey}
+          title="ID Card"
+          localFile={props.idCardFile}
+          onUpload={props.handleIdCardUpload}
+          onClear={props.onIdCardClear}
+        />
+        <p className="text-xs text-neutral-gray-medium">To verify your identity, upload a copy of a valid government-issued ID card.</p>
+        <FileUploadField
+          label="Upload CV"
+          required
+          accept=".pdf"
+          fileName={props.cvFileName}
+          src={props.cvUrl || props.cvKey}
+          title="CV"
+          localFile={props.cvFile}
+          onUpload={props.handleCvUpload}
+          onClear={props.clearCv}
+        />
         <div className="mt-4">
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Bio / About Me <span className="text-red-600">*</span></label>
           <textarea value={props.bio} onChange={e => props.onBioChange(e.target.value)} rows={3} className={`w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900 resize-none`} required />
@@ -155,10 +196,6 @@ function PersonalForm(props: PersonalInfoTabProps) {
       <div className="pt-4 border-t border-neutral-gray-light">
         <h3 className="text-lg font-bold text-neutral-black">Contact Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          <div>
-            <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Email <span className="text-red-600">*</span></label>
-            <input type="email" value={props.email} onChange={e => props.onEmailChange(e.target.value)} className={inputClass} required />
-          </div>
           <div>
             <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Phone Number <span className="text-red-600">*</span></label>
             <input type="tel" value={props.phone} onChange={e => props.onPhoneChange(e.target.value)} className={inputClass} required />

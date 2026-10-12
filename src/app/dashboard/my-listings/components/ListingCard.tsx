@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { Eye, ThumbsUp, Star, Edit, ExternalLink, Archive, Trash2 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { cn } from '@/lib/utils';
@@ -24,7 +23,7 @@ export function ListingCard({ listing, onEdit, onPreview }: ListingCardProps) {
   return (
     <div className="rounded-xl border border-neutral-gray-light overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative h-36">
-        {listing.image ? <Image src={listing.image} alt={listing.name} fill sizes="33vw" className="object-cover" /> : <div className="h-full w-full bg-neutral-bg-light" />}
+        {listing.image ? <img src={listing.image} alt={listing.name} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-neutral-bg-light" />}
         <span className={cn(
           "absolute top-2 right-2 px-2.5 py-1 rounded-full text-[10px] font-bold",
           listing.status === 'Verified' ? "bg-green-100 text-green-700" :

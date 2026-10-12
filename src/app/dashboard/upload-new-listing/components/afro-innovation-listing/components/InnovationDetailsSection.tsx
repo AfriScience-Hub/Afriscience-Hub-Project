@@ -2,8 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { toast } from 'sonner';
 import { X, Plus, Upload, FileText, ImagePlus, Film, ChevronDown, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { uploadFile } from '@/lib/upload';
 import {
   INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS,
   INNOVATION_OWNERSHIP, INNOVATION_SDGS,
@@ -241,11 +243,16 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
     const [docFile, setDocFile] = useState<File | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
 
-    const handleUpload = () => {
+    const handleUpload = async () => {
       if (!docTitle.trim() || !docIssuer.trim() || !docDate.trim() || !docFile) return;
-      setItems(p => [...p, { title: docTitle.trim(), issuer: docIssuer.trim(), date: docDate.trim(), file: docFile.name }]);
-      setDocTitle(''); setDocIssuer(''); setDocDate(''); setDocFile(null);
-      if (fileRef.current) fileRef.current.value = '';
+      try {
+        const uploaded = await uploadFile(docFile);
+        setItems(p => [...p, { title: docTitle.trim(), issuer: docIssuer.trim(), date: docDate.trim(), file: uploaded.key || uploaded.url }]);
+        setDocTitle(''); setDocIssuer(''); setDocDate(''); setDocFile(null);
+        if (fileRef.current) fileRef.current.value = '';
+      } catch {
+        toast.error('Failed to upload document. Please try again.');
+      }
     };
 
     const [yearInput, setYearInput] = useState('');
@@ -542,10 +549,15 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
                   </div>
                 )}
                 <input type="file" accept="image/*,video/*" className="hidden" id={`gallery-${cat}`}
-                  onChange={e => {
+                  onChange={async e => {
                     const file = e.target.files?.[0];
                     if (file && props.innovGallery.length < 9) {
-                      props.setInnovGallery(p => [...p, { category: cat, type: file.type.startsWith('video') ? 'video' : 'image', name: file.name, caption: '' }]);
+                      try {
+                        const uploaded = await uploadFile(file);
+                        props.setInnovGallery(p => [...p, { category: cat, type: file.type.startsWith('video') ? 'video' : 'image', name: uploaded.key || uploaded.url, caption: '' }]);
+                      } catch {
+                        toast.error('Failed to upload media. Please try again.');
+                      }
                     }
                     e.target.value = '';
                   }} />

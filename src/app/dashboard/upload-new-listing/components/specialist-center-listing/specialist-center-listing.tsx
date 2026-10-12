@@ -52,7 +52,7 @@ export default function SpecialistCenterListing({ onCancel }: SpecialistCenterLi
 
   useEffect(() => { dispatch(fetchFullProfile()); }, [dispatch]);
 
-  const fullName = personal ? [personal.firstname, personal.middlename, personal.surname].filter(Boolean).join(' ') : (user?.name || '');
+  const fullName = personal?.fullName || (personal ? [personal.firstname, personal.middlename, personal.surname].filter(Boolean).join(' ') : (user?.name || ''));
   const profilePhone = personal?.phone || user?.phone || '';
   const profileEmail = (personal as any)?.email || user?.email || '';
   const username = (personal as any)?.username || profileEmail.split('@')[0] || '—';

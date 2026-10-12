@@ -3,6 +3,8 @@
 import { useRef } from 'react';
 import Image from 'next/image';
 import { X, ImagePlus, User } from 'lucide-react';
+import { toast } from 'sonner';
+import { uploadFile } from '@/lib/upload';
 import CollapsibleSection from '../../CollapsibleSection';
 import { WORLD_COUNTRIES } from '@/app/data/mockData';
 import { STATES } from '@/app/specialist-centers/data';
@@ -22,12 +24,15 @@ function ImageUploader({ label, hint, value, onPick, onRemove }: {
 }) {
   const ref = useRef<HTMLInputElement>(null);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = () => onPick(typeof reader.result === 'string' ? reader.result : '');
-      reader.readAsDataURL(file);
+      try {
+        const uploaded = await uploadFile(file);
+        onPick(uploaded.url || uploaded.key);
+      } catch {
+        toast.error('Failed to upload image');
+      }
     }
     e.target.value = '';
   };

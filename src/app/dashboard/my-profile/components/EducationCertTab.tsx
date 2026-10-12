@@ -2,6 +2,7 @@
 
 import { Upload, Plus, Trash2, CheckCircle, X } from 'lucide-react';
 import { Field, SectionCard } from './FieldDisplay';
+import { FilePreview } from './DocumentPreview';
 import { isNoGraduationClassLevel } from '../educationLevels';
 
 interface OtherCert {
@@ -11,6 +12,7 @@ interface OtherCert {
   year: string;
   file: File | null;
   fileName: string;
+  fileKey?: string;
 }
 
 interface EducationCertTabProps {
@@ -24,6 +26,8 @@ interface EducationCertTabProps {
   yearOfGraduation: string; onYearOfGraduationChange: (v: string) => void;
   degreeCertFile: File | null;
   degreeCertFileName: string;
+  degreeCertUrl?: string;
+  degreeCertKey?: string;
   handleDegreeCertUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDegreeCertClear?: () => void;
   otherCerts: OtherCert[];
@@ -42,7 +46,7 @@ function EducationDisplay(props: EducationCertTabProps) {
           <Field label="Course of Study" value={props.courseOfStudy} />
           <Field label="Institution" value={props.institution} />
           <Field label="Year of Graduation" value={props.yearOfGraduation} />
-          <Field label="Degree Certificate" value={props.degreeCertFileName || 'Not uploaded'} />
+          <FilePreview label="Degree Certificate" title="Degree Certificate" src={props.degreeCertUrl || props.degreeCertKey || props.degreeCertFileName} localFile={props.degreeCertFile} />
         </div>
       </SectionCard>
 
@@ -51,10 +55,11 @@ function EducationDisplay(props: EducationCertTabProps) {
           <div className="space-y-3">
             {props.otherCerts.map(cert => (
               <div key={cert.id} className="rounded-lg bg-white border border-neutral-gray-light p-3">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <Field label="Title" value={cert.title} />
                   <Field label="Issuer" value={cert.issuer} />
                   <Field label="Year" value={cert.year} />
+                  <FilePreview label="File" title={cert.title || 'Certificate'} src={cert.fileKey || cert.fileName} />
                 </div>
               </div>
             ))}
@@ -139,7 +144,9 @@ function EducationForm(props: EducationCertTabProps) {
               <X className="h-4 w-4" />
             </button>
           )}
-          <span className="text-sm text-neutral-gray-medium">{props.degreeCertFileName || 'No file chosen'}</span>
+          {props.degreeCertFileName || props.degreeCertUrl || props.degreeCertKey
+            ? <FilePreview title="Degree Certificate" src={props.degreeCertUrl || props.degreeCertKey || props.degreeCertFileName} localFile={props.degreeCertFile} />
+            : <span className="text-sm text-neutral-gray-medium">No file chosen</span>}
         </div>
         {props.degreeCertFile && (
           <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
@@ -194,7 +201,9 @@ function EducationForm(props: EducationCertTabProps) {
                     <X className="h-3.5 w-3.5" />
                   </button>
                 )}
-                <span className="text-xs text-neutral-gray-medium">{cert.fileName || 'No file chosen'}</span>
+                {cert.fileName || cert.fileKey
+                  ? <FilePreview title={cert.title || 'Certificate'} src={cert.fileKey || cert.fileName} localFile={cert.file} />
+                  : <span className="text-xs text-neutral-gray-medium">No file chosen</span>}
               </div>
             </div>
           </div>

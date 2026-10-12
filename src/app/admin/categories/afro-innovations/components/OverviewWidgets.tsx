@@ -1,16 +1,30 @@
 'use client';
 
-import Image from 'next/image';
+import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Clock, Share2 } from 'lucide-react';
-import { NEW_SUBMISSIONS, REJECTED_INNOVATIONS, TOP_SHARED_INNOVATIONS } from '../data';
+import { ArrowRight, Inbox } from 'lucide-react';
 
-export interface Slice { name: string; percent: string; count: number; color: string; }
+export interface Slice {
+  name: string;
+  percent: string;
+  count: number;
+  color: string;
+}
 
 const R = 40;
 const C = 2 * Math.PI * R;
 
+export function EmptyState({ message = 'No data yet.' }: { message?: string }) {
+  return (
+    <div className="py-8 text-center">
+      <Inbox className="h-8 w-8 text-neutral-gray-medium mx-auto mb-2" />
+      <p className="text-xs text-neutral-gray-medium">{message}</p>
+    </div>
+  );
+}
+
 export function DonutChart({ total, slices }: { total: string | number; slices: Slice[] }) {
+  if (!slices.length) return <EmptyState />;
   let acc = 0;
   return (
     <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -54,7 +68,11 @@ export function DonutCard({ title, total, slices }: { title: string; total: stri
   );
 }
 
-function ListCard({ title, viewHref, children }: { title: string; viewHref: string; children: React.ReactNode }) {
+export function ListCard({ title, viewHref, children }: {
+  title: string;
+  viewHref: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
       <div className="flex items-center justify-between mb-3">
@@ -63,63 +81,7 @@ function ListCard({ title, viewHref, children }: { title: string; viewHref: stri
           View all <ArrowRight className="h-3 w-3" />
         </Link>
       </div>
-      <div className="space-y-3">{children}</div>
+      {children}
     </div>
-  );
-}
-
-export function NewSubmissionsCard({ viewHref }: { viewHref: string }) {
-  return (
-    <ListCard title="New Submissions" viewHref={viewHref}>
-      {NEW_SUBMISSIONS.map((inn) => (
-        <div key={inn.id} className="flex items-start gap-2.5">
-          <Image src={inn.logo} alt={inn.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-medium text-neutral-black truncate">{inn.name}</p>
-            <p className="text-[9px] text-neutral-gray-medium">{inn.meta}</p>
-          </div>
-          <span className="flex items-center gap-1 text-[9px] text-neutral-gray-medium flex-shrink-0">
-            <Clock className="h-3 w-3" />{inn.time}
-          </span>
-        </div>
-      ))}
-    </ListCard>
-  );
-}
-
-export function RejectedInnovationsCard({ viewHref }: { viewHref: string }) {
-  return (
-    <ListCard title="Rejected Innovations" viewHref={viewHref}>
-      {REJECTED_INNOVATIONS.map((inn) => (
-        <div key={inn.id} className="flex items-start gap-2.5">
-          <Image src={inn.logo} alt={inn.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-medium text-neutral-black truncate">{inn.name}</p>
-            <p className="text-[9px] text-neutral-gray-medium truncate">{inn.reason}</p>
-          </div>
-          <span className="px-1.5 py-0.5 rounded text-[8px] font-semibold bg-red-100 text-red-700 flex-shrink-0">Rejected</span>
-        </div>
-      ))}
-    </ListCard>
-  );
-}
-
-export function TopSharedInnovationsCard({ viewHref }: { viewHref: string }) {
-  return (
-    <ListCard title="Top Shared Innovations" viewHref={viewHref}>
-      {TOP_SHARED_INNOVATIONS.map((inn, idx) => (
-        <div key={inn.id} className="flex items-center gap-2.5">
-          <span className="w-5 h-5 rounded-full bg-[#453DD8] text-white flex items-center justify-center text-[9px] font-bold flex-shrink-0">{idx + 1}</span>
-          <Image src={inn.logo} alt={inn.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-medium text-neutral-black truncate">{inn.name}</p>
-            <p className="text-[9px] text-neutral-gray-medium">{inn.meta}</p>
-          </div>
-          <span className="flex items-center gap-1 text-[10px] text-neutral-gray-medium flex-shrink-0">
-            <Share2 className="h-3 w-3" />{inn.shares.toLocaleString()}
-          </span>
-        </div>
-      ))}
-    </ListCard>
   );
 }

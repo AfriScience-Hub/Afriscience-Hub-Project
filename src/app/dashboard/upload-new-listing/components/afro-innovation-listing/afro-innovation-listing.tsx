@@ -14,6 +14,7 @@ interface LicenseDoc { title: string; issuer: string; date: string; file: string
 interface AfroInnovationListingProps {
   name: string; setName: (v: string) => void;
   profileImage: string | null; setProfileImage: (v: string | null) => void;
+  profileImageKey: string | null; setProfileImageKey: (v: string | null) => void;
   country: string; setCountry: (v: string) => void;
   bio: string; setBio: (v: string) => void;
   AFRICAN_COUNTRIES: string[];
@@ -52,6 +53,7 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
         <InnovationIdentitySection
           name={props.name} setName={props.setName}
           profileImage={props.profileImage} setProfileImage={props.setProfileImage}
+          profileImageKey={props.profileImageKey} setProfileImageKey={props.setProfileImageKey}
           country={props.country} setCountry={props.setCountry}
           bio={props.bio} setBio={props.setBio}
           AFRICAN_COUNTRIES={props.AFRICAN_COUNTRIES}

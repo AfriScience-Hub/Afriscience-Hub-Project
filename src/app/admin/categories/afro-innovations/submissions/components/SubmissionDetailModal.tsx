@@ -141,6 +141,11 @@ export default function SubmissionDetailModal({
                     <Field label="Submitted On" value={`${submission.submittedOn} ${submission.submittedTime}`} />
                     <Field label="ID Tag" value={inn.idTag} />
                     <Field label="Status" value={submission.status} />
+                    {submission.status === 'Rejected' && submission.reasonForRejection && (
+                      <div className="sm:col-span-2">
+                        <Field label="Reason for Rejection" value={submission.reasonForRejection} />
+                      </div>
+                    )}
                     <Field label="Submitted By" value={`${submission.submitter.name} (${submission.submitter.email})`} />
                     <Field label="Published By" value={submission.publishedBy ? `${submission.publishedBy.name} · ${submission.publishedBy.date}` : '—'} />
                   </div>

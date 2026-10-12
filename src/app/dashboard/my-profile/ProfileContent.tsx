@@ -69,8 +69,8 @@ export function ProfileContent() {
     if (remindedRef.current || !f.personalLoaded || editingTab) return;
     remindedRef.current = true;
     const missing: string[] = [];
-    if (!f.firstName) missing.push('First Name');
-    if (!f.surname) missing.push('Surname');
+    if (!f.fullName) missing.push('Full Name');
+    if (!f.email) missing.push('Email');
     if (!f.username) missing.push('Username');
     if (!f.gender) missing.push('Gender');
     if (!f.dateOfBirth) missing.push('Date of Birth');
@@ -84,7 +84,7 @@ export function ProfileContent() {
     if (missing.length > 0) {
       toast.info(`Complete your profile: ${missing.slice(0, 3).join(', ')}${missing.length > 3 ? ` and ${missing.length - 3} more` : ''}`, { duration: 6000 });
     }
-  }, [f.personalLoaded, editingTab, f.firstName, f.surname, f.username, f.gender, f.dateOfBirth, f.idCardType, f.idCardNumber, f.phone, f.address, f.city, f.stateOfResidence, f.country]);
+  }, [f.personalLoaded, editingTab, f.fullName, f.email, f.username, f.gender, f.dateOfBirth, f.idCardType, f.idCardNumber, f.phone, f.address, f.city, f.stateOfResidence, f.country]);
 
   const handleStartEdit = () => setEditingTab(activeTab);
   const handleCancel = () => setEditingTab(null);
@@ -141,18 +141,16 @@ export function ProfileContent() {
 
   const personalProps = {
     isEditing: editingTab === 'personal',
-    firstName: f.firstName, onFirstNameChange: f.setFirstName,
-    middleName: f.middleName, onMiddleNameChange: f.setMiddleName,
-    surname: f.surname, onSurnameChange: f.setSurname,
+    fullName: f.fullName, onFullNameChange: f.setFullName,
     username: f.username, onUsernameChange: f.setUsername,
     gender: f.gender, onGenderChange: f.setGender,
     dateOfBirth: f.dateOfBirth, onDateOfBirthChange: f.setDateOfBirth,
     idCardType: f.idCardType, onIdCardTypeChange: f.setIdCardType,
     idCardNumber: f.idCardNumber, onIdCardNumberChange: f.setIdCardNumber,
-    idCardFile: f.idCardFile, idCardFileName: f.idCardFileName,
+    idCardFile: f.idCardFile, idCardFileName: f.idCardFileName, idCardKey: f.idCardKey, idCardUrl: f.idCardUrl,
     handleIdCardUpload: f.handleIdCardUpload, onIdCardClear: f.clearIdCard,
     bio: f.bio, onBioChange: f.setBio,
-    email: f.email, onEmailChange: f.setEmail,
+    email: f.email,
     phone: f.phone, onPhoneChange: f.setPhone,
     altPhone: f.altPhone, onAltPhoneChange: f.setAltPhone,
     address: f.address, onAddressChange: f.setAddress,
@@ -162,6 +160,9 @@ export function ProfileContent() {
     country: f.country, onCountryChange: f.setCountry,
     zipCode: f.zipCode, onZipCodeChange: f.setZipCode,
     website: f.website, onWebsiteChange: f.setWebsite,
+    // CV
+    cvFile: f.cvFile, cvFileName: f.cvFileName, cvKey: f.cvKey, cvUrl: f.cvUrl,
+    handleCvUpload: f.handleCvUpload, clearCv: f.clearCv,
   };
 
   const educationProps = {
@@ -174,6 +175,7 @@ export function ProfileContent() {
     institution: f.institution, onInstitutionChange: f.setInstitution,
     yearOfGraduation: f.yearOfGraduation, onYearOfGraduationChange: f.setYearOfGraduation,
     degreeCertFile: f.degreeCertFile, degreeCertFileName: f.degreeCertFileName,
+    degreeCertUrl: f.degreeCertUrl, degreeCertKey: f.degreeCertKey,
     handleDegreeCertUpload: f.handleDegreeCertUpload, onDegreeCertClear: f.clearDegreeCert,
     otherCerts: f.otherCerts,
     onAddOtherCert: f.addOtherCert, onRemoveOtherCert: f.removeOtherCert,
@@ -198,12 +200,19 @@ export function ProfileContent() {
     onRemoveLanguage: f.removeLanguage, onLanguageChange: f.updateLanguage,
     portfolioLinks: f.portfolioLinks, onAddPortfolioLink: f.addPortfolioLink,
     onRemovePortfolioLink: f.removePortfolioLink, onPortfolioLinkChange: f.updatePortfolioLink,
-    cvFile: f.cvFile, cvFileName: f.cvFileName, handleCvUpload: f.handleCvUpload, onCvClear: f.clearCv,
   };
 
   return (
     <>
-      <ProfileHeader fullName={f.fullName} completionPct={f.completionPct} avatar={f.user?.avatar} />
+      <ProfileHeader
+        fullName={f.fullName}
+        username={f.username}
+        completionPct={f.completionPct}
+        avatar={f.avatarUrl || f.user?.avatar}
+        showAvatarEdit={editingTab === 'personal'}
+        onAvatarChange={f.handleAvatarUpload}
+        avatarUploading={f.avatarUploading}
+      />
 
       <div className="rounded-2xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
         <ProfileTabs tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />

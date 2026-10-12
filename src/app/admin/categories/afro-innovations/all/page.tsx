@@ -1,19 +1,21 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, MapPin, LayoutGrid, BadgeCheck, Layers, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, MapPin, LayoutGrid, BadgeCheck, Layers, ShieldCheck, Loader2 } from 'lucide-react';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
-import { SUBMISSIONS } from '../submissions/data';
+import { toast } from 'sonner';
 import type { SubmissionRecord } from '../submissions/data';
 import SubmissionDetailModal from '../submissions/components/SubmissionDetailModal';
 import { INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS, AFRICAN_COUNTRIES } from '@/app/data/mockData';
+import { fetchAdminInnovations, mapAdminInnovation } from '../api';
 
 const distinct = (items: string[]) => new Set(items).size;
 
 export default function AllInnovationsPage() {
-  const [records, setRecords] = useState<SubmissionRecord[]>(SUBMISSIONS);
+  const [records, setRecords] = useState<SubmissionRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [fieldFilter, setFieldFilter] = useState('All Fields');
   const [interestFilter, setInterestFilter] = useState('All Interests');
@@ -23,6 +25,21 @@ export default function AllInnovationsPage() {
   const [selected, setSelected] = useState<SubmissionRecord | null>(null);
   const [page, setPage] = useState(1);
   const perPage = 10;
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const raw = await fetchAdminInnovations();
+        if (!cancelled) setRecords(raw.map(mapAdminInnovation));
+      } catch (e: any) {
+        toast.error(e?.message || 'Failed to load innovations');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const live = useMemo(() => records.filter((r) => r.status === 'Published'), [records]);
 
@@ -125,7 +142,15 @@ export default function AllInnovationsPage() {
               </tr>
             </thead>
             <tbody>
-              {paginated.map((r) => (
+              {loading && (
+                <tr>
+                  <td colSpan={11} className="p-8 text-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-brand-red-600 mx-auto mb-2" />
+                    <p className="text-sm text-neutral-gray-medium">Loading innovations&hellip;</p>
+                  </td>
+                </tr>
+              )}
+              {!loading && paginated.map((r) => (
                 <tr key={r.id} onClick={() => setSelected(r)} className="border-b border-neutral-gray-light/60 last:border-0 hover:bg-neutral-bg-light/40 cursor-pointer">
                   <td className="px-3 py-2.5">
                     <div className="flex gap-2.5 items-start max-w-[220px]">

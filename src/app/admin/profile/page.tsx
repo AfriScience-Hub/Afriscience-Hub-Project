@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Mail, Phone, Shield, LogOut, ArrowLeft, User, Calendar, Award } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
@@ -8,6 +7,7 @@ import { logoutThunk } from '@/store/authSlice';
 import { Button } from '@/app/components/ui/Button';
 import { toast } from 'sonner';
 import { AdminProfileSkeleton } from '@/app/dashboard/my-profile/components/ProfileSkeleton';
+import { Avatar } from '@/app/components/Avatar';
 
 export default function AdminProfilePage() {
   const { user, loading } = useAppSelector((s) => s.auth);
@@ -45,13 +45,7 @@ export default function AdminProfilePage() {
         <div className="h-24 bg-gradient-to-r from-[#0f1729] to-[#453DD8]" />
         <div className="px-6 pb-6">
           <div className="flex items-end gap-4 -mt-5">
-            <Image
-              src={user?.avatar || 'https://images.unsplash.com/photo-1670881391783-9c55ba592f93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzIzODM4NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'}
-              alt={displayName}
-              width={80}
-              height={80}
-              className="h-20 w-20 rounded-full border-4 border-white object-cover shadow-md bg-white"
-            />
+            <Avatar src={user?.avatar} name={displayName} size="xl" className="h-20 w-20 text-2xl" />
             <div className="pb-1">
               <h2 className="text-xl font-bold text-neutral-black">{displayName}</h2>
               <p className="text-sm text-neutral-gray-medium flex items-center gap-1.5">

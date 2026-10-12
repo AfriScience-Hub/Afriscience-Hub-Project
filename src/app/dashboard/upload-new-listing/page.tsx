@@ -36,6 +36,7 @@ export default function UploadNewListing() {
 
   const [name, setName] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileImageKey, setProfileImageKey] = useState<string | null>(null);
   const [country, setCountry] = useState('');
   const [stateRegion, setStateRegion] = useState('');
   const [bio, setBio] = useState('');
@@ -89,20 +90,7 @@ export default function UploadNewListing() {
 
   const [awardType, setAwardType] = useState('');
 
-  const handleAddGalleryImage = (category: string) => {
-    setGalleryImages(prev => [...prev, { category, name: `Image_${Date.now()}.jpg` }]);
-    toast.success(`Image added to ${category}`);
-  };
-
-  const handleAddCertification = () => {
-    setCertifications(prev => [...prev, { name: `Certificate_${Date.now()}.pdf`, file: 'mock.pdf' }]);
-    toast.success('Document uploaded');
-  };
-
-  const handleProfileImageUpload = () => {
-    setProfileImage('https://images.unsplash.com/photo-1670881391783-9c55ba592f93?auto=format&fit=crop&q=80&w=200');
-    toast.success('Profile image uploaded');
-  };
+  const handleProfileImageUpload = () => {};
 
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('id');
@@ -149,7 +137,7 @@ export default function UploadNewListing() {
   // is never overwritten.
   useEffect(() => {
     if (step !== 'form') return;
-    const fullName = personal ? [personal.firstname, personal.middlename, personal.surname].filter(Boolean).join(' ') : '';
+    const fullName = personal?.fullName || (personal ? [personal.firstname, personal.middlename, personal.surname].filter(Boolean).join(' ') : '');
     if (fullName) setInnovatorName(v => v || fullName);
     if (personal?.username) setInnovatorUsername(v => v || personal.username);
     if (personal?.phone) setPhone(v => v || personal.phone);
@@ -184,7 +172,7 @@ export default function UploadNewListing() {
         return;
       }
       const payload = buildInnovationPayload({
-        name, profileImage, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
+        name, profileImage: profileImageKey, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
         innovSdgs, innovMaterials, innovDimensions, innovWeight, innovUserGroups, innovApplications,
         innovImpact, innovRecommendations, innovCautions, innovLicenses, innovAwards, innovGallery,
       });
@@ -200,7 +188,7 @@ export default function UploadNewListing() {
     setEditId(null);
     setStep('select');
     setSelectedType(null);
-    setName(''); setProfileImage(null); setCountry(''); setStateRegion('');
+    setName(''); setProfileImage(null); setProfileImageKey(null); setCountry(''); setStateRegion('');
     setBio(''); setPhone(''); setEmail(''); setWebsite('');
     setSocialLinks({ x: '', linkedin: '', facebook: '', instagram: '' });
     setServices([]); setGalleryImages([]); setCertifications([]); setPolicies('');
@@ -247,6 +235,7 @@ export default function UploadNewListing() {
         <AfroInnovationListing
           name={name} setName={setName}
           profileImage={profileImage} setProfileImage={setProfileImage}
+          profileImageKey={profileImageKey} setProfileImageKey={setProfileImageKey}
           country={country} setCountry={setCountry}
           bio={bio} setBio={setBio}
           AFRICAN_COUNTRIES={AFRICAN_COUNTRIES}
@@ -277,17 +266,17 @@ export default function UploadNewListing() {
         />
       ) : (
         <>
-          <BasicProfileSection
-            selectedType={selectedType!}
-            name={name} setName={setName}
-            profileImage={profileImage} setProfileImage={setProfileImage}
-            country={country} setCountry={setCountry}
-            stateRegion={stateRegion} setStateRegion={setStateRegion}
-            bio={bio} setBio={setBio}
-            instMotto={instMotto} setInstMotto={setInstMotto}
-            handleProfileImageUpload={handleProfileImageUpload}
-            AFRICAN_COUNTRIES={AFRICAN_COUNTRIES}
-          />
+<BasicProfileSection
+              selectedType={selectedType!}
+              name={name} setName={setName}
+              profileImage={profileImage} setProfileImage={setProfileImage}
+              profileImageKey={profileImageKey} setProfileImageKey={setProfileImageKey}
+              country={country} setCountry={setCountry}
+              stateRegion={stateRegion} setStateRegion={setStateRegion}
+              bio={bio} setBio={setBio}
+              instMotto={instMotto} setInstMotto={setInstMotto}
+              AFRICAN_COUNTRIES={AFRICAN_COUNTRIES}
+            />
 
           <CategorySpecificSection
             selectedType={selectedType!}
@@ -321,17 +310,16 @@ export default function UploadNewListing() {
             newService={newService} setNewService={setNewService}
           />
 
-          <MediaGallerySection
-            galleryImages={galleryImages}
-            handleAddGalleryImage={handleAddGalleryImage}
-            GALLERY_CATEGORIES={GALLERY_CATEGORIES}
-          />
+<MediaGallerySection
+                galleryImages={galleryImages}
+                setGalleryImages={setGalleryImages}
+                GALLERY_CATEGORIES={GALLERY_CATEGORIES}
+              />
 
-          <DocumentsSection
-            certifications={certifications}
-            setCertifications={setCertifications}
-            handleAddCertification={handleAddCertification}
-          />
+              <DocumentsSection
+                certifications={certifications}
+                setCertifications={setCertifications}
+              />
 
           <PoliciesSection policies={policies} setPolicies={setPolicies} />
         </>

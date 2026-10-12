@@ -1,5 +1,8 @@
 'use client';
 
+import { toast } from 'sonner';
+import { uploadFile } from '@/lib/upload';
+import { useRef } from 'react';
 import Image from 'next/image';
 import { User, X, ImagePlus } from 'lucide-react';
 import CollapsibleSection from './CollapsibleSection';
@@ -10,6 +13,8 @@ interface BasicProfileSectionProps {
   setName: (v: string) => void;
   profileImage: string | null;
   setProfileImage: (v: string | null) => void;
+  profileImageKey: string | null;
+  setProfileImageKey: (v: string | null) => void;
   country: string;
   setCountry: (v: string) => void;
   stateRegion: string;
@@ -18,15 +23,31 @@ interface BasicProfileSectionProps {
   setBio: (v: string) => void;
   instMotto: string;
   setInstMotto: (v: string) => void;
-  handleProfileImageUpload: () => void;
   AFRICAN_COUNTRIES: string[];
 }
 
 export default function BasicProfileSection({
   selectedType, name, setName, profileImage, setProfileImage,
+  profileImageKey, setProfileImageKey,
   country, setCountry, stateRegion, setStateRegion, bio, setBio,
-  instMotto, setInstMotto, handleProfileImageUpload, AFRICAN_COUNTRIES
+  instMotto, setInstMotto, AFRICAN_COUNTRIES
 }: BasicProfileSectionProps) {
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      try {
+        const uploaded = await uploadFile(file);
+        setProfileImage(uploaded.url); // full URL for display
+        setProfileImageKey(uploaded.key); // key for backend
+      } catch {
+        toast.error('Failed to upload image');
+      }
+    }
+    e.target.value = '';
+  };
+
   return (
     <CollapsibleSection title="Basic Profile Information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Required">
       <div className="space-y-4">
@@ -41,12 +62,16 @@ export default function BasicProfileSection({
                 </button>
               </div>
             ) : (
-              <button
-                onClick={handleProfileImageUpload}
-                className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-neutral-gray-light hover:border-brand-red-400 transition-colors"
-              >
-                <ImagePlus className="h-6 w-6 text-neutral-gray-medium" />
-              </button>
+              <>
+                <input ref={fileRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-neutral-gray-light hover:border-brand-red-400 transition-colors"
+                >
+                  <ImagePlus className="h-6 w-6 text-neutral-gray-medium" />
+                </button>
+              </>
             )}
             <div className="text-xs text-neutral-gray-medium">
               <p>Upload a clear image (JPG, PNG)</p>

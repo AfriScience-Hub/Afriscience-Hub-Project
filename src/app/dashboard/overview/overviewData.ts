@@ -1,6 +1,7 @@
 import { Briefcase, GraduationCap, Award, FileText, Globe, Eye, MessageCircle, CalendarCheck, Wallet } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import type { ProfileState, PersonalInfo } from '@/store/profileSlice';
+import type { ProfileState, PersonalInfo, CompletionSection } from '@/store/profileSlice';
+import type { WalletInfo } from '@/store/walletSlice';
 
 export interface CompletionCheck {
   label: string;
@@ -28,15 +29,48 @@ function asPersonal(profile: ProfileState): PersonalInfo | null {
   return profile.personal && typeof profile.personal === 'object' && !Array.isArray(profile.personal) ? profile.personal : null;
 }
 
-export function buildSectionChecks(profile: ProfileState): CompletionCheck[] {
+const SECTION_LABELS: Record<string, string> = {
+  profile: 'Personal Information',
+  education: 'Education',
+  certificates: 'Certifications',
+  experiences: 'Experience',
+  skills: 'Skills',
+  languages: 'Languages',
+  portfolio: 'Portfolio',
+};
+
+const SECTION_ORDER = ['profile', 'education', 'certificates', 'experiences', 'skills', 'languages', 'portfolio'];
+
+function checksFromApi(
+  sections: Record<string, CompletionSection>,
+  allDone: boolean,
+): CompletionCheck[] {
+  const keys = [
+    ...SECTION_ORDER.filter(k => k in sections),
+    ...Object.keys(sections).filter(k => !SECTION_ORDER.includes(k)),
+  ];
+  return keys.map(key => ({
+    label: SECTION_LABELS[key] || key.replace(/^\w/, c => c.toUpperCase()),
+    done: allDone || !!sections[key]?.completed,
+  }));
+}
+
+export function buildSectionChecks(profile: ProfileState, wallet: WalletInfo | null = null): CompletionCheck[] {
+  const allDone = profile.completionCompleted || profile.completion >= 100;
+  if (profile.completionSections && Object.keys(profile.completionSections).length > 0) {
+    return checksFromApi(profile.completionSections, allDone);
+  }
+
   const p = asPersonal(profile);
-  return [
-    { label: 'Personal Information', done: !!p && has(p.firstname) && has(p.surname) },
+  const nameSet = has(p?.fullName) || (has(p?.firstname) && has(p?.surname));
+  const fallback = [
+    { label: 'Personal Information', done: !!p && nameSet },
     { label: 'Contact Information', done: !!p && has(p.phone) && has(p.address) && has(p.city) && has(p.state) && has(p.country) },
     { label: 'Education & Certifications', done: profile.education.length > 0 || profile.certs.length > 0 },
     { label: 'Experience & Skills', done: profile.experience.length > 0 || profile.skills.length > 0 },
-    { label: 'Wallet', done: false },
+    { label: 'Wallet', done: !!wallet },
   ];
+  return allDone ? fallback.map(c => ({ ...c, done: true })) : fallback;
 }
 
 export const STATS_CARDS: ActivityStatCard[] = [
