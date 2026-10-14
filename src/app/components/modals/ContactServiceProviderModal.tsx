@@ -1,7 +1,6 @@
 'use client';
 
 import { Phone, MessageCircle, FileText, X, AlertCircle } from 'lucide-react';
-import { Button } from '../ui/Button';
 import { toast } from 'sonner';
 
 interface ContactServiceProviderModalProps {
@@ -34,24 +33,18 @@ export function ContactServiceProviderModal({
   };
 
   const handleRequestInvoice = () => {
-    // Send notification to service provider
     toast.success('Invoice request sent to provider');
     toast.info('You will be notified when the provider generates your invoice');
     onClose();
-    
-    // In a real app, this would:
-    // - Create a notification for the provider
-    // - Add entry to provider's dashboard
-    // - Track the request status
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md h-[70vh] flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-brand-navy-900 to-brand-navy-800 px-6 py-5 flex items-center justify-between rounded-t-2xl">
+        <div className="bg-gradient-to-r from-brand-navy-900 to-brand-navy-800 px-6 py-5 flex items-center justify-between rounded-t-2xl flex-shrink-0">
           <div>
             <h2 className="text-xl font-bold text-white">Contact Service Provider</h2>
             <p className="text-sm text-white/70 mt-1">{providerName}</p>
@@ -64,7 +57,7 @@ export function ContactServiceProviderModal({
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-1">
           {/* UX Message */}
           <div className="p-4 rounded-xl bg-blue-50 border border-blue-100 flex gap-3">
             <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />

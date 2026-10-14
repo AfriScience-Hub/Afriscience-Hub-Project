@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 const COUNTRY_STATES: Record<string, string[]> = {
   'Nigeria': ['Lagos', 'Abuja', 'Kano', 'Rivers', 'Oyo', 'Kaduna', 'Enugu', 'Delta', 'Anambra', 'Ogun'],
   'Kenya': ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Thika', 'Malindi'],
-  'South Africa': ['Gauteng', 'Western Cape', 'KwaZulu-Natal', 'Eastern Cape', 'Free State', 'Limpopo', 'Mpumalanga', 'North West', 'Northern Cape'],
+  'South Africa': ['Gauteng', 'Western Cape', 'KwaZulu-Natal', 'Eastern Cape', 'Free State', 'Limpopo', 'Mpumanga', 'North West', 'Northern Cape'],
   'Ghana': ['Greater Accra', 'Ashanti', 'Western', 'Eastern', 'Central', 'Northern', 'Volta', 'Upper East', 'Upper West'],
   'Egypt': ['Cairo', 'Alexandria', 'Giza', 'Port Said', 'Suez', 'Luxor', 'Aswan'],
   'Tanzania': ['Dar es Salaam', 'Mwanza', 'Arusha', 'Dodoma', 'Mbeya', 'Morogoro', 'Tanga'],
@@ -99,32 +99,6 @@ export default function VolunteerForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light p-8 space-y-5">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1.5">Name</label>
-            <input
-              type="text"
-              value={isAuthenticated ? 'John Doe' : ''}
-              disabled
-              className="w-full rounded-xl border border-neutral-gray-light px-4 py-3 text-sm bg-neutral-bg-light text-slate-400 cursor-not-allowed"
-              placeholder={!isAuthenticated ? 'Please log in' : 'Auto-generated'}
-            />
-            {!isAuthenticated && (
-              <p className="text-xs text-amber-600 mt-1">Please log in to apply</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1.5">ID Tag</label>
-            <input
-              type="text"
-              value={isAuthenticated ? 'USR-NG-2026-0001' : ''}
-              disabled
-              className="w-full rounded-xl border border-neutral-gray-light px-4 py-3 text-sm bg-neutral-bg-light text-slate-400 cursor-not-allowed"
-              placeholder={!isAuthenticated ? 'Please log in' : 'Auto-generated'}
-            />
-          </div>
-        </div>
-
         <div>
           <label className="block text-sm font-medium text-slate-600 mb-1.5">Qualification *</label>
           <select
@@ -231,14 +205,6 @@ export default function VolunteerForm() {
             ))}
           </div>
         </div>
-
-        <Button
-          type="submit"
-          className="w-full h-12 bg-brand-red-600 hover:bg-brand-red-700 text-base"
-          disabled={!isAuthenticated}
-        >
-          {isAuthenticated ? 'Apply' : 'Log in to Apply'}
-        </Button>
       </form>
     </div>
   );

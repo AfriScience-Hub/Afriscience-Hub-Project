@@ -10,17 +10,26 @@ interface ApiResponse<T = unknown> {
   error?: string;
 }
 
-let isRefreshing = false;
-let failedQueue: Array<{ resolve: (v: string) => void; reject: (e: any) => void }> = [];
+let isRefreshing = { admin: false, user: false };
+let failedQueue: { admin: Array<{ resolve: (v: string) => void; reject: (e: any) => void }>, user: Array<{ resolve: (v: string) => void; reject: (e: any) => void }> } = { admin: [], user: [] };
 
-function onRefreshed(token: string | null) {
-  failedQueue.forEach((p) => (token ? p.resolve(token) : p.reject(new Error('Refresh failed'))));
-  failedQueue = [];
+function onRefreshed(token: string | null, scope: 'admin' | 'user') {
+  failedQueue[scope].forEach((p) => (token ? p.resolve(token) : p.reject(new Error('Refresh failed'))));
+  failedQueue[scope] = [];
 }
 
-export async function refreshAccessToken(): Promise<string | null> {
+/** Determines whether we're operating in admin context based on endpoint or current page. */
+function isAdminContext(endpoint?: string): boolean {
+  if (endpoint?.startsWith('/admin')) return true;
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) return true;
+  return false;
+}
+
+export async function refreshAccessToken(isAdmin = false): Promise<string | null> {
   if (typeof window === 'undefined') return null;
-  const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+  const scope = isAdmin ? 'admin' : 'user';
+  const endpoint = isAdmin ? '/admin/auth/refresh' : '/auth/refresh';
+  const refreshRes = await fetch(`${BASE_URL}${endpoint}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -33,31 +42,34 @@ export async function refreshAccessToken(): Promise<string | null> {
     (refreshData as any)?.data?.token ||
     null;
   if (refreshRes.ok && newAccess) {
-    setAccessToken(newAccess);
-    onRefreshed(newAccess);
+    setAccessToken(newAccess, isAdmin);
+    onRefreshed(newAccess, scope);
   } else {
-    onRefreshed(null);
+    onRefreshed(null, scope);
   }
   return newAccess;
 }
 
-function getAccessToken(): string | null {
+function getAccessToken(endpoint?: string): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('afrisciencehub_token');
+  const admin = isAdminContext(endpoint);
+  return localStorage.getItem(admin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token');
 }
 
-function setAccessToken(access: string | null) {
+function setAccessToken(access: string | null, isAdmin = false) {
   if (typeof window === 'undefined') return;
-  if (access) localStorage.setItem('afrisciencehub_token', access);
+  if (access) localStorage.setItem(isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token', access);
 }
 
 function clearAuthStorage() {
   if (typeof window === 'undefined') return;
   localStorage.removeItem('afrisciencehub_token');
+  localStorage.removeItem('afrisciencehub_admin_token');
   // NOTE: refresh token lives in an HttpOnly cookie — never readable/writable here.
   // It is sent automatically via `credentials: 'include'` and cleared server-side on logout.
   localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
   localStorage.removeItem('afrisciencehub_user');
+  localStorage.removeItem('afrisciencehub_admin');
 }
 
 function decodeJwtExp(token: string): number | null {
@@ -89,7 +101,8 @@ async function request<T>(
   options: RequestInit & { _retry?: boolean } = {}
 ): Promise<ApiResponse<T>> {
   const url = `${BASE_URL}${endpoint}`;
-  const token = getAccessToken();
+  const scope: 'admin' | 'user' = isAdminContext(endpoint) ? 'admin' : 'user';
+  const token = getAccessToken(endpoint);
 
   const isFormData = options.body instanceof FormData;
   const headers: HeadersInit = {
@@ -120,13 +133,13 @@ async function request<T>(
     const msg = (data.message || data.error || '').toLowerCase();
     const isExpired = (res.status === 401 || res.status === 400) && (msg.includes('expired') || msg.includes('token'));
     const isAdminNotVerified = res.status === 403 && msg.includes('not verified');
-    const isAdminRequest = endpoint.startsWith('/admin');
+    const isAdminRequest = scope === 'admin';
     const refreshEndpoint = isAdminRequest ? '/admin/auth/refresh' : '/auth/refresh';
 
     if ((isExpired || isAdminNotVerified) && !_retry && endpoint !== refreshEndpoint) {
-      if (isRefreshing) {
+      if (isRefreshing[scope]) {
         return new Promise<ApiResponse<T>>((resolve, reject) => {
-          failedQueue.push({
+          failedQueue[scope].push({
             resolve: (newToken) =>
               resolve(request<T>(endpoint, { ...options, _retry: true, headers: { ...options.headers, Authorization: `Bearer ${newToken}` } } as any)),
             reject,
@@ -134,7 +147,7 @@ async function request<T>(
         });
       }
 
-      isRefreshing = true;
+      isRefreshing[scope] = true;
       try {
         // No body needed: the HttpOnly refresh cookie is sent automatically
         // because of `credentials: 'include'`. Never read it from JS.
@@ -154,18 +167,22 @@ async function request<T>(
           null;
 
         if (refreshRes.ok && newAccess) {
-          setAccessToken(newAccess);
-          isRefreshing = false;
-          onRefreshed(newAccess);
+          setAccessToken(newAccess, isAdminRequest);
+          isRefreshing[scope] = false;
+          onRefreshed(newAccess, scope);
           return request<T>(endpoint, { ...options, _retry: true, headers: { ...options.headers, Authorization: `Bearer ${newAccess}` } } as any);
         }
         throw new Error(refreshData.message || 'Refresh failed');
       } catch (e) {
-        isRefreshing = false;
-        onRefreshed(null);
+        isRefreshing[scope] = false;
+        onRefreshed(null, scope);
         if (typeof window !== 'undefined') {
           clearAuthStorage();
-          const loginPath = isAdminRequest ? '/admin/login' : '/login';
+          // Check both the failed request endpoint AND the current page location
+          // to ensure admin users are redirected to admin login even if the
+          // expired request was to a non-admin endpoint (e.g., /auth/me).
+          const isAdminPage = window.location.pathname.startsWith('/admin');
+          const loginPath = (isAdminRequest || isAdminPage) ? '/admin/login' : '/login';
           // Remember where the user was so a successful re-login returns them
           // to the same page instead of the default landing page.
           const from = window.location.pathname + window.location.search;
@@ -215,7 +232,7 @@ export const api = {
   },
 
   postFormData<T>(endpoint: string, formData: FormData) {
-    const token = getAccessToken();
+    const token = getAccessToken(endpoint);
     const headers: HeadersInit = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
     return request<T>(endpoint, {
@@ -226,7 +243,7 @@ export const api = {
   },
 
   putFormData<T>(endpoint: string, formData: FormData) {
-    const token = getAccessToken();
+    const token = getAccessToken(endpoint);
     const headers: HeadersInit = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
     return request<T>(endpoint, {
@@ -237,7 +254,7 @@ export const api = {
   },
 
   patchFormData<T>(endpoint: string, formData: FormData) {
-    const token = getAccessToken();
+    const token = getAccessToken(endpoint);
     const headers: HeadersInit = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
     return request<T>(endpoint, {

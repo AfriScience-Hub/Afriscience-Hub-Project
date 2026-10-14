@@ -7,7 +7,7 @@ import Image from 'next/image';
 import {
   MapPin, Star, Share2, CheckCircle, GraduationCap,
   Eye, ThumbsUp, MessageCircle, Archive, ArchiveX,
-  Phone, Briefcase, Mail
+  Phone, Mail
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { SCIENTISTS } from '@/app/data/mockData';
@@ -63,7 +63,6 @@ export default function ScientistDetails() {
   const handleLikeToggle = () => {
     setIsLiked(!isLiked);
     setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
-    toast.success(isLiked ? 'Like removed' : 'Liked!');
   };
 
   const handleShare = async () => {
@@ -150,7 +149,7 @@ export default function ScientistDetails() {
                     </span>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <span className="px-2 py-0.5 rounded bg-brand-navy-100 text-brand-navy-900 text-xs font-bold border border-brand-navy-100">
+                    <span className="px-2 py-0.5 rounded bg-brand-navy-100 text-brand-navy-900 text-xs font-bold border border-brand-navy-100 uppercase">
                       {scientist.field}
                     </span>
                   </div>
@@ -176,6 +175,19 @@ export default function ScientistDetails() {
                       </Button>
                     </div>
                     <div className="flex gap-2 flex-shrink-0">
+                      <Button variant="outline" className={cn("px-3", isLiked && "border-brand-red-600 bg-brand-red-50 text-brand-red-600")} title={isLiked ? "Unlike" : "Like"} onClick={handleLikeToggle}>
+                        <ThumbsUp className={cn("h-4 w-4", isLiked && "fill-current")} />
+                      </Button>
+                      <Button variant="outline" className="px-3" title="Write Review" onClick={() => {
+                        // Open review modal - could scroll to reviews tab
+                        setActiveTab('reviews');
+                        setTimeout(() => {
+                          const el = document.getElementById('reviews');
+                          if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                      }}>
+                        <Star className="h-4 w-4" />
+                      </Button>
                       <Button variant="outline" className="px-3" title="Share Profile" onClick={handleShare}>
                         <Share2 className="h-4 w-4" />
                       </Button>
@@ -187,23 +199,23 @@ export default function ScientistDetails() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-6 mt-6 pt-4 border-t border-neutral-gray-light text-sm text-neutral-gray-medium">
+              <div className="flex flex-wrap items-center gap-6 mt-10 pt-4 border-t border-neutral-gray-light text-sm text-neutral-gray-medium">
                 <div className="flex items-center gap-1.5">
-                  <Eye className="h-4 w-4" />
-                  <span className="font-semibold text-neutral-gray-dark">{scientist.views ? (scientist.views / 1000).toFixed(1) + 'k' : '0'}</span> Views
+                  <Eye className="h-4 w-4" /> Views
+                  <span className="font-semibold text-neutral-gray-dark">{scientist.views ? (scientist.views / 1000).toFixed(1) + 'k' : '0'}</span>
                 </div>
-                <button onClick={handleLikeToggle} className={cn("flex items-center gap-1.5 transition-colors cursor-pointer", isLiked ? "text-brand-red-600" : "hover:text-brand-red-600")}>
-                  <ThumbsUp className={cn("h-4 w-4", isLiked && "fill-current")} />
-                  <span className="font-semibold text-neutral-gray-dark">{(likesCount / 1000).toFixed(1)}k</span> Likes
-                </button>
-                <button onClick={scrollToReviews} className="flex items-center gap-1.5 hover:text-brand-red-600 transition-colors cursor-pointer">
-                  <MessageCircle className="h-4 w-4" />
-                  <span className="font-semibold text-neutral-gray-dark">{scientist.reviews || 0}</span> Reviews
-                </button>
-                <button onClick={handleShare} className="flex items-center gap-1.5 hover:text-brand-navy-900 transition-colors cursor-pointer">
-                  <Share2 className="h-4 w-4" />
-                  <span className="font-semibold text-neutral-gray-dark">{sharesCount}</span> Shares
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <ThumbsUp className={cn("h-4 w-4", isLiked && "fill-current text-brand-red-600")} /> Likes
+                  <span className="font-semibold text-neutral-gray-dark">{(likesCount / 1000).toFixed(1)}k</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Star className="h-4 w-4" /> Reviews
+                  <span className="font-semibold text-neutral-gray-dark">{scientist.reviews || 0}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Share2 className="h-4 w-4" /> Shares
+                  <span className="font-semibold text-neutral-gray-dark">{sharesCount}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -213,7 +225,7 @@ export default function ScientistDetails() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex overflow-x-auto no-scrollbar">
             <TabButton active={activeTab === 'profile'} onClick={() => setActiveTab('profile')}>Profile & Services</TabButton>
-            <TabButton active={activeTab === 'achievements'} onClick={() => setActiveTab('achievements')}>Achievements</TabButton>
+            <TabButton active={activeTab === 'achievements'} onClick={() => setActiveTab('achievements')}>Certifications & Achievements</TabButton>
             <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')}>Reviews</TabButton>
             <TabButton active={activeTab === 'gallery'} onClick={() => setActiveTab('gallery')}>Media Gallery</TabButton>
             <TabButton active={activeTab === 'contact'} onClick={() => setActiveTab('contact')}>Contact Info</TabButton>

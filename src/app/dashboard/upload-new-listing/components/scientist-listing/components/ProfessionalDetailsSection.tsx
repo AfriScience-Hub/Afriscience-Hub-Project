@@ -63,6 +63,7 @@ export default function ProfessionalDetailsSection({ details, onChange }: Profes
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-2">Field <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(max 1 selection)</span></label>
+          <p className="mb-2 text-xs text-neutral-gray-medium">What major field of science does your profession fall under?</p>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {SCIENTIST_FIELDS.map(field => (
               <label key={field} className={cn(
@@ -85,8 +86,9 @@ export default function ProfessionalDetailsSection({ details, onChange }: Profes
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-2">
             Profession <span className="text-red-500">*</span>
-            <span className="text-[10px] font-normal text-neutral-gray-medium"> (max {MAX_PROFESSIONS} selections; entries made via admin dashboard)</span>
+            <span className="text-[10px] font-normal text-neutral-gray-medium"> (max {MAX_PROFESSIONS} selections)</span>
           </label>
+          <p className="mb-2 text-xs text-neutral-gray-medium">Select &ldquo;Other&rdquo; to enter any profession of your choice.</p>
           {details.field ? (
             <>
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -129,6 +131,7 @@ export default function ProfessionalDetailsSection({ details, onChange }: Profes
 
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-2">Degree <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(max 1 selection)</span></label>
+          <p className="mb-2 text-xs text-neutral-gray-medium">To verify your academic qualification, kindly upload a copy of your most recent degree certificate. Uploaded documents are securely stored and protected from unauthorized access.</p>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {SCIENTIST_DEGREES.map(degree => (
               <label key={degree} className={cn(
@@ -154,6 +157,7 @@ export default function ProfessionalDetailsSection({ details, onChange }: Profes
 
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-2">Services <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple selections allowed)</span></label>
+          <p className="mb-2 text-xs text-neutral-gray-medium">What kind of services are you hoping to render to clients?</p>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {SCIENTIST_SERVICES.map(svc => (
               <label key={svc} className={cn(

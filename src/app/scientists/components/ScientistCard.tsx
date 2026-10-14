@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ProtectedLink } from '@/app/components/ProtectedLink';
 import Image from 'next/image';
-import { MapPin, CheckCircle, Star, Eye, ThumbsUp, Share2, Archive, ArchiveX } from 'lucide-react';
+import { MapPin, CheckCircle, Star, Eye, ThumbsUp, Share2, Archive, ArchiveX, GraduationCap } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { Button } from '../../components/ui/Button';
 import { toast } from 'sonner';
@@ -83,7 +83,7 @@ export default function ScientistCard({ sci, archived, onToggleArchive }: Scient
         <div className="absolute bottom-3 left-3 right-24 text-white">
           <div className="mb-1">
             <span className={cn(
-              "inline-block px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wide",
+              "inline-block px-2 py-0.5 text-[10px] font-bold rounded tracking-wide",
               sci.status === 'Online' ? "bg-green-500 text-white" : "bg-neutral-gray-dark text-white"
             )}>
               {sci.status}
@@ -109,23 +109,27 @@ export default function ScientistCard({ sci, archived, onToggleArchive }: Scient
 
       <div className="flex flex-1 flex-col p-3.5">
         <div className="mb-2">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-neutral-gray-medium">Field</p>
-          <p className="text-sm font-bold text-brand-navy-900 truncate">{sci.field}</p>
+          {sci.field && <span className="text-[10px] font-bold uppercase tracking-wide text-gray-700 medium bg-gray-300 px-2 py-0.5 rounded mr-2 block w-fit">{sci.field.toUpperCase()}</span>}
+          {sci.professions.slice(0, 3).map((prof, idx) => (
+            <span key={idx} className="inline-block text-[10px] text-red-500 bg-brand-red-100 px-1.5 py-0.5 rounded-full font-semibold mr-1 mb-1">
+              {prof}
+            </span>
+          ))}
         </div>
 
         <div className="mb-2">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-neutral-gray-medium">Degree</p>
-          <p className="text-sm font-bold text-brand-navy-900 truncate">{mostRecentDegree || '—'}</p>
-        </div>
-
-        <div className="mb-2">
-          <p className="text-[11px] font-semibold text-brand-red-600 leading-snug">
-            {sci.professions.slice(0, 3).join(', ')}
+          <p className="text-sm font-bold text-brand-navy-900 truncate">
+            {mostRecentDegree ? (
+              <span className="flex items-center gap-1">
+                <GraduationCap className="h-3 w-3 text-brand-navy-900" />
+                {mostRecentDegree}
+              </span>
+            ) : ('—')}
           </p>
         </div>
 
         <div className="flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-neutral-gray-medium mb-1">Services</p>
+          <p className="text-[12px] font-bold uppercase tracking-wide text-neutral-gray-medium mb-1">Services</p>
           <div className="flex flex-wrap gap-1">
             {sci.services.map(s => (
               <span key={s} className="text-[10px] text-brand-navy-900 bg-brand-navy-100 px-1.5 py-0.5 rounded-full">

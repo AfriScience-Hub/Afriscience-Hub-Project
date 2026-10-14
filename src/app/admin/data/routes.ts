@@ -21,6 +21,8 @@ export const ADMIN_ROUTES = {
   impactStories: '/admin/categories/impact-stories',
   donations: '/admin/categories/donations',
 
+  volunteers: '/admin/volunteers',
+
   approvals: '/admin/approvals',
   verificationCentre: '/admin/verification-centre',
   invoices: '/admin/invoices',

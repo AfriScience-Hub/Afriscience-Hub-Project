@@ -7,6 +7,8 @@ export interface AuthUser {
   email: string;
   phone: string;
   avatar?: string;
+  createdAt?: string;
+  updatedAt?: string;
   role?: string;
 }
 
@@ -55,10 +57,10 @@ interface AuthState {
 // clears it). It is sent automatically via `credentials: 'include'` and is
 // NEVER visible to JS (document.cookie won't show it — that's expected).
 // So we only persist the short-lived access/session token here.
-function persistTokens(data: any) {
+function persistTokens(data: any, isAdmin = false) {
   if (typeof window === 'undefined') return;
   const access = data?.accessToken || data?.token || data?.data?.accessToken || data?.data?.token;
-  if (access) localStorage.setItem('afrisciencehub_token', access);
+  if (access) localStorage.setItem(isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token', access);
   localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
 }
 
@@ -74,7 +76,8 @@ function extractUser(data: any, fallbackIdentifier?: string): AuthUser {
     // key resolved through the URL captured at upload time. Keys/placeholder
     // art that can't be resolved resolve to undefined → the initials fallback.
     avatar: normalizeFileSrc(rawAvatar),
-    role: u.role,
+    createdAt: u.createdAt,
+    updatedAt: u.updatedAt,
   };
 }
 
@@ -141,7 +144,7 @@ export const loginAdmin = createAsyncThunk(
   async (payload: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const data = await api.post('/admin/auth/login', payload);
-      persistTokens(data as any);
+      persistTokens(data as any, true);
       return { data, identifier: payload.email };
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -154,7 +157,7 @@ export const verifyAdminEmail = createAsyncThunk(
   async (payload: { email: string; otp: string }, { rejectWithValue }) => {
     try {
       const data = await api.post('/admin/verify', payload);
-      persistTokens(data as any);
+      persistTokens(data as any, true);
       return { data, email: payload.email };
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -164,7 +167,7 @@ export const verifyAdminEmail = createAsyncThunk(
 
 // --- Refresh (user and admin have SEPARATE endpoints) ---
 
-function createRefreshThunk(typePrefix: string, endpoint: string) {
+function createRefreshThunk(typePrefix: string, endpoint: string, isAdmin = false) {
   return createAsyncThunk(
     typePrefix,
     async (_, { rejectWithValue }) => {
@@ -177,7 +180,7 @@ function createRefreshThunk(typePrefix: string, endpoint: string) {
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.message || 'Refresh failed');
-        persistTokens(data);
+        persistTokens(data, isAdmin);
         return data;
       } catch (err: any) {
         return rejectWithValue(err.message);
@@ -190,7 +193,7 @@ function createRefreshThunk(typePrefix: string, endpoint: string) {
 export const refreshUserToken = createRefreshThunk('auth/refreshUser', '/auth/refresh');
 
 // Admin session refresh — POST /api/v1/admin/auth/refresh (not shared with users)
-export const refreshAdminToken = createRefreshThunk('auth/refreshAdmin', '/admin/auth/refresh');
+export const refreshAdminToken = createRefreshThunk('auth/refreshAdmin', '/admin/auth/refresh', true);
 
 export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
@@ -230,8 +233,10 @@ export const logoutThunk = createAsyncThunk('auth/logout', async (_, { rejectWit
   }
   if (typeof window !== 'undefined') {
     localStorage.removeItem('afrisciencehub_token');
+    localStorage.removeItem('afrisciencehub_admin_token');
     localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
     localStorage.removeItem('afrisciencehub_user');
+    localStorage.removeItem('afrisciencehub_admin');
   }
 });
 
@@ -270,7 +275,10 @@ const authSlice = createSlice({
       state.hydrated = true;
       if (typeof window === 'undefined') return;
       try {
-        const stored = localStorage.getItem('afrisciencehub_user');
+        const isAdmin = window.location.pathname.startsWith('/admin');
+        const userKey = isAdmin ? 'afrisciencehub_admin' : 'afrisciencehub_user';
+        const tokenKey = isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token';
+        const stored = localStorage.getItem(userKey);
         if (stored) {
           const parsed = JSON.parse(stored);
           // Re-normalize anything an older build persisted: drops the hard-coded
@@ -283,7 +291,7 @@ const authSlice = createSlice({
           state.user = parsed;
           state.isAuthenticated = true;
         }
-        state.accessToken = localStorage.getItem('afrisciencehub_token');
+        state.accessToken = localStorage.getItem(tokenKey);
         state.refreshToken = localStorage.getItem('afrisciencehub_refresh');
       } catch {}
     },
@@ -331,7 +339,7 @@ const authSlice = createSlice({
         const resp = a.payload.data as any;
         s.accessToken = resp?.accessToken || resp?.token || null;
         s.refreshToken = resp?.refreshToken || null;
-        if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
+        if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_admin', JSON.stringify(s.user));
       })
       .addCase(loginAdmin.rejected, (s, a) => { s.loading = false; s.error = a.payload as string; })
       .addCase(signupAdmin.pending, (s) => { s.loading = true; s.error = null; })

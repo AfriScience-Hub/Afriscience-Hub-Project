@@ -27,6 +27,35 @@ import { fetchFullProfile } from '@/store/profileSlice';
 
 const MIN_ASH_COINS = 300;
 
+/**
+ * Extracts a display string from an API array item.
+ * Items may be plain strings or objects like `{ field: 'Hybrid' }`.
+ * `preferredKeys` lists the property names to check first (in order).
+ */
+function pickValue(item: unknown, preferredKeys: string[]): string {
+  if (typeof item === 'string') return item.trim();
+  if (!item || typeof item !== 'object') return '';
+  const obj = item as Record<string, unknown>;
+  for (const key of preferredKeys) {
+    const v = obj[key];
+    if (typeof v === 'string' && v.trim()) return v.trim();
+    if (typeof v === 'number') return String(v);
+  }
+  // Fallback: first meaningful string/number that isn't an id or timestamp.
+  for (const [k, v] of Object.entries(obj)) {
+    if (['id', 'createdAt', 'updatedAt', 'userId', 'profileId', 'listingId'].includes(k)) continue;
+    if (typeof v === 'string' && v.trim()) return v.trim();
+    if (typeof v === 'number') return String(v);
+  }
+  return '';
+}
+
+/** Maps an array of mixed string/object items to `string[]` using `preferredKeys`. */
+function toStringArray(arr: unknown, preferredKeys: string[]): string[] {
+  if (!Array.isArray(arr)) return [];
+  return arr.map(item => pickValue(item, preferredKeys)).filter(Boolean);
+}
+
 export default function UploadNewListing() {
   const dispatch = useAppDispatch();
   const { user } = useAuth();
@@ -49,9 +78,7 @@ export default function UploadNewListing() {
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [socialLinks, setSocialLinks] = useState({ x: '', linkedin: '', facebook: '', instagram: '' });
-  const [innovatorName, setInnovatorName] = useState('');
-  const [innovatorUsername, setInnovatorUsername] = useState('');
-  const [altPhone, setAltPhone] = useState('');
+  const [socialHandles, setSocialHandles] = useState<{ name: string; link: string }[]>([{ name: '', link: '' }]);
   const [agreed, setAgreed] = useState(false);
 
   const [services, setServices] = useState<ServiceEntry[]>([]);
@@ -121,11 +148,19 @@ export default function UploadNewListing() {
       setProfileImageKey(extractKeyFromUrl(imageUrl));
       setCountry(item.country || '');
       setBio(item.shortDescription || item.bio || '');
-      setInnovFields(item.fields || []);
-      setInnovInterests((item.interests || []).map((i: string) => i.replace(/\|/g, ' | ')));
+      // Fields, interests, sdgs may be plain string[] or array of objects
+      // (e.g. [{ field: 'Hybrid' }]) depending on the API version — map both.
+      setInnovFields(toStringArray(item.fields, ['field', 'name', 'title', 'value']));
+      setInnovInterests(
+        toStringArray(item.interests, ['interest', 'name', 'title', 'value'])
+          .map((i: string) => i.replace(/\|/g, ' | ')),
+      );
       setInnovOwnership(OWNERSHIP_REV[item.ownership] || item.ownership || '');
       setInnovStage(STAGE_REV[item.stage] || item.stage || '');
-      setInnovSdgs((item.sdgs || []).map((s: string) => SDG_REV[s] || s));
+      setInnovSdgs(
+        toStringArray(item.sdgs, ['sdg', 'name', 'title', 'value', 'goal'])
+          .map((s: string) => SDG_REV[s] || s),
+      );
       setInnovMaterials(item.materialsUsed ? String(item.materialsUsed).split(', ').filter(Boolean) : []);
       setInnovDimensions({
         length: item.length != null ? String(item.length) : '',
@@ -145,13 +180,25 @@ export default function UploadNewListing() {
       setInnovAwards(docs.filter((d: any) => d.type === 'AWARD').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: d.documentFile })));
       setInnovGallery((item.media || []).map((m: any) => ({ category: MEDIA_REV[m.category] || m.category, type: 'image' as const, name: m.mediaFile, caption: '' })));
       // Innovator info from the innovation record (if present)
-      if (item.innovatorName) setInnovatorName(item.innovatorName);
-      if (item.innovatorUsername) setInnovatorUsername(item.innovatorUsername);
       if (item.phone) setPhone(item.phone);
-      if (item.altPhone) setAltPhone(item.altPhone);
       if (item.email) setEmail(item.email);
       if (item.website) setWebsite(item.website);
-      if (item.socialLinks) setSocialLinks(item.socialLinks);
+      // Socials from the API: new format [{ platform, link }] or legacy object
+      const rawSocials = item.socials ?? item.socialLinks;
+      if (Array.isArray(rawSocials)) {
+        const rows = rawSocials
+          .map((s: any) => ({
+            name: String(s?.platform ?? s?.name ?? ''),
+            link: String(s?.link ?? s?.url ?? ''),
+          }))
+          .filter((s: { name: string; link: string }) => s.name.trim() || s.link.trim());
+        if (rows.length) setSocialHandles(rows);
+      } else if (rawSocials && typeof rawSocials === 'object') {
+        const rows = Object.entries(rawSocials)
+          .filter(([, v]) => String(v ?? '').trim())
+          .map(([name, link]) => ({ name, link: String(link) }));
+        if (rows.length) setSocialHandles(rows);
+      }
     }).catch((e: any) => toast.error(e?.message || 'Failed to load innovation'));
   }, []);
 
@@ -163,9 +210,6 @@ export default function UploadNewListing() {
   // is never overwritten.
   useEffect(() => {
     if (step !== 'form') return;
-    const fullName = personal?.fullName || (personal ? [personal.firstname, personal.middlename, personal.surname].filter(Boolean).join(' ') : '');
-    if (fullName) setInnovatorName(v => v || fullName);
-    if (personal?.username) setInnovatorUsername(v => v || personal.username);
     if (personal?.phone) setPhone(v => v || personal.phone);
     if (personal?.website) setWebsite(v => v || personal.website);
     const email = (personal as any)?.email || user?.email;
@@ -252,7 +296,7 @@ export default function UploadNewListing() {
       const payload = buildInnovationPayload({
         name, profileImage: finalProfileImageKey, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
         innovSdgs, innovMaterials, innovDimensions, innovWeight, innovUserGroups, innovApplications,
-        innovImpact, innovRecommendations, innovCautions, innovLicenses, innovAwards, innovGallery,
+        innovImpact, innovRecommendations, innovCautions, innovLicenses, innovAwards, innovGallery, socialHandles,
       });
       if (editId) await updateInnovation(editId, payload);
       else await createInnovation(payload);
@@ -278,7 +322,7 @@ export default function UploadNewListing() {
     setInnovWeight({ value: '', unit: 'kg' }); setInnovUserGroups([]);
     setInnovApplications([]); setInnovImpact([]); setInnovRecommendations([]); setInnovCautions([]);
     setInnovLicenses([]); setInnovAwards([]); setInnovGallery([]);
-    setInnovatorName(''); setAltPhone(''); setInnovatorUsername('');
+    setSocialHandles([{ name: '', link: '' }]);
   };
 
   if (step === 'select') {
@@ -287,25 +331,29 @@ export default function UploadNewListing() {
 
   const selectedTypeInfo = LISTING_TYPES.find(t => t.id === selectedType);
 
-  const hasAnySocial = Object.values(socialLinks).some(v => v.trim().length > 0);
+  const hasAnySocial = selectedType === 'innovation'
+    ? socialHandles.some(s => s.name.trim() && s.link.trim())
+    : Object.values(socialLinks).some(v => v.trim().length > 0);
   const isFormValid = agreed && hasAnySocial;
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl border border-neutral-gray-light bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {selectedTypeInfo && <selectedTypeInfo.icon className="h-6 w-6 text-brand-red-600" />}
-            <div>
-              <h2 className="text-xl font-bold text-neutral-black">New {selectedTypeInfo?.label} Listing</h2>
-              <p className="text-sm text-neutral-gray-medium">Fill in the details below. Fields marked <span className="text-brand-red-600">*</span> are required.</p>
+      {!editId && (
+        <div className="rounded-xl border border-neutral-gray-light bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {selectedTypeInfo && <selectedTypeInfo.icon className="h-6 w-6 text-brand-red-600" />}
+              <div>
+                <h2 className="text-xl font-bold text-neutral-black">New {selectedTypeInfo?.label} Listing</h2>
+                <p className="text-sm text-neutral-gray-medium">Fill in the details below. Fields marked <span className="text-brand-red-600">*</span> are required.</p>
+              </div>
             </div>
+            <Button variant="outline" size="sm" onClick={() => { setStep('select'); setSelectedType(null); }}>
+              <X className="h-4 w-4 mr-1" /> Change Category
+            </Button>
           </div>
-          <Button variant="outline" size="sm" onClick={() => { setStep('select'); setSelectedType(null); }}>
-            <X className="h-4 w-4 mr-1" /> Change Category
-          </Button>
         </div>
-      </div>
+      )}
 
       {selectedType === 'center' ? (
         <SpecialistCenterListing onCancel={() => { setStep('select'); setSelectedType(null); }} />
@@ -337,13 +385,7 @@ export default function UploadNewListing() {
           innovLicenses={innovLicenses} setInnovLicenses={setInnovLicenses}
           innovAwards={innovAwards} setInnovAwards={setInnovAwards}
           innovGallery={innovGallery} setInnovGallery={setInnovGallery}
-          innovatorName={innovatorName} setInnovatorName={setInnovatorName}
-          username={innovatorUsername} setUsername={setInnovatorUsername}
-          phone={phone} setPhone={setPhone}
-          altPhone={altPhone} setAltPhone={setAltPhone}
-          email={email} setEmail={setEmail}
-          website={website} setWebsite={setWebsite}
-          socialLinks={socialLinks} setSocialLinks={setSocialLinks}
+          socialHandles={socialHandles} setSocialHandles={setSocialHandles}
           agreed={agreed} setAgreed={setAgreed}
         />
       ) : (
@@ -409,7 +451,11 @@ export default function UploadNewListing() {
 
       {selectedType !== 'center' && selectedType !== 'scientist' && (
         <FormActions
-          onCancel={() => { setStep('select'); setSelectedType(null); }}
+          onCancel={() => {
+            if (editId) { router.push('/dashboard/my-listings'); return; }
+            setStep('select');
+            setSelectedType(null);
+          }}
           onDraft={() => toast.success('Draft saved!')}
           onSubmit={handleSubmit}
           disabled={saving || !isFormValid}

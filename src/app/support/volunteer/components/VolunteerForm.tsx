@@ -13,10 +13,13 @@ interface VolunteerFormProps {
     compensation: string;
   };
   onFieldChange: (field: string, value: any) => void;
+  onTaskToggle: (task: string) => void;
+  onCompensationToggle: (comp: string) => void;
   onSubmit: (e: React.FormEvent) => void;
+  submitting: boolean;
 }
 
-export function VolunteerForm({ isAuthenticated, formData, onFieldChange, onSubmit }: VolunteerFormProps) {
+export function VolunteerForm({ isAuthenticated, formData, onFieldChange, onTaskToggle, onCompensationToggle, onSubmit, submitting }: VolunteerFormProps) {
   const availableStates = formData.country ? (COUNTRY_STATES[formData.country] || []) : [];
 
   const handleTaskToggle = (task: string) => {

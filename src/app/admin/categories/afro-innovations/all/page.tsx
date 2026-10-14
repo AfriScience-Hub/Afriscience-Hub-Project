@@ -131,8 +131,6 @@ export default function AllInnovationsPage() {
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Innovation</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Submitted By</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Published On</th>
-                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Field</th>
-                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Interests</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Stage</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Ownership</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Country</th>
@@ -144,13 +142,26 @@ export default function AllInnovationsPage() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={11} className="p-8 text-center">
+                  <td colSpan={9} className="p-8 text-center">
                     <Loader2 className="h-6 w-6 animate-spin text-brand-red-600 mx-auto mb-2" />
                     <p className="text-sm text-neutral-gray-medium">Loading innovations&hellip;</p>
                   </td>
                 </tr>
               )}
-              {!loading && paginated.map((r) => (
+              {!loading && live.length === 0 && (
+                <tr>
+                  <td colSpan={9} className="p-8 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-16 w-16 rounded-full bg-neutral-bg-light border border-neutral-gray-light flex items-center justify-center">
+                        <Lightbulb className="h-8 w-8 text-neutral-gray-medium" />
+                      </div>
+                      <p className="text-sm font-medium text-neutral-black">No live innovations yet</p>
+                      <p className="text-xs text-neutral-gray-medium">Approved innovations will appear here once published.</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {!loading && live.length > 0 && paginated.map((r) => (
                 <tr key={r.id} onClick={() => setSelected(r)} className="border-b border-neutral-gray-light/60 last:border-0 hover:bg-neutral-bg-light/40 cursor-pointer">
                   <td className="px-3 py-2.5">
                     <div className="flex gap-2.5 items-start max-w-[220px]">
@@ -162,21 +173,12 @@ export default function AllInnovationsPage() {
                     </div>
                   </td>
                   <td className="px-3 py-2.5">
-                    <div className="flex gap-2 items-center">
-                      <Image src={r.submitter.avatar} alt={r.submitter.name} width={28} height={28} className="rounded-full object-cover shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-medium text-neutral-black truncate">{r.submitter.name}</p>
-                        <p className="text-[11px] text-neutral-gray-medium truncate">{r.submitter.email}</p>
-                      </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-neutral-black truncate">{r.submitter.name}</p>
+                      <p className="text-[11px] text-neutral-gray-medium truncate">{r.submitter.email}</p>
                     </div>
                   </td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.publishedBy?.date || r.submittedOn}</td>
-                  <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700 whitespace-nowrap">{r.innovation.field}</span></td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex flex-wrap gap-1 max-w-[180px]">
-                      {r.innovation.interests.map((i) => <span key={i} className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 whitespace-nowrap">{i}</span>)}
-                    </div>
-                  </td>
                   <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.innovation.stage}</span></td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.ownership}</td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.country}</td>

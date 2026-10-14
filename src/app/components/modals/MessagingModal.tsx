@@ -77,9 +77,9 @@ export function MessagingModal({
         {/* Header */}
         <div className="bg-gradient-to-r from-brand-navy-900 to-brand-navy-800 px-6 py-4 flex items-center justify-between rounded-t-2xl flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-white overflow-hidden">
+            <div className="relative h-10 w-10 rounded-full bg-white overflow-hidden flex-shrink-0">
               {providerImage ? (
-                <Image src={providerImage} alt={providerName} fill className="object-cover" sizes="100vw" />
+                <Image src={providerImage} alt={providerName} fill className="object-cover" sizes="40px" />
               ) : (
                 <div className="h-full w-full bg-brand-red-100 flex items-center justify-center text-brand-red-600 font-bold">
                   {providerName.charAt(0)}

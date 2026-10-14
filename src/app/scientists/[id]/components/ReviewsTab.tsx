@@ -1,13 +1,33 @@
 'use client';
 
-import { Star, MessageCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Star, MessageCircle, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface ReviewsTabProps {
   scientist: any;
 }
 
 export default function ReviewsTab({ scientist }: ReviewsTabProps) {
+  const [userRating, setUserRating] = useState(0);
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+
+  const handleSubmitReview = () => {
+    if (!userRating) {
+      toast.error('Please select a star rating');
+      return;
+    }
+    if (!reviewText.trim()) {
+      toast.error('Please write your review');
+      return;
+    }
+    toast.success('Review submitted!');
+    setUserRating(0);
+    setReviewText('');
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-300" id="reviews">
       {/* Rating Summary */}
@@ -42,6 +62,46 @@ export default function ReviewsTab({ scientist }: ReviewsTabProps) {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* Write a Review */}
+      <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+        <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
+          <Star className="h-5 w-5 text-amber-500" /> Write a Review
+        </h3>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-neutral-gray-dark">Your Rating:</span>
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map(star => (
+                <button
+                  key={star}
+                  onClick={() => setUserRating(star)}
+                  onMouseEnter={() => setHoveredRating(star)}
+                  onMouseLeave={() => setHoveredRating(0)}
+                  className="cursor-pointer transition-colors"
+                >
+                  <Star className={cn(
+                    "h-6 w-6",
+                    star <= (hoveredRating || userRating) ? "text-amber-500 fill-current" : "text-neutral-gray-light"
+                  )} />
+                </button>
+              ))}
+            </div>
+          </div>
+          <textarea
+            value={reviewText}
+            onChange={(e) => setReviewText(e.target.value)}
+            placeholder="Share your experience with this scientist..."
+            className="w-full px-4 py-3 rounded-xl border border-neutral-gray-light focus:ring-2 focus:ring-brand-red-600 focus:border-brand-red-600 transition-all min-h-[100px] resize-none text-sm"
+          />
+          <button
+            onClick={handleSubmitReview}
+            className="flex items-center gap-2 bg-brand-red-600 hover:bg-brand-red-700 text-white px-6 py-3 rounded-xl font-medium transition-colors w-fit"
+          >
+            <Send className="h-4 w-4" /> Submit Review
+          </button>
         </div>
       </section>
 

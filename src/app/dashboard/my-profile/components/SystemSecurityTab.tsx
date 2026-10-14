@@ -78,7 +78,7 @@ interface SystemSecurityTabProps {
 
 export function SystemSecurityTab(props: SystemSecurityTabProps) {
   const dispatch = useAppDispatch();
-  const { sessions, sessionsPagination, sessionsLoading, sessionsError } = useAppSelector(s => s.auth);
+  const { sessions, sessionsPagination, sessionsLoading, sessionsError, user } = useAppSelector(s => s.auth);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -107,15 +107,15 @@ export function SystemSecurityTab(props: SystemSecurityTabProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-xs text-neutral-gray-medium mb-1">Account Creation Date</p>
-            <p className="text-sm font-medium text-neutral-black">March 15, 2026</p>
+            <p className="text-sm font-medium text-neutral-black">
+              {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—'}
+            </p>
           </div>
           <div>
             <p className="text-xs text-neutral-gray-medium mb-1">Last Login</p>
-            <p className="text-sm font-medium text-neutral-black">April 8, 2026 at 10:45 AM</p>
-          </div>
-          <div>
-            <p className="text-xs text-neutral-gray-medium mb-1">User Role</p>
-            <span className="inline-flex px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">User</span>
+            <p className="text-sm font-medium text-neutral-black">
+              {user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
+            </p>
           </div>
         </div>
       </div>

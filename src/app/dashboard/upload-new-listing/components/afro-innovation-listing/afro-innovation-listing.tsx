@@ -4,7 +4,7 @@ import { Lightbulb, User, IdCard } from 'lucide-react';
 import CollapsibleSection from '../CollapsibleSection';
 import InnovationIdentitySection from './components/InnovationIdentitySection';
 import InnovationDetailsSection from './components/InnovationDetailsSection';
-import InnovatorInfoSection from './components/InnovatorInfoSection';
+import InnovatorInfoSection, { type SocialHandle } from './components/InnovatorInfoSection';
 
 interface Dimensions { length: string; width: string; height: string; unit: string; }
 interface Weight { value: string; unit: string; }
@@ -36,14 +36,8 @@ interface AfroInnovationListingProps {
   innovLicenses: LicenseDoc[]; setInnovLicenses: (v: LicenseDoc[] | ((p: LicenseDoc[]) => LicenseDoc[])) => void;
   innovAwards: LicenseDoc[]; setInnovAwards: (v: LicenseDoc[] | ((p: LicenseDoc[]) => LicenseDoc[])) => void;
   innovGallery: GalleryFile[]; setInnovGallery: (v: GalleryFile[] | ((p: GalleryFile[]) => GalleryFile[])) => void;
-  innovatorName: string; setInnovatorName: (v: string) => void;
-  username: string; setUsername: (v: string) => void;
-  phone: string; setPhone: (v: string) => void;
-  altPhone: string; setAltPhone: (v: string) => void;
-  email: string; setEmail: (v: string) => void;
-  website: string; setWebsite: (v: string) => void;
-  socialLinks: { x: string; linkedin: string; facebook: string; instagram: string };
-  setSocialLinks: (v: { x: string; linkedin: string; facebook: string; instagram: string } | ((p: { x: string; linkedin: string; facebook: string; instagram: string }) => { x: string; linkedin: string; facebook: string; instagram: string })) => void;
+  socialHandles: SocialHandle[];
+  setSocialHandles: (v: SocialHandle[] | ((p: SocialHandle[]) => SocialHandle[])) => void;
   agreed: boolean;
   setAgreed: (v: boolean) => void;
 }
@@ -87,13 +81,7 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
 
       <CollapsibleSection title="Innovator's Information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
         <InnovatorInfoSection
-          innovatorName={props.innovatorName} setInnovatorName={props.setInnovatorName}
-          username={props.username} setUsername={props.setUsername}
-          phone={props.phone} setPhone={props.setPhone}
-          altPhone={props.altPhone} setAltPhone={props.setAltPhone}
-          email={props.email} setEmail={props.setEmail}
-          website={props.website} setWebsite={props.setWebsite}
-          socialLinks={props.socialLinks} setSocialLinks={props.setSocialLinks}
+          socialHandles={props.socialHandles} setSocialHandles={props.setSocialHandles}
           agreed={props.agreed} setAgreed={props.setAgreed}
         />
       </CollapsibleSection>

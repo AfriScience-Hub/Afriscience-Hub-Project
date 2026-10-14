@@ -10,7 +10,7 @@ interface SidebarProps {
 
 export default function Sidebar({ scientist }: SidebarProps) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light sticky top-24">
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light self-start lg:sticky lg:top-24">
       <h3 className="text-sm font-bold text-neutral-gray-dark uppercase tracking-wider mb-4">Professional Highlights</h3>
       <div className="space-y-4">
         <div className="flex items-center justify-between">

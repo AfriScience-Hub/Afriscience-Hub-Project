@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, XCircle, ShieldCheck, Clock, Loader2 } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, XCircle, ShieldCheck, Clock, Loader2, X } from 'lucide-react';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
 import { toast } from 'sonner';
 import type { SubmissionRecord, SubmissionStatus } from './data';
@@ -68,21 +68,26 @@ export default function SubmissionsPage() {
     }
   };
 
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+
   const handleReject = async (id: string) => {
-    const reason = window.prompt('Enter the reason for rejection:');
-    if (!reason || !reason.trim()) return;
+    setRejectingId(id);
+    setRejectReason('');
+  };
+
+  const handleRejectConfirm = async () => {
+    if (!rejectingId || !rejectReason.trim()) return;
     try {
-      await rejectInnovation(id, reason.trim());
-      setRecords(prev => prev.map(r => r.id === id ? { ...r, status: 'Rejected', reasonForRejection: reason.trim() } : r));
+      await rejectInnovation(rejectingId, rejectReason.trim());
+      setRecords(prev => prev.map(r => r.id === rejectingId ? { ...r, status: 'Rejected', reasonForRejection: rejectReason.trim() } : r));
       toast.success('Innovation rejected');
     } catch (e: any) {
       toast.error(e?.message || 'Failed to reject innovation');
+    } finally {
+      setRejectingId(null);
+      setRejectReason('');
     }
-  };
-
-  const handlePending = (id: string) => {
-    setRecords(prev => prev.map(r => r.id === id ? { ...r, status: 'Pending Review' } : r));
-    toast.info('Marked as pending review');
   };
 
   const saveRecord = (updated: SubmissionRecord) => setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
@@ -91,6 +96,23 @@ export default function SubmissionsPage() {
   const pending = records.filter((r) => r.status === 'Pending Review').length;
   const published = records.filter((r) => r.status === 'Published').length;
   const rejected = records.filter((r) => r.status === 'Rejected').length;
+
+  // Calculate real trend percentages from data (comparing current month vs previous)
+  const now = new Date();
+  const thisMonth = records.filter(r => {
+    const d = new Date(r.submittedOn);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+  const lastMonth = records.filter(r => {
+    const d = new Date(r.submittedOn);
+    const last = new Date(now.getFullYear(), now.getMonth() - 1);
+    return d.getMonth() === last.getMonth() && d.getFullYear() === last.getFullYear();
+  }).length;
+  const calcTrend = (curr: number, prev: number) => {
+    if (prev === 0) return curr > 0 ? '+100%' : '0%';
+    const pct = ((curr - prev) / prev) * 100;
+    return (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+  };
 
   return (
     <div className="space-y-4">
@@ -108,10 +130,10 @@ export default function SubmissionsPage() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard iconBg="bg-purple-100 text-purple-600" icon={<ShieldCheck className="h-4 w-4" />} label="Total Submissions" value={total} change="↑ 18.3% this month" positive />
-        <StatCard iconBg="bg-orange-100 text-orange-600" icon={<span className="text-sm">◷</span>} label="Pending Review" value={pending} change="↑ 8.6% this month" positive />
-        <StatCard iconBg="bg-green-100 text-green-600" icon={<CheckCircle className="h-4 w-4" />} label="Published" value={published} change="↑ 24.5% this month" positive />
-        <StatCard iconBg="bg-red-100 text-red-600" icon={<XCircle className="h-4 w-4" />} label="Rejected" value={rejected} change="↓ 4.2% this month" positive={false} />
+        <StatCard iconBg="bg-purple-100 text-purple-600" icon={<ShieldCheck className="h-4 w-4" />} label="Total Submissions" value={total} change={calcTrend(total, total - thisMonth)} positive />
+        <StatCard iconBg="bg-orange-100 text-orange-600" icon={<span className="text-sm">◷</span>} label="Pending Review" value={pending} change={calcTrend(pending, pending - thisMonth)} positive />
+        <StatCard iconBg="bg-green-100 text-green-600" icon={<CheckCircle className="h-4 w-4" />} label="Published" value={published} change={calcTrend(published, published - thisMonth)} positive />
+        <StatCard iconBg="bg-red-100 text-red-600" icon={<XCircle className="h-4 w-4" />} label="Rejected" value={rejected} change={calcTrend(rejected, rejected - thisMonth)} positive={false} />
       </div>
 
       <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
@@ -150,8 +172,6 @@ export default function SubmissionsPage() {
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Innovation</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Submitted By</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Submitted On</th>
-                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Field</th>
-                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Interests</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Stage</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Ownership</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Country</th>
@@ -162,7 +182,7 @@ export default function SubmissionsPage() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={10} className="p-8 text-center">
+                  <td colSpan={8} className="p-8 text-center">
                     <Loader2 className="h-6 w-6 animate-spin text-brand-red-600 mx-auto mb-2" />
                     <p className="text-sm text-neutral-gray-medium">Loading innovations&hellip;</p>
                   </td>
@@ -180,21 +200,12 @@ export default function SubmissionsPage() {
                     </div>
                   </td>
                   <td className="px-3 py-2.5">
-                    <div className="flex gap-2 items-center">
-                      <Image src={r.submitter.avatar} alt={r.submitter.name} width={28} height={28} className="rounded-full object-cover shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-medium text-neutral-black truncate">{r.submitter.name}</p>
-                        <p className="text-[11px] text-neutral-gray-medium truncate">{r.submitter.email}</p>
-                      </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-neutral-black truncate">{r.submitter.name}</p>
+                      <p className="text-[11px] text-neutral-gray-medium truncate">{r.submitter.email}</p>
                     </div>
                   </td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.submittedOn}<br /><span className="text-[11px] text-neutral-gray-medium">{r.submittedTime}</span></td>
-                  <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700 whitespace-nowrap">{r.innovation.field}</span></td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex flex-wrap gap-1 max-w-[180px]">
-                      {r.innovation.interests.map((i) => <span key={i} className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 whitespace-nowrap">{i}</span>)}
-                    </div>
-                  </td>
                   <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.innovation.stage}</span></td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.ownership}</td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.country}</td>
@@ -205,8 +216,7 @@ export default function SubmissionsPage() {
                       items={[
                         { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
                         { label: 'Approve', icon: <CheckCircle className="h-3.5 w-3.5" />, onClick: () => handleApprove(r.id) },
-                        { label: 'Pending', icon: <Clock className="h-3.5 w-3.5" />, onClick: () => handlePending(r.id) },
-                        { label: 'Reject', icon: <XCircle className="h-3.5 w-3.5" />, onClick: () => handleReject(r.id), danger: true },
+                        { label: 'Reject', icon: <XCircle className="h-3.5 w-3.5" />, onClick: () => setRejectingId(r.id), danger: true },
                       ]}
                     />
                   </td>
@@ -230,7 +240,42 @@ export default function SubmissionsPage() {
         </div>
       </div>
 
-      <SubmissionDetailModal submission={selected} open={!!selected} onClose={() => setSelected(null)} onApprove={handleApprove} onReject={handleReject} onSave={saveRecord} />
+      <SubmissionDetailModal submission={selected} open={!!selected} onClose={() => setSelected(null)} onApprove={handleApprove} onReject={setRejectingId} onSave={saveRecord} />
+    
+      {/* Rejection Confirmation Modal */}
+      {rejectingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => { setRejectingId(null); setRejectReason(''); }}>
+          <div className="bg-white rounded-2xl max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-neutral-gray-light">
+              <h3 className="text-lg font-bold text-neutral-black">Reject Innovation</h3>
+              <button onClick={() => { setRejectingId(null); setRejectReason(''); }} className="p-2 rounded-lg hover:bg-neutral-bg-light transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <p className="text-sm text-neutral-gray-dark">Please provide a reason for rejecting this innovation. The submitter will be notified.</p>
+              <textarea
+                value={rejectReason}
+                onChange={e => setRejectReason(e.target.value)}
+                placeholder="Enter reason for rejection..."
+                rows={4}
+                className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-sm focus:outline-none focus:border-brand-red-600 resize-none"
+                required
+              />
+              <div className="flex justify-end gap-2">
+                <button onClick={() => { setRejectingId(null); setRejectReason(''); }} className="px-4 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer">Cancel</button>
+                <button
+                  onClick={handleRejectConfirm}
+                  disabled={!rejectReason.trim()}
+                  className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 cursor-pointer disabled:opacity-50"
+                >
+                  Confirm Rejection
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -19,12 +19,14 @@ export default function ScientistDocumentsSection({ certifications, setCertifica
           <ShieldCheck className="h-4 w-4 text-brand-navy-900" />
           <h4 className="text-sm font-bold uppercase tracking-wide text-neutral-black">Certifications &amp; Degrees</h4>
         </div>
+        <p className="text-xs text-neutral-gray-medium">Upload your valid degrees or certificates to further authenticate the credibility of your services. Uploaded documents are securely stored and protected from unauthorized access.</p>
         <DocList label="Certificate" addLabel="Add Certification / Degree" entries={certifications} onChange={setCertifications} />
 
         <div className="flex items-center gap-2 border-t border-neutral-gray-light pt-6">
           <Trophy className="h-4 w-4 text-amber-500" />
           <h4 className="text-sm font-bold uppercase tracking-wide text-neutral-black">Major Achievements &amp; Awards</h4>
         </div>
+        <p className="text-xs text-neutral-gray-medium">Upload a copy of achievements/honorary awards you&rsquo;ve obtained (if any). Uploaded documents are securely stored and protected from unauthorized access.</p>
         <DocList label="Achievement" addLabel="Add Achievement / Award" entries={achievements} onChange={setAchievements} />
       </div>
     </CollapsibleSection>

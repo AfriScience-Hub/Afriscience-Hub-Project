@@ -19,9 +19,10 @@ export default function ScientistScopePolicySection({ scopes, setScopes, policie
           <Flag className="h-4 w-4 text-brand-navy-900" />
           <h4 className="text-sm font-bold uppercase tracking-wide text-neutral-black">Scopes</h4>
         </div>
+        <p className="text-xs text-neutral-gray-medium">List all the areas of your expertise within your selected profession(s) &ndash; e.g. tests, topics, techniques, tools, instrumentations, etc.)</p>
         <EntryList
           label="Scopes"
-          hint="expertise areas: tests, topics, techniques, tools, instrumentation, multiple entries allowed"
+          hint="multiple entries allowed"
           placeholder="e.g. AI Model Training"
           entries={scopes}
           onChange={setScopes}
@@ -31,9 +32,10 @@ export default function ScientistScopePolicySection({ scopes, setScopes, policie
           <FileText className="h-4 w-4 text-brand-red-600" />
           <h4 className="text-sm font-bold uppercase tracking-wide text-neutral-black">Engagement Policies</h4>
         </div>
+        <p className="text-xs text-neutral-gray-medium">Mention important guidelines that clients must adhere to when requesting your services</p>
         <EntryList
           label="Engagement Policies"
-          hint="guidelines for clients when requesting services, multiple entries allowed"
+          hint="multiple entries allowed"
           placeholder="e.g. All consultations must be booked 48 hours in advance"
           entries={policies}
           onChange={setPolicies}

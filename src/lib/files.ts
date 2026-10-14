@@ -1,6 +1,6 @@
 const S3_BASE = 'https://afriscience-buckset.s3.eu-north-1.amazonaws.com';
 
-// key → { url, at } map of what POST /upload returned, so a bare storage key
+// key -> { url, at } map of what POST /upload returned, so a bare storage key
 // (what the profile endpoints persist) can be turned back into a viewable URL.
 const URL_CACHE_KEY = 'afrisciencehub_file_urls';
 // Signed URLs are issued with X-Amz-Expires=3600 (1h). Stop using them a few
@@ -22,7 +22,6 @@ function readCache(): Record<string, CachedUrl> {
 
 function writeCache(cache: Record<string, CachedUrl>) {
   try {
-    // Keep only the newest entries — signed URLs are long and localStorage is small.
     const trimmed = Object.fromEntries(
       Object.entries(cache)
         .sort((a, b) => b[1].at - a[1].at)
@@ -34,7 +33,7 @@ function writeCache(cache: Record<string, CachedUrl>) {
 
 /**
  * Remembers the signed URL returned by POST /upload for a storage key.
- * Called on every upload — this is the only place a viewable URL exists,
+ * Called on every upload -- this is the only place a viewable URL exists,
  * because the key alone 403s (the bucket is private).
  */
 export function rememberFileUrl(key?: string | null, url?: string | null): void {
@@ -81,7 +80,7 @@ function bucketKeyOf(url: string): string | null {
  * - Local previews created with URL.createObjectURL (blob:) and data: URIs are used as-is.
  * - Bare object keys ("uploads/photo.jpg") and unsigned bucket links resolve to
  *   the signed URL captured at upload time. They are NEVER turned into a raw
- *   bucket URL — the bucket is private, so that 403s.
+ *   bucket URL -- the bucket is private, so that 403s.
  * - The stock placeholder avatar older builds hard-coded is dropped so the
  *   user's real upload (or the initials fallback) shows instead.
  * - Anything empty/unknown/expired returns undefined so callers show initials.
@@ -94,22 +93,32 @@ export function normalizeFileSrc(value?: string | null): string | undefined {
   // Legacy dummy avatar (hard-coded in older builds) is not a real upload.
   if (/images\.unsplash\.com|default.?avatar/i.test(v)) return undefined;
 
+  // Fix malformed URLs from old bug: "https://uploads/..." -> proper S3 URL
+  if (/^https?:\/\/uploads\//i.test(v)) {
+    return v.replace(/^https?:\/\/uploads\//i, `${S3_BASE}/uploads/`);
+  }
+
   if (/^(blob:|data:)/i.test(v)) return v;
 
   if (/^https?:\/\//i.test(v)) {
     const key = bucketKeyOf(v);
     if (/X-Amz-/i.test(v)) {
-      // Signed → use it, but never hand out an expired one (it would just 403).
+      // Signed -> use it, but never hand out an expired one (it would just 403).
       // If expired, fall back to the raw key so callers can attempt to load it.
       if (!signedUrlExpired(v)) return v;
-      return key ?? v;
+      return key ? `${S3_BASE}/${key}` : v;
     }
     // Unsigned bucket link is really just the storage key.
-    if (key) return cachedUrlFor(key) ?? `https://${key}`; // attempt to load, will 403 if private
+    if (key) return cachedUrlFor(key) ?? `${S3_BASE}/${key}`;
     return v;
   }
 
-  // Bare object key → the signed URL from the upload response (if we still have it).
+  // Bare object key -> the signed URL from the upload response (if we still have it).
   // If no cached URL, return the raw key so callers can attempt to load it.
-  return cachedUrlFor(v.replace(/^\/+/, '')) ?? `https://afriscience-buckset.s3.eu-north-1.amazonaws.com/${v.replace(/^\/+/, '')}`;
+  return cachedUrlFor(v.replace(/^\/+/, '')) ?? `${S3_BASE}/${v.replace(/^\/+/, '')}`;
+}
+
+/** True when the value points at a real remote/preview image (not a bare key). */
+export function isRenderableSrc(value?: string | null): boolean {
+  return !!value && /^(https?:|blob:|data:)/i.test(value.trim());
 }

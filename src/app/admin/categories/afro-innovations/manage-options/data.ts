@@ -8,7 +8,7 @@ export interface ManagedOption {
   note?: string;
 }
 
-export type ManageTab = 'Fields' | 'Interests' | 'Stages' | 'Ownership' | 'SDGs' | 'Countries';
+export type ManageTab = 'Fields' | 'Interests' | 'Stages' | 'Ownership' | 'SDGs' | 'Countries' | 'Price';
 
 export const MANAGE_TABS: { id: ManageTab; label: string }[] = [
   { id: 'Fields', label: 'Fields' },
@@ -17,6 +17,7 @@ export const MANAGE_TABS: { id: ManageTab; label: string }[] = [
   { id: 'Ownership', label: 'Ownership' },
   { id: 'SDGs', label: 'SDGs' },
   { id: 'Countries', label: 'Countries' },
+  { id: 'Price', label: 'Price' },
 ];
 
 export const DUMMY_OPTIONS: Record<ManageTab, ManagedOption[]> = {
@@ -65,6 +66,9 @@ export const DUMMY_OPTIONS: Record<ManageTab, ManagedOption[]> = {
     { id: 'c5', name: 'Rwanda', status: 'Active', count: 22 },
     { id: 'c6', name: 'Ethiopia', status: 'Inactive', count: 3 },
   ],
+  Price: [
+    { id: 'p1', name: 'Default Innovation Price', status: 'Active', count: 1, note: 'Default price in NGN for innovation listings.' },
+  ],
 };
 
 export const TAB_DESCRIPTIONS: Record<ManageTab, string> = {
@@ -74,4 +78,5 @@ export const TAB_DESCRIPTIONS: Record<ManageTab, string> = {
   Ownership: 'Ownership indicates who owns or leads the innovation.',
   SDGs: 'SDGs link innovations to sustainable development goals.',
   Countries: 'Countries control which geography filters appear.',
+  Price: 'Set the price for innovation listings.',
 };

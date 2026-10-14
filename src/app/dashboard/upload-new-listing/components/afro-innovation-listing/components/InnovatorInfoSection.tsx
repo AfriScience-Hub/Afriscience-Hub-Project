@@ -1,110 +1,79 @@
 'use client';
 
-import { Phone, Mail, Globe, AtSign } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
+
+export interface SocialHandle {
+  name: string;
+  link: string;
+}
 
 interface InnovatorInfoSectionProps {
-  innovatorName: string;
-  setInnovatorName: (v: string) => void;
-  username: string;
-  setUsername: (v: string) => void;
-  phone: string;
-  setPhone: (v: string) => void;
-  altPhone: string;
-  setAltPhone: (v: string) => void;
-  email: string;
-  setEmail: (v: string) => void;
-  website: string;
-  setWebsite: (v: string) => void;
-  socialLinks: { x: string; linkedin: string; instagram: string; facebook: string };
-  setSocialLinks: (v: { x: string; linkedin: string; facebook: string; instagram: string } | ((prev: { x: string; linkedin: string; facebook: string; instagram: string }) => { x: string; linkedin: string; facebook: string; instagram: string })) => void;
+  socialHandles: SocialHandle[];
+  setSocialHandles: (
+    v: SocialHandle[] | ((prev: SocialHandle[]) => SocialHandle[])
+  ) => void;
   agreed: boolean;
   setAgreed: (v: boolean) => void;
 }
 
 export default function InnovatorInfoSection({
-  innovatorName, setInnovatorName, username, setUsername, phone, setPhone, altPhone, setAltPhone,
-  email, setEmail, website, setWebsite, socialLinks, setSocialLinks, agreed, setAgreed,
+  socialHandles, setSocialHandles, agreed, setAgreed,
 }: InnovatorInfoSectionProps) {
-  const hasAnySocial = Object.values(socialLinks).some(v => v.trim().length > 0);
+  const updateHandle = (index: number, field: keyof SocialHandle, value: string) => {
+    setSocialHandles(prev => prev.map((h, i) => (i === index ? { ...h, [field]: value } : h)));
+  };
+
+  const addHandle = () => setSocialHandles(prev => [...prev, { name: '', link: '' }]);
+
+  const removeHandle = (index: number) =>
+    setSocialHandles(prev => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev));
 
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">Innovator's Name <span className="text-red-500">*</span></label>
-        <input
-          type="text"
-          value={innovatorName}
-          onChange={e => setInnovatorName(e.target.value)}
-          className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-          placeholder="Input Innovator's Name"
-        />
-      </div>
+        <label className="block text-sm font-medium text-neutral-black mb-1">
+          Social Media Handles <span className="text-red-500">*</span>{' '}
+          <span className="text-[10px] text-neutral-gray-medium font-normal">(provide at least one)</span>
+        </label>
 
-      <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">Username <span className="text-red-500">*</span></label>
-        <div className="relative">
-          <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium pointer-events-none" />
-          <input type="text" value={username} onChange={e => setUsername(e.target.value)}
-            className="w-full rounded-lg border border-neutral-gray-light pl-10 pr-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-            placeholder="yourusername" />
-        </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-neutral-black mb-1">Phone Number <span className="text-red-500">*</span></label>
-          <div className="relative">
-            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium pointer-events-none" />
-            <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
-              className="w-full rounded-lg border border-neutral-gray-light pl-10 pr-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-              placeholder="+234 800 000 0000" />
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-neutral-black mb-1">Alternative Phone No.</label>
-          <div className="relative">
-            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium pointer-events-none" />
-            <input type="tel" value={altPhone} onChange={e => setAltPhone(e.target.value)}
-              className="w-full rounded-lg border border-neutral-gray-light pl-10 pr-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-              placeholder="+234 800 000 0000" />
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">E-mail Address <span className="text-red-500">*</span></label>
-        <div className="relative">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium pointer-events-none" />
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-neutral-gray-light pl-10 pr-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-            placeholder="info@example.com" />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">Website</label>
-        <div className="relative">
-          <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium pointer-events-none" />
-          <input type="url" value={website} onChange={e => setWebsite(e.target.value)}
-            className="w-full rounded-lg border border-neutral-gray-light pl-10 pr-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-            placeholder="https://www.example.com" />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-neutral-black mb-2">Social Media Handles <span className="text-red-500">*</span> <span className="text-[10px] text-neutral-gray-medium font-normal">(provide at least one)</span></label>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {(['linkedin', 'x', 'instagram', 'facebook'] as const).map(platform => (
-            <div key={platform}>
-              <label className="block text-[11px] font-medium text-neutral-gray-medium mb-1 capitalize">{platform}</label>
-              <input type="text"
-                value={socialLinks[platform]}
-                onChange={e => setSocialLinks(prev => ({ ...prev, [platform]: e.target.value }))}
-                className="w-full rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-                placeholder={`@your${platform}handle`} />
+        <div className="space-y-3">
+          {socialHandles.map((handle, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <input
+                type="text"
+                value={handle.name}
+                onChange={e => updateHandle(index, 'name', e.target.value)}
+                className="w-[40%] rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+                placeholder="Social media name (e.g. X)"
+              />
+              <input
+                type="url"
+                value={handle.link}
+                onChange={e => updateHandle(index, 'link', e.target.value)}
+                className="flex-1 min-w-0 rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+                placeholder="https://..."
+              />
+              {socialHandles.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeHandle(index)}
+                  aria-label="Remove social media handle"
+                  className="shrink-0 rounded-lg border border-neutral-gray-light p-2 text-neutral-gray-medium transition hover:border-red-300 hover:text-red-500"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
             </div>
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={addHandle}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-brand-red-600 px-3 py-1.5 text-xs font-medium text-brand-red-600 transition hover:bg-brand-red-50"
+        >
+          <Plus className="h-4 w-4" /> Add Social Media
+        </button>
       </div>
 
       <div className="flex items-start gap-3 p-4 rounded-lg border border-neutral-gray-light bg-neutral-bg-light">

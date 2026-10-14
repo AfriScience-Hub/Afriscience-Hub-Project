@@ -40,8 +40,9 @@ export default function ScientistFeesSection({ services, fees, onChange }: Scien
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">
             Service Cost <span className="text-red-500">*</span>
-            <span className="text-[10px] font-normal text-neutral-gray-medium"> (costs can be in USD or local currency — automatically lists all selected services)</span>
+            <span className="text-[10px] font-normal text-neutral-gray-medium"> (costs can be in USD or local currency)</span>
           </label>
+          <p className="mb-2 text-xs text-neutral-gray-medium">Give an estimated cost for each service rendered</p>
           {services.length > 0 ? (
             <div className="space-y-3">
               {services.map((service, idx) => {
@@ -91,6 +92,7 @@ export default function ScientistFeesSection({ services, fees, onChange }: Scien
             Other Charges <span className="text-red-500">*</span>
             <span className="text-[10px] font-normal text-neutral-gray-medium"> (multiple entries allowed)</span>
           </label>
+          <p className="mb-2 text-xs text-neutral-gray-medium">Mention other charges (if any) that you require your clients to pay when asking for your service</p>
           <div className="space-y-3">
             {fees.otherCharges.map((charge, idx) => (
               <div key={idx} className="rounded-lg border border-neutral-gray-light p-4">

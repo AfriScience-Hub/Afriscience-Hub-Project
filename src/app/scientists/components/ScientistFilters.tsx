@@ -88,7 +88,7 @@ export default function ScientistFilters({
       "w-full lg:w-72 flex-shrink-0 space-y-6 transition-all duration-300",
       showFilters ? "block" : "hidden lg:block"
     )}>
-      <div className="rounded-xl border border-neutral-gray-light bg-white p-5 shadow-sm lg:sticky lg:top-20 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar">
+      <div className="rounded-xl border border-neutral-gray-light bg-white p-5 shadow-sm lg:sticky lg:top-20 overflow-y-auto custom-scrollbar">
         <div className="mb-4 flex items-center justify-between border-b border-neutral-gray-light pb-3">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-brand-red-600" />

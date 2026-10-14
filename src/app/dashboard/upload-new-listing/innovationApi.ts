@@ -26,16 +26,17 @@ export interface InnovationPayload {
   cautions: string;
   documents: { type: string; documentTitle: string; issuer: string; year: number; documentFile: string }[];
   media: { category: string; mediaFile: string }[];
+  socials: { platform: string; link: string }[];
 }
 
 const OWNERSHIP: Record<string, string> = {
   Private: 'PRIVATE',
-  'Government | Public': 'GOVERNMENT',
+  'Government | Public': 'GOVERNMENT_PUBLIC',
   Academic: 'ACADEMIC',
   Mission: 'MISSION',
   Corporate: 'CORPORATE',
   'Inter-Government': 'INTER_GOVERNMENT',
-  'NGO | Charity': 'NGO',
+  'NGO | Charity': 'NGO_CHARITY',
   Other: 'OTHER',
 };
 
@@ -83,6 +84,7 @@ export function buildInnovationPayload(input: {
   innovLicenses: { title: string; issuer: string; date: string; file: string }[];
   innovAwards: { title: string; issuer: string; date: string; file: string }[];
   innovGallery: { category: string; name: string }[];
+  socialHandles: { name: string; link: string }[];
 }): InnovationPayload {
   const materials = input.innovMaterials.join(', ');
   const docs = [
@@ -120,6 +122,9 @@ export function buildInnovationPayload(input: {
       category: MEDIA[m.category] || m.category,
       mediaFile: m.name,
     })),
+    socials: input.socialHandles
+      .map(s => ({ platform: s.name.trim(), link: s.link.trim() }))
+      .filter(s => s.platform && s.link),
   };
 }
 

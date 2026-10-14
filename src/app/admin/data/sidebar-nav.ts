@@ -21,6 +21,7 @@ import {
   ClipboardList,
   Activity,
   Heart,
+  Users2,
 } from 'lucide-react';
 import { ADMIN_ROUTES } from './routes';
 
@@ -70,6 +71,12 @@ export const SIDEBAR_NAV: SidebarItem[] = [
       { label: 'Impact Stories', href: ADMIN_ROUTES.impactStories },
       { label: 'Donations', href: ADMIN_ROUTES.donations },
     ],
+  },
+  {
+    key: 'volunteers',
+    label: 'Volunteers',
+    icon: Users2,
+    href: ADMIN_ROUTES.volunteers,
   },
   {
     key: 'approvals',

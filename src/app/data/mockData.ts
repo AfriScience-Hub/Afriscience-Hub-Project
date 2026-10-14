@@ -540,7 +540,7 @@ export const SCIENTISTS = [
     id: 'sci-1',
     name: 'Dr. Amara Okafor',
     title: 'Pharmaceutical Scientist',
-    degrees: ['Doctoral', 'Masters'],
+    degrees: ['Doctoral'],
     professions: ['Clinical Pharmacologist', 'Drug Discovery Scientist', 'Toxicologist'],
     field: 'Pharmaceutical',
     location: 'Lagos, Nigeria',

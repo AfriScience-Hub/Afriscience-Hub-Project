@@ -86,7 +86,7 @@ export default function ScientistProfileSection({ profile, onChange }: Scientist
           />
           <ImageUploader
             label="Background Image"
-            hint="Upload a wide background image"
+            hint="Upload a background image"
             value={profile.backgroundImage}
             onPick={(url) => onChange({ backgroundImage: url })}
             onRemove={() => onChange({ backgroundImage: null })}
@@ -95,6 +95,7 @@ export default function ScientistProfileSection({ profile, onChange }: Scientist
 
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">Name <span className="text-red-500">*</span></label>
+          <p className="mb-2 text-xs text-neutral-gray-medium">Enter the full name of the scientist/technologist</p>
           <input type="text" value={profile.name} onChange={(e) => onChange({ name: e.target.value })} className={inputClass} placeholder="Enter full name" />
         </div>
 
@@ -124,14 +125,15 @@ export default function ScientistProfileSection({ profile, onChange }: Scientist
 
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">
-            Short Bio / Description <span className="text-red-500">*</span>
+            Bio <span className="text-red-500">*</span>
           </label>
+          <p className="mb-2 text-xs text-neutral-gray-medium">(1000 words max)</p>
           <textarea
             value={profile.bio}
             onChange={(e) => onChange({ bio: e.target.value })}
             rows={5}
             className={`${inputClass} resize-none`}
-            placeholder="Tell us more about yourself, qualifications, skills, career, etc. (1000 words max)"
+            placeholder="Tell us more about yourself, qualifications, skills, career, etc."
           />
           <p className={`mt-1 text-xs ${wordCount > 1000 ? 'text-red-500' : 'text-neutral-gray-medium'}`}>{wordCount}/1000 words</p>
         </div>
