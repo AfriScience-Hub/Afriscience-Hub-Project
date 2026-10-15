@@ -24,6 +24,8 @@ export const ADMIN_ROUTES = {
   awardsCreate: '/admin/categories/awards/create',
   impactStories: '/admin/categories/impact-stories',
   donations: '/admin/categories/donations',
+  donationsPrograms: '/admin/categories/donations/programs',
+  donationsProgramsCreate: '/admin/categories/donations/programs/create',
 
   volunteers: '/admin/volunteers',
 

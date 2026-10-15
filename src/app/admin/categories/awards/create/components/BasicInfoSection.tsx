@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import CollapsibleSection from './CollapsibleSection';
-import NumberInput from './NumberInput';
+import NumberInput from '@/app/admin/components/NumberInput';
 import { AWARD_CATEGORIES, AWARD_LEVELS, isValidYear, type AwardFormState } from '../data';
 import { AWARD_TYPES } from '../../data';
 

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { GripVertical, X, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import CollapsibleSection from './CollapsibleSection';
-import NumberInput from './NumberInput';
+import NumberInput from '@/app/admin/components/NumberInput';
 import { REWARD_TYPES, newRowId, type AwardFormState, type RewardDraft } from '../data';
 import { getRewardIcon, getRewardIconCls } from '../../data';
 
