@@ -127,7 +127,6 @@ export default function ScientistProfileSection({ profile, onChange }: Scientist
           <label className="block text-sm font-medium text-neutral-black mb-1">
             Bio <span className="text-red-500">*</span>
           </label>
-          <p className="mb-2 text-xs text-neutral-gray-medium">(1000 words max)</p>
           <textarea
             value={profile.bio}
             onChange={(e) => onChange({ bio: e.target.value })}

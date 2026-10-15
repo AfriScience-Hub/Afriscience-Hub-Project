@@ -44,9 +44,17 @@ interface Props {
   onClose: () => void;
   onSave: (story: ImpactStory) => void;
   initial?: ImpactStory | null;
+  /** Renders a Reject button (aid-application review mode) */
+  onReject?: () => void;
+  /** Override the primary button label (e.g. "Publish" for applications) */
+  primaryLabel?: string;
+  /** Hide the story status select (applications manage their own status) */
+  hideStatusSelect?: boolean;
+  /** Override the modal title */
+  title?: string;
 }
 
-export default function PublishImpactModal({ open, onClose, onSave, initial }: Props) {
+export default function PublishImpactModal({ open, onClose, onSave, initial, onReject, primaryLabel, hideStatusSelect, title }: Props) {
   const [draft, setDraft] = useState<DraftStory>(emptyDraft());
   const [breakdownBullets, setBreakdownBullets] = useState<string[]>(['']);
 
@@ -81,7 +89,7 @@ export default function PublishImpactModal({ open, onClose, onSave, initial }: P
       <div className="bg-neutral-bg-light rounded-2xl shadow-2xl w-full max-w-4xl my-8 flex flex-col max-h-[90vh]">
         <div className="px-6 py-4 bg-white rounded-t-2xl border-b border-neutral-gray-light flex items-center justify-between shrink-0">
           <div>
-            <h2 className="text-base font-bold text-neutral-black">{initial ? 'Edit Impact Story' : 'Publish Impact Story'}</h2>
+            <h2 className="text-base font-bold text-neutral-black">{title ?? (initial ? 'Edit Impact Story' : 'Publish Impact Story')}</h2>
             <p className="text-xs text-neutral-gray-medium">All fields mirror the public impact detail structure. Funds is free text.</p>
           </div>
           <button onClick={onClose} className="h-9 w-9 rounded-full bg-neutral-bg-light hover:bg-neutral-gray-light flex items-center justify-center cursor-pointer">
@@ -99,12 +107,14 @@ export default function PublishImpactModal({ open, onClose, onSave, initial }: P
                     {IMPACT_PROGRAMS.map((p) => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </label>
-                <label className="space-y-1">
-                  <span className="text-xs font-semibold text-neutral-black">Status *</span>
-                  <select value={draft.status} onChange={(e) => update({ status: e.target.value as ImpactStatus })} className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-brand-navy-900 outline-none bg-white">
-                    {IMPACT_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </label>
+                {!hideStatusSelect && (
+                  <label className="space-y-1">
+                    <span className="text-xs font-semibold text-neutral-black">Status *</span>
+                    <select value={draft.status} onChange={(e) => update({ status: e.target.value as ImpactStatus })} className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-brand-navy-900 outline-none bg-white">
+                      {IMPACT_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </label>
+                )}
                 <label className="space-y-1">
                   <span className="text-xs font-semibold text-neutral-black">ID Tag *</span>
                   <input value={draft.idTag} onChange={(e) => update({ idTag: e.target.value })} placeholder="ASH-CS-2024-001" className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-brand-navy-900 outline-none bg-white" />
@@ -247,7 +257,10 @@ export default function PublishImpactModal({ open, onClose, onSave, initial }: P
 
         <div className="px-6 py-4 bg-white rounded-b-2xl border-t border-neutral-gray-light flex items-center justify-end gap-2 shrink-0">
           <button onClick={onClose} className="px-4 py-2 rounded-xl border border-neutral-gray-light text-sm font-medium hover:bg-neutral-bg-light cursor-pointer bg-white">Cancel</button>
-          <button onClick={handleSave} className="px-6 py-2 rounded-xl bg-brand-red-600 text-white text-sm font-semibold hover:bg-brand-red-700 cursor-pointer">{initial ? 'Update Story' : 'Publish Story'}</button>
+          {onReject && (
+            <button onClick={onReject} className="px-4 py-2 rounded-xl border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-50 cursor-pointer bg-white">Reject</button>
+          )}
+          <button onClick={handleSave} className="px-6 py-2 rounded-xl bg-brand-red-600 text-white text-sm font-semibold hover:bg-brand-red-700 cursor-pointer">{primaryLabel ?? (initial ? 'Update Story' : 'Publish Story')}</button>
         </div>
       </div>
     </div>

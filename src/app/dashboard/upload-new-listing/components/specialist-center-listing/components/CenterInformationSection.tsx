@@ -43,7 +43,7 @@ export default function CenterInformationSection({ info, onChange }: CenterInfor
   return (
     <div className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-2">Fields <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(max 1 selection)</span></label>
+        <label className="block text-sm font-medium text-neutral-black mb-2">Fields <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(1 selection max)</span></label>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {CENTER_FIELDS.map(field => (
             <label key={field} className={cn(
@@ -109,7 +109,7 @@ export default function CenterInformationSection({ info, onChange }: CenterInfor
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-2">Ownership <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(max 1 selection)</span></label>
+        <label className="block text-sm font-medium text-neutral-black mb-2">Ownership <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(1 selection max)</span></label>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {CENTER_OWNERSHIP_OPTIONS.map(own => (
             <label key={own} className={cn(

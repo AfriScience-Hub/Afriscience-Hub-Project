@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import ProgramsHeader from './components/ProgramsHeader';
 import ProgramsStats from './components/ProgramsStats';
 import ProgramsTable from './components/ProgramsTable';
-import DonationsPagination from '../components/DonationsPagination';
+import Pagination from '@/app/admin/components/Pagination';
 import { ADMIN_ROUTES } from '@/app/admin/data/routes';
 import { getPrograms, setProgramHidden, type SupportProgram } from '../data';
 
@@ -67,7 +67,7 @@ export default function ProgramsPage() {
 
       <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
         <ProgramsTable rows={paginated} onEdit={handleEdit} onToggleHidden={handleToggleHidden} />
-        <DonationsPagination
+        <Pagination
           page={safePage}
           totalPages={totalPages}
           shownFrom={filtered.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1}

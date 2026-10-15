@@ -125,7 +125,7 @@ export default function ScientistFeesSection({ services, fees, onChange }: Scien
             type="button"
             size="sm"
             variant="outline"
-            className="mt-3 border-dashed"
+            className="mt-3 border-red-600"
             onClick={() => {
               if (fees.otherCharges.length >= 20) return toast.error('Maximum number of charges reached');
               onChange({ otherCharges: [...fees.otherCharges, { ...EMPTY_CHARGE }] });

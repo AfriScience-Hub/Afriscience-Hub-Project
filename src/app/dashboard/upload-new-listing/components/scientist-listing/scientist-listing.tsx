@@ -8,7 +8,7 @@ import { fetchFullProfile } from '@/store/profileSlice';
 import FormActions from '../FormActions';
 import UndertakingSection from '../UndertakingSection';
 import { useRouter } from 'next/navigation';
-import { type DocEntry } from '../DocList';
+import { type DocEntry, EMPTY_DOC } from '../DocList';
 import ScientistProfileSection from './components/ScientistProfileSection';
 import ProfessionalDetailsSection from './components/ProfessionalDetailsSection';
 import ScientistFeesSection from './components/ScientistFeesSection';
@@ -49,8 +49,8 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
   const [fees, setFees] = useState<ScientistFees>(EMPTY_FEES);
   const [scopes, setScopes] = useState<string[]>([]);
   const [policies, setPolicies] = useState<string[]>([]);
-  const [certifications, setCertifications] = useState<DocEntry[]>([]);
-  const [achievements, setAchievements] = useState<DocEntry[]>([]);
+  const [certifications, setCertifications] = useState<DocEntry[]>([EMPTY_DOC]);
+  const [achievements, setAchievements] = useState<DocEntry[]>([EMPTY_DOC]);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [contact, setContact] = useState<ScientistContact>(EMPTY_CONTACT);
   const [agreed, setAgreed] = useState(false);
@@ -75,7 +75,7 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
     setProfile(EMPTY_PROFILE);
     setDetails(EMPTY_DETAILS);
     setFees(EMPTY_FEES);
-    setScopes([]); setPolicies([]); setCertifications([]); setAchievements([]);
+    setScopes([]); setPolicies([]); setCertifications([EMPTY_DOC]); setAchievements([EMPTY_DOC]);
     setMedia([]); setContact(EMPTY_CONTACT); setAgreed(false);
   };
 

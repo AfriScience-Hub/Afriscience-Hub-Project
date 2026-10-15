@@ -24,9 +24,23 @@ export interface Donation {
   program: string;
   currency: 'NGN' | 'USD' | 'GHS' | 'GBP';
   amount: number;
+  /** USD equivalent of `amount` (for range-filtered dashboard totals) */
+  usd: number;
   date: string;
   time: string;
+  /** Sortable timestamp (UTC ms) for date-range filtering */
+  ts: number;
 }
+
+/** Mock conversion used for USD-equivalent dashboard totals. */
+const toUsd = (currency: Donation['currency'], n: number): number => {
+  switch (currency) {
+    case 'USD': return n;
+    case 'NGN': return Math.round(n / 1500);
+    case 'GHS': return Math.round(n / 13);
+    case 'GBP': return Math.round(n * 1.27);
+  }
+};
 
 /* ------------------------------------------------------------------ */
 /* Support programs store (module-level so Hide/Create/Edit persist   */
@@ -136,17 +150,17 @@ const AVATAR_IDS = [
 ];
 
 /** The ten rows shown in the design mockup, in order. */
-const SEED_DONATIONS: Omit<Donation, 'id'>[] = [
-  { donor: 'Chidera Okafor', avatar: img(AVATAR_IDS[0]), initialsCls: null, program: 'Career Support', currency: 'NGN', amount: 200000, date: 'May 27, 2025', time: '10:24 AM' },
-  { donor: 'Amina Yusuf', avatar: img(AVATAR_IDS[2]), initialsCls: null, program: 'Research Support', currency: 'USD', amount: 500, date: 'May 26, 2025', time: '02:15 PM' },
-  { donor: 'Daniel Tetteh', avatar: null, initialsCls: 'bg-green-100 text-green-700', program: 'Educational Scholarship', currency: 'GHS', amount: 1000, date: 'May 25, 2025', time: '04:30 PM' },
-  { donor: 'Grace Bello', avatar: img(AVATAR_IDS[4]), initialsCls: null, program: 'Career Support', currency: 'NGN', amount: 150000, date: 'May 24, 2025', time: '11:10 AM' },
-  { donor: 'Emeka Daniel', avatar: img(AVATAR_IDS[1]), initialsCls: null, program: 'Research Support', currency: 'NGN', amount: 300000, date: 'May 23, 2025', time: '09:45 AM' },
-  { donor: 'Favour Uchenna', avatar: null, initialsCls: 'bg-purple-100 text-purple-600', program: 'Educational Scholarship', currency: 'USD', amount: 250, date: 'May 22, 2025', time: '03:20 PM' },
-  { donor: 'David Nnaji', avatar: img(AVATAR_IDS[3]), initialsCls: null, program: 'Career Support', currency: 'NGN', amount: 100000, date: 'May 21, 2025', time: '01:18 PM' },
-  { donor: 'Susan Adeyemi', avatar: null, initialsCls: 'bg-green-100 text-green-700', program: 'Research Support', currency: 'GBP', amount: 400, date: 'May 20, 2025', time: '05:50 PM' },
-  { donor: 'Ikenna Obi', avatar: img(AVATAR_IDS[5]), initialsCls: null, program: 'Educational Scholarship', currency: 'NGN', amount: 250000, date: 'May 19, 2025', time: '01:14 PM' },
-  { donor: 'Ngozi Eze', avatar: img(AVATAR_IDS[6]), initialsCls: null, program: 'Career Support', currency: 'NGN', amount: 500000, date: 'May 18, 2025', time: '08:30 AM' },
+const SEED_DONATIONS: Omit<Donation, 'id' | 'usd'>[] = [
+  { donor: 'Chidera Okafor', avatar: img(AVATAR_IDS[0]), initialsCls: null, program: 'Career Support', currency: 'NGN', amount: 200000, date: 'May 27, 2025', time: '10:24 AM', ts: Date.UTC(2025, 4, 27) },
+  { donor: 'Amina Yusuf', avatar: img(AVATAR_IDS[2]), initialsCls: null, program: 'Research Support', currency: 'USD', amount: 500, date: 'May 26, 2025', time: '02:15 PM', ts: Date.UTC(2025, 4, 26) },
+  { donor: 'Daniel Tetteh', avatar: null, initialsCls: 'bg-green-100 text-green-700', program: 'Educational Scholarship', currency: 'GHS', amount: 1000, date: 'May 25, 2025', time: '04:30 PM', ts: Date.UTC(2025, 4, 25) },
+  { donor: 'Grace Bello', avatar: img(AVATAR_IDS[4]), initialsCls: null, program: 'Career Support', currency: 'NGN', amount: 150000, date: 'May 24, 2025', time: '11:10 AM', ts: Date.UTC(2025, 4, 24) },
+  { donor: 'Emeka Daniel', avatar: img(AVATAR_IDS[1]), initialsCls: null, program: 'Research Support', currency: 'NGN', amount: 300000, date: 'May 23, 2025', time: '09:45 AM', ts: Date.UTC(2025, 4, 23) },
+  { donor: 'Favour Uchenna', avatar: null, initialsCls: 'bg-purple-100 text-purple-600', program: 'Educational Scholarship', currency: 'USD', amount: 250, date: 'May 22, 2025', time: '03:20 PM', ts: Date.UTC(2025, 4, 22) },
+  { donor: 'David Nnaji', avatar: img(AVATAR_IDS[3]), initialsCls: null, program: 'Career Support', currency: 'NGN', amount: 100000, date: 'May 21, 2025', time: '01:18 PM', ts: Date.UTC(2025, 4, 21) },
+  { donor: 'Susan Adeyemi', avatar: null, initialsCls: 'bg-green-100 text-green-700', program: 'Research Support', currency: 'GBP', amount: 400, date: 'May 20, 2025', time: '05:50 PM', ts: Date.UTC(2025, 4, 20) },
+  { donor: 'Ikenna Obi', avatar: img(AVATAR_IDS[5]), initialsCls: null, program: 'Educational Scholarship', currency: 'NGN', amount: 250000, date: 'May 19, 2025', time: '01:14 PM', ts: Date.UTC(2025, 4, 19) },
+  { donor: 'Ngozi Eze', avatar: img(AVATAR_IDS[6]), initialsCls: null, program: 'Career Support', currency: 'NGN', amount: 500000, date: 'May 18, 2025', time: '08:30 AM', ts: Date.UTC(2025, 4, 18) },
 ];
 
 const EXTRA_DONORS = [
@@ -177,12 +191,14 @@ const buildDonations = (): Donation[] => {
   const rows: Donation[] = SEED_DONATIONS.map((row, i) => ({
     ...row,
     id: `DON-${String(i + 1).padStart(4, '0')}`,
+    usd: toUsd(row.currency, row.amount),
   }));
   const EXTRA = 248 - SEED_DONATIONS.length;
   for (let i = 0; i < EXTRA; i++) {
     const n = SEED_DONATIONS.length + i;
     const currency = CYCLE_CURRENCIES[i % CYCLE_CURRENCIES.length];
     const amounts = AMOUNTS_BY_CURRENCY[currency];
+    const amount = amounts[i % amounts.length];
     const name = EXTRA_DONORS[i % EXTRA_DONORS.length];
     rows.push({
       id: `DON-${String(n + 1).padStart(4, '0')}`,
@@ -191,9 +207,11 @@ const buildDonations = (): Donation[] => {
       initialsCls: i % 3 === 0 ? INITIALS_CLS[i % INITIALS_CLS.length] : null,
       program: CYCLE_PROGRAMS[i % CYCLE_PROGRAMS.length],
       currency,
-      amount: amounts[i % amounts.length],
+      amount,
+      usd: toUsd(currency, amount),
       date: fmtUtcDate(seedTime - i * 86400000),
       time: CYCLE_TIMES[i % CYCLE_TIMES.length],
+      ts: seedTime - i * 86400000,
     });
   }
   return rows;

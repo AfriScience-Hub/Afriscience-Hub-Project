@@ -5,16 +5,13 @@ import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import ScoreHeader from './components/ScoreHeader';
 import ScoringSheet from './components/ScoringSheet';
-import ScoreComments from './components/ScoreComments';
-import JudgingCriteriaCard from './components/JudgingCriteriaCard';
 import { SCORE_CRITERIA, TOTAL_MAX, isValidScore } from './data';
 import { SUBMISSIONS } from '../data';
 
 /**
- * Score Contestant page: a single-column scoring sheet (one row per
- * judging criterion with a Save Score action), followed by optional
- * comments and the weighted judging criteria list. The submission being
- * scored comes from `?id=` and is only referenced on save for now.
+ * Score Contestant page: a single-column scoring sheet — one row per
+ * judging criterion with a Save Score action below. The submission
+ * being scored comes from `?id=` and is only referenced on save for now.
  */
 function ScoreContestantContent() {
   const searchParams = useSearchParams();
@@ -25,7 +22,6 @@ function ScoreContestantContent() {
   );
 
   const [scores, setScores] = useState<Record<string, string>>({});
-  const [comments, setComments] = useState('');
 
   const total = SCORE_CRITERIA.reduce((sum, criterion) => {
     const value = scores[criterion.id];
@@ -50,8 +46,6 @@ function ScoreContestantContent() {
     <div className="space-y-4">
       <ScoreHeader />
       <ScoringSheet scores={scores} onScore={setScore} total={total} complete={complete} onSave={handleSave} />
-      <ScoreComments value={comments} onChange={setComments} />
-      <JudgingCriteriaCard />
     </div>
   );
 }

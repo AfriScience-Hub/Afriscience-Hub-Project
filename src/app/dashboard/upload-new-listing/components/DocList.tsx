@@ -2,6 +2,7 @@
 
 import { Plus, X, FileText, Upload } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { YEARS } from '../data';
 
@@ -18,9 +19,11 @@ interface DocListProps {
   addLabel: string;
   entries: DocEntry[];
   onChange: (entries: DocEntry[]) => void;
+  addButtonClassName?: string;
+  namePlaceholder?: string;
 }
 
-const EMPTY_DOC: DocEntry = { name: '', issuer: '', year: '', file: null, previewUrl: null };
+export const EMPTY_DOC: DocEntry = { name: '', issuer: '', year: '', file: null, previewUrl: null };
 
 function truncateName(name: string, max = 30): string {
   if (name.length <= max) return name;
@@ -29,7 +32,7 @@ function truncateName(name: string, max = 30): string {
   return `${base.slice(0, max - ext.length - 3)}...${ext}`;
 }
 
-export default function DocList({ label, addLabel, entries, onChange }: DocListProps) {
+export default function DocList({ label, addLabel, entries, onChange, addButtonClassName, namePlaceholder }: DocListProps) {
   const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-3 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
 
   const update = (idx: number, patch: Partial<DocEntry>) => {
@@ -71,7 +74,7 @@ export default function DocList({ label, addLabel, entries, onChange }: DocListP
               </button>
             </div>
             <div className="space-y-2">
-              <input type="text" value={entry.name} onChange={(e) => update(idx, { name: e.target.value })} className={inputClass} placeholder={`${label} name`} />
+              <input type="text" value={entry.name} onChange={(e) => update(idx, { name: e.target.value })} className={inputClass} placeholder={namePlaceholder || `${label} name`} />
               <div className="grid grid-cols-2 gap-2">
                 <input type="text" value={entry.issuer} onChange={(e) => update(idx, { issuer: e.target.value })} className={inputClass} placeholder="Issued by" />
                 <select value={entry.year} onChange={(e) => update(idx, { year: e.target.value })} className={`${inputClass} cursor-pointer`}>
@@ -96,7 +99,7 @@ export default function DocList({ label, addLabel, entries, onChange }: DocListP
         type="button"
         size="sm"
         variant="outline"
-        className="mt-3 border-dashed"
+        className={cn("mt-3 border", addButtonClassName)}
         onClick={() => {
           if (entries.length >= 20) return toast.error('Maximum number of entries reached');
           onChange([...entries, { ...EMPTY_DOC }]);

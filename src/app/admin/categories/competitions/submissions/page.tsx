@@ -8,24 +8,21 @@ import SubmissionsStats from './components/SubmissionsStats';
 import SubmissionsFilters, { DEFAULT_SUBMISSIONS_FILTERS, type SubmissionsFilterState } from './components/SubmissionsFilters';
 import SubmissionsTable from './components/SubmissionsTable';
 import SubmissionsPagination from './components/SubmissionsPagination';
-import SubmissionDetailModal from './components/SubmissionDetailModal';
 import { ADMIN_ROUTES } from '@/app/admin/data/routes';
 import { SUBMISSIONS, type CompetitionSubmission } from './data';
 
 const PER_PAGE = 8;
 
 /**
- * View Submissions: filters, table (View Submission opens the detail modal;
- * Score Participants navigates to the scoring page) and the Release Top 30
- * shortlist action.
+ * View Submissions: filters, table (View Submission navigates to the
+ * standalone submission page; Score Participants navigates to the
+ * scoring page) and the Release Top 30 shortlist action.
  */
 export default function CompetitionSubmissionsPage() {
   const router = useRouter();
   const rows = SUBMISSIONS;
   const [filters, setFilters] = useState<SubmissionsFilterState>(DEFAULT_SUBMISSIONS_FILTERS);
   const [page, setPage] = useState(1);
-  const [viewOpen, setViewOpen] = useState(false);
-  const [active, setActive] = useState<CompetitionSubmission | null>(null);
 
   const updateFilters = (patch: Partial<SubmissionsFilterState>) => {
     setFilters((prev) => ({ ...prev, ...patch }));
@@ -68,8 +65,7 @@ export default function CompetitionSubmissionsPage() {
   const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
 
   const handleView = (row: CompetitionSubmission) => {
-    setActive(row);
-    setViewOpen(true);
+    router.push(`${ADMIN_ROUTES.competitionsSubmissionView}?id=${row.id}`);
   };
 
   const handleScore = (row: CompetitionSubmission) => {
@@ -103,8 +99,6 @@ export default function CompetitionSubmissionsPage() {
           onChange={setPage}
         />
       </div>
-
-      <SubmissionDetailModal submission={active} open={viewOpen} onClose={() => setViewOpen(false)} />
     </div>
   );
 }

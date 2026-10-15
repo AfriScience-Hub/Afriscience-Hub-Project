@@ -1,6 +1,6 @@
 export interface CompetitionSubmission {
   id: string;
-  /** Competition entry title (only shown in the full-submission modal) */
+  /** Competition entry title (only shown in the full-submission view page) */
   title: string;
   participant: string;
   email: string;

@@ -48,7 +48,7 @@ const quickActions = [
   { label: 'Add Innovation', icon: Lightbulb, href: '/admin/categories/afro-innovations' },
   { label: 'Add Competition', icon: Trophy, href: '/admin/categories/competitions' },
   { label: 'Create Award', icon: Award, href: '/admin/categories/awards' },
-  { label: 'Publish Impact Story', icon: BookOpen, href: '/admin/categories/impact-stories' },
+  { label: 'Publish Impact Story', icon: BookOpen, href: '/admin/categories/impact-stories/all' },
   { label: 'Send Announcement', icon: Send, href: '/admin/notifications' },
   { label: 'Verify User', icon: UserCheck, href: '/admin/verification-centre' },
 ];

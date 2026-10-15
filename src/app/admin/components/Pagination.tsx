@@ -2,13 +2,13 @@
 
 import React, { useMemo } from 'react';
 
-interface DonationsPaginationProps {
+interface PaginationProps {
   page: number;
   totalPages: number;
   shownFrom: number;
   shownTo: number;
   total: number;
-  /** 'donations' or 'programs' — used in the "Showing X to Y of Z ..." line */
+  /** e.g. 'donations' or 'applications' — used in "Showing X to Y of Z ..." */
   noun: string;
   onChange: (page: number) => void;
 }
@@ -19,9 +19,9 @@ type PageItem = number | 'gap';
  * "Showing 1 to 10 of 248 donations" + windowed pagination
  * (e.g. ‹ 1 2 3 … 25 ›) so long lists don't render every page button.
  */
-export default function DonationsPagination({
+export default function Pagination({
   page, totalPages, shownFrom, shownTo, total, noun, onChange,
-}: DonationsPaginationProps) {
+}: PaginationProps) {
   const pages = useMemo<PageItem[]>(() => {
     const candidates = new Set<number>([1, totalPages, page - 1, page, page + 1]);
     // First page also shows page 3, matching the design (1 2 3 … 25).

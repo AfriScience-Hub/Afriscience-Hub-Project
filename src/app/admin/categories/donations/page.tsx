@@ -5,7 +5,7 @@ import DonationsHeader from './components/DonationsHeader';
 import DonationsStats from './components/DonationsStats';
 import DonationsFilters, { DEFAULT_DONATION_FILTERS, type DonationsFilterState } from './components/DonationsFilters';
 import DonationsTable from './components/DonationsTable';
-import DonationsPagination from './components/DonationsPagination';
+import Pagination from '@/app/admin/components/Pagination';
 import { DONATIONS, getPrograms } from './data';
 
 const PER_PAGE = 10;
@@ -52,7 +52,7 @@ export default function DonationsPage() {
 
       <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
         <DonationsTable rows={paginated} />
-        <DonationsPagination
+        <Pagination
           page={safePage}
           totalPages={totalPages}
           shownFrom={filtered.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1}
