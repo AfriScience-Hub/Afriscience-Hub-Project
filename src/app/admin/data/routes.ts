@@ -21,6 +21,7 @@ export const ADMIN_ROUTES = {
   competitionsSubmissions: '/admin/categories/competitions/submissions',
   competitionsScore: '/admin/categories/competitions/submissions/score',
   awards: '/admin/categories/awards',
+  awardsCreate: '/admin/categories/awards/create',
   impactStories: '/admin/categories/impact-stories',
   donations: '/admin/categories/donations',
 
