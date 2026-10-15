@@ -90,6 +90,7 @@ function DocList({ docs }: { docs: DocEntry[] }) {
 function IdentitySection({ item }: { item: any }) {
   const fields = toStringArray(item.fields, ['field', 'name', 'title', 'value']);
   const interests = toStringArray(item.interests, ['interest', 'name', 'title', 'value']);
+  const userGroups = toStringArray(item.userGroups, ['userGroup', 'group', 'name', 'title', 'value']);
 
   return (
     <CollapsibleSection title="Innovation Identity" icon={<IdCard className="h-5 w-5 text-brand-red-600" />} defaultOpen>
@@ -101,6 +102,10 @@ function IdentitySection({ item }: { item: any }) {
         <div>
           <p className="text-[11px] font-semibold text-neutral-gray-medium uppercase mb-1.5">Interests</p>
           <Chips items={interests} tone="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-xs font-medium text-amber-700" />
+        </div>
+        <div>
+          <p className="text-[11px] font-semibold text-neutral-gray-medium uppercase mb-1.5">User Groups</p>
+          <Bullets items={userGroups} />
         </div>
         <div className="grid gap-4 pt-4 border-t border-neutral-gray-light sm:grid-cols-2">
           <Field label="Country" value={item.country} />
@@ -119,7 +124,7 @@ function IdentitySection({ item }: { item: any }) {
 
 function DetailsSection({ item }: { item: any }) {
   const sdgs = toStringArray(item.sdgs, ['sdg', 'name', 'title', 'value', 'goal']);
-  const materials = item.materialsUsed ? String(item.materialsUsed).split(', ').filter(Boolean) : [];
+  const materials = Array.isArray(item.materialsUsed) ? item.materialsUsed : item.materialsUsed ? String(item.materialsUsed).split(', ').filter(Boolean) : [];
   const dims = [item.length, item.width, item.height].filter(v => v != null && v !== '').join(' \u00d7 ');
   const weight = [item.weight, item.weightUnit].filter(Boolean).join(' ');
 
@@ -135,7 +140,6 @@ function DetailsSection({ item }: { item: any }) {
           <p className="flex items-center gap-1.5 text-xs font-bold text-neutral-gray-medium uppercase">
             <Wrench className="h-4 w-4" /> Specifications
           </p>
-          <Field label="Specification" value={item.specification} />
           <div>
             <p className="text-[11px] font-semibold text-neutral-gray-medium uppercase mb-1">Materials Used</p>
             <Chips items={materials} />

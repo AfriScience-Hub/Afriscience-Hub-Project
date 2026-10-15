@@ -3,32 +3,41 @@ export interface Competition {
   name: string;
   category: string;
   categoryColor: string;
+  country: string;
   participants: number;
   votes: number;
   status: 'Ongoing' | 'Upcoming' | 'Completed';
   endsIn?: string;
   endDate?: string;
+  /** ISO date (YYYY-MM-DD) used for date-range filtering */
+  endDateISO?: string;
   logo: string;
   expected?: number;
   startsIn?: string;
   startDate?: string;
+  /** ISO date (YYYY-MM-DD) used for date-range filtering */
+  startDateISO?: string;
 }
 
 const LOGO = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb21wZXRpdGlvbnxlbnwxfHx8fDE3NzIzODY1MzV8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 export const ONGOING_COMPETITIONS: Competition[] = [
-  { id: 1, name: 'AI for Africa Challenge 2025', category: 'Technology', categoryColor: 'bg-blue-100 text-blue-700', participants: 512, votes: 18245, status: 'Ongoing', endsIn: '12 days left', endDate: 'Jun 08, 2025', logo: LOGO },
-  { id: 2, name: 'Young Innovators Africa', category: 'Innovation', categoryColor: 'bg-purple-100 text-purple-700', participants: 423, votes: 12876, status: 'Ongoing', endsIn: '18 days left', endDate: 'Jun 14, 2025', logo: LOGO },
-  { id: 3, name: 'Africa Green Energy Prize', category: 'Environment', categoryColor: 'bg-green-100 text-green-700', participants: 367, votes: 9432, status: 'Ongoing', endsIn: '24 days left', endDate: 'Jun 20, 2025', logo: LOGO },
-  { id: 4, name: 'African Research Excellence', category: 'Research', categoryColor: 'bg-orange-100 text-orange-700', participants: 298, votes: 7654, status: 'Ongoing', endsIn: '27 days left', endDate: 'Jun 23, 2025', logo: LOGO },
+  { id: 1, name: 'AI for Africa Challenge 2025', category: 'Technology', categoryColor: 'bg-blue-100 text-blue-700', country: 'Nigeria', participants: 512, votes: 18245, status: 'Ongoing', endsIn: '12 days left', endDate: 'Jun 08, 2025', endDateISO: '2025-06-08', logo: LOGO },
+  { id: 2, name: 'Young Innovators Africa', category: 'Innovation', categoryColor: 'bg-purple-100 text-purple-700', country: 'Ghana', participants: 423, votes: 12876, status: 'Ongoing', endsIn: '18 days left', endDate: 'Jun 14, 2025', endDateISO: '2025-06-14', logo: LOGO },
+  { id: 3, name: 'Africa Green Energy Prize', category: 'Environment', categoryColor: 'bg-green-100 text-green-700', country: 'Kenya', participants: 367, votes: 9432, status: 'Ongoing', endsIn: '24 days left', endDate: 'Jun 20, 2025', endDateISO: '2025-06-20', logo: LOGO },
+  { id: 4, name: 'African Research Excellence', category: 'Research', categoryColor: 'bg-orange-100 text-orange-700', country: 'South Africa', participants: 298, votes: 7654, status: 'Ongoing', endsIn: '27 days left', endDate: 'Jun 23, 2025', endDateISO: '2025-06-23', logo: LOGO },
 ];
 
 export const UPCOMING_COMPETITIONS: Competition[] = [
-  { id: 5, name: 'Robotics Africa Cup 2025', category: 'Technology', categoryColor: 'bg-blue-100 text-blue-700', participants: 0, votes: 0, status: 'Upcoming', expected: 312, startsIn: 'Starts in 8 days', startDate: 'Jun 05, 2025', logo: LOGO },
-  { id: 6, name: 'Healthcare Innovation Challenge', category: 'Health', categoryColor: 'bg-pink-100 text-pink-700', participants: 0, votes: 0, status: 'Upcoming', expected: 280, startsIn: 'Starts in 18 days', startDate: 'Jun 15, 2025', logo: LOGO },
-  { id: 7, name: 'Agritech Solutions Africa', category: 'Agriculture', categoryColor: 'bg-green-100 text-green-700', participants: 0, votes: 0, status: 'Upcoming', expected: 256, startsIn: 'Starts in 23 days', startDate: 'Jun 20, 2025', logo: LOGO },
-  { id: 8, name: 'STEM Hackathon Africa', category: 'Education', categoryColor: 'bg-yellow-100 text-yellow-700', participants: 0, votes: 0, status: 'Upcoming', expected: 350, startsIn: 'Starts in 31 days', startDate: 'Jun 28, 2025', logo: LOGO },
+  { id: 5, name: 'Robotics Africa Cup 2025', category: 'Technology', categoryColor: 'bg-blue-100 text-blue-700', country: 'Nigeria', participants: 0, votes: 0, status: 'Upcoming', expected: 312, startsIn: 'Starts in 8 days', startDate: 'Jun 05, 2025', startDateISO: '2025-06-05', logo: LOGO },
+  { id: 6, name: 'Healthcare Innovation Challenge', category: 'Health', categoryColor: 'bg-pink-100 text-pink-700', country: 'Kenya', participants: 0, votes: 0, status: 'Upcoming', expected: 280, startsIn: 'Starts in 18 days', startDate: 'Jun 15, 2025', startDateISO: '2025-06-15', logo: LOGO },
+  { id: 7, name: 'Agritech Solutions Africa', category: 'Agriculture', categoryColor: 'bg-green-100 text-green-700', country: 'South Africa', participants: 0, votes: 0, status: 'Upcoming', expected: 256, startsIn: 'Starts in 23 days', startDate: 'Jun 20, 2025', startDateISO: '2025-06-20', logo: LOGO },
+  { id: 8, name: 'STEM Hackathon Africa', category: 'Education', categoryColor: 'bg-yellow-100 text-yellow-700', country: 'Ghana', participants: 0, votes: 0, status: 'Upcoming', expected: 350, startsIn: 'Starts in 31 days', startDate: 'Jun 28, 2025', startDateISO: '2025-06-28', logo: LOGO },
 ];
+
+export const STATUS_OPTIONS = ['All Status', 'Ongoing', 'Upcoming', 'Completed'] as const;
+export const CATEGORY_OPTIONS = ['All Categories', 'Technology', 'Innovation', 'Environment', 'Research', 'Health', 'Agriculture', 'Education'] as const;
+export const COUNTRY_OPTIONS = ['All Countries', 'Nigeria', 'Ghana', 'Kenya', 'South Africa'] as const;
 
 export const STATS = [
   { label: 'Total Competitions', value: '24', change: '↑ 14.3% this month', positive: true, iconBg: 'bg-purple-100 text-purple-600', icon: 'trophy' },
@@ -39,7 +48,7 @@ export const STATS = [
   { label: 'Total Votes Cast', value: '128,547', change: '↑ 18.7% this month', positive: true, iconBg: 'bg-yellow-100 text-yellow-600', icon: 'star' },
 ];
 
-export const TABS = ['Overview', 'All Competitions', 'Submissions', 'Judges', 'Leaderboard', 'Categories', 'Reports'];
+export const TABS = ['Overview', 'All Competitions', 'Submissions', 'Reports'];
 
 export const PARTICIPANTS_BY_TYPE = [
   { name: 'Students', percent: '42.5%', count: 1336, color: 'bg-blue-500' },
@@ -71,12 +80,7 @@ export const TREND_DATA = [
   { label: 'May 27', value: 24 },
 ];
 
-export const QUICK_ACTIONS = [
-  { label: 'View Dashboard', description: 'Overview and analytics', icon: 'dashboard' },
-  { label: 'Manage Competitions', description: 'All competitions list', icon: 'manage' },
-  { label: 'View Submissions', description: 'Review all submissions', icon: 'submissions' },
-  { label: 'Judges Management', description: 'Manage judges and scoring', icon: 'judges' },
-  { label: 'Leaderboard', description: 'View all leaderboards', icon: 'leaderboard' },
-  { label: 'Competition Categories', description: 'Manage categories', icon: 'categories' },
-  { label: 'Settings', description: 'Competition settings', icon: 'settings' },
+export const COMPETITION_PAGES = [
+  { label: 'All Competitions', description: 'Browse and manage competitions', icon: 'manage', href: '/admin/categories/competitions/all' },
+  { label: 'View Submissions', description: 'Review all submissions', icon: 'submissions', href: '/admin/categories/competitions/submissions' },
 ];

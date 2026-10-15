@@ -51,13 +51,15 @@ export default function ListingDetail() {
             <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/my-listings')}>
               <ArrowLeft className="mr-1 h-4 w-4" /> Back
             </Button>
-            <Button
-              size="sm"
-              className="bg-brand-red-600 hover:bg-brand-red-700"
-              onClick={() => router.push(`/dashboard/upload-new-listing?id=${id}`)}
-            >
-              <Pencil className="mr-1 h-4 w-4" /> Edit
-            </Button>
+            {['Pending_Verification', 'Pending Verification'].includes(item.status) && (
+              <Button
+                size="sm"
+                className="bg-brand-red-600 hover:bg-brand-red-700"
+                onClick={() => router.push(`/dashboard/upload-new-listing?id=${id}`)}
+              >
+                <Pencil className="mr-1 h-4 w-4" /> Edit
+              </Button>
+            )}
           </div>
         </div>
       </div>

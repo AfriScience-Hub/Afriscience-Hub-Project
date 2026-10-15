@@ -2,10 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { toast } from 'sonner';
 import { X, Plus, Upload, FileText, ImagePlus, Film, ChevronDown, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { uploadFile } from '@/lib/upload';
 import {
   INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS,
   INNOVATION_OWNERSHIP, INNOVATION_SDGS,
@@ -14,8 +12,8 @@ import {
 
 interface Dimensions { length: string; width: string; height: string; unit: string; }
 interface Weight { value: string; unit: string; }
-interface GalleryFile { category: string; type: 'image' | 'video'; name: string; caption: string; }
-interface LicenseDoc { title: string; issuer: string; date: string; file: string; }
+interface GalleryFile { category: string; type: 'image' | 'video'; name: string; file?: File; }
+interface LicenseDoc { title: string; issuer: string; date: string; file: string; fileObj?: File; }
 
 interface InnovationDetailsSectionProps {
   innovFields: string[]; setInnovFields: (v: string[] | ((p: string[]) => string[])) => void;
@@ -37,6 +35,7 @@ interface InnovationDetailsSectionProps {
 }
 
 const DIMENSION_UNITS = ['mm', 'cm', 'in', 'ft', 'm'];
+const DIMENSION_UNIT_PAYLOAD: Record<string, string> = { mm: 'MM', cm: 'CM', in: 'INCH', ft: 'FT', m: 'M' };
 const WEIGHT_UNITS = ['mg', 'g', 'oz', 'lb', 'kg', 't'];
 const GALLERY_CATEGORIES = ['Working Materials', 'Work-in-Progress', 'Finished Work'];
 const MAX_GALLERY = 3;
@@ -243,16 +242,12 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
     const [docFile, setDocFile] = useState<File | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
 
-    const handleUpload = async () => {
+    // Files are staged locally — nothing uploads until the form is submitted.
+    const handleAdd = () => {
       if (!docTitle.trim() || !docIssuer.trim() || !docDate.trim() || !docFile) return;
-      try {
-        const uploaded = await uploadFile(docFile);
-        setItems(p => [...p, { title: docTitle.trim(), issuer: docIssuer.trim(), date: docDate.trim(), file: uploaded.key || uploaded.url }]);
-        setDocTitle(''); setDocIssuer(''); setDocDate(''); setDocFile(null);
-        if (fileRef.current) fileRef.current.value = '';
-      } catch {
-        toast.error('Failed to upload document. Please try again.');
-      }
+      setItems(p => [...p, { title: docTitle.trim(), issuer: docIssuer.trim(), date: docDate.trim(), file: docFile.name, fileObj: docFile }]);
+      setDocTitle(''); setDocIssuer(''); setDocDate(''); setDocFile(null);
+      if (fileRef.current) fileRef.current.value = '';
     };
 
     const [yearInput, setYearInput] = useState('');
@@ -284,7 +279,7 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
       setYearOpen(true);
     };
 
-    const canUpload = docTitle.trim() && docIssuer.trim() && docDate.trim() && docFile;
+    const canAdd = docTitle.trim() && docIssuer.trim() && docDate.trim() && docFile;
 
     return (
       <div>
@@ -337,9 +332,9 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
               className="flex cursor-pointer items-center gap-1 rounded-lg border border-dashed border-brand-red-300 px-3 py-2 text-xs font-medium text-brand-red-600 hover:bg-brand-red-50 transition-colors flex-1 justify-center">
               <Upload className="h-3.5 w-3.5" /> {docFile ? docFile.name : 'Select file (PDF, JPG, PNG) *'}
             </button>
-            <button type="button" onClick={handleUpload} disabled={!canUpload}
+            <button type="button" onClick={handleAdd} disabled={!canAdd}
               className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 px-4 py-2 text-xs font-medium text-white hover:bg-brand-red-700 disabled:opacity-40 disabled:cursor-not-allowed">
-              <Upload className="h-3.5 w-3.5" /> Upload
+              <Plus className="h-3.5 w-3.5" /> Add
             </button>
           </div>
         </div>
@@ -399,7 +394,7 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
               {(['length', 'width', 'height'] as const).map(dim => (
                 <div key={dim} className="flex-1">
                   <label className="block text-[11px] font-medium text-neutral-gray-medium mb-1 capitalize">{dim}</label>
-                  <input type="text" value={props.innovDimensions[dim]}
+                  <input type="number" step="any" min="0" value={props.innovDimensions[dim] || ''}
                     onChange={e => props.setInnovDimensions(p => ({ ...p, [dim]: e.target.value }))}
                     className="w-full rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="0" />
                 </div>
@@ -420,7 +415,7 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
             <p className="text-xs text-neutral-gray-medium mb-2">State innovation weight</p>
             <div className="flex items-end gap-3 max-w-xs">
               <div className="flex-1">
-                <input type="text" value={props.innovWeight.value}
+                <input type="number" step="any" min="0" value={props.innovWeight.value || ''}
                   onChange={e => props.setInnovWeight(p => ({ ...p, value: e.target.value }))}
                   className="w-full rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="0" />
               </div>
@@ -537,27 +532,17 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
                               <X className="h-3.5 w-3.5" />
                             </button>
                           </div>
-                          <div className="mt-2 w-full">
-                            <label className="mb-0.5 block text-[10px] font-semibold text-neutral-gray-dark">CAPTION</label>
-                            <input type="text" value={file.caption}
-                              onChange={e => props.setInnovGallery(p => p.map((f, j) => j === gi ? { ...f, caption: e.target.value } : f))}
-                              className="w-full rounded-md border border-black bg-white px-2.5 py-1.5 text-[11px] focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Write a caption..." />
-                          </div>
                         </div>
                       );
                     })}
                   </div>
                 )}
                 <input type="file" accept="image/*,video/*" className="hidden" id={`gallery-${cat}`}
-                  onChange={async e => {
+                  onChange={e => {
+                    // Staged locally — uploaded only when the form is submitted.
                     const file = e.target.files?.[0];
                     if (file && props.innovGallery.length < 9) {
-                      try {
-                        const uploaded = await uploadFile(file);
-                        props.setInnovGallery(p => [...p, { category: cat, type: file.type.startsWith('video') ? 'video' : 'image', name: uploaded.key || uploaded.url, caption: '' }]);
-                      } catch {
-                        toast.error('Failed to upload media. Please try again.');
-                      }
+                      props.setInnovGallery(p => [...p, { category: cat, type: file.type.startsWith('video') ? 'video' : 'image', name: file.name, file }]);
                     }
                     e.target.value = '';
                   }} />

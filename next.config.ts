@@ -32,6 +32,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'flagcdn.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'afriscience-buckset.s3.eu-north-1.amazonaws.com',
       },
     ],

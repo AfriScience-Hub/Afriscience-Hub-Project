@@ -8,8 +8,8 @@ import InnovatorInfoSection, { type SocialHandle } from './components/InnovatorI
 
 interface Dimensions { length: string; width: string; height: string; unit: string; }
 interface Weight { value: string; unit: string; }
-interface GalleryFile { category: string; type: 'image' | 'video'; name: string; caption: string; }
-interface LicenseDoc { title: string; issuer: string; date: string; file: string; }
+interface GalleryFile { category: string; type: 'image' | 'video'; name: string; file?: File; }
+interface LicenseDoc { title: string; issuer: string; date: string; file: string; fileObj?: File; }
 
 interface AfroInnovationListingProps {
   name: string; setName: (v: string) => void;

@@ -1,6 +1,6 @@
 'use client';
 
-import { Eye, ThumbsUp, Star, Edit, ExternalLink, Archive, Trash2 } from 'lucide-react';
+import { Eye, ThumbsUp, Star, Edit, ExternalLink } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { cn } from '@/lib/utils';
 
@@ -52,10 +52,10 @@ export function ListingCard({ listing, onEdit, onPreview }: ListingCardProps) {
           <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5" /> {listing.reviews}</span>
         </div>
         <div className="flex items-center gap-2 mt-3 pt-3 border-t border-neutral-gray-light">
-          <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={onEdit}><Edit className="h-3 w-3 mr-1" /> Edit</Button>
+          {['Pending_Verification', 'Pending Verification'].includes(listing.status) && (
+            <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={onEdit}><Edit className="h-3 w-3 mr-1" /> Edit</Button>
+          )}
           <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={onPreview}><ExternalLink className="h-3 w-3 mr-1" /> Preview</Button>
-          <Button size="sm" variant="outline" className="text-xs px-2"><Archive className="h-3.5 w-3.5" /></Button>
-          <Button size="sm" variant="outline" className="text-xs px-2 text-red-500 hover:text-red-600"><Trash2 className="h-3.5 w-3.5" /></Button>
         </div>
       </div>
     </div>

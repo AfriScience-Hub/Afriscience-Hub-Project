@@ -66,7 +66,6 @@ export const SIDEBAR_NAV: SidebarItem[] = [
       { label: 'Special Centres', href: ADMIN_ROUTES.specialCentres },
       { label: 'Afro Innovations', href: ADMIN_ROUTES.afroInnovations },
       { label: 'Competitions', href: ADMIN_ROUTES.competitions },
-      { label: 'Voting', href: ADMIN_ROUTES.voting },
       { label: 'Awards', href: ADMIN_ROUTES.awards },
       { label: 'Impact Stories', href: ADMIN_ROUTES.impactStories },
       { label: 'Donations', href: ADMIN_ROUTES.donations },

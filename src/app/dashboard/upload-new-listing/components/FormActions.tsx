@@ -8,9 +8,10 @@ interface FormActionsProps {
   onDraft: () => void;
   onSubmit: () => void;
   disabled?: boolean;
+  submitLabel?: string;
 }
 
-export default function FormActions({ onCancel, onDraft, onSubmit, disabled }: FormActionsProps) {
+export default function FormActions({ onCancel, onDraft, onSubmit, disabled, submitLabel = 'Submit for Review' }: FormActionsProps) {
   const submitClass = 'bg-brand-navy-900 hover:bg-brand-navy-800 disabled:opacity-40 disabled:cursor-not-allowed';
 
   return (
@@ -25,7 +26,7 @@ export default function FormActions({ onCancel, onDraft, onSubmit, disabled }: F
             Save as Draft
           </Button>
           <Button onClick={onSubmit} disabled={disabled} className={`gap-2 ${submitClass}`}>
-            <Upload className="h-4 w-4" /> Submit for Review
+            <Upload className="h-4 w-4" /> {submitLabel}
           </Button>
         </div>
       </div>
@@ -41,7 +42,7 @@ export default function FormActions({ onCancel, onDraft, onSubmit, disabled }: F
           </Button>
         </div>
         <Button onClick={onSubmit} disabled={disabled} className={`w-full justify-center gap-2 ${submitClass}`}>
-          <Upload className="h-4 w-4" /> Submit for Review
+          <Upload className="h-4 w-4" /> {submitLabel}
         </Button>
       </div>
 

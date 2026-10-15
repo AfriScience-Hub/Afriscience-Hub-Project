@@ -12,7 +12,7 @@ export interface InnovationPayload {
   stage: string;
   sdgs: string[];
   specification: string;
-  materialsUsed: string;
+  materialsUsed: string[];
   length: number;
   width: number;
   height: number;
@@ -20,10 +20,10 @@ export interface InnovationPayload {
   weight: number;
   weightUnit: string;
   userGroups: { userGroup: string; isCustom: boolean }[];
-  applications: string;
-  impact: string;
-  recommendations: string;
-  cautions: string;
+  applications: string[];
+  impact: string[];
+  recommendations: string[];
+  cautions: string[];
   documents: { type: string; documentTitle: string; issuer: string; year: number; documentFile: string }[];
   media: { category: string; mediaFile: string }[];
   socials: { platform: string; link: string }[];
@@ -60,6 +60,8 @@ const MEDIA: Record<string, string> = {
   'Finished Work': 'FINISHED_WORK',
 };
 
+const DIMENSION_UNIT_PAYLOAD: Record<string, string> = { mm: 'MM', cm: 'CM', in: 'INCH', ft: 'FT', m: 'M' };
+
 const REV = <T extends Record<string, string>>(map: T) =>
   Object.fromEntries(Object.entries(map).map(([k, v]) => [v, k])) as Record<string, string>;
 
@@ -86,7 +88,6 @@ export function buildInnovationPayload(input: {
   innovGallery: { category: string; name: string }[];
   socialHandles: { name: string; link: string }[];
 }): InnovationPayload {
-  const materials = input.innovMaterials.join(', ');
   const docs = [
     ...input.innovLicenses.map(d => ({ type: 'CERTIFICATION', documentTitle: d.title, issuer: d.issuer, year: Number(d.date) || 0, documentFile: d.file })),
     ...input.innovAwards.map(d => ({ type: 'AWARD', documentTitle: d.title, issuer: d.issuer, year: Number(d.date) || 0, documentFile: d.file })),
@@ -101,22 +102,22 @@ export function buildInnovationPayload(input: {
     ownership: OWNERSHIP[input.innovOwnership] || input.innovOwnership.toUpperCase().replace(/[^A-Z]+/g, '_'),
     stage: STAGE[input.innovStage] || input.innovStage.toUpperCase().replace(/[^A-Z]+/g, '_'),
     sdgs: input.innovSdgs.map(s => SDG[s] || s),
-    specification: materials || input.bio,
-    materialsUsed: materials,
+    specification: input.innovMaterials.join(', ') || input.bio,
+    materialsUsed: input.innovMaterials,
     length: num(input.innovDimensions.length),
     width: num(input.innovDimensions.width),
     height: num(input.innovDimensions.height),
-    dimensionUnit: (input.innovDimensions.unit || 'cm').toUpperCase(),
+    dimensionUnit: DIMENSION_UNIT_PAYLOAD[input.innovDimensions.unit] || input.innovDimensions.unit.toUpperCase(),
     weight: num(input.innovWeight.value),
     weightUnit: (input.innovWeight.unit || 'kg').toUpperCase(),
     userGroups: input.innovUserGroups.map(userGroup => ({
       userGroup,
       isCustom: !INNOVATION_USER_GROUPS.includes(userGroup),
     })),
-    applications: input.innovApplications.join('\n'),
-    impact: input.innovImpact.join('\n'),
-    recommendations: input.innovRecommendations.join('\n'),
-    cautions: input.innovCautions.join('\n'),
+    applications: input.innovApplications,
+    impact: input.innovImpact,
+    recommendations: input.innovRecommendations,
+    cautions: input.innovCautions,
     documents: docs,
     media: input.innovGallery.map(m => ({
       category: MEDIA[m.category] || m.category,

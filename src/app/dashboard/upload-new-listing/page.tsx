@@ -11,6 +11,7 @@ import ListingTypeSelector from './components/ListingTypeSelector';
 import BasicProfileSection from './components/BasicProfileSection';
 import CategorySpecificSection from './components/CategorySpecificSection';
 import AfroInnovationListing from './components/afro-innovation-listing/afro-innovation-listing';
+import { firstSocialError } from './components/afro-innovation-listing/components/InnovatorInfoSection';
 import SpecialistCenterListing from './components/specialist-center-listing/specialist-center-listing';
 import ScientistListing from './components/scientist-listing/scientist-listing';
 import ContactSection from './components/ContactSection';
@@ -62,6 +63,8 @@ export default function UploadNewListing() {
   const router = useRouter();
   const personal = useAppSelector((s) => s.profile.personal);
   const [editId, setEditId] = useState<string | null>(null);
+  const [editBaseline, setEditBaseline] = useState<string | null>(null);
+  const [prefilled, setPrefilled] = useState(false);
   const [saving, setSaving] = useState(false);
   const [selectedType, setSelectedType] = useState<ListingType | null>(null);
   const [step, setStep] = useState<'select' | 'form'>('select');
@@ -112,9 +115,9 @@ export default function UploadNewListing() {
   const [innovImpact, setInnovImpact] = useState<string[]>([]);
   const [innovRecommendations, setInnovRecommendations] = useState<string[]>([]);
   const [innovCautions, setInnovCautions] = useState<string[]>([]);
-  const [innovLicenses, setInnovLicenses] = useState<{ title: string; issuer: string; date: string; file: string }[]>([]);
-  const [innovAwards, setInnovAwards] = useState<{ title: string; issuer: string; date: string; file: string }[]>([]);
-  const [innovGallery, setInnovGallery] = useState<{ category: string; type: 'image' | 'video'; name: string; caption: string }[]>([]);
+  const [innovLicenses, setInnovLicenses] = useState<{ title: string; issuer: string; date: string; file: string; fileObj?: File }[]>([]);
+  const [innovAwards, setInnovAwards] = useState<{ title: string; issuer: string; date: string; file: string; fileObj?: File }[]>([]);
+  const [innovGallery, setInnovGallery] = useState<{ category: string; type: 'image' | 'video'; name: string; file?: File }[]>([]);
 
   const [compType, setCompType] = useState('');
   const [compDeadline, setCompDeadline] = useState('');
@@ -161,7 +164,7 @@ export default function UploadNewListing() {
         toStringArray(item.sdgs, ['sdg', 'name', 'title', 'value', 'goal'])
           .map((s: string) => SDG_REV[s] || s),
       );
-      setInnovMaterials(item.materialsUsed ? String(item.materialsUsed).split(', ').filter(Boolean) : []);
+      setInnovMaterials(Array.isArray(item.materialsUsed) ? item.materialsUsed : item.materialsUsed ? String(item.materialsUsed).split(', ').filter(Boolean) : []);
       setInnovDimensions({
         length: item.length != null ? String(item.length) : '',
         width: item.width != null ? String(item.width) : '',
@@ -169,7 +172,7 @@ export default function UploadNewListing() {
         unit: String(item.dimensionUnit || 'cm').toLowerCase(),
       });
       setInnovWeight({ value: item.weight != null ? String(item.weight) : '', unit: String(item.weightUnit || 'kg').toLowerCase() });
-      setInnovUserGroups((item.userGroups || []).map((g: any) => g.userGroup || g));
+      setInnovUserGroups(toStringArray(item.userGroups, ['userGroup', 'name', 'title', 'value']));
       const lines = (v: unknown) => typeof v === 'string' ? v.split('\n').filter(Boolean) : Array.isArray(v) ? v : [];
       setInnovApplications(lines(item.applications));
       setInnovImpact(lines(item.impact));
@@ -178,7 +181,7 @@ export default function UploadNewListing() {
       const docs = item.documents || [];
       setInnovLicenses(docs.filter((d: any) => d.type === 'CERTIFICATION').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: d.documentFile })));
       setInnovAwards(docs.filter((d: any) => d.type === 'AWARD').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: d.documentFile })));
-      setInnovGallery((item.media || []).map((m: any) => ({ category: MEDIA_REV[m.category] || m.category, type: 'image' as const, name: m.mediaFile, caption: '' })));
+      setInnovGallery((item.media || []).map((m: any) => ({ category: MEDIA_REV[m.category] || m.category, type: 'image' as const, name: m.mediaFile })));
       // Innovator info from the innovation record (if present)
       if (item.phone) setPhone(item.phone);
       if (item.email) setEmail(item.email);
@@ -199,6 +202,7 @@ export default function UploadNewListing() {
           .map(([name, link]) => ({ name, link: String(link) }));
         if (rows.length) setSocialHandles(rows);
       }
+      setPrefilled(true);
     }).catch((e: any) => toast.error(e?.message || 'Failed to load innovation'));
   }, []);
 
@@ -225,6 +229,31 @@ export default function UploadNewListing() {
       toast.success('Listing submitted for verification! You will be notified once reviewed.');
       setStep('select');
       setSelectedType(null);
+      return;
+    }
+    // Type checks: reject bad input before anything is uploaded or sent.
+    // Edit already passed these checks on create — only block a brand-new listing.
+    if (!editId) {
+      const socialIssue = firstSocialError(socialHandles);
+      if (socialIssue) {
+        toast.error(socialIssue);
+        return;
+      }
+    }
+    const numericFields: [string, string][] = [
+      ['Length', innovDimensions.length],
+      ['Width', innovDimensions.width],
+      ['Height', innovDimensions.height],
+      ['Weight', innovWeight.value],
+    ];
+    for (const [label, value] of numericFields) {
+      if (value.trim() && (!Number.isFinite(Number(value)) || Number(value) < 0)) {
+        toast.error(`${label} must be a non-negative number`);
+        return;
+      }
+    }
+    if (!editId && innovGallery.length === 0) {
+      toast.error('Please add at least one media file to the gallery');
       return;
     }
     setSaving(true);
@@ -255,54 +284,52 @@ export default function UploadNewListing() {
         }
       }
 
-      // Upload gallery images
+      // Nothing has uploaded until this point: staged files upload now,
+      // then the payload is sent to the endpoint.
       let finalInnovGallery = innovGallery;
-      if (galleryImages.length > 0) {
-        try {
-          const uploadedGallery = await Promise.all(
-            galleryImages.map(async item => {
-              const uploaded = await uploadFile(item.file);
-              return { category: item.category, type: 'image' as const, name: uploaded.key, caption: '' };
-            })
-          );
-          finalInnovGallery = uploadedGallery;
-        } catch {
-          toast.error('Failed to upload gallery images. Please try again.');
-          setSaving(false);
-          return;
+      try {
+        if (innovGallery.some(g => g.file)) {
+          finalInnovGallery = await Promise.all(innovGallery.map(async g => {
+            if (!g.file) return g;
+            const uploaded = await uploadFile(g.file);
+            return { ...g, name: uploaded.key || uploaded.url };
+          }));
         }
+      } catch {
+        toast.error('Failed to upload media files. Please try again.');
+        setSaving(false);
+        return;
       }
 
-      // Upload certifications
+      const uploadDocs = (docs: { title: string; issuer: string; date: string; file: string; fileObj?: File }[]) =>
+        Promise.all(docs.map(async d => {
+          if (!d.fileObj) return d; // already on the server (edit mode) — keep as is
+          const uploaded = await uploadFile(d.fileObj);
+          return { ...d, file: uploaded.key || uploaded.url };
+        }));
+
       let finalInnovLicenses = innovLicenses;
       let finalInnovAwards = innovAwards;
-      if (certifications.length > 0) {
-        try {
-          const uploadedCerts = await Promise.all(
-            certifications.map(async item => {
-              const uploaded = await uploadFile(item.file);
-              return { title: item.name, issuer: '', date: new Date().getFullYear().toString(), file: uploaded.key };
-            })
-          );
-          // Split into licenses and awards (for simplicity, all go to licenses)
-          finalInnovLicenses = uploadedCerts;
-        } catch {
-          toast.error('Failed to upload certifications. Please try again.');
-          setSaving(false);
-          return;
-        }
+      try {
+        finalInnovLicenses = await uploadDocs(innovLicenses);
+        finalInnovAwards = await uploadDocs(innovAwards);
+      } catch {
+        toast.error('Failed to upload documents. Please try again.');
+        setSaving(false);
+        return;
       }
 
       const payload = buildInnovationPayload({
         name, profileImage: finalProfileImageKey, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
         innovSdgs, innovMaterials, innovDimensions, innovWeight, innovUserGroups, innovApplications,
-        innovImpact, innovRecommendations, innovCautions, innovLicenses, innovAwards, innovGallery, socialHandles,
+        innovImpact, innovRecommendations, innovCautions,
+        innovLicenses: finalInnovLicenses, innovAwards: finalInnovAwards, innovGallery: finalInnovGallery, socialHandles,
       });
       if (editId) await updateInnovation(editId, payload);
       else await createInnovation(payload);
       toast.success(editId ? 'Innovation updated' : 'Innovation submitted');
-      // Navigate to listings page after successful submission
-      setTimeout(() => router.push('/dashboard/listings'), 1500);
+      // Navigate to my-listings page after successful submission
+      setTimeout(() => router.push('/dashboard/my-listings'), 1500);
     } catch (e: any) {
       toast.error(e?.message || 'Failed to save innovation');
       setSaving(false);
@@ -310,6 +337,8 @@ export default function UploadNewListing() {
     }
     setSaving(false);
     setEditId(null);
+    setEditBaseline(null);
+    setPrefilled(false);
     setStep('select');
     setSelectedType(null);
     setName(''); setProfileImage(null); setProfileImageKey(null); setProfileImageFile(null); setProfileImagePreview(null); setCountry(''); setStateRegion('');
@@ -325,16 +354,32 @@ export default function UploadNewListing() {
     setSocialHandles([{ name: '', link: '' }]);
   };
 
+  // Derived state & effects (must run on every render, before any early returns)
+  const listingSnapshot = JSON.stringify({
+    name, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
+    innovSdgs, innovMaterials, innovDimensions, innovWeight, innovUserGroups,
+    innovApplications, innovImpact, innovRecommendations, innovCautions,
+    innovLicenses: innovLicenses.map(({ fileObj: _file, ...rest }) => rest),
+    innovAwards: innovAwards.map(({ fileObj: _file, ...rest }) => rest),
+    innovGallery: innovGallery.map(({ file: _file, ...rest }) => rest),
+    socialHandles, profileImageKey,
+  });
+  const hasAnySocial = selectedType === 'innovation'
+    ? firstSocialError(socialHandles) === null
+    : Object.values(socialLinks).some(v => v.trim().length > 0);
+  const editDirty = !!editId && editBaseline !== null && listingSnapshot !== editBaseline;
+  const isFormValid = editId ? editDirty && !!name.trim() && !!country && agreed : agreed && hasAnySocial;
+
+  useEffect(() => {
+    if (!editId || !prefilled || editBaseline) return;
+    setEditBaseline(listingSnapshot);
+  }, [editId, prefilled, editBaseline, listingSnapshot]);
+
   if (step === 'select') {
     return <ListingTypeSelector onSelectType={(typeId) => { setSelectedType(typeId as ListingType); setStep('form'); }} />;
   }
 
   const selectedTypeInfo = LISTING_TYPES.find(t => t.id === selectedType);
-
-  const hasAnySocial = selectedType === 'innovation'
-    ? socialHandles.some(s => s.name.trim() && s.link.trim())
-    : Object.values(socialLinks).some(v => v.trim().length > 0);
-  const isFormValid = agreed && hasAnySocial;
 
   return (
     <div className="space-y-5">
@@ -458,6 +503,7 @@ export default function UploadNewListing() {
           }}
           onDraft={() => toast.success('Draft saved!')}
           onSubmit={handleSubmit}
+          submitLabel={editId ? 'Save changes' : 'Submit for Review'}
           disabled={saving || !isFormValid}
         />
       )}
