@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { ArrowLeft, Pencil } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { fetchInnovation } from '../../upload-new-listing/innovationApi';
+import { isEditable } from '../statusUtils';
 import InnovationPreview from './components/InnovationPreview';
 
 export default function ListingDetail() {
@@ -51,7 +52,8 @@ export default function ListingDetail() {
             <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/my-listings')}>
               <ArrowLeft className="mr-1 h-4 w-4" /> Back
             </Button>
-            {['Pending_Verification', 'Pending Verification'].includes(item.status) && (
+            {/* Editable only while still under review — approved/rejected stay preview-only. */}
+            {isEditable(item.status) && (
               <Button
                 size="sm"
                 className="bg-brand-red-600 hover:bg-brand-red-700"

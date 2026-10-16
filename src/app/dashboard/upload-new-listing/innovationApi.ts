@@ -61,6 +61,8 @@ const MEDIA: Record<string, string> = {
 };
 
 const DIMENSION_UNIT_PAYLOAD: Record<string, string> = { mm: 'MM', cm: 'CM', in: 'INCH', ft: 'FT', m: 'M' };
+// The form dropdown shows "t" for tonnes but the API enum is TONNES.
+const WEIGHT_UNIT_PAYLOAD: Record<string, string> = { mg: 'MG', g: 'G', oz: 'OZ', lb: 'LB', kg: 'KG', t: 'TONNES' };
 
 const REV = <T extends Record<string, string>>(map: T) =>
   Object.fromEntries(Object.entries(map).map(([k, v]) => [v, k])) as Record<string, string>;
@@ -69,6 +71,31 @@ export const OWNERSHIP_REV = REV(OWNERSHIP);
 export const STAGE_REV = REV(STAGE);
 export const SDG_REV = REV(SDG);
 export const MEDIA_REV = REV(MEDIA);
+
+/**
+ * Converts a stored file value into the bare storage key the API expects.
+ *
+ * GET /listings/innovations returns documents/media/images as signed S3 URLs,
+ * but PATCH/POST expect the storage key exactly as POST /upload returned it —
+ * just the file name, with NO "uploads/" folder. The backend adds that folder
+ * itself when signing display URLs, so including it here would store
+ * "uploads/uploads/<file>" and every display URL would 404 upstream.
+ * Bare keys pass through untouched; external non-bucket URLs are unchanged.
+ */
+export function toStorageKey(value?: string | null): string {
+  if (!value) return '';
+  const v = value.trim();
+  if (!v) return '';
+  // Already a bare storage key — send it exactly as-is.
+  if (!/^https?:\/\//i.test(v)) return v.replace(/^\/+/, '');
+  // Signed/unsigned URL (incl. the legacy malformed "https://uploads/..." form):
+  // the key is only the file path after the "/uploads/" folder.
+  const path = v.split(/[?#]/)[0];
+  const match = path.match(/\/uploads\/(.+)$/i);
+  if (match) return match[1];
+  // Not one of our bucket files (e.g. an external link) — leave it as-is.
+  return v;
+}
 
 function num(v: string) {
   const n = Number(v);
@@ -89,11 +116,13 @@ export function buildInnovationPayload(input: {
   socialHandles: { name: string; link: string }[];
 }): InnovationPayload {
   const docs = [
-    ...input.innovLicenses.map(d => ({ type: 'CERTIFICATION', documentTitle: d.title, issuer: d.issuer, year: Number(d.date) || 0, documentFile: d.file })),
-    ...input.innovAwards.map(d => ({ type: 'AWARD', documentTitle: d.title, issuer: d.issuer, year: Number(d.date) || 0, documentFile: d.file })),
+    ...input.innovLicenses.map(d => ({ type: 'CERTIFICATION', documentTitle: d.title, issuer: d.issuer, year: Number(d.date) || 0, documentFile: toStorageKey(d.file) })),
+    ...input.innovAwards.map(d => ({ type: 'AWARD', documentTitle: d.title, issuer: d.issuer, year: Number(d.date) || 0, documentFile: toStorageKey(d.file) })),
   ];
   return {
-    image: input.profileImage || '',
+    // The API stores keys, not URLs — normalize every file field (signed URLs
+    // coming back from an edit prefill would otherwise be re-submitted as-is).
+    image: toStorageKey(input.profileImage),
     innovationName: input.name,
     country: input.country,
     shortDescription: input.bio,
@@ -109,7 +138,7 @@ export function buildInnovationPayload(input: {
     height: num(input.innovDimensions.height),
     dimensionUnit: DIMENSION_UNIT_PAYLOAD[input.innovDimensions.unit] || input.innovDimensions.unit.toUpperCase(),
     weight: num(input.innovWeight.value),
-    weightUnit: (input.innovWeight.unit || 'kg').toUpperCase(),
+    weightUnit: WEIGHT_UNIT_PAYLOAD[(input.innovWeight.unit || 'kg').toLowerCase()] || 'KG',
     userGroups: input.innovUserGroups.map(userGroup => ({
       userGroup,
       isCustom: !INNOVATION_USER_GROUPS.includes(userGroup),
@@ -121,7 +150,7 @@ export function buildInnovationPayload(input: {
     documents: docs,
     media: input.innovGallery.map(m => ({
       category: MEDIA[m.category] || m.category,
-      mediaFile: m.name,
+      mediaFile: toStorageKey(m.name),
     })),
     socials: input.socialHandles
       .map(s => ({ platform: s.name.trim(), link: s.link.trim() }))

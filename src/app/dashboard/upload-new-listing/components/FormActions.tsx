@@ -5,13 +5,12 @@ import { Button } from '@/app/components/ui/Button';
 
 interface FormActionsProps {
   onCancel: () => void;
-  onDraft: () => void;
   onSubmit: () => void;
   disabled?: boolean;
   submitLabel?: string;
 }
 
-export default function FormActions({ onCancel, onDraft, onSubmit, disabled, submitLabel = 'Submit for Review' }: FormActionsProps) {
+export default function FormActions({ onCancel, onSubmit, disabled, submitLabel = 'Submit for Review' }: FormActionsProps) {
   const submitClass = 'bg-brand-navy-900 hover:bg-brand-navy-800 disabled:opacity-40 disabled:cursor-not-allowed';
 
   return (
@@ -21,26 +20,16 @@ export default function FormActions({ onCancel, onDraft, onSubmit, disabled, sub
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={onDraft}>
-            Save as Draft
-          </Button>
-          <Button onClick={onSubmit} disabled={disabled} className={`gap-2 ${submitClass}`}>
-            <Upload className="h-4 w-4" /> {submitLabel}
-          </Button>
-        </div>
+        <Button onClick={onSubmit} disabled={disabled} className={`gap-2 ${submitClass}`}>
+          <Upload className="h-4 w-4" /> {submitLabel}
+        </Button>
       </div>
 
       {/* Mobile */}
       <div className="flex flex-col gap-3 mb-4 sm:hidden">
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={onCancel} className="flex-1 justify-center">
-            Cancel
-          </Button>
-          <Button variant="outline" onClick={onDraft} className="flex-1 justify-center">
-            Save as Draft
-          </Button>
-        </div>
+        <Button variant="outline" onClick={onCancel} className="w-full justify-center">
+          Cancel
+        </Button>
         <Button onClick={onSubmit} disabled={disabled} className={`w-full justify-center gap-2 ${submitClass}`}>
           <Upload className="h-4 w-4" /> {submitLabel}
         </Button>

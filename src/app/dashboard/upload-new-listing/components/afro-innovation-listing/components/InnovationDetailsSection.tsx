@@ -36,7 +36,7 @@ interface InnovationDetailsSectionProps {
 
 const DIMENSION_UNITS = ['mm', 'cm', 'in', 'ft', 'm'];
 const DIMENSION_UNIT_PAYLOAD: Record<string, string> = { mm: 'MM', cm: 'CM', in: 'INCH', ft: 'FT', m: 'M' };
-const WEIGHT_UNITS = ['mg', 'g', 'oz', 'lb', 'kg', 't'];
+const WEIGHT_UNITS = ['mg', 'g', 'oz', 'lb', 'kg', 'tonnes'];
 const GALLERY_CATEGORIES = ['Working Materials', 'Work-in-Progress', 'Finished Work'];
 const MAX_GALLERY = 3;
 const CURRENT_YEAR = new Date().getFullYear();
@@ -269,9 +269,11 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
     };
 
     const handleYearChange = (val: string) => {
-      const digits = val.replace(/\D/g, '');
+      // At most four digits, and only a real year (1900 .. current year + 10).
+      const digits = val.replace(/\D/g, '').slice(0, 4);
       setYearInput(digits);
-      if (digits.length === 4) {
+      const y = Number(digits);
+      if (digits.length === 4 && y >= YEAR_OPTIONS[0] && y <= YEAR_OPTIONS[YEAR_OPTIONS.length - 1]) {
         setDocDate(digits);
       } else {
         setDocDate('');
@@ -310,7 +312,7 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
             <input type="text" value={docIssuer} onChange={e => setDocIssuer(e.target.value)}
               className="flex-1 rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Issuer *" />
             <div ref={yearRef} className="relative w-32">
-              <input type="text" value={yearInput} onChange={e => handleYearChange(e.target.value)}
+              <input type="text" inputMode="numeric" maxLength={4} value={yearInput} onChange={e => handleYearChange(e.target.value)}
                 onFocus={() => setYearOpen(true)}
                 className="w-full rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Year" />
               {yearOpen && yearInput.length > 0 && filteredYears.length > 0 && (

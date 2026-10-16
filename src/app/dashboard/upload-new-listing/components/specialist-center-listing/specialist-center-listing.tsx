@@ -143,7 +143,6 @@ export default function SpecialistCenterListing({ onCancel }: SpecialistCenterLi
 
       <FormActions
         onCancel={() => { resetForm(); onCancel(); }}
-        onDraft={() => toast.success('Draft saved!')}
         onSubmit={handleSubmit}
         disabled={!isFormValid}
       />

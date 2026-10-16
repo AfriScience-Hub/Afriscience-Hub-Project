@@ -5,6 +5,7 @@ import { LoginPromptProvider } from './context/LoginPromptContext'
 import { Layout } from './components/Layout'
 import { Toaster } from 'sonner'
 import { ScrollToTop } from './components/ScrollToTop'
+import { DisableNumberInputScroll } from './components/DisableNumberInputScroll'
 import '../styles/index.css'
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function RootLayout({
           <AuthProvider>
             <LoginPromptProvider>
               <ScrollToTop />
+              <DisableNumberInputScroll />
               <Toaster position="top-right" richColors closeButton />
               <Layout>{children}</Layout>
             </LoginPromptProvider>

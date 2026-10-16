@@ -21,12 +21,9 @@ import DocumentsSection from './components/DocumentsSection';
 import PoliciesSection from './components/PoliciesSection';
 import FormActions from './components/FormActions';
 import { uploadFile } from '@/lib/upload';
-import { buildInnovationPayload, createInnovation, fetchInnovation, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, updateInnovation } from './innovationApi';
+import { buildInnovationPayload, createInnovation, fetchInnovation, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, toStorageKey, updateInnovation } from './innovationApi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchWalletBalance } from '@/store/walletSlice';
 import { fetchFullProfile } from '@/store/profileSlice';
-
-const MIN_ASH_COINS = 300;
 
 /**
  * Extracts a display string from an API array item.
@@ -127,16 +124,6 @@ export default function UploadNewListing() {
 
   const handleProfileImageUpload = () => {};
 
-  // Helper to extract storage key from a full URL
-  const extractKeyFromUrl = (url: string | null): string | null => {
-    if (!url) return null;
-    // If it's already a key (no protocol), return as-is
-    if (!url.startsWith('http')) return url;
-    // Extract key from bucket URL: https://bucket.s3.region.amazonaws.com/uploads/xxx
-    const match = url.match(/\/uploads\/(.+)$/);
-    return match ? `uploads/${match[1]}` : null;
-  };
-
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('id');
     if (!id) return;
@@ -148,7 +135,8 @@ export default function UploadNewListing() {
       const imageUrl = item.image || null;
       setProfileImage(imageUrl);
       setProfileImagePreview(imageUrl); // for preview in edit mode
-      setProfileImageKey(extractKeyFromUrl(imageUrl));
+      // The API returns signed URLs — the form/payload deal in storage keys only.
+      setProfileImageKey(toStorageKey(imageUrl) || null);
       setCountry(item.country || '');
       setBio(item.shortDescription || item.bio || '');
       // Fields, interests, sdgs may be plain string[] or array of objects
@@ -169,9 +157,9 @@ export default function UploadNewListing() {
         length: item.length != null ? String(item.length) : '',
         width: item.width != null ? String(item.width) : '',
         height: item.height != null ? String(item.height) : '',
-        unit: String(item.dimensionUnit || 'cm').toLowerCase(),
+        unit: ({ INCH: 'in' } as Record<string, string>)[String(item.dimensionUnit || '').toUpperCase()] || String(item.dimensionUnit || 'cm').toLowerCase(),
       });
-      setInnovWeight({ value: item.weight != null ? String(item.weight) : '', unit: String(item.weightUnit || 'kg').toLowerCase() });
+      setInnovWeight({ value: item.weight != null ? String(item.weight) : '', unit: ({ TONNES: 't', TON: 't' } as Record<string, string>)[String(item.weightUnit || '').toUpperCase()] || String(item.weightUnit || 'kg').toLowerCase() });
       setInnovUserGroups(toStringArray(item.userGroups, ['userGroup', 'name', 'title', 'value']));
       const lines = (v: unknown) => typeof v === 'string' ? v.split('\n').filter(Boolean) : Array.isArray(v) ? v : [];
       setInnovApplications(lines(item.applications));
@@ -179,9 +167,11 @@ export default function UploadNewListing() {
       setInnovRecommendations(lines(item.recommendations));
       setInnovCautions(lines(item.cautions));
       const docs = item.documents || [];
-      setInnovLicenses(docs.filter((d: any) => d.type === 'CERTIFICATION').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: d.documentFile })));
-      setInnovAwards(docs.filter((d: any) => d.type === 'AWARD').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: d.documentFile })));
-      setInnovGallery((item.media || []).map((m: any) => ({ category: MEDIA_REV[m.category] || m.category, type: 'image' as const, name: m.mediaFile })));
+      // documentFile/mediaFile come back as signed URLs — store the bare keys
+      // so re-submitting the form never sends URLs where keys are expected.
+      setInnovLicenses(docs.filter((d: any) => d.type === 'CERTIFICATION').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: toStorageKey(d.documentFile) })));
+      setInnovAwards(docs.filter((d: any) => d.type === 'AWARD').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: toStorageKey(d.documentFile) })));
+      setInnovGallery((item.media || []).map((m: any) => ({ category: MEDIA_REV[m.category] || m.category, type: 'image' as const, name: toStorageKey(m.mediaFile) })));
       // Innovator info from the innovation record (if present)
       if (item.phone) setPhone(item.phone);
       if (item.email) setEmail(item.email);
@@ -258,25 +248,12 @@ export default function UploadNewListing() {
     }
     setSaving(true);
     try {
-      // Submitting an innovation costs 300 ASH coins — verify the balance first.
-      const wallet = await dispatch(fetchWalletBalance()).unwrap().catch(() => null);
-      const balance = wallet ? Number(wallet.balance) : 0;
-      if (!wallet || balance < MIN_ASH_COINS) {
-        toast.error(
-          wallet
-            ? `Not enough balance. You need at least ${MIN_ASH_COINS} ASH coins to submit an innovation (your balance is ${balance.toLocaleString()} ASH coins).`
-            : 'Could not verify your wallet balance. Please try again.',
-        );
-        setSaving(false);
-        return;
-      }
-
       // Upload profile image if a new file was selected
       let finalProfileImageKey = profileImageKey;
       if (profileImageFile) {
         try {
           const uploaded = await uploadFile(profileImageFile);
-          finalProfileImageKey = uploaded.key;
+          finalProfileImageKey = uploaded.key || uploaded.url;
         } catch {
           toast.error('Failed to upload profile image. Please try again.');
           setSaving(false);
@@ -501,7 +478,6 @@ export default function UploadNewListing() {
             setStep('select');
             setSelectedType(null);
           }}
-          onDraft={() => toast.success('Draft saved!')}
           onSubmit={handleSubmit}
           submitLabel={editId ? 'Save changes' : 'Submit for Review'}
           disabled={saving || !isFormValid}

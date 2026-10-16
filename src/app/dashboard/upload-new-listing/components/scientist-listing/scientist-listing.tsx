@@ -132,7 +132,6 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
 
       <FormActions
         onCancel={() => { resetForm(); onCancel(); }}
-        onDraft={() => toast.success('Draft saved!')}
         onSubmit={handleSubmit}
         disabled={!isFormValid}
       />

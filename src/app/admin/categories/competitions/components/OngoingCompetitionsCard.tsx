@@ -79,7 +79,6 @@ export default function OngoingCompetitionsCard({ competitions, total }: Ongoing
         <p className="text-[11px] text-neutral-gray-medium">
           Showing {competitions.length} of {total} ongoing competitions
         </p>
-        <Link href="/admin/categories/competitions/all" className="text-[11px] text-[#453DD8] font-medium hover:underline cursor-pointer">View all &rarr;</Link>
       </div>
     </div>
   );

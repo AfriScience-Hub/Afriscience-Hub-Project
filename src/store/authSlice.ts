@@ -81,6 +81,51 @@ function extractUser(data: any, fallbackIdentifier?: string): AuthUser {
   };
 }
 
+/** The access token stored for the section currently being viewed. */
+function storedToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const isAdmin = window.location.pathname.startsWith('/admin');
+  return localStorage.getItem(isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token');
+}
+
+/** Base64url-decodes a JWT's payload, or null when it can't be parsed. */
+function decodeTokenPayload(token?: string | null): Record<string, any> | null {
+  if (!token || typeof window === 'undefined' || typeof atob !== 'function') return null;
+  try {
+    const segment = token.split('.')[1];
+    if (!segment) return null;
+    const base64 = segment.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+    const json = decodeURIComponent(
+      atob(padded).split('').map((c) => '%' + ('0' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+    );
+    const parsed = JSON.parse(json);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fills gaps in an extracted user from the JWT claims. The token carries the
+ * user's signed avatar URL (and name/email/phone), so the profile picture can
+ * render immediately after login — without waiting for a profile fetch.
+ */
+function applyTokenClaims(user: AuthUser, token?: string | null): AuthUser {
+  const claims = decodeTokenPayload(token);
+  if (!claims) return user;
+  const nameIsPlaceholder = !user.name || user.name === 'User';
+  return {
+    ...user,
+    name: nameIsPlaceholder ? (claims.name || claims.fullName || user.name) : user.name,
+    email: user.email || claims.email || '',
+    phone: user.phone || claims.phone || '',
+    avatar: user.avatar ?? normalizeFileSrc(claims.avatar),
+    createdAt: user.createdAt ?? (typeof claims.createdAt === 'string' ? claims.createdAt : undefined),
+    updatedAt: user.updatedAt ?? (typeof claims.updatedAt === 'string' ? claims.updatedAt : undefined),
+  };
+}
+
 // --- User thunks ---
 
 export const signupUser = createAsyncThunk(
@@ -200,7 +245,9 @@ export const fetchCurrentUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const data = await api.get('/auth/me');
-      return extractUser(data);
+      // /auth/me may omit the avatar — the JWT claims carry it, so the
+      // picture stays available without a separate profile fetch.
+      return applyTokenClaims(extractUser(data), storedToken());
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
@@ -288,7 +335,9 @@ const authSlice = createSlice({
             const normalized = normalizeFileSrc(parsed.avatar);
             parsed.avatar = normalized ?? parsed.avatar;
           }
-          state.user = parsed;
+          // Fill any gaps (e.g. avatar) from the token's claims so the profile
+          // picture renders immediately on reload too.
+          state.user = parsed ? applyTokenClaims(parsed, tokenKey ? localStorage.getItem(tokenKey) : null) : parsed;
           state.isAuthenticated = true;
         }
         state.accessToken = localStorage.getItem(tokenKey);
@@ -305,10 +354,13 @@ const authSlice = createSlice({
       .addCase(loginUser.pending, (s) => { s.loading = true; s.error = null; })
       .addCase(loginUser.fulfilled, (s, a) => {
         s.loading = false;
-        s.user = extractUser(a.payload.data, a.payload.identifier);
-        s.isAuthenticated = true;
         const resp = a.payload.data as any;
-        s.accessToken = resp?.accessToken || resp?.token || null;
+        const token = resp?.accessToken || resp?.token || null;
+        // The JWT carries the user's signed avatar URL — surface it right away
+        // so the picture shows across the platform without visiting the profile.
+        s.user = applyTokenClaims(extractUser(a.payload.data, a.payload.identifier), token);
+        s.isAuthenticated = true;
+        s.accessToken = token;
         s.refreshToken = resp?.refreshToken || null;
         if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
       })
@@ -317,9 +369,11 @@ const authSlice = createSlice({
       .addCase(verifyUserEmail.pending, (s) => { s.loading = true; s.error = null; })
       .addCase(verifyUserEmail.fulfilled, (s, a) => {
         s.loading = false;
-        const maybeUser = extractUser(a.payload.data, a.payload.email);
+        const resp = a.payload.data as any;
+        const token = resp?.token || resp?.accessToken || null;
+        const maybeUser = applyTokenClaims(extractUser(a.payload.data, a.payload.email), token);
         // only set user if response contains token/user
-        if ((a.payload.data as any)?.token || (a.payload.data as any)?.accessToken || (a.payload.data as any)?.user) {
+        if (resp?.token || resp?.accessToken || resp?.user) {
           s.user = maybeUser;
           s.isAuthenticated = true;
           if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
@@ -334,10 +388,13 @@ const authSlice = createSlice({
       .addCase(loginAdmin.pending, (s) => { s.loading = true; s.error = null; })
       .addCase(loginAdmin.fulfilled, (s, a) => {
         s.loading = false;
-        s.user = extractUser(a.payload.data, a.payload.identifier);
-        s.isAuthenticated = true;
         const resp = a.payload.data as any;
-        s.accessToken = resp?.accessToken || resp?.token || null;
+        const token = resp?.accessToken || resp?.token || null;
+        // Same as users: pull the avatar from the JWT claims when the
+        // response body doesn't include the user object.
+        s.user = applyTokenClaims(extractUser(a.payload.data, a.payload.identifier), token);
+        s.isAuthenticated = true;
+        s.accessToken = token;
         s.refreshToken = resp?.refreshToken || null;
         if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_admin', JSON.stringify(s.user));
       })
