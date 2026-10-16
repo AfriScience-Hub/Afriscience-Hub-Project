@@ -5,10 +5,11 @@ import {
   CENTER_FIELDS,
   CENTER_OWNERSHIP_OPTIONS,
   CENTER_SERVICES,
+  WORLD_COUNTRIES,
 } from '@/app/data/mockData';
 import { cn } from '@/lib/utils';
 import InfoTooltip from './InfoTooltip';
-import { CATEGORY_DESCRIPTIONS, COUNTRIES, STATES } from '../data';
+import { CATEGORY_DESCRIPTIONS } from '../data';
 
 interface FilterSidebarProps {
   selectedField: string;
@@ -128,7 +129,7 @@ export default function FilterSidebar({
                       className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5"
                     />
                     <span className="flex-1 text-xs text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors leading-tight">{cat}</span>
-                    {CATEGORY_DESCRIPTIONS[cat] && <InfoTooltip text={CATEGORY_DESCRIPTIONS[cat]} />}
+                    <InfoTooltip text={CATEGORY_DESCRIPTIONS[cat] || 'Category information will be provided by the admin.'} />
                   </label>
                 )) : (
                   <p className="text-xs text-neutral-gray-medium italic">Select a field to see categories.</p>
@@ -249,7 +250,7 @@ export default function FilterSidebar({
                   className="w-full rounded-lg border border-neutral-gray-light text-sm p-2 bg-neutral-bg-light focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
                 >
                   <option value="">All Countries</option>
-                  {COUNTRIES.map(c => (
+                  {WORLD_COUNTRIES.map(c => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
@@ -268,17 +269,15 @@ export default function FilterSidebar({
             </button>
             {!collapsedSections.state && (
               <div className="mt-3 animate-in fade-in duration-200">
-                {selectedCountry && STATES[selectedCountry] ? (
-                  <select
+                {selectedCountry ? (
+                  <input
+                    type="text"
                     value={selectedState}
                     onChange={(e) => onStateChange(e.target.value)}
-                    className="w-full rounded-lg border border-neutral-gray-light text-sm p-2 bg-neutral-bg-light focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-                  >
-                    <option value="">All Regions</option>
-                    {STATES[selectedCountry].map(s => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
+                    placeholder="Type a state or region..."
+                    disabled
+                    className="w-full rounded-lg border border-neutral-gray-light text-sm p-2 bg-neutral-bg-light/50 text-neutral-gray-medium focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+                  />
                 ) : (
                   <p className="text-xs text-slate-400 italic">Select a country first</p>
                 )}

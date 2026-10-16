@@ -65,7 +65,8 @@ export default function ReviewsTab({ scientist }: ReviewsTabProps) {
         </div>
       </section>
 
-      {/* Write a Review */}
+      {/* Write a Review - hidden until user has booked a service */}
+      {false && (
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
         <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
           <Star className="h-5 w-5 text-amber-500" /> Write a Review
@@ -104,6 +105,7 @@ export default function ReviewsTab({ scientist }: ReviewsTabProps) {
           </button>
         </div>
       </section>
+      )}
 
       {/* Reviews list */}
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">

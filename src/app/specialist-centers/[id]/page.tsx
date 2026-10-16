@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  MapPin, Star, Share2, ThumbsUp, CheckCircle, Eye, Building2, Phone, MessageCircle
+  MapPin, Star, Share2, ThumbsUp, CheckCircle, Eye, Building2, Phone, Mail, Archive, ArchiveX
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { SPECIALIST_CENTERS } from '@/app/data/mockData';
@@ -30,8 +30,12 @@ function SpecialistCenterDetailsContent() {
   const [isBookServiceOpen, setIsBookServiceOpen] = useState(false);
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   const [isDpPreviewOpen, setIsDpPreviewOpen] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isArchived, setIsArchived] = useState(false);
 
   const center = SPECIALIST_CENTERS.find(c => c.id === id);
+
+  const [sharesCount, setSharesCount] = useState(center?.shares || 0);
 
   if (!center) {
     return (
@@ -44,6 +48,26 @@ function SpecialistCenterDetailsContent() {
     );
   }
 
+  const handleLikeToggle = () => {
+    setIsLiked(!isLiked);
+    toast.success(isLiked ? 'Removed from likes' : 'Added to likes');
+  };
+
+  const handleArchiveToggle = () => {
+    setIsArchived(!isArchived);
+    toast.success(isArchived ? 'Removed from archive' : 'Added to archive');
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setSharesCount(prev => prev + 1);
+      toast.success('Profile link copied!');
+    } catch {
+      toast.success('Profile link copied!');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-neutral-bg-light pb-12">
       <div className="bg-white border-b border-neutral-gray-light">
@@ -55,7 +79,7 @@ function SpecialistCenterDetailsContent() {
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6">
           <div className="flex flex-col lg:flex-row gap-6 -mt-12 relative z-10">
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex flex-col items-center">
               <button
                 type="button"
                 title="Preview"
@@ -71,7 +95,6 @@ function SpecialistCenterDetailsContent() {
                   ))}
                 </div>
                 <span className="font-bold text-neutral-black text-sm">{center.rating}</span>
-                <span className="text-xs text-neutral-gray-medium">({center.reviews} reviews)</span>
               </div>
             </div>
 
@@ -95,14 +118,14 @@ function SpecialistCenterDetailsContent() {
                   </div>
                   <h1 className="text-3xl font-bold text-neutral-black leading-tight mb-1">{center.name}</h1>
                   {center.motto && <p className="text-neutral-gray-medium italic mb-2">&ldquo;{center.motto}&rdquo;</p>}
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-neutral-gray-dark mb-3">
-                    <span className="flex items-center gap-1.5">
-                      <Building2 className="h-4 w-4 text-neutral-gray-medium" />
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm mb-3">
+                    <span className="flex items-center gap-1.5 text-neutral-black">
+                      <Building2 className="h-4 w-4 text-neutral-black" />
                       {center.address}
                     </span>
-                    <span className="flex items-center gap-1.5 text-neutral-gray-medium text-[13px]">
-                      <MapPin className="h-3.5 w-3.5 text-neutral-gray-medium" />
-                      {center.country}{center.state ? `, ${center.state}` : ''}
+                    <span className="flex items-center gap-1.5 text-neutral-black text-[13px]">
+                      <MapPin className="h-3.5 w-3.5 text-neutral-black" />
+                      {center.state ? `${center.state}, ` : ''}{center.country}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-1.5 mb-3">
@@ -131,20 +154,32 @@ function SpecialistCenterDetailsContent() {
                     </p>
                   )}
                   <div className="flex gap-2">
-                    <div className="flex-1 grid grid-cols-3 gap-2">
+                    <div className="flex-1 grid grid-cols-2 gap-2">
                       <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Call">
                         <Phone className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Message" onClick={() => setIsMessagingOpen(true)}>
-                        <MessageCircle className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Like">
-                        <ThumbsUp className="h-4 w-4" />
+                      <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Message">
+                        <Mail className="h-4 w-4" />
                       </Button>
                     </div>
                     <div className="flex gap-2 flex-shrink-0">
-                      <Button variant="outline" className="px-3" title="Share" onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success('Link copied!'); }}>
+                      <Button variant="outline" className={cn("px-3", isLiked && "border-brand-red-600 bg-brand-red-50 text-brand-red-600")} title={isLiked ? "Unlike" : "Like"} onClick={handleLikeToggle}>
+                        <ThumbsUp className={cn("h-4 w-4", isLiked && "fill-current")} />
+                      </Button>
+                      <Button variant="outline" className="px-3" title="Write Review" onClick={() => {
+                        setActiveTab('reviews');
+                        setTimeout(() => {
+                          const el = document.getElementById('reviews');
+                          if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                      }}>
+                        <Star className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" className="px-3" title="Share Profile" onClick={handleShare}>
                         <Share2 className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" onClick={handleArchiveToggle} className={cn(isArchived && "bg-neutral-bg-light text-neutral-gray-dark")}>
+                        {isArchived ? <ArchiveX className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
                       </Button>
                     </div>
                   </div>
@@ -153,21 +188,21 @@ function SpecialistCenterDetailsContent() {
 
               <div className="flex flex-wrap items-center gap-6 mt-6 pt-4 border-t border-neutral-gray-light text-sm text-neutral-gray-medium">
                 <div className="flex items-center gap-1.5">
-                  <Eye className="h-4 w-4" />
-                  <span className="font-semibold text-neutral-gray-dark">{(center.views / 1000).toFixed(1)}k</span> Views
+                  <Eye className="h-4 w-4" /> Views
+                  <span className="font-semibold text-neutral-gray-dark">{(center.views / 1000).toFixed(1)}k</span>
                 </div>
-                <button className="flex items-center gap-1.5 hover:text-brand-red-600 transition-colors">
-                  <ThumbsUp className="h-4 w-4" />
-                  <span className="font-semibold text-neutral-gray-dark">{(center.likes / 1000).toFixed(1)}k</span> Likes
-                </button>
-                <button className="flex items-center gap-1.5 hover:text-brand-red-600 transition-colors cursor-pointer" onClick={() => setActiveTab('reviews')}>
-                  <MessageCircle className="h-4 w-4" />
-                  <span className="font-semibold text-neutral-gray-dark">{center.reviews || 0}</span> Reviews
-                </button>
-                <button className="flex items-center gap-1.5 hover:text-brand-navy-900 transition-colors">
-                  <Share2 className="h-4 w-4" />
-                  <span className="font-semibold text-neutral-gray-dark">{center.shares}</span> Shares
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <ThumbsUp className={cn("h-4 w-4", isLiked && "fill-current text-brand-red-600")} /> Likes
+                  <span className="font-semibold text-neutral-gray-dark">{(center.likes / 1000).toFixed(1)}k</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Star className="h-4 w-4" /> Reviews
+                  <span className="font-semibold text-neutral-gray-dark">{center.reviews || 0}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Share2 className="h-4 w-4" /> Shares
+                  <span className="font-semibold text-neutral-gray-dark">{sharesCount}</span>
+                </div>
               </div>
             </div>
           </div>

@@ -113,7 +113,6 @@ export default function ScientistDetails() {
                   ))}
                 </div>
                 <span className="font-bold text-neutral-black text-sm">{scientist.rating}</span>
-                <span className="text-xs text-neutral-gray-medium">({scientist.reviews})</span>
               </div>
             </div>
 

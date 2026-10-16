@@ -76,7 +76,7 @@ export default function CenterCard({ center, archivedIds, onToggleArchive }: Cen
         <div className="absolute bottom-3 left-3 right-28 text-white">
           <div className="mb-1">
             <span className={cn(
-              "inline-block px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wide",
+              "inline-block px-2 py-0.5 text-[10px] font-bold rounded",
               center.status === 'Online' ? "bg-green-500 text-white" : "bg-neutral-gray-dark text-white"
             )}>
               {center.status}
@@ -98,27 +98,8 @@ export default function CenterCard({ center, archivedIds, onToggleArchive }: Cen
         </div>
       </div>
       <div className="flex flex-1 flex-col p-3.5">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-neutral-gray-medium">Field</p>
-            <p className="text-sm font-bold text-brand-navy-900 truncate">{center.field}</p>
-          </div>
-          <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded flex-shrink-0">
-            {center.ownership}
-          </span>
-        </div>
-
-        <div className="mb-2">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-neutral-gray-medium mb-1">Categories</p>
-          <p className="text-[11px] font-semibold text-brand-red-600 leading-snug">
-            {center.categories
-              .map(cat => cat.length > 20 ? cat.split(' | ')[0].split(' / ')[0] : cat)
-              .join(', ')}
-          </p>
-        </div>
-
         <div className="flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-neutral-gray-medium mb-1">Services</p>
+          <p className="text-[12px] font-bold uppercase tracking-wide text-neutral-gray-medium mb-1">Services</p>
           <div className="flex flex-wrap gap-1">
             {center.services.map(s => {
               const shortS = s.length > 18 ? s.split(' (')[0].split(' & ')[0] : s;
@@ -131,7 +112,7 @@ export default function CenterCard({ center, archivedIds, onToggleArchive }: Cen
           </div>
         </div>
 
-        <div className="mt-2 pt-2.5 border-t border-neutral-gray-light flex items-center justify-between text-[10px] text-slate-400">
+        <div className="mt-2 pt-2.5 border-t border-neutral-gray-light flex justify-start items-center gap-3 text-[10px] text-slate-400">
           <span className="flex items-center gap-1" title="Views"><Eye className="h-3 w-3" /> {(center.views / 1000).toFixed(1)}k</span>
           <span className="flex items-center gap-1" title="Likes"><ThumbsUp className="h-3 w-3" /> {(center.likes / 1000).toFixed(1)}k</span>
           <span className="flex items-center gap-1" title="Shares"><Share2 className="h-3 w-3" /> {center.shares}</span>

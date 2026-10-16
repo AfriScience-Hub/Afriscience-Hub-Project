@@ -53,7 +53,7 @@ export default function SpecialistCentersPage() {
     const matchesServices = selectedServices.length === 0 || center.services.some(s => selectedServices.includes(s));
     const matchesStatus = !selectedStatus || center.status === selectedStatus;
     const matchesCountry = !selectedCountry || center.country === selectedCountry;
-    const matchesState = !selectedState || center.state === selectedState;
+    const matchesState = !selectedState || center.state.toLowerCase().includes(selectedState.toLowerCase());
     return matchesSearch && matchesField && matchesCategory && matchesOwnership && matchesServices && matchesStatus && matchesCountry && matchesState;
   });
 

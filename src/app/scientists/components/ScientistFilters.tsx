@@ -2,32 +2,7 @@
 
 import { Filter, ChevronDown } from 'lucide-react';
 import { cn } from '../../../lib/utils';
-import { SCIENTIST_FIELDS, SCIENTIST_DEGREES, SCIENTIST_SERVICES, PROFESSIONS_BY_FIELD } from '../../data/mockData';
-
-const COUNTRIES = [
-  'Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi',
-  'Cameroon', 'Cape Verde', 'Central African Republic', 'Chad', 'Comoros',
-  'Congo (DRC)', 'Congo (Republic)', "Côte d'Ivoire", 'Djibouti', 'Egypt',
-  'Equatorial Guinea', 'Eritrea', 'Eswatini', 'Ethiopia', 'Gabon', 'Gambia',
-  'Ghana', 'Guinea', 'Guinea-Bissau', 'Kenya', 'Lesotho', 'Liberia', 'Libya',
-  'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco',
-  'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'São Tomé and Príncipe',
-  'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan',
-  'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Uganda', 'Zambia', 'Zimbabwe'
-];
-const STATES: Record<string, string[]> = {
-  'Egypt': ['Cairo', 'Alexandria', 'Giza', 'Luxor'],
-  'Ethiopia': ['Addis Ababa', 'Dire Dawa', 'Bahir Dar'],
-  'Ghana': ['Greater Accra', 'Ashanti', 'Central', 'Western', 'Eastern', 'Northern'],
-  'Kenya': ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret'],
-  'Morocco': ['Casablanca', 'Rabat', 'Marrakech', 'Fez'],
-  'Nigeria': ['Lagos', 'Abuja', 'Kano', 'Rivers', 'Oyo', 'Enugu', 'Kaduna', 'Ogun', 'Delta'],
-  'Rwanda': ['Kigali City', 'Northern', 'Southern', 'Eastern', 'Western'],
-  'Senegal': ['Dakar', 'Saint-Louis', 'Thiès'],
-  'South Africa': ['Western Cape', 'Gauteng', 'KwaZulu-Natal', 'Eastern Cape', 'Free State'],
-  'Tanzania': ['Dar es Salaam', 'Dodoma', 'Arusha', 'Mwanza'],
-  'Uganda': ['Central', 'Eastern', 'Northern', 'Western'],
-};
+import { SCIENTIST_FIELDS, SCIENTIST_DEGREES, SCIENTIST_SERVICES, PROFESSIONS_BY_FIELD, WORLD_COUNTRIES } from '../../data/mockData';
 
 type ScientistFiltersProps = {
   selectedField: string;
@@ -244,7 +219,7 @@ export default function ScientistFilters({
                   value={selectedCountry}
                   onChange={(e) => { setSelectedCountry(e.target.value); setSelectedState(''); }}>
                   <option value="">All Countries</option>
-                  {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {WORLD_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
             )}
@@ -258,16 +233,13 @@ export default function ScientistFilters({
             </button>
             {!collapsedSections.state && (
               <div className="mt-3 animate-in fade-in duration-200">
-                {selectedCountry && STATES[selectedCountry] ? (
-                  <select className="w-full rounded-lg border border-neutral-gray-light text-sm p-2 bg-neutral-bg-light focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
-                    value={selectedState}
-                    onChange={(e) => setSelectedState(e.target.value)}>
-                    <option value="">All Regions</option>
-                    {STATES[selectedCountry].map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                ) : (
-                  <p className="text-xs text-slate-400 italic">Select a country first</p>
-                )}
+                <input
+                  type="text"
+                  value={selectedState}
+                  onChange={(e) => setSelectedState(e.target.value)}
+                  placeholder="Type a state or region..."
+                  className="w-full rounded-lg border border-neutral-gray-light text-sm p-2 bg-neutral-bg-light focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+                />
               </div>
             )}
           </div>

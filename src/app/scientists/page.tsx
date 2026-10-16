@@ -61,7 +61,7 @@ export default function Scientists() {
     const matchesService = selectedServices.length === 0 || sci.services.some(s => selectedServices.includes(s));
     const matchesStatus = !selectedStatus || sci.status === selectedStatus;
     const matchesCountry = !selectedCountry || sci.country === selectedCountry;
-    const matchesState = !selectedState || sci.state === selectedState;
+    const matchesState = !selectedState || sci.state.toLowerCase().includes(selectedState.toLowerCase());
 
     return matchesSearch && matchesField && matchesProfession && matchesDegree && matchesService && matchesStatus && matchesCountry && matchesState;
   });
