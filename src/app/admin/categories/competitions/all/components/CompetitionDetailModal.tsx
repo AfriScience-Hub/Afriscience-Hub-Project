@@ -166,7 +166,10 @@ export default function CompetitionDetailModal({ competition, judgeEmails, open,
                 {competition.criteria.map((criterion, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-xs text-neutral-gray-dark">
                     <span className="font-semibold text-neutral-black flex-shrink-0">{i + 1}.</span>
-                    <span>{criterion}</span>
+                    <span className="flex-1">{criterion.criterion}</span>
+                    <span className="flex-shrink-0 font-semibold text-neutral-black">
+                      {criterion.score ? `${criterion.score} pts` : '—'}
+                    </span>
                   </li>
                 ))}
               </ol>

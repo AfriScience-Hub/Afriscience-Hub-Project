@@ -6,8 +6,8 @@ import Image from 'next/image';
 import { Eye, ThumbsUp, Share2, Archive, ArchiveX, MapPin } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { toast } from 'sonner';
-import { INNOVATION_INTERESTS_EMOJI, type Innovation } from '../../data/mockData';
-import { InterestEmoji } from './InnovationHelpers';
+import { type Innovation } from '../../data/mockData';
+import { formatCount } from '@/lib/utils';
 
 type InnovationCardProps = {
   inn: Innovation;
@@ -60,27 +60,33 @@ export default function InnovationCard({ inn, archived, onToggleArchive, onPrevi
 
       <div className="flex flex-1 flex-col p-4">
         <div className="mb-2 flex items-center gap-1.5 flex-wrap">
-          <span className="text-[10px] uppercase font-bold text-brand-navy-900 bg-brand-navy-100 px-1.5 py-0.5 rounded">{inn.field}</span>
-          <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded ml-auto">{inn.stage}</span>
+          {inn.field.map((f) => (
+            <span key={f} className="text-[10px] uppercase font-bold text-brand-navy-900 bg-brand-navy-100 px-1.5 py-0.5 rounded">{f}</span>
+          ))}
         </div>
 
         <p className="text-[10px] font-mono text-neutral-gray-medium mb-2 tracking-wider">{inn.idTag}</p>
 
-        <div className="mb-2 flex items-center gap-1">
-          {inn.interests.slice(0, 3).map(i => (
-            <InterestEmoji key={i} interest={i} />
-          ))}
-        </div>
+        {inn.interests.length > 0 && (
+          <div className="mb-2 flex items-center gap-1.5 flex-wrap">
+            {inn.interests.slice(0, 3).map((i, idx) => (
+              <span key={idx} className="text-[10px] font-medium text-brand-red-600 bg-brand-red-100 px-1.5 py-0.5 rounded-full">{i}</span>
+            ))}
+          </div>
+        )}
 
         <p className="text-xs text-neutral-gray-medium mb-3">
           <span className="font-bold text-neutral-gray-dark">Dimensions: </span>
           {inn.dimensions.length} x {inn.dimensions.width} x {inn.dimensions.height} / {inn.dimensions.weight}
         </p>
 
-        <div className="mt-auto pt-3 border-t border-neutral-gray-light flex items-center text-xs text-neutral-gray-medium">
-          <span className="flex items-center mr-3" title="Views"><Eye className="h-3 w-3 mr-0.5" /> {(inn.views / 1000).toFixed(1)}k</span>
-          <span className="flex items-center mr-3" title="Likes"><ThumbsUp className="h-3 w-3 mr-0.5" /> {(inn.likes / 1000).toFixed(1)}k</span>
-          <span className="flex items-center" title="Shares"><Share2 className="h-3 w-3 mr-0.5" /> {(inn.shares / 1000).toFixed(1)}k</span>
+        <div className="mt-auto pt-3 border-t border-neutral-gray-light flex items-center gap-3 text-xs text-neutral-gray-medium">
+          <span className="flex items-center" title="Views"><Eye className="h-3 w-3 mr-0.5" /> {formatCount(inn.views)}</span>
+          <span className="flex items-center" title="Likes"><ThumbsUp className="h-3 w-3 mr-0.5" /> {formatCount(inn.likes)}</span>
+          <span className="flex items-center" title="Shares"><Share2 className="h-3 w-3 mr-0.5" /> {formatCount(inn.shares)}</span>
+          {inn.stage && (
+            <span className="ml-auto text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">{inn.stage}</span>
+          )}
         </div>
 
         <div className="mt-4">

@@ -1,4 +1,4 @@
-import { DEFAULT_JUDGING_CRITERIA, getRewardSuggestion } from '../create/data';
+import { DEFAULT_JUDGING_CRITERIA, getRewardSuggestion, type JudgingCriterion } from '../create/data';
 
 export type AllCompetitionStatus = 'Ongoing' | 'Upcoming' | 'Past';
 
@@ -32,7 +32,7 @@ export interface AllCompetition {
   rules: string[];
   screening: string[];
   awards: CompetitionAward[];
-  criteria: string[];
+  criteria: JudgingCriterion[];
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -70,7 +70,8 @@ export function getStatus(row: AllCompetition): AllCompetitionStatus {
   return 'Ongoing';
 }
 
-export const formatRegFee = (fee: number): string => (fee > 0 ? `$${fee.toLocaleString()}` : 'Free');
+/** Registration fee as a plain amount (the table header states the currency). */
+export const formatRegFee = (fee: number): string => (fee > 0 ? fee.toLocaleString() : 'Free');
 
 const img = (id: string) =>
   `https://images.unsplash.com/${id}?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800`;
@@ -174,7 +175,7 @@ const make = (
     rules: content.rules,
     screening: content.screening,
     awards: (getRewardSuggestion(type, rewardCategory) ?? []).map((a) => ({ position: a.position, items: [...a.items] })),
-    criteria: [...DEFAULT_JUDGING_CRITERIA],
+    criteria: DEFAULT_JUDGING_CRITERIA.map((c) => ({ ...c })),
   };
 };
 

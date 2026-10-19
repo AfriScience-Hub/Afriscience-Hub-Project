@@ -29,6 +29,10 @@ export interface CompetitionSubmission {
   scoredBy: string | null;
   /** Judge score 0-100 (null while pending) */
   avgScore: number | null;
+  /** Name of the competition this entry was submitted to */
+  competition: string;
+  /** ISO date (YYYY-MM-DD) the competition closes - decides Ongoing vs Past */
+  competitionEndISO: string;
 }
 
 export interface CompetitionJudge {
@@ -38,6 +42,27 @@ export interface CompetitionJudge {
   expertise: string;
   avatar: string;
 }
+
+/** ISO date for a day offset relative to today. */
+const offsetISO = (days: number): string => {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+/** Competitions the mock submissions belong to, with their closing date. */
+export const SUBMISSION_COMPETITIONS = [
+  { id: 'c1', name: 'Afri-Anime: Climate Heroes', endISO: offsetISO(24) },
+  { id: 'c2', name: 'Afri-Presentations: Innovation Cup', endISO: offsetISO(12) },
+  { id: 'c3', name: 'Afri-Memes: Water Is Life', endISO: offsetISO(40) },
+  { id: 'c4', name: 'Afri-MySpace: My Community', endISO: offsetISO(-15) },
+  { id: 'c5', name: 'Afri-Anime: Solar Kids', endISO: offsetISO(-60) },
+  { id: 'c6', name: 'Afri-Presentations: Green Cities', endISO: offsetISO(6) },
+];
+
+/** True when the competition this entry belongs to has already closed. */
+export const isPastSubmission = (row: CompetitionSubmission): boolean =>
+  new Date(`${row.competitionEndISO}T23:59:59`) < new Date();
 
 const img = (id: string) =>
   `https://images.unsplash.com/${id}?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800`;
@@ -74,6 +99,12 @@ export const COUNTRY_FLAG_CODES: Record<string, string> = {
 
 export const flagUrl = (code: string) => `https://flagcdn.com/w40/${code}.png`;
 
+/** The competition an entry belongs to, derived from its id. */
+const competitionFor = (id: string) => {
+  const n = Number(String(id).replace(/[^0-9]/g, '')) || 0;
+  return SUBMISSION_COMPETITIONS[n % SUBMISSION_COMPETITIONS.length];
+};
+
 const sub = (opts: {
   id: string; title: string; participant: string; email: string; contact: string;
   type: string; category: string; country: string;
@@ -108,6 +139,8 @@ const sub = (opts: {
   status: opts.scoredBy ? 'Scored' : 'Pending',
   scoredBy: opts.scoredBy ?? null,
   avgScore: opts.avgScore ?? null,
+  competition: competitionFor(opts.id).name,
+  competitionEndISO: competitionFor(opts.id).endISO,
 });
 
 export const SUBMISSIONS: CompetitionSubmission[] = [

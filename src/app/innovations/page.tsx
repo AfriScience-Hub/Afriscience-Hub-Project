@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { ImagePreviewModal } from './components/InnovationHelpers';
@@ -8,12 +8,17 @@ import InnovationHeader from './components/InnovationHeader';
 import InnovationFilters from './components/InnovationFilters';
 import InnovationCard from './components/InnovationCard';
 import { toast } from 'sonner';
+import {
+  fetchVisitorInnovations,
+  mapVisitorInnovation,
+  type VisitorInnovationFilters,
+} from './visitorApi';
 
 interface Innovation {
   id: string;
   name: string;
   idTag: string;
-  field: string;
+  field: string[];
   interests: string[];
   ownership: string;
   stage: string;
@@ -58,6 +63,12 @@ export default function Innovations() {
   const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
   const [innovations, setInnovations] = useState<Innovation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const pageRef = useRef(1);
+  const observerRef = useRef<HTMLDivElement>(null);
+  const isFetchingRef = useRef(false);
 
   const [showFilters, setShowFilters] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
@@ -69,47 +80,96 @@ export default function Innovations() {
     (selectedField ? 1 : 0) + selectedInterests.length + (selectedOwnership ? 1 : 0) +
     selectedSDGs.length + (selectedCountry ? 1 : 0) + (selectedStages ? 1 : 0);
 
-  // TODO: Replace with actual API call when endpoint is ready
-  // useEffect(() => {
-  //   const fetchInnovations = async () => {
-  //     try {
-  //       const response = await fetch('/api/innovations?status=Online');
-  //       const data = await response.json();
-  //       setInnovations(data);
-  //     } catch (error) {
-  //       console.error('Failed to fetch innovations:', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchInnovations();
-  // }, []);
+  // No limit param — the backend controls page size. We only pass page for pagination.
+  const buildFilters = useCallback((): VisitorInnovationFilters => ({
+    field: selectedField || undefined,
+    interests: selectedInterests.length ? selectedInterests : undefined,
+    ownership: selectedOwnership || undefined,
+    sdgs: selectedSDGs.length ? selectedSDGs : undefined,
+    country: selectedCountry || undefined,
+    stage: selectedStages || undefined,
+    page: pageRef.current,
+  }), [selectedField, selectedInterests, selectedOwnership, selectedSDGs, selectedCountry, selectedStages]);
 
-  // For now, keep empty array until API is ready
+  const fetchPage = useCallback(async (append = false) => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
+    setError(null);
+    try {
+      const res = await fetchVisitorInnovations(buildFilters());
+      const mapped = res.data.map(mapVisitorInnovation);
+      if (append) {
+        setInnovations(prev => [...prev, ...mapped]);
+        pageRef.current += 1;
+      } else {
+        setInnovations(mapped);
+        pageRef.current = 1;
+      }
+      // Use the backend's authoritative hasNext instead of guessing from data length.
+      setHasMore(Boolean(res.pagination?.hasNext));
+    } catch (err: any) {
+      setError(err?.message || 'Failed to load innovations. Please try again.');
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+      isFetchingRef.current = false;
+    }
+  }, [buildFilters]);
+
+  // Load on mount and whenever filters change.
   useEffect(() => {
-    setLoading(false);
-  }, []);
+    pageRef.current = 1;
+    setHasMore(true);
+    fetchPage(false);
+  }, [fetchPage]);
+
+  // Infinite scroll: fetch more when the sentinel enters the viewport.
+  useEffect(() => {
+    const el = observerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore && !loading && !isFetchingRef.current) {
+          pageRef.current += 1;
+          fetchPage(true);
+        }
+      },
+      { threshold: 0.1 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, loading, fetchPage]);
+
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setSelectedField('');
+    setSelectedInterests([]);
+    setSelectedOwnership('');
+    setSelectedSDGs([]);
+    setSelectedCountry('');
+    setSelectedStages('');
+    pageRef.current = 1;
+    setHasMore(true);
+    fetchPage(false);
+  };
 
   const filteredInnovations = innovations.filter(inn => {
-    // Only show live (Online) innovations
-    if (inn.status !== 'Online') return false;
-    
     const q = searchTerm.toLowerCase();
     const matchesSearch =
       inn.name.toLowerCase().includes(q) ||
-      inn.field.toLowerCase().includes(q) ||
+      inn.field.some(f => f.toLowerCase().includes(q)) ||
       inn.creator.toLowerCase().includes(q) ||
       inn.location.toLowerCase().includes(q) ||
       inn.idTag.toLowerCase().includes(q) ||
       inn.ownership.toLowerCase().includes(q) ||
       inn.stage.toLowerCase().includes(q);
-    const matchesField = !selectedField || inn.field === selectedField;
-    const matchesInterest = selectedInterests.length === 0 || inn.interests.some(i => selectedInterests.includes(i));
-    const matchesOwnership = !selectedOwnership || inn.ownership === selectedOwnership;
-    const matchesSDG = selectedSDGs.length === 0 || inn.sdgs.some(s => selectedSDGs.includes(s));
-    const matchesCountry = !selectedCountry || inn.country === selectedCountry;
-    const matchesStage = !selectedStages || inn.stage === selectedStages;
-    return matchesSearch && matchesField && matchesInterest && matchesOwnership && matchesSDG && matchesCountry && matchesStage;
+    return matchesSearch;
   });
 
   const toggleArchive = (id: string) => {
@@ -122,18 +182,7 @@ export default function Innovations() {
     }
   };
 
-  const clearAllFilters = () => {
-    setSearchTerm('');
-    setSelectedField('');
-    setSelectedInterests([]);
-    setSelectedOwnership('');
-    setSelectedSDGs([]);
-    setSelectedCountry('');
-    setSelectedStages('');
-  };
-
-  // All live innovations (before search/filter) - used for empty state check
-  const liveInnovations = innovations.filter(inn => inn.status === 'Online');
+  const liveInnovations = innovations;
 
   return (
     <div className="min-h-screen bg-neutral-bg-light py-8">
@@ -181,7 +230,17 @@ export default function Innovations() {
 
             <p className="mb-4 text-sm text-neutral-gray-medium">{filteredInnovations.length} innovation{filteredInnovations.length !== 1 ? 's' : ''} found</p>
 
-            {loading ? (
+            {error ? (
+              <div className="rounded-xl border border-brand-red-100 bg-brand-red-50 p-4 text-brand-red-700 text-sm mb-6">
+                {error}
+                <button
+                  onClick={() => fetchPage(false)}
+                  className="mt-2 text-xs underline hover:text-brand-red-900"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : loading ? (
               <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="animate-pulse">
@@ -193,14 +252,13 @@ export default function Innovations() {
                 ))}
               </div>
             ) : liveInnovations.length === 0 ? (
-              // Placeholder when no live innovations exist at all
               <div className="text-center py-16">
                 <div className="mx-auto w-16 h-16 rounded-full bg-neutral-bg-light flex items-center justify-center mb-4">
                   <svg className="w-8 h-8 text-neutral-gray-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-neutral-black mb-2">No live innovations yet</h3>
+                <h3 className="text-lg font-medium text-neutral-black mb-2">No innovations yet</h3>
                 <p className="text-neutral-gray-medium max-w-md mx-auto">Approved innovations will appear here once they go live on the platform.</p>
               </div>
             ) : (
@@ -222,6 +280,16 @@ export default function Innovations() {
                     <p className="text-neutral-gray-medium text-lg">No innovations found matching your criteria.</p>
                     <Button variant="outline" className="mt-4" onClick={clearAllFilters}>Clear Filters</Button>
                   </div>
+                )}
+
+                {loadingMore && (
+                  <div className="mt-6 flex justify-center">
+                    <div className="h-4 w-4 rounded-full border-2 border-neutral-gray-light border-t-brand-red-600 animate-spin" />
+                  </div>
+                )}
+
+                {hasMore && (
+                  <div ref={observerRef} className="h-20" />
                 )}
               </>
             )}

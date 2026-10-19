@@ -538,6 +538,7 @@ export const SCIENTIST_SERVICES = [
 export const SCIENTISTS = [
   {
     id: 'sci-1',
+    createdAt: '2021-03-15',
     name: 'Dr. Amara Okafor',
     title: 'Pharmaceutical Scientist',
     degrees: ['Doctoral'],
@@ -605,6 +606,7 @@ export const SCIENTISTS = [
   },
   {
     id: 'sci-2',
+    createdAt: '2020-07-22',
     name: 'Engr. David Nkosi',
     title: 'Civil Engineer',
     degrees: ['Bachelors', 'Masters'],
@@ -668,6 +670,7 @@ export const SCIENTISTS = [
   },
   {
     id: 'sci-3',
+    createdAt: '2022-01-10',
     name: 'Sarah Mensah',
     title: 'Data Scientist & AI Expert',
     degrees: ['Bachelors'],
@@ -731,6 +734,7 @@ export const SCIENTISTS = [
   },
   {
     id: 'sci-4',
+    createdAt: '2019-11-05',
     name: 'Dr. Ahmed Ibrahim',
     title: 'Veterinary Surgeon',
     degrees: ['Doctoral'],
@@ -847,7 +851,7 @@ export interface Innovation {
   id: string;
   name: string;
   idTag: string;
-  field: string;
+  field: string[];
   interests: string[];
   ownership: string;
   stage: string;
@@ -885,7 +889,7 @@ export const INNOVATIONS: Innovation[] = [
     id: 'inn-1',
     name: 'SolaPump Pro',
     idTag: 'AFI-NG-2024-0001',
-    field: 'Energy & Power',
+    field: ['Energy & Power'],
     interests: ['Investment | Partnership', 'Purchase | Trade', 'Marketing'],
     ownership: 'Private',
     stage: 'Scale-Up',
@@ -938,7 +942,7 @@ export const INNOVATIONS: Innovation[] = [
     id: 'inn-2',
     name: 'MalariaScope AI',
     idTag: 'AFI-KE-2024-0002',
-    field: 'Medical',
+    field: ['Medical'],
     interests: ['Investment | Partnership', 'Training | Mentorship', 'Sensitization'],
     ownership: 'Academic',
     stage: 'MVP',
@@ -986,7 +990,7 @@ export const INNOVATIONS: Innovation[] = [
     id: 'inn-3',
     name: 'EcoBrick Builder',
     idTag: 'AFI-GH-2023-0003',
-    field: 'Environmental',
+    field: ['Environmental'],
     interests: ['Purchase | Trade', 'Investment | Partnership', 'Marketing'],
     ownership: 'Corporate',
     stage: 'Commercialization',
@@ -1034,7 +1038,7 @@ export const INNOVATIONS: Innovation[] = [
     id: 'inn-4',
     name: 'AgroDrone Mapper',
     idTag: 'AFI-RW-2024-0004',
-    field: 'Agriculture',
+    field: ['Agriculture'],
     interests: ['Investment | Partnership', 'Training | Mentorship', 'Purchase | Trade'],
     ownership: 'Private',
     stage: 'MVP',
@@ -1082,7 +1086,7 @@ export const INNOVATIONS: Innovation[] = [
     id: 'inn-5',
     name: 'AquaPure Filter',
     idTag: 'AFI-TZ-2023-0005',
-    field: 'Environmental',
+    field: ['Environmental'],
     interests: ['Purchase | Trade', 'Sensitization', 'Marketing'],
     ownership: 'NGO | Charity',
     stage: 'Commercialization',
@@ -1130,7 +1134,7 @@ export const INNOVATIONS: Innovation[] = [
     id: 'inn-6',
     name: 'BioGas SmartStove',
     idTag: 'AFI-UG-2024-0006',
-    field: 'Energy & Power',
+    field: ['Energy & Power'],
     interests: ['Purchase | Trade', 'Investment | Partnership', 'Sensitization'],
     ownership: 'Private',
     stage: 'Scale-Up',
@@ -1178,7 +1182,7 @@ export const INNOVATIONS: Innovation[] = [
     id: 'inn-7',
     name: 'E-Waste Refinery Hub',
     idTag: 'AFI-ZA-2023-0007',
-    field: 'Waste & Recycling',
+    field: ['Waste & Recycling'],
     interests: ['Investment | Partnership', 'Marketing', 'Training | Mentorship'],
     ownership: 'Corporate',
     stage: 'Scale-Up',
@@ -1226,7 +1230,7 @@ export const INNOVATIONS: Innovation[] = [
     id: 'inn-8',
     name: 'BioHand Prosthetic',
     idTag: 'AFI-EG-2024-0008',
-    field: 'Engineering',
+    field: ['Engineering'],
     interests: ['Investment | Partnership', 'Training | Mentorship', 'Sensitization'],
     ownership: 'Academic',
     stage: 'Prototype',
@@ -2144,6 +2148,7 @@ export const CENTER_SERVICES = [
 export const SPECIALIST_CENTERS = [
   {
     id: 'center-1',
+    createdAt: '2021-06-10',
     name: 'Lagos Biomedical Diagnostics Center',
     motto: 'Precision Diagnostics, Better Outcomes',
     address: '14 Broad Street, Victoria Island',
@@ -2215,6 +2220,7 @@ export const SPECIALIST_CENTERS = [
   },
   {
     id: 'center-2',
+    createdAt: '2020-02-14',
     name: 'Nairobi Environmental Sciences Hub',
     motto: 'Protecting Africa\'s Natural Heritage',
     address: '88 Uhuru Highway',
@@ -2265,6 +2271,7 @@ export const SPECIALIST_CENTERS = [
   },
   {
     id: 'center-3',
+    createdAt: '2022-03-05',
     name: 'Accra AgriTech Innovation Lab',
     motto: 'Feeding Africa Through Science',
     address: '22 Liberation Road',
@@ -2309,6 +2316,7 @@ export const SPECIALIST_CENTERS = [
   },
   {
     id: 'center-4',
+    createdAt: '2019-08-20',
     name: 'Cairo Pharma Testing Laboratory',
     motto: 'Quality Assurance for a Healthier Africa',
     address: '5 El-Tahrir Square',
@@ -2349,6 +2357,7 @@ export const SPECIALIST_CENTERS = [
   },
   {
     id: 'center-5',
+    createdAt: '2021-12-03',
     name: 'Johannesburg Veterinary Research Institute',
     motto: 'Advancing Animal Health Science',
     address: '100 Jan Smuts Avenue, Rosebank',
@@ -2389,6 +2398,7 @@ export const SPECIALIST_CENTERS = [
   },
   {
     id: 'center-6',
+    createdAt: '2020-05-18',
     name: 'Kigali ICT & Cybersecurity Center',
     motto: 'Securing Africa\'s Digital Future',
     address: 'Kigali Innovation City, Gasabo',
@@ -2429,6 +2439,7 @@ export const SPECIALIST_CENTERS = [
   },
   {
     id: 'center-7',
+    createdAt: '2022-09-12',
     name: 'Dakar Energy & Power Research Station',
     motto: 'Powering Africa Sustainably',
     address: 'Route de Rufisque, Pikine',
@@ -2468,6 +2479,7 @@ export const SPECIALIST_CENTERS = [
   },
   {
     id: 'center-8',
+    createdAt: '2018-04-25',
     name: 'Kampala Food Safety & Nutrition Center',
     motto: 'Safe Food, Healthy Nation',
     address: '7 Jinja Road, Kampala',

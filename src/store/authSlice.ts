@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { api } from '@/lib/api';
-import { normalizeFileSrc } from '@/lib/files';
+import { resolveAvatarSrc } from '@/lib/files';
 
 export interface AuthUser {
   name: string;
@@ -67,15 +67,18 @@ function persistTokens(data: any, isAdmin = false) {
 function extractUser(data: any, fallbackIdentifier?: string): AuthUser {
   const u = data?.details || data?.user || data?.data?.user || data?.data || {};
   const isEmail = fallbackIdentifier?.includes('@');
-  const rawAvatar = u.avatar || u.avatarUrl || u.displayPhotoUrl || u.displayPhoto || u.photo || u.profileImage || u.image;
+  const profile = u?.profile || u?.personalInfo || u?.userProfile || u?.profileInfo || {};
+  const rawAvatar = u.avatar || u.avatarUrl || u.displayPhotoUrl || u.displayPhoto || u.photo || u.profileImage || u.image
+    || profile.displayPhoto || profile.avatar || profile.avatarUrl || profile.photo || profile.profileImage || profile.image;
   return {
     name: u.name || u.fullName || u.firstName || (fallbackIdentifier ? (isEmail ? fallbackIdentifier.split('@')[0] : 'User') : 'User'),
     email: u.email || (isEmail ? fallbackIdentifier || '' : ''),
     phone: u.phone || (!isEmail ? fallbackIdentifier || '' : ''),
-    // Only accept values we can actually render: signed URLs, or a bare object
-    // key resolved through the URL captured at upload time. Keys/placeholder
-    // art that can't be resolved resolve to undefined → the initials fallback.
-    avatar: normalizeFileSrc(rawAvatar),
+    // Only accept values we can actually render: a valid signed/blob URL, or a
+    // bare key whose signed URL we captured at upload time. Unresolvable
+    // values (raw bucket URL, expired key) become undefined -> initials
+    // fallback, never a broken image.
+    avatar: resolveAvatarSrc(rawAvatar),
     createdAt: u.createdAt,
     updatedAt: u.updatedAt,
   };
@@ -120,7 +123,7 @@ function applyTokenClaims(user: AuthUser, token?: string | null): AuthUser {
     name: nameIsPlaceholder ? (claims.name || claims.fullName || user.name) : user.name,
     email: user.email || claims.email || '',
     phone: user.phone || claims.phone || '',
-    avatar: user.avatar ?? normalizeFileSrc(claims.avatar),
+    avatar: user.avatar ?? resolveAvatarSrc(claims.avatar),
     createdAt: user.createdAt ?? (typeof claims.createdAt === 'string' ? claims.createdAt : undefined),
     updatedAt: user.updatedAt ?? (typeof claims.updatedAt === 'string' ? claims.updatedAt : undefined),
   };
@@ -309,7 +312,7 @@ const authSlice = createSlice({
       // Normalize on the way in so a raw storage key, an expired signed URL or
       // the legacy placeholder avatar can never be persisted again.
       const payload = action.payload
-        ? { ...action.payload, avatar: normalizeFileSrc(action.payload.avatar) }
+        ? { ...action.payload, avatar: resolveAvatarSrc(action.payload.avatar) }
         : action.payload;
       state.user = payload;
       state.isAuthenticated = !!payload;
@@ -332,7 +335,7 @@ const authSlice = createSlice({
           // placeholder avatar. If normalization returns undefined (expired cache),
           // keep the raw key so Avatar can at least show initials.
           if (parsed && typeof parsed.avatar === 'string') {
-            const normalized = normalizeFileSrc(parsed.avatar);
+            const normalized = resolveAvatarSrc(parsed.avatar);
             parsed.avatar = normalized ?? parsed.avatar;
           }
           // Fill any gaps (e.g. avatar) from the token's claims so the profile
@@ -419,7 +422,7 @@ const authSlice = createSlice({
         // If it provides one, normalize it (resolve keys, drop legacy placeholders).
         // IMPORTANT: Never overwrite a valid avatar with undefined.
         const incoming = a.payload;
-        const normalizedAvatar = incoming.avatar ? normalizeFileSrc(incoming.avatar) : undefined;
+        const normalizedAvatar = incoming.avatar ? resolveAvatarSrc(incoming.avatar) : undefined;
         const merged = !normalizedAvatar && s.user?.avatar
           ? { ...incoming, avatar: s.user.avatar }
           : { ...incoming, avatar: normalizedAvatar ?? s.user?.avatar };

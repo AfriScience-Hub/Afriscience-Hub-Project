@@ -12,11 +12,11 @@ interface SubmissionsTableProps {
   onScore: (row: CompetitionSubmission) => void;
 }
 
-const HEADERS = ['Submission', 'Type', 'Category', 'Country', 'Contact', 'Submitted On', 'Status', 'Scored By', 'Average Score', 'Action'];
+const HEADERS = ['Submission', 'Competition', 'Type', 'Category', 'Country', 'Contact', 'Submitted On', 'Status', 'Scored By', 'Average Score', 'Action'];
 
 /**
- * Submissions table. Columns: Submission, Type, Category, Country, Contact,
- * Submitted On, Status, Scored By, Average Score and Action
+ * Submissions table. Columns: Submission, Competition, Type, Category, Country,
+ * Contact, Submitted On, Status, Scored By, Average Score and Action
  * (View Submission / Score Participants).
  */
 export default function SubmissionsTable({ rows, onView, onScore }: SubmissionsTableProps) {
@@ -56,6 +56,9 @@ export default function SubmissionsTable({ rows, onView, onScore }: SubmissionsT
                     <p className="text-[10px] text-neutral-gray-medium">{row.participant}</p>
                   </div>
                 </div>
+              </td>
+              <td className="px-3 py-3 whitespace-nowrap">
+                <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-indigo-50 text-indigo-700">{row.competition}</span>
               </td>
               <td className="px-3 py-3 whitespace-nowrap">
                 <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700">{row.type}</span>

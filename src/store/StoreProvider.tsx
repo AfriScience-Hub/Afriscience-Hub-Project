@@ -12,9 +12,9 @@ function Hydrator({ children }: { children: React.ReactNode }) {
     const adminToken = typeof window !== 'undefined' && localStorage.getItem('afrisciencehub_admin_token');
     const hasToken = isAdmin ? adminToken : userToken;
     if (hasToken) {
-      // The avatar comes from the login response / the token's own claims
-      // (see applyTokenClaims in authSlice), so it renders immediately —
-      // no profile fetch is needed just to show the picture.
+      // GET /auth/me returns the current user (including the avatar when set),
+      // so the display picture renders immediately on load — no need to visit
+      // the profile page first.
       store.dispatch(fetchCurrentUser());
     }
   }, []);

@@ -1,4 +1,6 @@
 /** Competition types (from the main competitions pages). */
+import { AFRICAN_COUNTRIES } from '@/app/data/mockData';
+
 export const COMPETITION_TYPES = ['Afri-Anime', 'Afri-Presentations', 'Afri-Memes', 'Afri-MySpace'];
 
 /** Fixed category for the non-presentation types. */
@@ -30,21 +32,26 @@ export const isCategoryLocked = (type: string) =>
   Boolean(type) && type !== 'Afri-Presentations';
 
 /** Media types participants may submit (multi-select). */
-export const MEDIA_TYPE_OPTIONS = ['Image', 'Video', 'Audio', 'PDF'];
+export const MEDIA_TYPE_OPTIONS = ['Image', 'Video', 'Audio', 'Document'];
 
-export const COUNTRIES = [
-  'Nigeria', 'Kenya', 'Ghana', 'South Africa', 'Egypt',
-  'Rwanda', 'Uganda', 'Tanzania', 'Ethiopia', 'Morocco',
-];
+/** All African countries a competition may be hosted in. */
+export const COUNTRIES = AFRICAN_COUNTRIES;
+
+/** One judging criterion: the criterion text plus the points it is worth. */
+export interface JudgingCriterion {
+  criterion: string;
+  /** Maximum points awarded for this criterion */
+  score: string;
+}
 
 /** Default judging criteria (the platform's Screening & Selection set). */
-export const DEFAULT_JUDGING_CRITERIA = [
-  'Accuracy of Information',
-  'Data & Research Quality',
-  'Depth of Knowledge',
-  'Concept Clarity',
-  'Presentation Skill',
-  'Audience Engagement',
+export const DEFAULT_JUDGING_CRITERIA: JudgingCriterion[] = [
+  { criterion: 'Accuracy of Information', score: '20' },
+  { criterion: 'Data & Research Quality', score: '20' },
+  { criterion: 'Depth of Knowledge', score: '20' },
+  { criterion: 'Concept Clarity', score: '20' },
+  { criterion: 'Presentation Skill', score: '10' },
+  { criterion: 'Audience Engagement', score: '10' },
 ];
 
 /** One prize tier: a position label plus its reward items (one per line). */

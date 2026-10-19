@@ -7,61 +7,80 @@ import SubmissionsHeader from './components/SubmissionsHeader';
 import SubmissionsStats from './components/SubmissionsStats';
 import SubmissionsFilters, { DEFAULT_SUBMISSIONS_FILTERS, type SubmissionsFilterState } from './components/SubmissionsFilters';
 import SubmissionsTable from './components/SubmissionsTable';
+import SubmissionsTabs, { type SubmissionsTab } from './components/SubmissionsTabs';
 import SubmissionsPagination from './components/SubmissionsPagination';
 import { ADMIN_ROUTES } from '@/app/admin/data/routes';
-import { SUBMISSIONS, type CompetitionSubmission } from './data';
+import { SUBMISSIONS, isPastSubmission, type CompetitionSubmission } from './data';
 
 const PER_PAGE = 8;
 
 /**
- * View Submissions: filters, table (View Submission navigates to the
- * standalone submission page; Score Participants navigates to the
- * scoring page) and the Release Top 30 shortlist action.
+ * View Submissions: split into Ongoing and Past tabs, each with its own
+ * filters, table and pagination. View Submission navigates to the standalone
+ * submission page; Score Participants navigates to the scoring page.
  */
 export default function CompetitionSubmissionsPage() {
   const router = useRouter();
-  const rows = SUBMISSIONS;
-  const [filters, setFilters] = useState<SubmissionsFilterState>(DEFAULT_SUBMISSIONS_FILTERS);
-  const [page, setPage] = useState(1);
+
+  const [tab, setTab] = useState<SubmissionsTab>('Ongoing');
+  const [filters, setFilters] = useState<Record<SubmissionsTab, SubmissionsFilterState>>({
+    Ongoing: DEFAULT_SUBMISSIONS_FILTERS,
+    Past: DEFAULT_SUBMISSIONS_FILTERS,
+  });
+  const [page, setPage] = useState<Record<SubmissionsTab, number>>({ Ongoing: 1, Past: 1 });
+
+  const byPhase = useMemo(
+    () => ({
+      Ongoing: SUBMISSIONS.filter((row) => !isPastSubmission(row)),
+      Past: SUBMISSIONS.filter((row) => isPastSubmission(row)),
+    }),
+    []
+  );
+
+  const currentFilters = filters[tab];
+  const currentRows = byPhase[tab];
 
   const updateFilters = (patch: Partial<SubmissionsFilterState>) => {
-    setFilters((prev) => ({ ...prev, ...patch }));
-    setPage(1);
+    setFilters((prev) => ({ ...prev, [tab]: { ...prev[tab], ...patch } }));
+    setPage((prev) => ({ ...prev, [tab]: 1 }));
   };
 
   const resetFilters = () => {
-    setFilters(DEFAULT_SUBMISSIONS_FILTERS);
-    setPage(1);
+    setFilters((prev) => ({ ...prev, [tab]: DEFAULT_SUBMISSIONS_FILTERS }));
+    setPage((prev) => ({ ...prev, [tab]: 1 }));
   };
+
+  const handleTabChange = (next: SubmissionsTab) => setTab(next);
 
   const filtered = useMemo(
     () =>
-      rows.filter((row) => {
-        if (filters.type !== 'All Types' && row.type !== filters.type) return false;
-        if (filters.category !== 'All Categories' && row.category !== filters.category) return false;
-        if (filters.country !== 'All Countries' && row.country !== filters.country) return false;
-        if (filters.search.trim()) {
-          const q = filters.search.trim().toLowerCase();
-          const haystack = `${row.participant} ${row.email} ${row.title} ${row.description} ${row.message}`.toLowerCase();
+      currentRows.filter((row) => {
+        if (currentFilters.type !== 'All Types' && row.type !== currentFilters.type) return false;
+        if (currentFilters.category !== 'All Categories' && row.category !== currentFilters.category) return false;
+        if (currentFilters.country !== 'All Countries' && row.country !== currentFilters.country) return false;
+        if (currentFilters.search.trim()) {
+          const q = currentFilters.search.trim().toLowerCase();
+          const haystack = `${row.participant} ${row.email} ${row.title} ${row.description} ${row.message} ${row.competition}`.toLowerCase();
           if (!haystack.includes(q)) return false;
         }
         return true;
       }),
-    [rows, filters]
+    [currentRows, currentFilters]
   );
 
   const activeCount = useMemo(
-    () => [
-      filters.type !== 'All Types',
-      filters.category !== 'All Categories',
-      filters.country !== 'All Countries',
-      Boolean(filters.search.trim()),
-    ].filter(Boolean).length,
-    [filters]
+    () =>
+      [
+        currentFilters.type !== 'All Types',
+        currentFilters.category !== 'All Categories',
+        currentFilters.country !== 'All Countries',
+        Boolean(currentFilters.search.trim()),
+      ].filter(Boolean).length,
+    [currentFilters]
   );
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const safePage = Math.min(page, totalPages);
+  const safePage = Math.min(page[tab], totalPages);
   const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
 
   const handleView = (row: CompetitionSubmission) => {
@@ -73,7 +92,7 @@ export default function CompetitionSubmissionsPage() {
   };
 
   const handleReleaseTop30 = () => {
-    const scored = rows.filter((r) => r.status === 'Scored').length;
+    const scored = byPhase.Ongoing.filter((r) => r.status === 'Scored').length;
     toast.success(`Top 30 shortlist released for voting (${scored} scored submissions ranked)`);
   };
 
@@ -81,14 +100,25 @@ export default function CompetitionSubmissionsPage() {
     <div className="space-y-4">
       <SubmissionsHeader onReleaseTop30={handleReleaseTop30} />
       <SubmissionsStats />
-      <SubmissionsFilters
-        filters={filters}
-        onChange={updateFilters}
-        onReset={resetFilters}
-        activeCount={activeCount}
-      />
 
       <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
+        <div className="px-4 pt-3">
+          <SubmissionsTabs
+            active={tab}
+            onChange={handleTabChange}
+            counts={{ Ongoing: byPhase.Ongoing.length, Past: byPhase.Past.length }}
+          />
+        </div>
+
+        <div className="px-4 py-3 border-b border-neutral-gray-light">
+          <SubmissionsFilters
+            filters={currentFilters}
+            onChange={updateFilters}
+            onReset={resetFilters}
+            activeCount={activeCount}
+          />
+        </div>
+
         <SubmissionsTable rows={paginated} onView={handleView} onScore={handleScore} />
         <SubmissionsPagination
           page={safePage}
@@ -96,7 +126,7 @@ export default function CompetitionSubmissionsPage() {
           shownFrom={filtered.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1}
           shownTo={Math.min(safePage * PER_PAGE, filtered.length)}
           total={filtered.length}
-          onChange={setPage}
+          onChange={(p) => setPage((prev) => ({ ...prev, [tab]: p }))}
         />
       </div>
     </div>

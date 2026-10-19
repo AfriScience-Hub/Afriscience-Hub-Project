@@ -3,6 +3,29 @@
 import { useRef } from 'react';
 import Image from 'next/image';
 import { Camera, Upload, CreditCard, ChevronDown } from 'lucide-react';
+import { toast } from 'sonner';
+import { formatFileSize, validateFileSize } from '@/lib/files';
+
+/** Maximum accepted size for a submitted identity or profile image. */
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+
+/** Reads the chosen file, rejecting anything that is not an image or is over the size limit. */
+function pickImageFile(e: React.ChangeEvent<HTMLInputElement>, label: string): File | null {
+  const file = e.target.files?.[0];
+  if (!file) return null;
+  if (!file.type.startsWith('image/')) {
+    toast.error('Please upload an image file.');
+    e.target.value = '';
+    return null;
+  }
+  const sizeError = validateFileSize(file, MAX_IMAGE_BYTES, label);
+  if (sizeError) {
+    toast.error(sizeError);
+    e.target.value = '';
+    return null;
+  }
+  return file;
+}
 
 interface ProfilePictureSectionProps {
   preview: string | null;
@@ -14,9 +37,8 @@ export function ProfilePictureSection({ preview, fileName, onUpload }: ProfilePi
   const ref = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = pickImageFile(e, 'Profile Picture');
     if (!file) return;
-    if (!file.type.startsWith('image/')) return;
     onUpload(file);
   };
 
@@ -43,7 +65,7 @@ export function ProfilePictureSection({ preview, fileName, onUpload }: ProfilePi
           <div>
             <Camera className="h-10 w-10 text-neutral-gray-light mx-auto mb-2" />
             <p className="text-sm text-neutral-gray-dark">Upload the facial image of the contestant only</p>
-            <p className="text-xs text-neutral-gray-medium mt-1">picture / image file formats only</p>
+            <p className="text-xs text-neutral-gray-medium mt-1">picture / image file formats only &middot; Max 5 MB</p>
           </div>
         )}
       </div>
@@ -63,9 +85,8 @@ export function IdCardUploadSection({ label, description, preview, fileName, onU
   const ref = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = pickImageFile(e, label);
     if (!file) return;
-    if (!file.type.startsWith('image/')) return;
     onUpload(file);
   };
 
@@ -94,7 +115,7 @@ export function IdCardUploadSection({ label, description, preview, fileName, onU
             <p className="text-sm text-neutral-gray-dark leading-relaxed">
               To verify your identity, kindly upload a copy of the {description.toLowerCase()}. Uploaded documents are securely stored and protected from unauthorized access.
             </p>
-            <p className="text-xs text-neutral-gray-medium mt-2">picture / image file formats only</p>
+            <p className="text-xs text-neutral-gray-medium mt-2">picture / image file formats only &middot; Max 5 MB</p>
           </div>
         )}
       </div>
@@ -118,9 +139,8 @@ export function GuardianIdSection({ idType, otherIdType, preview, fileName, onId
   const ref = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = pickImageFile(e, "Parent/Guardian's ID Card");
     if (!file) return;
-    if (!file.type.startsWith('image/')) return;
     onUpload(file);
   };
 
@@ -174,7 +194,7 @@ export function GuardianIdSection({ idType, otherIdType, preview, fileName, onId
             <p className="text-sm text-neutral-gray-dark leading-relaxed">
               To verify your identity, kindly upload a copy of the selected valid government issued ID card of the parent or guardian (National ID card, Driver&apos;s license, Voter&apos;s card, International passport, etc.). Uploaded documents are securely stored and protected from unauthorized access.
             </p>
-            <p className="text-xs text-neutral-gray-medium mt-2">picture / image file formats only</p>
+            <p className="text-xs text-neutral-gray-medium mt-2">picture / image file formats only &middot; Max 5 MB</p>
           </div>
         )}
       </div>
@@ -198,9 +218,8 @@ export function GovernmentIdSection({ idType, otherIdType, preview, fileName, on
   const ref = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = pickImageFile(e, 'Government ID Card');
     if (!file) return;
-    if (!file.type.startsWith('image/')) return;
     onUpload(file);
   };
 
@@ -254,7 +273,7 @@ export function GovernmentIdSection({ idType, otherIdType, preview, fileName, on
             <p className="text-sm text-neutral-gray-dark leading-relaxed">
               To verify your identity, kindly upload a copy of the selected valid government issued ID card of yours (National ID card, Driver&apos;s license, Voter&apos;s card, International passport, etc.). Uploaded documents are securely stored and protected from unauthorized access.
             </p>
-            <p className="text-xs text-neutral-gray-medium mt-2">picture / image file formats only</p>
+            <p className="text-xs text-neutral-gray-medium mt-2">picture / image file formats only &middot; Max 5 MB</p>
           </div>
         )}
       </div>

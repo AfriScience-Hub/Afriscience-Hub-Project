@@ -8,7 +8,7 @@ export interface ManagedOption {
   note?: string;
 }
 
-export type ManageTab = 'Fields' | 'Interests' | 'Stages' | 'Ownership' | 'SDGs' | 'Countries' | 'Price';
+export type ManageTab = 'Fields' | 'Interests' | 'Stages' | 'Ownership' | 'SDGs' | 'Price';
 
 export const MANAGE_TABS: { id: ManageTab; label: string }[] = [
   { id: 'Fields', label: 'Fields' },
@@ -16,7 +16,6 @@ export const MANAGE_TABS: { id: ManageTab; label: string }[] = [
   { id: 'Stages', label: 'Stages' },
   { id: 'Ownership', label: 'Ownership' },
   { id: 'SDGs', label: 'SDGs' },
-  { id: 'Countries', label: 'Countries' },
   { id: 'Price', label: 'Price' },
 ];
 
@@ -58,14 +57,6 @@ export const DUMMY_OPTIONS: Record<ManageTab, ManagedOption[]> = {
     { id: 'g4', name: 'SDG 13 — Climate Action', status: 'Active', count: 36 },
     { id: 'g5', name: 'SDG 4 — Quality Education', status: 'Active', count: 29 },
   ],
-  Countries: [
-    { id: 'c1', name: 'Nigeria', status: 'Active', count: 92 },
-    { id: 'c2', name: 'Kenya', status: 'Active', count: 74 },
-    { id: 'c3', name: 'South Africa', status: 'Active', count: 61 },
-    { id: 'c4', name: 'Ghana', status: 'Active', count: 48 },
-    { id: 'c5', name: 'Rwanda', status: 'Active', count: 22 },
-    { id: 'c6', name: 'Ethiopia', status: 'Inactive', count: 3 },
-  ],
   Price: [
     { id: 'p1', name: 'Default Innovation Price', status: 'Active', count: 1, note: 'Default price in NGN for innovation listings.' },
   ],
@@ -77,6 +68,5 @@ export const TAB_DESCRIPTIONS: Record<ManageTab, string> = {
   Stages: 'Stages track how far the innovation has matured.',
   Ownership: 'Ownership indicates who owns or leads the innovation.',
   SDGs: 'SDGs link innovations to sustainable development goals.',
-  Countries: 'Countries control which geography filters appear.',
   Price: 'Set the price for innovation listings.',
 };

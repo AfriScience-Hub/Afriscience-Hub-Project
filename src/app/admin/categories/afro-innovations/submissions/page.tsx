@@ -28,7 +28,7 @@ export default function SubmissionsPage() {
 
   const filtered = useMemo(() => {
     return records.filter((r) => {
-      if (search && !`${r.innovation.name} ${r.submitter.name}`.toLowerCase().includes(search.toLowerCase())) return false;
+      if (search && !`${r.innovation.name} ${r.user?.fullName || ''} ${r.submitter.name}`.toLowerCase().includes(search.toLowerCase())) return false;
       if (statusFilter !== 'All Status' && r.status !== statusFilter) return false;
       if (fieldFilter !== 'All Fields' && r.innovation.field !== fieldFilter) return false;
       if (stageFilter !== 'All Stages' && r.innovation.stage !== stageFilter) return false;
@@ -201,8 +201,8 @@ export default function SubmissionsPage() {
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-neutral-black truncate">{r.submitter.name}</p>
-                      <p className="text-[11px] text-neutral-gray-medium truncate">{r.submitter.email}</p>
+                      <p className="text-xs font-medium text-neutral-black truncate">{r.user?.fullName || r.submitter.name || '—'}</p>
+                      <p className="text-[11px] text-neutral-gray-medium truncate">{r.user?.email || r.submitter.email}</p>
                     </div>
                   </td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.submittedOn}<br /><span className="text-[11px] text-neutral-gray-medium">{r.submittedTime}</span></td>

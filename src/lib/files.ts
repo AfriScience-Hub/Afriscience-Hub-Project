@@ -118,6 +118,56 @@ export function normalizeFileSrc(value?: string | null): string | undefined {
   return cachedUrlFor(v.replace(/^\/+/, '')) ?? `${S3_BASE}/${v.replace(/^\/+/, '')}`;
 }
 
+/** Human-readable file size, e.g. "4.2 MB". */
+export function formatFileSize(bytes: number): string {
+  if (!bytes || bytes < 0) return '0 KB';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / 1024 ** i).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+}
+
+/**
+ * Checks a file against a maximum size.
+ *
+ * Returns a human-readable error message when the file is too large, or
+ * `null` when it is within the limit. Callers should surface the message
+ * and discard the file.
+ */
+export function validateFileSize(file: File, maxBytes: number, label = 'File'): string | null {
+  if (file.size > maxBytes) {
+    return `${label} is too large (${formatFileSize(file.size)}). Maximum allowed size is ${formatFileSize(maxBytes)}.`;
+  }
+  return null;
+}
+
+/**
+ * Strict avatar resolver for the auth flow. Like normalizeFileSrc, but it
+ * NEVER returns a raw bucket URL (which would 403 on the private bucket):
+ * signed/expired-checked URLs, blob/data URIs, and cached signed URLs for bare
+ * keys only. Anything unresolvable returns undefined so the Avatar falls back
+ * to initials instead of showing a broken image.
+ */
+export function resolveAvatarSrc(value?: string | null): string | undefined {
+  if (!value) return undefined;
+  const v = value.trim();
+  if (!v) return undefined;
+  // Legacy dummy avatar is not a real upload.
+  if (/images\.unsplash\.com|default.?avatar/i.test(v)) return undefined;
+  if (/^(blob:|data:)/i.test(v)) return v;
+  if (/^https?:\/\//i.test(v)) {
+    if (/X-Amz-/i.test(v)) {
+      // Signed -> use it unless expired (an expired one would just 403).
+      return signedUrlExpired(v) ? undefined : v;
+    }
+    // Unsigned bucket link -> only usable if we captured its signed URL at upload.
+    const key = bucketKeyOf(v);
+    if (key) return cachedUrlFor(key) ?? undefined;
+    return v; // External URL — leave it to the <img> to attempt.
+  }
+  // Bare object key -> the signed URL captured at upload time, else nothing.
+  return cachedUrlFor(v.replace(/^\/+/, '')) ?? undefined;
+}
+
 /** True when the value points at a real remote/preview image (not a bare key). */
 export function isRenderableSrc(value?: string | null): boolean {
   return !!value && /^(https?:|blob:|data:)/i.test(value.trim());

@@ -30,9 +30,9 @@ const COLUMNS: { key: string; label: string; sort?: SortKey; align?: 'right' }[]
   { key: 'type', label: 'Type' },
   { key: 'category', label: 'Categories' },
   { key: 'country', label: 'Country' },
-  { key: 'regFee', label: 'Reg. Fee', align: 'right' },
+  { key: 'regFee', label: 'Reg. Fee (USD)', align: 'right' },
   { key: 'startISO', label: 'Start Date' },
-  { key: 'deadlineISO', label: 'Deadline' },
+  { key: 'submissionISO', label: 'Submission Deadline' },
   { key: 'participants', label: 'Participants' },
   { key: 'status', label: 'Status' },
   { key: 'actions', label: 'Actions', align: 'right' },
@@ -125,7 +125,7 @@ export default function AllCompetitionsTable({ rows, onView, onAssignJudges, onE
                 <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{row.country}</td>
                 <td className="px-3 py-3 text-xs text-neutral-gray-dark text-right whitespace-nowrap font-medium">{formatRegFee(row.regFee)}</td>
                 <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{formatDate(row.startISO)}</td>
-                <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{formatDate(row.deadlineISO)}</td>
+                <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{formatDate(row.submissionISO)}</td>
                 <td className="px-3 py-3 text-xs text-neutral-black whitespace-nowrap font-medium">{row.participants.toLocaleString()}</td>
                 <td className="px-3 py-3 whitespace-nowrap">
                   <span className={`px-2 py-0.5 rounded text-[11px] font-semibold ${STATUS_STYLES[status]}`}>{status}</span>

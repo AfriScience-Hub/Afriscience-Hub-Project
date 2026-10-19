@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SUBMISSION_TYPE_OPTIONS, SUBMISSION_CATEGORY_OPTIONS, SUBMISSION_COUNTRY_OPTIONS } from '../data';
 
@@ -65,27 +65,22 @@ export default function SubmissionsFilters({ filters, onChange, onReset, activeC
       <div className="flex items-center gap-2 ml-auto">
         <button
           onClick={onReset}
-          className="px-3.5 py-2 rounded-lg text-xs font-medium text-neutral-gray-dark hover:bg-neutral-bg-light cursor-pointer border border-transparent"
-        >
-          Reset
-        </button>
-        <button
-          onClick={() => activeCount > 0 && onReset()}
-          title={activeCount > 0 ? 'Clear all filters' : 'Filters'}
+          disabled={activeCount === 0}
+          title={activeCount > 0 ? 'Clear all filters' : 'No filters applied'}
           className={cn(
-            'flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium border cursor-pointer transition-colors',
+            'flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium border cursor-pointer transition-colors',
             activeCount > 0
-              ? 'bg-[#453DD8] border-[#453DD8] text-white hover:bg-[#3a33c0]'
-              : 'bg-[#453DD8]/80 border-[#453DD8] text-white hover:bg-[#453DD8]'
+              ? 'border-neutral-gray-light bg-white text-neutral-gray-dark hover:bg-neutral-bg-light'
+              : 'border-transparent text-neutral-gray-light cursor-not-allowed'
           )}
         >
-          <Filter className="h-3.5 w-3.5" />
+          <RotateCcw className="h-3.5 w-3.5" />
+          Reset
           {activeCount > 0 && (
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-[#453DD8]">
+            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-red-100 px-1 text-[9px] font-bold text-brand-red-600">
               {activeCount}
             </span>
           )}
-          Filter
         </button>
       </div>
     </div>

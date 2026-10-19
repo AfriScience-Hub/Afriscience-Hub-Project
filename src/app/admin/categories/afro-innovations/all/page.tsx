@@ -44,7 +44,7 @@ export default function AllInnovationsPage() {
   const live = useMemo(() => records.filter((r) => r.status === 'Published'), [records]);
 
   const filtered = useMemo(() => live.filter((r) => {
-    if (search && !`${r.innovation.name} ${r.submitter.name}`.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search && !`${r.innovation.name} ${r.user?.fullName || ''} ${r.submitter.name}`.toLowerCase().includes(search.toLowerCase())) return false;
     if (fieldFilter !== 'All Fields' && r.innovation.field !== fieldFilter) return false;
     if (interestFilter !== 'All Interests' && !r.innovation.interests.includes(interestFilter)) return false;
     if (stageFilter !== 'All Stages' && r.innovation.stage !== stageFilter) return false;
@@ -174,15 +174,15 @@ export default function AllInnovationsPage() {
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-neutral-black truncate">{r.submitter.name}</p>
-                      <p className="text-[11px] text-neutral-gray-medium truncate">{r.submitter.email}</p>
+                      <p className="text-xs font-medium text-neutral-black truncate">{r.user?.fullName || r.submitter.name || '—'}</p>
+                      <p className="text-[11px] text-neutral-gray-medium truncate">{r.user?.email || r.submitter.email}</p>
                     </div>
                   </td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.publishedBy?.date || r.submittedOn}</td>
                   <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.innovation.stage}</span></td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.ownership}</td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.country}</td>
-                  <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.publishedBy ? `${r.publishedBy.name}` : '—'}<br /><span className="text-[11px] text-neutral-gray-medium">{r.publishedBy?.date || ''}</span></td>
+                  <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.publishedBy?.name || '—'}</td>
                   <td className="px-3 py-2.5">
                     <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-emerald-50 text-emerald-700">Live</span>
                     {r.verified && <span className="ml-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-blue-50 text-blue-700">Verified</span>}

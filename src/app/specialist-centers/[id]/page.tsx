@@ -5,11 +5,11 @@ import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  MapPin, Star, Share2, ThumbsUp, CheckCircle, Eye, Building2, Phone, Mail, Archive, ArchiveX
+  MapPin, Star, Share2, ThumbsUp, CheckCircle, Eye, Building2, Phone, Mail, Archive, ArchiveX, Calendar
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { SPECIALIST_CENTERS } from '@/app/data/mockData';
-import { cn } from '@/lib/utils';
+import { cn, formatCount, formatJoinedDate } from '@/lib/utils';
 import { toast } from 'sonner';
 import { ContactServiceProviderModal } from '@/app/components/modals/ContactServiceProviderModal';
 import { MessagingModal } from '@/app/components/modals/MessagingModal';
@@ -188,20 +188,24 @@ function SpecialistCenterDetailsContent() {
 
               <div className="flex flex-wrap items-center gap-6 mt-6 pt-4 border-t border-neutral-gray-light text-sm text-neutral-gray-medium">
                 <div className="flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" /> Joined
+                  <span className="font-semibold text-neutral-gray-dark">{formatJoinedDate(center.createdAt) ? 'Joined ' + formatJoinedDate(center.createdAt) : '—'}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
                   <Eye className="h-4 w-4" /> Views
-                  <span className="font-semibold text-neutral-gray-dark">{(center.views / 1000).toFixed(1)}k</span>
+                  <span className="font-semibold text-neutral-gray-dark">{formatCount(center.views)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <ThumbsUp className={cn("h-4 w-4", isLiked && "fill-current text-brand-red-600")} /> Likes
-                  <span className="font-semibold text-neutral-gray-dark">{(center.likes / 1000).toFixed(1)}k</span>
+                  <span className="font-semibold text-neutral-gray-dark">{formatCount(center.likes)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Star className="h-4 w-4" /> Reviews
-                  <span className="font-semibold text-neutral-gray-dark">{center.reviews || 0}</span>
+                  <span className="font-semibold text-neutral-gray-dark">{formatCount(center.reviews)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Share2 className="h-4 w-4" /> Shares
-                  <span className="font-semibold text-neutral-gray-dark">{sharesCount}</span>
+                  <span className="font-semibold text-neutral-gray-dark">{formatCount(sharesCount)}</span>
                 </div>
               </div>
             </div>

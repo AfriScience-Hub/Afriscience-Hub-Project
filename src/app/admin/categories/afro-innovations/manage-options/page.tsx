@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Lightbulb, Search, Plus, LayoutGrid, Heart, Flag, Users, Award, Globe, Tag, X } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Search, Plus, LayoutGrid, Heart, Flag, Users, Award, Tag, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MANAGE_TABS, DUMMY_OPTIONS, TAB_DESCRIPTIONS } from './data';
 import type { ManageTab, ManagedOption } from './data';
@@ -17,7 +17,6 @@ const TAB_ICONS: Record<ManageTab, React.ComponentType<{ className?: string }>> 
   Stages: Flag,
   Ownership: Users,
   SDGs: Award,
-  Countries: Globe,
   Price: Tag,
 };
 
@@ -36,7 +35,7 @@ export default function ManageOptionsPage() {
   const fetchPrice = useCallback(async () => {
     setPriceLoading(true);
     try {
-      const res: any = await api.get('/listings/innovations/admin/getPrice');
+      const res: any = await api.get('/listings/innovations/getPrice');
       const data = res?.data ?? res;
       if (typeof data === 'object' && data !== null) {
         // API returns { value: "555", key: "afro_innovation_listing_fee", ... }
@@ -127,7 +126,7 @@ export default function ManageOptionsPage() {
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-1.5 text-[11px] text-neutral-gray-medium mb-4">
+          <div className="flex items-center gap-1.5 text-[11px] text-neutral-black mb-4">
             <Link href="/admin/dashboard" className="hover:underline">Dashboard</Link>
             <span>›</span>
             <Link href="/admin/categories/afro-innovations" className="hover:underline">Afro-Innovations</Link>
@@ -138,7 +137,7 @@ export default function ManageOptionsPage() {
             <Lightbulb className="h-5 w-5 text-purple-600" />
             Manage Afro-Innovation Options
           </h1>
-          <p className="text-xs text-neutral-gray-medium mt-1 max-w-2xl">
+          <p className="text-xs text-neutral-black mt-1 max-w-2xl">
             Add, edit and organize the options that users will see when submitting an innovation and in filters on the public site.
           </p>
         </div>
@@ -179,7 +178,7 @@ export default function ManageOptionsPage() {
         </div>
 
         <div className="p-4 sm:p-5">
-          <p className="text-xs text-neutral-gray-medium mb-4">
+          <p className="text-xs text-neutral-black mb-4">
             <span className="font-semibold text-neutral-black">{activeTab}</span> — {TAB_DESCRIPTIONS[activeTab]}
           </p>
 
@@ -208,23 +207,23 @@ export default function ManageOptionsPage() {
               <>
                 <OptionsTable options={filtered} onEdit={handleEdit} onToggleStatus={handleToggleStatus} />
                 <div className="px-4 py-2.5 border-t border-neutral-gray-light bg-neutral-bg-light/30">
-                  <p className="text-[11px] text-neutral-gray-medium">
+                  <p className="text-[11px] text-neutral-black">
                     Showing {filtered.length} of {data[activeTab].length} {activeTab.toLowerCase()}
                   </p>
                 </div>
               </>
             ) : (
-              <div className="p-4 text-center text-neutral-gray-medium">
+              <div className="p-4 text-center text-neutral-black">
                 {priceLoading ? (
-                  <p className="text-sm text-neutral-gray-medium">Loading current price...</p>
+                  <p className="text-sm text-neutral-black">Loading current price...</p>
                 ) : currentPrice ? (
                   <>
-                    <p className="text-sm">Current price: <span className="font-semibold text-neutral-black">₦{Number(currentPrice).toLocaleString()}</span></p>
+                    <p className="text-sm">Current price: <span className="font-semibold text-neutral-black">ASH { (Number(currentPrice) / 100).toLocaleString() }</span></p>
                     <p className="text-xs mt-1">Use the "Set Price" button above to update the innovation listing price.</p>
                   </>
                 ) : (
                   <>
-                    <p className="text-sm text-neutral-gray-medium italic">No set price yet</p>
+                    <p className="text-sm text-neutral-black italic">No set price yet</p>
                     <p className="text-xs mt-1">Use the "Set Price" button above to set the innovation listing price.</p>
                   </>
                 )}
@@ -254,7 +253,7 @@ export default function ManageOptionsPage() {
             </div>
             <div className="p-5 space-y-4">
               <label className="block space-y-1">
-                <span className="text-xs font-semibold text-neutral-black">Price (NGN) *</span>
+                <span className="text-xs font-semibold text-neutral-black">Price (ASH) *</span>
                 <input
                   type="number"
                   value={price}

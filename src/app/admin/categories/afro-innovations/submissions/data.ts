@@ -47,12 +47,15 @@ export interface SubmissionRecord {
   id: string;
   innovation: SubmissionInnovation;
   submitter: { name: string; email: string; avatar: string };
+  user?: { fullName?: string; phone?: string; email?: string; website?: string };
+  profile?: { username?: string; website?: string };
   submittedOn: string;
   submittedTime: string;
   status: SubmissionStatus;
   verified?: boolean;
   publishedBy: { name: string; date: string; avatar: string } | null;
   innovator: SubmissionInnovator;
+  socials: { platform: string; link: string }[];
   reasonForRejection?: string;
   reviewedBy?: string;
 }
@@ -94,6 +97,7 @@ export const SUBMISSIONS: SubmissionRecord[] = [
     submittedTime: '10:30 AM',
     status: 'Pending Review',
     publishedBy: null,
+    socials: [],
     innovator: { name: 'Emeka Okafor', username: 'emekaokafor', phone: '+234 800 111 2222', altPhone: '+234 800 333 4444', email: 'emeka.okafor@email.com', website: 'www.agrisense.ng', bio: 'Founder focused on AI for smallholder farmers.', socialLinks: { ...NO_SOCIAL, x: '@agrisense', linkedin: 'in/agrisense' } },
   },
   {
@@ -127,6 +131,7 @@ export const SUBMISSIONS: SubmissionRecord[] = [
     submittedTime: '02:15 PM',
     status: 'Pending Review',
     publishedBy: null,
+    socials: [],
     innovator: { name: 'Amina Yusuf', username: 'aminayusuf', phone: '+254 700 000 001', altPhone: '', email: 'amina.yusuf@email.com', website: '', bio: 'Health tech researcher.', socialLinks: { ...NO_SOCIAL, linkedin: 'in/aminayusuf' } },
   },
   {
@@ -160,6 +165,7 @@ export const SUBMISSIONS: SubmissionRecord[] = [
     submittedTime: '09:40 AM',
     status: 'Published',
     publishedBy: { name: 'Claire Nwanyanwu', date: 'May 26, 2025', avatar: AVATAR },
+    socials: [],
     innovator: { name: 'Tunde Adeyemi', username: 'tundeadeyemi', phone: '+233 800 222 3333', altPhone: '+233 800 555 6666', email: 'tunde.ayemi@email.com', website: 'www.solarkit.gh', bio: 'Energy entrepreneur.', socialLinks: { ...NO_SOCIAL, x: '@solarkit', facebook: 'solarkitgh' } },
   },
   {
@@ -193,6 +199,7 @@ export const SUBMISSIONS: SubmissionRecord[] = [
     submittedTime: '04:20 PM',
     status: 'Published',
     publishedBy: { name: 'Claire Nwanyanwu', date: 'May 25, 2025', avatar: AVATAR },
+    socials: [],
     innovator: { name: 'James Mensah', username: 'jamesmensah', phone: '+27 71 000 0001', altPhone: '', email: 'james.mensah@email.com', website: '', bio: 'Edtech founder.', socialLinks: { ...NO_SOCIAL, linkedin: 'in/jamesmensah' } },
   },
   {
@@ -226,6 +233,7 @@ export const SUBMISSIONS: SubmissionRecord[] = [
     submittedTime: '11:05 AM',
     status: 'Rejected',
     publishedBy: { name: 'Claire Nwanyanwu', date: 'May 24, 2025', avatar: AVATAR },
+    socials: [],
     innovator: { name: 'Fatou Ndoye', username: 'fatoundoye', phone: '+221 77 000 0001', altPhone: '', email: 'fatou.ndoye@email.com', website: '', bio: '', socialLinks: { ...NO_SOCIAL } },
   },
   {
@@ -259,6 +267,7 @@ export const SUBMISSIONS: SubmissionRecord[] = [
     submittedTime: '01:30 PM',
     status: 'Pending Review',
     publishedBy: null,
+    socials: [],
     innovator: { name: 'Chinedu Eze', username: 'chinedueze', phone: '+234 800 444 5555', altPhone: '', email: 'chinedu.eze@email.com', website: 'www.paybridge.ng', bio: '', socialLinks: { ...NO_SOCIAL, linkedin: 'in/chinedueze' } },
   },
   {
@@ -292,6 +301,7 @@ export const SUBMISSIONS: SubmissionRecord[] = [
     submittedTime: '08:15 AM',
     status: 'Published',
     publishedBy: { name: 'Claire Nwanyanwu', date: 'May 22, 2025', avatar: AVATAR },
+    socials: [],
     innovator: { name: 'Lindiwe Dlamini', username: 'lindiwedlamini', phone: '+27 82 000 0002', altPhone: '', email: 'lindiwe.dlamini@email.com', website: '', bio: '', socialLinks: { ...NO_SOCIAL, instagram: 'aquapure' } },
   },
 ];

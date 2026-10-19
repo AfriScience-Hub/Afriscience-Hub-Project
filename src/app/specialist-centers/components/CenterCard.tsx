@@ -98,6 +98,18 @@ export default function CenterCard({ center, archivedIds, onToggleArchive }: Cen
         </div>
       </div>
       <div className="flex flex-1 flex-col p-3.5">
+        <div className="mb-2">
+          {center.field && (
+            <span className="text-[10px] font-bold uppercase tracking-wide text-gray-700 bg-gray-300 px-2 py-0.5 rounded block w-fit mb-1">
+              {center.field.toUpperCase()}
+            </span>
+          )}
+          {center.categories.slice(0, 3).map((cat, idx) => (
+            <span key={idx} className="inline-block text-[10px] text-red-500 bg-brand-red-100 px-1.5 py-0.5 rounded-full font-semibold mr-1 mb-1">
+              {cat}
+            </span>
+          ))}
+        </div>
         <div className="flex-1">
           <p className="text-[12px] font-bold uppercase tracking-wide text-neutral-gray-medium mb-1">Services</p>
           <div className="flex flex-wrap gap-1">

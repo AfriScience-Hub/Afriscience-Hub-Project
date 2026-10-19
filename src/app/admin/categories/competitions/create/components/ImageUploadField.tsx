@@ -3,7 +3,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ImagePlus, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { validateFileSize } from '@/lib/files';
 
 interface ImageUploadFieldProps {
   label: string;
@@ -12,13 +14,15 @@ interface ImageUploadFieldProps {
   /** Existing remote image shown until replaced or removed (edit/reuse prefill). */
   initialUrl?: string | null;
   onSelect: (file: File | null) => void;
+  /** Maximum accepted file size in bytes (default 5MB). */
+  maxBytes?: number;
 }
 
 /**
  * Single-image upload field (click or drag & drop) with a preview and a
  * remove action. Used for the competition cover image and logo.
  */
-export default function ImageUploadField({ label, hint, file, initialUrl, onSelect }: ImageUploadFieldProps) {
+export default function ImageUploadField({ label, hint, file, initialUrl, onSelect, maxBytes = 5 * 1024 * 1024 }: ImageUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const blobUrlRef = useRef<string | null>(null);
   const [preview, setPreview] = useState<string | null>(initialUrl ?? null);
@@ -38,6 +42,12 @@ export default function ImageUploadField({ label, hint, file, initialUrl, onSele
 
   const accept = (f: File | undefined | null) => {
     if (!f) return;
+    const sizeError = validateFileSize(f, maxBytes, label);
+    if (sizeError) {
+      toast.error(sizeError);
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
     revokeBlob();
     blobUrlRef.current = URL.createObjectURL(f);
     setPreview(blobUrlRef.current);

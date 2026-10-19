@@ -8,8 +8,12 @@ import BasicInfoSection, { type BasicInfoState } from './components/BasicInfoSec
 import AboutSection, { type AboutState } from './components/AboutSection';
 import ListSection from './components/ListSection';
 import RewardsSection, { type AwardEntry } from './components/RewardsSection';
+import CriteriaSection from './components/CriteriaSection';
 import FormActionsBar from './components/FormActionsBar';
-import { DEFAULT_JUDGING_CRITERIA, GENERAL_CATEGORY, isCategoryLocked } from './data';
+import {
+  DEFAULT_JUDGING_CRITERIA, GENERAL_CATEGORY, getRewardSuggestion, isCategoryLocked,
+  type JudgingCriterion,
+} from './data';
 import { ALL_COMPETITIONS, type AllCompetition } from '../all/data';
 
 /**
@@ -51,6 +55,14 @@ const EMPTY_BASIC: BasicInfoState = {
 /** datetime-local value (YYYY-MM-DDTHH:mm) from a date-only ISO string. */
 const toLocalValue = (iso: string, time: string): string => `${iso}T${time}`;
 
+/** Key that identifies the current type (+ category) combination. */
+const suggestionKeyFor = (type: string, category: string): string =>
+  `${type}::${type === 'Afri-Presentations' ? category : ''}`;
+
+/** Turn reward suggestions into editable award rows. */
+const toAwardEntries = (suggestions: { position: string; items: string[] }[]): AwardEntry[] =>
+  suggestions.map((s, i) => ({ id: `sug-${i}-${s.position.replace(/\s+/g, '-')}`, position: s.position, items: s.items.join(', ') }));
+
 /** Copy every field of an existing competition into the form state. */
 function prefill(comp: AllCompetition): {
   basic: BasicInfoState;
@@ -59,7 +71,7 @@ function prefill(comp: AllCompetition): {
   rules: string[];
   screening: string[];
   awards: AwardEntry[];
-  criteria: string[];
+  criteria: JudgingCriterion[];
 } {
   return {
     basic: {
@@ -79,7 +91,7 @@ function prefill(comp: AllCompetition): {
     rules: [...comp.rules],
     screening: [...comp.screening],
     awards: comp.awards.map((a, i) => ({ id: `prefill-${i}`, position: a.position, items: a.items.join(', ') })),
-    criteria: [...comp.criteria],
+    criteria: comp.criteria.map((c) => ({ ...c })),
   };
 }
 
@@ -102,9 +114,11 @@ function CreateCompetitionContent() {
   const [rules, setRules] = useState<string[]>(DEFAULT_RULES);
   const [screening, setScreening] = useState<string[]>(DEFAULT_SCREENING);
   const [awards, setAwards] = useState<AwardEntry[]>([]);
-  const [criteria, setCriteria] = useState<string[]>(DEFAULT_JUDGING_CRITERIA);
+  const [criteria, setCriteria] = useState<JudgingCriterion[]>(DEFAULT_JUDGING_CRITERIA);
 
   const prefilledRef = useRef(false);
+  /** The type/category combination the current rewards were built from. */
+  const suggestionKeyRef = useRef<string>('');
 
   // Prefill from the competition being edited or reused (once).
   useEffect(() => {
@@ -123,7 +137,22 @@ function CreateCompetitionContent() {
     setScreening(seed.screening);
     setAwards(seed.awards);
     setCriteria(seed.criteria);
+    // Pin the suggestion key so the auto-fill below keeps the loaded rewards.
+    suggestionKeyRef.current = suggestionKeyFor(seed.basic.type, seed.basic.category);
   }, [targetId]);
+
+  /**
+   * Auto-fill the standard rewards whenever the competition type (or the
+   * category for Afri-Presentations) changes. The rows stay fully editable.
+   */
+  useEffect(() => {
+    if (!basic.type) return;
+    const key = suggestionKeyFor(basic.type, basic.category);
+    if (suggestionKeyRef.current === key) return;
+    suggestionKeyRef.current = key;
+    const suggestion = getRewardSuggestion(basic.type, basic.category);
+    setAwards(suggestion ? toAwardEntries(suggestion) : []);
+  }, [basic.type, basic.category]);
 
   const updateBasic = (patch: Partial<BasicInfoState>) => setBasic((prev) => ({ ...prev, ...patch }));
   const updateAbout = (patch: Partial<AboutState>) => setAbout((prev) => ({ ...prev, ...patch }));
@@ -203,10 +232,10 @@ function CreateCompetitionContent() {
 
       <RewardsSection type={basic.type} category={basic.category} awards={awards} onChange={setAwards} />
 
-      <ListSection
+      <CriteriaSection
         number={7}
         title="Judging Criteria"
-        subtitle="List the criteria entries will be judged and scored on."
+        subtitle="List the criteria entries will be judged on and the points each is worth."
         items={criteria}
         onChange={setCriteria}
         addLabel="Add Criterion"

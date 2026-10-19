@@ -13,10 +13,15 @@ import { COMPETITIONS } from '@/app/data/mockData';
 import { useAuth } from '@/app/context/AuthContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { formatFileSize, validateFileSize } from '@/lib/files';
 import { AfriAnimeSubmission } from '../components/AfriAnimeSubmission';
 import { AfriMemesSubmission } from '../components/AfriMemesSubmission';
 import { AfriMySpaceSubmission } from '../components/AfriMySpaceSubmission';
 import { getPresentationsSubmission } from '../components/afripresentations';
+
+/** Maximum accepted upload sizes for a competition media entry. */
+const MAX_VIDEO_BYTES = 100 * 1024 * 1024; // 100 MB
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 function DetailField({ icon: Icon, label, value, mono, highlight, full }: {
   icon: React.ElementType;
@@ -92,6 +97,7 @@ export default function CompetitionSubmission() {
   const isVideo = comp.mediaType === 'video';
   const acceptTypes = isVideo ? 'video/mp4,video/webm,video/mov,video/avi' : 'image/jpeg,image/png,image/gif,image/webp';
   const daysLeft = Math.max(0, Math.ceil((new Date(comp.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+  const maxBytes = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -99,10 +105,19 @@ export default function CompetitionSubmission() {
 
     if (isVideo && !file.type.startsWith('video/')) {
       toast.error('Please upload a video file for this competition.');
+      e.target.value = '';
       return;
     }
     if (!isVideo && !file.type.startsWith('image/')) {
       toast.error('Please upload an image file for this competition.');
+      e.target.value = '';
+      return;
+    }
+
+    const sizeError = validateFileSize(file, maxBytes, isVideo ? 'Video' : 'Image');
+    if (sizeError) {
+      toast.error(sizeError);
+      e.target.value = '';
       return;
     }
 
@@ -246,7 +261,7 @@ export default function CompetitionSubmission() {
                             {isVideo ? <Video className="h-12 w-12 text-neutral-gray-light mx-auto mb-3" /> : <ImageIcon className="h-12 w-12 text-neutral-gray-light mx-auto mb-3" />}
                             <p className="font-medium text-neutral-gray-dark">Click to upload or drag and drop</p>
                             <p className="text-xs text-neutral-gray-medium mt-1">
-                              {isVideo ? 'MP4, WebM, MOV, AVI' : 'JPEG, PNG, GIF, WebP'}
+                              {isVideo ? 'MP4, WebM, MOV, AVI' : 'JPEG, PNG, GIF, WebP'} &middot; Max {formatFileSize(maxBytes)}
                             </p>
                           </div>
                         )}

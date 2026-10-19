@@ -6,8 +6,10 @@ import {
   X, Lightbulb, User, IdCard, CheckCircle, XCircle, MapPin, Wrench, Camera,
   Award, Users, FileText, Info, AlertTriangle, ScrollText, BadgeCheck, Pencil,
 } from 'lucide-react';
-import type { SubmissionRecord, InnovationDoc } from '../data';
+import type { SubmissionRecord } from '../data';
 import CollapsibleSection from '@/app/dashboard/upload-new-listing/components/CollapsibleSection';
+import { normalizeFileSrc } from '@/lib/files';
+import DocGallery from './DocGallery';
 import SubmissionEditForm from './SubmissionEditForm';
 
 function Field({ label, value }: { label: string; value?: string | null }) {
@@ -40,28 +42,9 @@ function Bullets({ items }: { items: string[] }) {
   );
 }
 
-function DocList({ docs }: { docs: InnovationDoc[] }) {
-  if (!docs?.length) return <p className="text-sm text-neutral-gray-medium">None provided.</p>;
-  return (
-    <div className="space-y-2">
-      {docs.map((d, i) => (
-        <div key={i} className="flex items-start justify-between gap-3 rounded-lg border border-neutral-gray-light bg-white p-3">
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-neutral-black truncate">{d.title}</p>
-            <p className="text-[11px] text-neutral-gray-medium">{d.issuer} &middot; {d.year}</p>
-          </div>
-          <span className="inline-flex items-center gap-1 text-[11px] text-[#453DD8] shrink-0">
-            <FileText className="h-3.5 w-3.5" /> {d.file}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function SubHeading({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <p className="text-xs font-bold text-neutral-black mb-2 flex items-center gap-1.5">
+    <p className="text-sm font-bold text-neutral-black mb-2 flex items-center gap-1.5">
       <Icon className="h-4 w-4 text-neutral-gray-medium" /> {children}
     </p>
   );
@@ -87,10 +70,6 @@ export default function SubmissionDetailModal({
   if (!open || !submission) return null;
 
   const inn = submission.innovation;
-  const social = submission.innovator.socialLinks;
-  const socialEntries = [
-    ['X', social.x], ['LinkedIn', social.linkedin], ['Facebook', social.facebook], ['Instagram', social.instagram],
-  ].filter(([, v]) => v);
 
   const handleSave = () => {
     if (draft && onSave) onSave(draft);
@@ -146,8 +125,8 @@ export default function SubmissionDetailModal({
                         <Field label="Reason for Rejection" value={submission.reasonForRejection} />
                       </div>
                     )}
-                    <Field label="Submitted By" value={`${submission.submitter.name} (${submission.submitter.email})`} />
-                    <Field label="Published By" value={submission.publishedBy ? `${submission.publishedBy.name} · ${submission.publishedBy.date}` : '—'} />
+                    <Field label="Submitted By" value={submission.user?.fullName || '—'} />
+                    <Field label="Published By" value={submission.publishedBy?.name || '—'} />
                   </div>
 
                   <div className="pt-2">
@@ -215,12 +194,12 @@ export default function SubmissionDetailModal({
 
                   <div>
                     <SubHeading icon={ScrollText}>Licenses &amp; Certifications</SubHeading>
-                    <DocList docs={inn.licenses} />
+                    <DocGallery docs={inn.licenses} />
                   </div>
 
                   <div>
                     <SubHeading icon={Award}>Honorary Awards</SubHeading>
-                    <DocList docs={inn.awards} />
+                    <DocGallery docs={inn.awards} />
                   </div>
 
                   <div>
@@ -229,17 +208,33 @@ export default function SubmissionDetailModal({
                       <p className="text-sm text-neutral-gray-medium">No media uploaded.</p>
                     ) : (
                       <div className="grid sm:grid-cols-2 gap-4">
-                        {inn.gallery.map((g, i) => (
-                          <figure key={i} className="rounded-xl border border-neutral-gray-light overflow-hidden bg-white">
-                            <div className="relative h-40 bg-neutral-bg-light">
-                              <Image src={g.url} alt={g.caption || g.category} fill className="object-cover" sizes="(max-width: 640px) 100vw, 320px" />
-                              <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/60 text-white text-[10px] font-semibold">{g.category}</span>
-                            </div>
-                            <figcaption className="px-3 py-2 text-xs text-neutral-gray-dark">
-                              {g.caption || <span className="text-neutral-gray-medium">No caption</span>}
-                            </figcaption>
-                          </figure>
-                        ))}
+                        {inn.gallery.map((g, i) => {
+                          const src = normalizeFileSrc(g.url);
+                          return (
+                            <figure key={i} className="rounded-xl border border-neutral-gray-light overflow-hidden bg-white">
+                              <div className="relative h-40 bg-neutral-bg-light">
+                                {src ? (
+                                  <Image
+                                    src={src}
+                                    alt={g.caption || g.category}
+                                    fill
+                                    className="object-cover"
+                                    sizes="(max-width: 640px) 100vw, 320px"
+                                    unoptimized={/^(data:|blob:)|X-Amz-/i.test(src)}
+                                  />
+                                ) : (
+                                  <div className="flex h-full items-center justify-center">
+                                    <FileText className="h-10 w-10 text-neutral-gray-medium" />
+                                  </div>
+                                )}
+                                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/60 text-white text-[10px] font-semibold">{g.category}</span>
+                              </div>
+                              <figcaption className="px-3 py-2 text-xs text-neutral-gray-dark">
+                                {g.caption || <span className="text-neutral-gray-medium">No caption</span>}
+                              </figcaption>
+                            </figure>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -248,21 +243,47 @@ export default function SubmissionDetailModal({
 
               <CollapsibleSection title="Innovator's Information" icon={<User className="h-5 w-5 text-brand-red-600" />} defaultOpen>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white border border-neutral-gray-light">
-                    <Image src={submission.submitter.avatar} alt={submission.innovator.name} width={48} height={48} className="rounded-full object-cover" />
-                    <div>
-                      <p className="text-sm font-bold text-neutral-black">{submission.innovator.name}</p>
-                      <p className="text-xs text-neutral-gray-medium">@{submission.innovator.username}</p>
-                    </div>
-                  </div>
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <Field label="Innovator Name" value={submission.innovator.name} />
-                    <Field label="Username" value={submission.innovator.username ? `@${submission.innovator.username}` : ''} />
-                    <Field label="Phone" value={submission.innovator.phone} />
+                    <Field label="Innovator Name" value={submission.user?.fullName || submission.innovator.name} />
+                    <Field label="Username" value={submission.profile?.username || '—'} />
+                    <Field label="Phone" value={submission.user?.phone || submission.innovator.phone} />
                     <Field label="Alternative Phone" value={submission.innovator.altPhone} />
-                    <Field label="Email" value={submission.innovator.email} />
-                    <Field label="Website" value={submission.innovator.website} />
-                    <Field label="Social Links" value={socialEntries.map(([k, v]) => `${k}: ${v}`).join('  ·  ')} />
+                    <Field label="Email" value={submission.user?.email || submission.innovator.email} />
+                    <div className="sm:col-span-2 flex items-center gap-2">
+                      <p className="text-[11px] font-semibold text-neutral-gray-medium uppercase">Website</p>
+                      {submission.profile?.website || submission.innovator.website ? (
+                        <a
+                          href={submission.profile?.website || submission.innovator.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium text-[#453DD8] border border-[#453DD8]/20 hover:bg-[#453DD8]/10 transition-colors cursor-pointer"
+                        >
+                          {submission.profile?.website || submission.innovator.website}
+                        </a>
+                      ) : (
+                        <span className="text-sm text-neutral-gray-medium">—</span>
+                      )}
+                    </div>
+                    <div className="sm:col-span-2">
+                      <p className="text-[11px] font-semibold text-neutral-gray-medium uppercase mb-1">Social Links</p>
+                      {submission.socials?.length ? (
+                        <div className="flex flex-wrap gap-2">
+                          {submission.socials.map((s, idx) => (
+                            <a
+                              key={idx}
+                              href={s.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium text-[#453DD8] border border-[#453DD8]/20 hover:bg-[#453DD8]/10 transition-colors cursor-pointer"
+                            >
+                              {s.platform}: {s.link}
+                            </a>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-neutral-gray-medium">—</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CollapsibleSection>
