@@ -2,16 +2,11 @@
 
 import { ChevronDown } from 'lucide-react';
 import { cn } from '../../../lib/utils';
-import {
-  INNOVATION_FIELDS,
-  INNOVATION_INTERESTS,
-  INNOVATION_INTERESTS_EMOJI,
-  INNOVATION_OWNERSHIP,
-  INNOVATION_STAGES,
-  INNOVATION_SDGS,
-  AFRICAN_COUNTRIES,
-} from '../../data/mockData';
+import { AFRICAN_COUNTRIES } from '../../data/mockData';
+import { useInnovationOptionsMap, type InnovationOptionType } from '../../data/innovationOptions';
 import { InfoTooltip } from './InnovationHelpers';
+
+const OPTION_TYPES: InnovationOptionType[] = ['FIELD', 'INTEREST', 'STAGE', 'OWNERSHIP', 'SDG'];
 
 type InnovationFiltersProps = {
   activeFilterCount: number;
@@ -45,8 +40,12 @@ export default function InnovationFilters({
   openSection, toggleSection,
   clearAllFilters,
 }: InnovationFiltersProps) {
+  const { options, loading } = useInnovationOptionsMap(OPTION_TYPES);
+
   const toggleFilter = (value: string, setter: React.Dispatch<React.SetStateAction<string[]>>) =>
     setter(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
+
+  const list = (type: InnovationOptionType) => options[type] ?? [];
 
   return (
     <aside className={cn(
@@ -71,6 +70,13 @@ export default function InnovationFilters({
         </div>
 
         <div className="space-y-5">
+          {loading && (
+            <p className="flex items-center gap-2 text-xs text-neutral-gray-medium">
+              <span className="h-3 w-3 rounded-full border-2 border-neutral-gray-light border-t-brand-red-600 animate-spin" />
+              Loading options...
+            </p>
+          )}
+
           {/* Fields */}
           <div>
             <button onClick={() => toggleSection('fields')} className="w-full flex items-center justify-between text-sm font-bold text-neutral-black mb-2 cursor-pointer">
@@ -84,11 +90,11 @@ export default function InnovationFilters({
             </button>
             {openSection === 'fields' && (
               <div className="space-y-1.5 max-h-52 overflow-y-auto pr-2">
-                {INNOVATION_FIELDS.map(f => (
-                  <label key={f} className="flex items-center gap-2 cursor-pointer group">
-                    <input type="radio" name="field-filter" checked={selectedField === f} onChange={() => setSelectedField(prev => prev === f ? '' : f)}
+                {list('FIELD').map(f => (
+                  <label key={f.id} className="flex items-center gap-2 cursor-pointer group">
+                    <input type="radio" name="field-filter" checked={selectedField === f.content} onChange={() => setSelectedField(prev => prev === f.content ? '' : f.content)}
                       className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
-                    <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{f}</span>
+                    <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{f.content}</span>
                   </label>
                 ))}
               </div>
@@ -108,19 +114,12 @@ export default function InnovationFilters({
             </button>
             {openSection === 'interests' && (
               <div className="space-y-1.5">
-                {INNOVATION_INTERESTS.map(i => (
-                  <label key={i} className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked={selectedInterests.includes(i)} onChange={() => toggleFilter(i, setSelectedInterests)}
+                {list('INTEREST').map(i => (
+                  <label key={i.id} className="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" checked={selectedInterests.includes(i.content)} onChange={() => toggleFilter(i.content, setSelectedInterests)}
                       className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
-                    <span className="text-lg mr-1">{INNOVATION_INTERESTS_EMOJI[i]?.emoji}</span>
-                    <span className="text-xs text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{i}</span>
-                    <InfoTooltip content={
-                      i === 'Investment | Partnership' ? 'Inventor wishes to work with individuals/brands that can invest into their innovation.' :
-                      i === 'Purchase | Trade' ? 'Inventor wishes to work with individuals/brands that can directly purchase and sell their innovative product.' :
-                      i === 'Marketing' ? 'Inventor wishes to work with individuals/brands that can link them to potential markets for their innovation.' :
-                      i === 'Training | Mentorship' ? 'Inventor wishes to work with individuals/brands that can advance their knowledge further in the innovation.' :
-                      'Inventor wishes to work with individuals/brands that can help create targeted awareness of their innovation.'
-                    } />
+                    <span className="text-xs text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{i.content}</span>
+                    {i.notes && <InfoTooltip content={i.notes} />}
                   </label>
                 ))}
               </div>
@@ -140,19 +139,12 @@ export default function InnovationFilters({
             </button>
             {openSection === 'stage' && (
               <div className="space-y-1.5">
-                {INNOVATION_STAGES.map(s => (
-                  <label key={s} className="flex items-center gap-2 cursor-pointer group">
-                    <input type="radio" name="stage-filter" checked={selectedStages === s} onChange={() => setSelectedStages(prev => prev === s ? '' : s)}
+                {list('STAGE').map(s => (
+                  <label key={s.id} className="flex items-center gap-2 cursor-pointer group">
+                    <input type="radio" name="stage-filter" checked={selectedStages === s.content} onChange={() => setSelectedStages(prev => prev === s.content ? '' : s.content)}
                       className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
-                    <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{s}</span>
-                    <InfoTooltip content={
-                      s === 'Ideation' ? 'Innovation only exists as an idea or concept.' :
-                      s === 'Research & Development' ? 'Innovative idea is under scientific experimentation and technical development.' :
-                      s === 'Prototype' ? 'A working model of innovation is created and ready for testing and validation.' :
-                      s === 'MVP' ? 'A validated and useable version of the innovation is currently available to users.' :
-                      s === 'Scale-Up' ? 'Innovation is validated and ready for mass-production.' :
-                      'Innovation is ready to be introduced and distributed in suitable markets.'
-                    } />
+                    <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{s.content}</span>
+                    {s.notes && <InfoTooltip content={s.notes} />}
                   </label>
                 ))}
               </div>
@@ -172,11 +164,11 @@ export default function InnovationFilters({
             </button>
             {openSection === 'ownership' && (
               <div className="space-y-1.5 max-h-44 overflow-y-auto pr-2">
-                {INNOVATION_OWNERSHIP.map(o => (
-                  <label key={o} className="flex items-center gap-2 cursor-pointer group">
-                    <input type="radio" name="ownership-filter" checked={selectedOwnership === o} onChange={() => setSelectedOwnership(prev => prev === o ? '' : o)}
+                {list('OWNERSHIP').map(o => (
+                  <label key={o.id} className="flex items-center gap-2 cursor-pointer group">
+                    <input type="radio" name="ownership-filter" checked={selectedOwnership === o.content} onChange={() => setSelectedOwnership(prev => prev === o.content ? '' : o.content)}
                       className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
-                    <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{o}</span>
+                    <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{o.content}</span>
                   </label>
                 ))}
               </div>
@@ -196,11 +188,11 @@ export default function InnovationFilters({
             </button>
             {openSection === 'sdgs' && (
               <div className="space-y-1.5 max-h-52 overflow-y-auto pr-2">
-                {INNOVATION_SDGS.map(s => (
-                  <label key={s} className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked={selectedSDGs.includes(s)} onChange={() => toggleFilter(s, setSelectedSDGs)}
+                {list('SDG').map(s => (
+                  <label key={s.id} className="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" checked={selectedSDGs.includes(s.content)} onChange={() => toggleFilter(s.content, setSelectedSDGs)}
                       className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
-                    <span className="text-xs text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors leading-tight">{s}</span>
+                    <span className="text-xs text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors leading-tight">{s.content}</span>
                   </label>
                 ))}
               </div>

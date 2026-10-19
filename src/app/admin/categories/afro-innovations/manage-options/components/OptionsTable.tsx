@@ -7,7 +7,7 @@ import type { ManagedOption } from '../data';
 interface Props {
   options: ManagedOption[];
   onEdit: (opt: ManagedOption) => void;
-  onToggleStatus: (id: string) => void;
+  onToggleStatus: (id: string, currentStatus: string) => void;
 }
 
 export default function OptionsTable({ options, onEdit, onToggleStatus }: Props) {
@@ -22,7 +22,6 @@ export default function OptionsTable({ options, onEdit, onToggleStatus }: Props)
           <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
             <th className="text-left px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Name</th>
             <th className="text-left px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Status</th>
-            <th className="text-left px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Usage</th>
             <th className="text-right px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Actions</th>
           </tr>
         </thead>
@@ -46,14 +45,13 @@ export default function OptionsTable({ options, onEdit, onToggleStatus }: Props)
                   {opt.status}
                 </span>
               </td>
-              <td className="px-4 py-3 text-xs text-neutral-gray-dark">{opt.count}</td>
               <td className="px-4 py-3 text-right">
                 <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
                   <TableActionMenu
                     triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                     items={[
                       { label: 'Edit', icon: <Pencil className="h-3.5 w-3.5 text-[#453DD8]" />, onClick: () => onEdit(opt) },
-                      { label: opt.status === 'Active' ? 'Deactivate' : 'Activate', icon: <Power className="h-3.5 w-3.5" />, onClick: () => onToggleStatus(opt.id) },
+                      { label: opt.status === 'Active' ? 'Deactivate' : 'Activate', icon: <Power className="h-3.5 w-3.5" />, onClick: () => onToggleStatus(opt.id, opt.status) },
                     ]}
                   />
                 </div>

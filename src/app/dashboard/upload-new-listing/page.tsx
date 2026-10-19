@@ -22,6 +22,7 @@ import PoliciesSection from './components/PoliciesSection';
 import FormActions from './components/FormActions';
 import { uploadFile } from '@/lib/upload';
 import { buildInnovationPayload, createInnovation, fetchInnovation, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, toStorageKey, updateInnovation } from './innovationApi';
+import { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
 
@@ -108,6 +109,9 @@ export default function UploadNewListing() {
   const [innovDimensions, setInnovDimensions] = useState({ length: '', width: '', height: '', unit: 'cm' });
   const [innovWeight, setInnovWeight] = useState({ value: '', unit: 'kg' });
   const [innovUserGroups, setInnovUserGroups] = useState<string[]>([]);
+  // The selectable user groups come from the backend; anything the user types
+  // in is submitted as a custom group.
+  const userGroupOptions = INNOVATION_USER_GROUPS;
   const [innovApplications, setInnovApplications] = useState<string[]>([]);
   const [innovImpact, setInnovImpact] = useState<string[]>([]);
   const [innovRecommendations, setInnovRecommendations] = useState<string[]>([]);
@@ -301,6 +305,7 @@ export default function UploadNewListing() {
         innovSdgs, innovMaterials, innovDimensions, innovWeight, innovUserGroups, innovApplications,
         innovImpact, innovRecommendations, innovCautions,
         innovLicenses: finalInnovLicenses, innovAwards: finalInnovAwards, innovGallery: finalInnovGallery, socialHandles,
+        knownUserGroups: userGroupOptions,
       });
       if (editId) await updateInnovation(editId, payload);
       else await createInnovation(payload);

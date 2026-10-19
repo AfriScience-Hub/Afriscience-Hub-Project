@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Lightbulb, Search, Plus, LayoutGrid, Heart, Flag, Users, Award, Tag, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MANAGE_TABS, DUMMY_OPTIONS, TAB_DESCRIPTIONS } from './data';
-import type { ManageTab, ManagedOption } from './data';
+import { MANAGE_TABS, TAB_DESCRIPTIONS, TAB_SINGULAR, tabTypeFor, TABS_WITHOUT_NOTE, type ManageTab, type ManagedOption } from './data';
 import OptionsTable from './components/OptionsTable';
 import OptionDialog from './components/OptionDialog';
 import { api } from '@/lib/api';
@@ -22,7 +21,8 @@ const TAB_ICONS: Record<ManageTab, React.ComponentType<{ className?: string }>> 
 
 export default function ManageOptionsPage() {
   const [activeTab, setActiveTab] = useState<ManageTab>('Fields');
-  const [data, setData] = useState(DUMMY_OPTIONS);
+  const [options, setOptions] = useState<ManagedOption[]>([]);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ManagedOption | null>(null);
@@ -32,13 +32,41 @@ export default function ManageOptionsPage() {
   const [currentPrice, setCurrentPrice] = useState<string | null>(null);
   const [priceLoading, setPriceLoading] = useState(false);
 
+  const tabType = tabTypeFor(activeTab);
+
+  const fetchOptions = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res: any = await api.get(`/listings/innovations/options?type=${tabType}`);
+      const data = res?.data ?? res;
+      const list = Array.isArray(data) ? data : (data?.options ?? []);
+      setOptions(
+        list.map((o: any) => ({
+          id: o.id,
+          name: o.content || o.name || '',
+          status: o.isActive ? 'Active' : 'Inactive',
+          isActive: o.isActive,
+          count: o.count ?? 0,
+          note: o.notes ?? undefined,
+        }))
+      );
+    } catch {
+      setOptions([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [tabType]);
+
+  useEffect(() => {
+    fetchOptions();
+  }, [fetchOptions]);
+
   const fetchPrice = useCallback(async () => {
     setPriceLoading(true);
     try {
       const res: any = await api.get('/listings/innovations/getPrice');
       const data = res?.data ?? res;
       if (typeof data === 'object' && data !== null) {
-        // API returns { value: "555", key: "afro_innovation_listing_fee", ... }
         if ('value' in data) {
           setCurrentPrice(String(data.value));
         } else if ('price' in data) {
@@ -64,29 +92,47 @@ export default function ManageOptionsPage() {
     }
   }, [activeTab, fetchPrice]);
 
-  const filtered = useMemo(() => {
-    const list = data[activeTab] ?? [];
-    if (!search.trim()) return list;
+  const filtered = options.filter((o) => {
+    if (!search.trim()) return true;
     const q = search.toLowerCase();
-    return list.filter((o) => o.name.toLowerCase().includes(q));
-  }, [data, activeTab, search]);
+    return o.name.toLowerCase().includes(q);
+  });
 
-  const handleSave = (opt: ManagedOption) => {
-    setData((prev) => {
-      const list = prev[activeTab];
-      const exists = list.some((o) => o.id === opt.id);
-      return {
-        ...prev,
-        [activeTab]: exists ? list.map((o) => (o.id === opt.id ? opt : o)) : [...list, opt],
-      };
-    });
+  const handleSave = async (payload: { content: string; type: string; notes?: string }, isEdit: boolean, id?: string) => {
+    try {
+      if (isEdit && id) {
+        // Send the current active flag so editing a name/note never flips the
+        // option back on (or off).
+        const current = options.find((o) => o.id === id);
+        await api.patch(`/listings/innovations/options/${id}`, {
+          ...payload,
+          type: tabType,
+          ...(current?.isActive === undefined ? {} : { isActive: current.isActive }),
+        });
+        toast.success('Option updated');
+      } else {
+        await api.post('/listings/innovations/options', { ...payload, type: tabType });
+        toast.success('Option added');
+      }
+      setDialogOpen(false);
+      setEditing(null);
+      fetchOptions();
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to save option');
+    }
   };
 
-  const handleToggleStatus = (id: string) => {
-    setData((prev) => ({
-      ...prev,
-      [activeTab]: prev[activeTab].map((o) => (o.id === id ? { ...o, status: o.status === 'Active' ? 'Inactive' : 'Active' } : o)),
-    }));
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
+    // `currentStatus` is the status BEFORE the toggle, so the new state is the
+    // opposite: deactivating an active option must send isActive: false.
+    const isActive = currentStatus !== 'Active';
+    try {
+      await api.patch(`/listings/innovations/options/${id}/status`, { isActive });
+      toast.success(`Option ${isActive ? 'activated' : 'deactivated'}`);
+      fetchOptions();
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to update status');
+    }
   };
 
   const handleAdd = () => {
@@ -188,7 +234,7 @@ export default function ManageOptionsPage() {
                 onClick={handleAdd}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer shrink-0"
               >
-                <Plus className="h-3.5 w-3.5" /> {activeTab === 'Price' ? 'Set Price' : `Add ${activeTab.slice(0, -1) || activeTab}`}
+                <Plus className="h-3.5 w-3.5" /> {activeTab === 'Price' ? 'Set Price' : `Add ${TAB_SINGULAR[activeTab]}`}
               </button>
               {activeTab !== 'Price' && (
                 <div className="relative flex-1 sm:max-w-xs">
@@ -205,12 +251,25 @@ export default function ManageOptionsPage() {
 
             {activeTab !== 'Price' ? (
               <>
-                <OptionsTable options={filtered} onEdit={handleEdit} onToggleStatus={handleToggleStatus} />
-                <div className="px-4 py-2.5 border-t border-neutral-gray-light bg-neutral-bg-light/30">
-                  <p className="text-[11px] text-neutral-black">
-                    Showing {filtered.length} of {data[activeTab].length} {activeTab.toLowerCase()}
-                  </p>
-                </div>
+                {loading ? (
+                  <div className="p-8 text-center">
+                    <div className="h-4 w-4 rounded-full border-2 border-neutral-gray-light border-t-brand-red-600 animate-spin mx-auto mb-2" />
+                    <p className="text-xs text-neutral-gray-medium">Loading options...</p>
+                  </div>
+                ) : (
+                  <>
+                    <OptionsTable
+                      options={filtered}
+                      onEdit={handleEdit}
+                      onToggleStatus={(id, currentStatus) => handleToggleStatus(id, currentStatus)}
+                    />
+                    <div className="px-4 py-2.5 border-t border-neutral-gray-light bg-neutral-bg-light/30">
+                      <p className="text-[11px] text-neutral-black">
+                        Showing {filtered.length} of {options.length} {activeTab.toLowerCase()}
+                      </p>
+                    </div>
+                  </>
+                )}
               </>
             ) : (
               <div className="p-4 text-center text-neutral-black">
@@ -239,6 +298,7 @@ export default function ManageOptionsPage() {
         onSave={handleSave}
         initial={editing}
         tabLabel={activeTab}
+        tabType={tabType}
       />
 
       {/* Price Dialog */}

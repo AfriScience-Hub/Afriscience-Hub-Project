@@ -114,6 +114,11 @@ export function buildInnovationPayload(input: {
   innovAwards: { title: string; issuer: string; date: string; file: string }[];
   innovGallery: { category: string; name: string }[];
   socialHandles: { name: string; link: string }[];
+  /**
+   * The user groups the user can pick from the options list. Anything else
+   * the user typed is sent with `isCustom: true`.
+   */
+  knownUserGroups?: string[];
 }): InnovationPayload {
   const docs = [
     ...input.innovLicenses.map(d => ({ type: 'CERTIFICATION', documentTitle: d.title, issuer: d.issuer, year: Number(d.date) || 0, documentFile: toStorageKey(d.file) })),
@@ -141,7 +146,7 @@ export function buildInnovationPayload(input: {
     weightUnit: WEIGHT_UNIT_PAYLOAD[(input.innovWeight.unit || 'kg').toLowerCase()] || 'KG',
     userGroups: input.innovUserGroups.map(userGroup => ({
       userGroup,
-      isCustom: !INNOVATION_USER_GROUPS.includes(userGroup),
+      isCustom: !(input.knownUserGroups ?? INNOVATION_USER_GROUPS).includes(userGroup),
     })),
     applications: input.innovApplications,
     impact: input.innovImpact,

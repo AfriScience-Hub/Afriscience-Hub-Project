@@ -4,18 +4,22 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import type { ManagedOption } from '../data';
+import { TABS_WITHOUT_NOTE } from '../data';
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSave: (opt: ManagedOption) => void;
+  onSave: (payload: { content: string; type: string; notes?: string }, isEdit: boolean, id?: string) => void;
   initial: ManagedOption | null;
   tabLabel: string;
+  tabType: string;
 }
 
-export default function OptionDialog({ open, onClose, onSave, initial, tabLabel }: Props) {
+export default function OptionDialog({ open, onClose, onSave, initial, tabLabel, tabType }: Props) {
   const [name, setName] = useState('');
   const [note, setNote] = useState('');
+
+  const showNote = !TABS_WITHOUT_NOTE.includes(tabLabel as any);
 
   useEffect(() => {
     if (open) {
@@ -31,9 +35,18 @@ export default function OptionDialog({ open, onClose, onSave, initial, tabLabel 
       toast.error('Name is required');
       return;
     }
-    const trimmedNote = note.trim() || undefined;
-    if (initial) onSave({ ...initial, name: name.trim(), note: trimmedNote });
-    else onSave({ id: `${Date.now()}`, name: name.trim(), status: 'Active', count: 0, note: trimmedNote });
+    const payload: { content: string; type: string; notes?: string } = {
+      content: name.trim(),
+      type: tabType,
+    };
+    if (showNote && note.trim()) {
+      payload.notes = note.trim();
+    }
+    if (initial) {
+      onSave(payload, true, initial.id);
+    } else {
+      onSave(payload, false);
+    }
     toast.success(initial ? 'Option updated' : 'Option added');
     onClose();
   };
@@ -58,19 +71,21 @@ export default function OptionDialog({ open, onClose, onSave, initial, tabLabel 
               autoFocus
             />
           </label>
-          <label className="block space-y-1">
-            <span className="text-xs font-semibold text-neutral-black flex items-center gap-1">
-              Note
-              <span title="Extra information shown as an info tooltip beside the option." className="cursor-help text-[#453DD8]">&#9432;</span>
-            </span>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={3}
-              placeholder="Extra info shown as an info tooltip beside this option..."
-              className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none resize-none"
-            />
-          </label>
+          {showNote && (
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold text-neutral-black flex items-center gap-1">
+                Note
+                <span title="Extra information shown as an info tooltip beside the option." className="cursor-help text-[#453DD8]">&#9432;</span>
+              </span>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                rows={3}
+                placeholder="Extra info shown as an info tooltip beside this option..."
+                className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none resize-none"
+              />
+            </label>
+          )}
         </div>
         <div className="flex gap-2 justify-end px-5 py-4 border-t border-neutral-gray-light">
           <button onClick={onClose} className="px-4 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer">
