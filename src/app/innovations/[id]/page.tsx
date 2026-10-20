@@ -89,7 +89,7 @@ export default function InnovationDetails() {
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
-    { key: 'awards', label: 'Awards & Cert' },
+    { key: 'awards', label: 'Certification & Award' },
     { key: 'media', label: 'Media & Gallery' },
   ];
 

@@ -1,7 +1,7 @@
 import { LayoutDashboard, User, ListChecks, UploadCloud, Briefcase, MessageCircle, FileText, Bell, Star, ShieldCheck, Settings, Eye, ThumbsUp, Share2, Clock, ArrowUpRight, CalendarCheck, Users, Trophy, Award, HandCoins, Archive, ClipboardList } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-export type SidebarTab = 'overview' | 'profile' | 'listings' | 'upload' | 'services' | 'messages' | 'invoices' | 'notifications' | 'reviews' | 'verification' | 'settings' | 'donations' | 'archive' | 'awards' | 'submissions';
+export type SidebarTab = 'overview' | 'profile' | 'listings' | 'upload' | 'messages' | 'invoices' | 'notifications' | 'reviews' | 'verification' | 'settings' | 'donations' | 'archive' | 'awards' | 'submissions';
 
 export const SIDEBAR_ITEMS: { key: SidebarTab; label: string; icon: LucideIcon }[] = [
   { key: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -9,7 +9,6 @@ export const SIDEBAR_ITEMS: { key: SidebarTab; label: string; icon: LucideIcon }
   { key: 'listings', label: 'My Listings', icon: ListChecks },
   { key: 'upload', label: 'Upload New Listing', icon: UploadCloud },
   { key: 'submissions', label: 'Submissions', icon: ClipboardList },
-  { key: 'services', label: 'My Services', icon: Briefcase },
   { key: 'messages', label: 'Messages', icon: MessageCircle },
   { key: 'invoices', label: 'Invoices', icon: FileText },
   { key: 'notifications', label: 'Notifications', icon: Bell },
@@ -27,7 +26,6 @@ export const TAB_TO_PATH: Record<SidebarTab, string> = {
   listings: '/dashboard/my-listings',
   upload: '/dashboard/upload-new-listing',
   submissions: '/dashboard/submissions',
-  services: '/dashboard/my-services',
   messages: '/dashboard/messages',
   invoices: '/dashboard/invoices',
   notifications: '/dashboard/notifications',
@@ -45,7 +43,6 @@ export const PATH_TO_TAB: Record<string, SidebarTab> = {
   '/dashboard/my-listings': 'listings',
   '/dashboard/upload-new-listing': 'upload',
   '/dashboard/submissions': 'submissions',
-  '/dashboard/my-services': 'services',
   '/dashboard/messages': 'messages',
   '/dashboard/invoices': 'invoices',
   '/dashboard/notifications': 'notifications',
@@ -109,22 +106,6 @@ export const MOCK_LISTINGS: Listing[] = [
   { id: 1, name: 'Solar-Powered Irrigation System', image: 'https://images.unsplash.com/photo-1621976360623-e6d4ea676f27?auto=format&fit=crop&q=80&w=300', category: 'Green Technology', status: 'Verified', views: 1247, likes: 38, reviews: 156 },
   { id: 2, name: 'Bio-Plastic from Cassava Waste', image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=300', category: 'Bio-Materials', status: 'Pending Verification', views: 892, likes: 22, reviews: 98 },
   { id: 3, name: 'AI Crop Disease Detection', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300', category: 'AgriTech', status: 'Verified', views: 2156, likes: 51, reviews: 312 },
-];
-
-export interface Service {
-  id: string;
-  name: string;
-  description: string;
-  costRange: string;
-  status: 'Active' | 'Draft';
-  bookings: number;
-  views: number;
-}
-
-export const MOCK_SERVICES: Service[] = [
-  { id: '1', name: 'Solar Irrigation Consultation', description: 'Expert advice on solar-powered irrigation systems for African farms.', costRange: '₦100 – ₦150', status: 'Active', bookings: 12, views: 340 },
-  { id: '2', name: 'AgriTech Workshop Training', description: 'Hands-on training sessions for modern agricultural technology adoption.', costRange: '₦150 – ₦200', status: 'Active', bookings: 8, views: 215 },
-  { id: '3', name: 'Innovation Mentorship Program', description: 'One-on-one mentorship for aspiring innovators and entrepreneurs.', costRange: '₦50 – ₦100', status: 'Draft', bookings: 0, views: 45 },
 ];
 
 export interface Invoice {

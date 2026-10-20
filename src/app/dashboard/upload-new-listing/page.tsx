@@ -22,7 +22,9 @@ import PoliciesSection from './components/PoliciesSection';
 import FormActions from './components/FormActions';
 import { uploadFile } from '@/lib/upload';
 import { buildInnovationPayload, createInnovation, fetchInnovation, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, toStorageKey, updateInnovation } from './innovationApi';
+import { useInnovationOptions } from '@/app/data/innovationOptions';
 import { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
+import PriceConfirmModal from './components/PriceConfirmModal';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
 
@@ -64,6 +66,7 @@ export default function UploadNewListing() {
   const [editBaseline, setEditBaseline] = useState<string | null>(null);
   const [prefilled, setPrefilled] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showPriceConfirm, setShowPriceConfirm] = useState(false);
   const [selectedType, setSelectedType] = useState<ListingType | null>(null);
   const [step, setStep] = useState<'select' | 'form'>('select');
 
@@ -109,9 +112,13 @@ export default function UploadNewListing() {
   const [innovDimensions, setInnovDimensions] = useState({ length: '', width: '', height: '', unit: 'cm' });
   const [innovWeight, setInnovWeight] = useState({ value: '', unit: 'kg' });
   const [innovUserGroups, setInnovUserGroups] = useState<string[]>([]);
-  // The selectable user groups come from the backend; anything the user types
-  // in is submitted as a custom group.
+  // User groups are not managed as options in the admin, so they come from
+  // the bundled list. Anything the user types in is submitted as a custom group.
   const userGroupOptions = INNOVATION_USER_GROUPS;
+  // The listing price is set per stage, so the stage options tell us what this
+  // listing will cost.
+  const { options: stageOptions } = useInnovationOptions('STAGE');
+  const stagePrice = stageOptions.find((o) => o.content === innovStage)?.price;
   const [innovApplications, setInnovApplications] = useState<string[]>([]);
   const [innovImpact, setInnovImpact] = useState<string[]>([]);
   const [innovRecommendations, setInnovRecommendations] = useState<string[]>([]);
@@ -250,6 +257,16 @@ export default function UploadNewListing() {
       toast.error('Please add at least one media file to the gallery');
       return;
     }
+    // A brand-new listing is confirmed with the amount it will cost first.
+    if (!editId) {
+      setShowPriceConfirm(true);
+      return;
+    }
+    await performSubmit();
+  };
+
+  const performSubmit = async () => {
+    setShowPriceConfirm(false);
     setSaving(true);
     try {
       // Upload profile image if a new file was selected
@@ -310,8 +327,8 @@ export default function UploadNewListing() {
       if (editId) await updateInnovation(editId, payload);
       else await createInnovation(payload);
       toast.success(editId ? 'Innovation updated' : 'Innovation submitted');
-      // Navigate to my-listings page after successful submission
-      setTimeout(() => router.push('/dashboard/my-listings'), 1500);
+      // Submissions live on the submissions page, grouped by category.
+      setTimeout(() => router.push('/dashboard/submissions'), 1500);
     } catch (e: any) {
       toast.error(e?.message || 'Failed to save innovation');
       setSaving(false);
@@ -479,7 +496,7 @@ export default function UploadNewListing() {
       {selectedType !== 'center' && selectedType !== 'scientist' && (
         <FormActions
           onCancel={() => {
-            if (editId) { router.push('/dashboard/my-listings'); return; }
+            if (editId) { router.push('/dashboard/submissions'); return; }
             setStep('select');
             setSelectedType(null);
           }}
@@ -488,6 +505,16 @@ export default function UploadNewListing() {
           disabled={saving || !isFormValid}
         />
       )}
+
+      {/* Price confirmation before a new listing is submitted */}
+      <PriceConfirmModal
+        open={showPriceConfirm}
+        price={stagePrice}
+        stage={innovStage}
+        saving={saving}
+        onConfirm={performSubmit}
+        onCancel={() => setShowPriceConfirm(false)}
+      />
     </div>
   );
 }

@@ -99,11 +99,11 @@ export default function InnovationTabContent({
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4 pt-3 border-t border-neutral-gray-light">
                   <div>
-                    <p className="text-xs font-bold text-neutral-gray-medium uppercase mb-1">Dimensions (L x W x H)</p>
+                    <p className="text-xs font-bold text-neutral-gray-medium uppercase mb-1">DIMENSIONS (L X W X H)</p>
                     <p className="text-sm text-neutral-black font-medium">{innovation.specifications.dimensions}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-neutral-gray-medium uppercase mb-1">Weight</p>
+                    <p className="text-xs font-bold text-neutral-gray-medium uppercase mb-1">WEIGHT</p>
                     <p className="text-sm text-neutral-black font-medium">{innovation.specifications.weight}</p>
                   </div>
                 </div>

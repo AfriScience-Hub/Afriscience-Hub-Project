@@ -215,8 +215,10 @@ export default function SubmissionsPage() {
                       triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                       items={[
                         { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
-                        { label: 'Approve', icon: <CheckCircle className="h-3.5 w-3.5" />, onClick: () => handleApprove(r.id) },
-                        { label: 'Reject', icon: <XCircle className="h-3.5 w-3.5" />, onClick: () => setRejectingId(r.id), danger: true },
+                        ...(r.status === 'Pending Review' ? [
+                          { label: 'Approve', icon: <CheckCircle className="h-3.5 w-3.5" />, onClick: () => handleApprove(r.id) },
+                          { label: 'Reject', icon: <XCircle className="h-3.5 w-3.5" />, onClick: () => setRejectingId(r.id), danger: true },
+                        ] : []),
                       ]}
                     />
                   </td>

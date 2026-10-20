@@ -32,7 +32,7 @@ interface PortfolioLink {
 
 interface ExperienceSkillsTabProps {
   isEditing: boolean;
-  employmentStatus: string; onEmploymentStatusChange: (v: string) => void;
+  employmentStatus: string;
   role: string; onRoleChange: (v: string) => void;
   industry: string; onIndustryChange: (v: string) => void;
   industryOther: string; onIndustryOtherChange: (v: string) => void;
@@ -63,12 +63,6 @@ function ExperienceDisplay(props: ExperienceSkillsTabProps) {
 
   return (
     <div className="space-y-6">
-      <SectionCard title="Employment Status">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <Field label="Status" value={props.employmentStatus} />
-        </div>
-      </SectionCard>
-
       {showCurrent && (
         <SectionCard title="Current Employment">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

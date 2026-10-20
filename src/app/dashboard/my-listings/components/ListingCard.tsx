@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Eye, ThumbsUp, Star, Edit, ExternalLink } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { isEditable, statusKind, statusLabel, STATUS_CHIP } from '../statusUtils';
@@ -25,8 +26,17 @@ export function ListingCard({ listing, onEdit, onPreview }: ListingCardProps) {
 
   return (
     <div className="rounded-xl border border-neutral-gray-light overflow-hidden hover:shadow-md transition-shadow">
-      <div className="relative h-36">
-        {listing.image ? <img src={listing.image} alt={listing.name} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-neutral-bg-light" />}
+      <div className="relative h-36 bg-neutral-bg-light">
+        {listing.image ? (
+          <Image
+            src={listing.image}
+            alt={listing.name}
+            fill
+            sizes="(max-width: 640px) 100vw, 400px"
+            className="object-cover"
+            unoptimized={/^(data:|blob:)|X-Amz-/i.test(listing.image)}
+          />
+        ) : null}
         <span className={`absolute top-2 right-2 px-2.5 py-1 rounded-full text-[10px] font-bold ${STATUS_CHIP[statusKind(listing.status)]}`}>
           {statusLabel(listing.status)}
         </span>

@@ -4,6 +4,9 @@ import { Upload, X } from 'lucide-react';
 import { Field, SectionCard } from './FieldDisplay';
 import { FilePreview } from './DocumentPreview';
 
+/** Phone numbers only accept digits and the usual separators - no letters. */
+const phoneOnly = (value: string) => value.replace(/[^\d+\-()\s]/g, '');
+
 interface PersonalInfoTabProps {
   isEditing: boolean;
   fullName: string; onFullNameChange: (v: string) => void;
@@ -12,6 +15,8 @@ interface PersonalInfoTabProps {
   dateOfBirth: string; onDateOfBirthChange: (v: string) => void;
   idCardType: string; onIdCardTypeChange: (v: string) => void;
   idCardNumber: string; onIdCardNumberChange: (v: string) => void;
+  /** Employment status is part of the personal record the /personal endpoint takes. */
+  employmentStatus: string; onEmploymentStatusChange: (v: string) => void;
   idCardFile: File | null;
   idCardFileName: string;
   idCardKey: string;
@@ -49,6 +54,7 @@ function PersonalDisplay(props: PersonalInfoTabProps) {
           <Field label="Date of Birth" value={props.dateOfBirth ? new Date(props.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null} />
           <Field label="ID Card Type" value={props.idCardType} />
           <Field label="ID Card Number" value={props.idCardNumber} />
+          <Field label="Employment Status" value={props.employmentStatus} />
           <FilePreview label="ID Card File" title="ID Card" src={props.idCardUrl || props.idCardKey || props.idCardFileName} localFile={props.idCardFile} />
           <FilePreview label="CV File" title="CV" src={props.cvUrl || props.cvKey || props.cvFileName} localFile={props.cvFile} />
         </div>
@@ -157,6 +163,8 @@ function PersonalForm(props: PersonalInfoTabProps) {
               <option value="National ID">National ID</option>
               <option value="Driver's License">Driver&apos;s License</option>
               <option value="International Passport">International Passport</option>
+              <option value="Voter's Card">Voter&apos;s Card</option>
+              <option value="Other">Other</option>
             </select>
           </div>
           <div>
@@ -179,7 +187,7 @@ function PersonalForm(props: PersonalInfoTabProps) {
         <FileUploadField
           label="Upload CV"
           required
-          accept=".pdf"
+          accept=".pdf,.doc,.docx,.rtf,.odt,.txt"
           fileName={props.cvFileName}
           src={props.cvUrl || props.cvKey}
           title="CV"
@@ -187,6 +195,21 @@ function PersonalForm(props: PersonalInfoTabProps) {
           onUpload={props.handleCvUpload}
           onClear={props.clearCv}
         />
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-neutral-gray-dark mb-3">Employment Status <span className="text-red-600">*</span></label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {['Employed (full time)', 'Self Employed (business owner)', 'Student', 'Unemployed'].map(status => (
+              <button
+                key={status}
+                type="button"
+                onClick={() => props.onEmploymentStatusChange(status)}
+                className={`py-3 px-4 rounded-lg border cursor-pointer transition-colors text-sm ${props.employmentStatus === status ? 'border-brand-navy-900 bg-brand-navy-900 text-white' : 'border-neutral-gray-light bg-white text-neutral-gray-dark hover:border-brand-navy-900'}`}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="mt-4">
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Bio / About Me <span className="text-red-600">*</span></label>
           <textarea value={props.bio} onChange={e => props.onBioChange(e.target.value)} rows={3} className={`w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900 resize-none`} required />
@@ -198,11 +221,11 @@ function PersonalForm(props: PersonalInfoTabProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
           <div>
             <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Phone Number <span className="text-red-600">*</span></label>
-            <input type="tel" value={props.phone} onChange={e => props.onPhoneChange(e.target.value)} className={inputClass} required />
+            <input type="tel" inputMode="tel" value={props.phone} onChange={e => props.onPhoneChange(phoneOnly(e.target.value))} className={inputClass} required />
           </div>
           <div>
             <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Alternative Number <span className="text-neutral-gray-medium">(Optional)</span></label>
-            <input type="tel" value={props.altPhone} onChange={e => props.onAltPhoneChange(e.target.value)} className={inputClass} />
+            <input type="tel" inputMode="tel" value={props.altPhone} onChange={e => props.onAltPhoneChange(phoneOnly(e.target.value))} className={inputClass} />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">

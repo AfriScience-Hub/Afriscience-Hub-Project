@@ -13,7 +13,9 @@ export function ListingHeader({ count, onNewListing }: ListingHeaderProps) {
     <div className="flex items-center justify-between mb-6">
       <div>
         <h2 className="text-xl font-bold text-neutral-black">My Listings</h2>
-        <p className="text-sm text-neutral-gray-medium mt-0.5">{count} listings created</p>
+        <p className="text-sm text-neutral-gray-medium mt-0.5">
+          {count} approved listing{count !== 1 ? 's' : ''}
+        </p>
       </div>
       <Button size="sm" className="bg-brand-red-600 hover:bg-brand-red-700" onClick={onNewListing}>
         <Plus className="h-4 w-4 mr-1" /> New Listing

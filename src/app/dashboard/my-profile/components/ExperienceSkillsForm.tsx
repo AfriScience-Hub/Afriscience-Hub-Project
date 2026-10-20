@@ -32,7 +32,7 @@ interface PortfolioLink {
 
 interface ExperienceSkillsTabProps {
   isEditing: boolean;
-  employmentStatus: string; onEmploymentStatusChange: (v: string) => void;
+  employmentStatus: string;
   role: string; onRoleChange: (v: string) => void;
   industry: string; onIndustryChange: (v: string) => void;
   industryOther: string; onIndustryOtherChange: (v: string) => void;
@@ -64,18 +64,6 @@ export function ExperienceForm(props: ExperienceSkillsTabProps) {
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-bold text-neutral-black">Experience & Skills</h3>
-
-      <div>
-        <label className="block text-sm font-medium text-neutral-gray-dark mb-3">Current Employment Status <span className="text-red-600">*</span></label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {['Employed (full time)', 'Self Employed (business owner)', 'Student', 'Unemployed'].map(status => (
-            <button key={status} type="button" onClick={() => props.onEmploymentStatusChange(status)}
-              className={`py-3 px-4 rounded-lg border cursor-pointer transition-colors text-sm ${props.employmentStatus === status ? 'border-brand-navy-900 bg-brand-navy-900 text-white' : 'border-neutral-gray-light bg-white text-neutral-gray-dark hover:border-brand-navy-900'}`}>
-              {status}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {showCurrentEmployment && (
         <div className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light p-4 space-y-4">

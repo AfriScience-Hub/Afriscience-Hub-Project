@@ -202,8 +202,8 @@ export function mapVisitorInnovation(raw: any): any {
     impact: splitLines(raw.impact),
     specifications: {
       materials: splitComma(raw.materialsUsed),
-      dimensions: String(raw.dimensionUnit || ''),
-      weight: String(raw.weightUnit || ''),
+      dimensions: `${raw.length || ''} X ${raw.width || ''} X ${raw.height || ''} ${raw.dimensionUnit || ''}`.trim(),
+      weight: `${raw.weight || ''}${raw.weightUnit ? raw.weightUnit.toLowerCase() : ''}`.trim(),
     },
     licensesCertifications,
     recommendations: splitLines(raw.recommendations),

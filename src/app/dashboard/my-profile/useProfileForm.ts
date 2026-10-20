@@ -39,6 +39,21 @@ const EMP_MAP: Record<string, string> = { 'Student': 'STUDENT', 'Employed (full 
 const EMP_REV: Record<string, string> = { STUDENT: 'Student', EMPLOYED: 'Employed (full time)', SELF_EMPLOYED: 'Self Employed (business owner)', UNEMPLOYED: 'Unemployed' };
 const PROF_MAP: Record<string, string> = { Beginner: 'BEGINNER', Intermediate: 'INTERMEDIATE', Advanced: 'ADVANCED', Native: 'NATIVE' };
 const PROF_REV: Record<string, string> = { BEGINNER: 'Beginner', INTERMEDIATE: 'Intermediate', ADVANCED: 'Advanced', NATIVE: 'Native' };
+/** The API only accepts these enum values for idCardType. */
+const ID_CARD_MAP: Record<string, string> = {
+  'National ID': 'NATIONAL_ID',
+  "Driver's License": 'DRIVERS_LICENSE',
+  'International Passport': 'PASSPORT',
+  "Voter's Card": 'VOTERS_CARD',
+  'Other': 'OTHER',
+};
+const ID_CARD_REV: Record<string, string> = {
+  NATIONAL_ID: 'National ID',
+  DRIVERS_LICENSE: "Driver's License",
+  PASSPORT: 'International Passport',
+  VOTERS_CARD: "Voter's Card",
+  OTHER: 'Other',
+};
 
 export function useProfileForm() {
   const { user } = useAuth();
@@ -104,7 +119,7 @@ export function useProfileForm() {
     const p = profile.personal; if (!p) return;
     setFullName(p.fullName || [p.firstname, p.middlename, p.surname].filter(Boolean).join(' ') || user?.name || '');
     setUsername(p.username || ''); setGender(GENDER_REV[p.gender] || p.gender || ''); setDateOfBirth(p.dateOfBirth || '');
-    setIdCardType(p.idCardType || ''); setIdCardNumber(p.idCardNumber || ''); setBio(p.bio || '');
+    setIdCardType(ID_CARD_REV[p.idCardType] || p.idCardType || ''); setIdCardNumber(p.idCardNumber || ''); setBio(p.bio || '');
     if (p.email) setEmail(p.email);
     const rawAvatar = p.avatar || p.displayPhoto || p.displayPhotoUrl || p.avatarUrl || p.photo;
     // Signed URL from the API, else the one captured when the file was uploaded.
@@ -271,7 +286,7 @@ export function useProfileForm() {
       return fail(e, 'Failed to upload files. Please try again.');
     }
 
-    const payload: Record<string, any> = { username, gender: GENDER_MAP[gender] || gender, dateOfBirth, bio, phone, address, city, state: stateOfResidence, lga: localGovt, country, postalCode: zipCode, idCardType, idCardNumber, employmentStatus: EMP_MAP[employmentStatus] || employmentStatus, website, idCardFile: idCardKeyToSend || undefined, displayPhoto: avatarKeyToSend || undefined, cvFile: cvKeyToSend || undefined };
+    const payload: Record<string, any> = { username, gender: GENDER_MAP[gender] || gender, dateOfBirth, bio, phone, address, city, state: stateOfResidence, lga: localGovt, country, postalCode: zipCode, idCardType: ID_CARD_MAP[idCardType] || 'OTHER', idCardNumber, employmentStatus: EMP_MAP[employmentStatus] || employmentStatus, website: website.trim() || null, idCardFile: idCardKeyToSend || undefined, displayPhoto: avatarKeyToSend || undefined, cvFile: cvKeyToSend || undefined };
     try {
       await dispatch(hasPersonalInfo ? updatePersonalInfo(payload) : createPersonalInfo(payload)).unwrap();
       toast.success('Personal info saved!');

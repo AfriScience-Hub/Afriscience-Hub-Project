@@ -164,6 +164,7 @@ export function ProfileContent() {
     dateOfBirth: f.dateOfBirth, onDateOfBirthChange: f.setDateOfBirth,
     idCardType: f.idCardType, onIdCardTypeChange: f.setIdCardType,
     idCardNumber: f.idCardNumber, onIdCardNumberChange: f.setIdCardNumber,
+    employmentStatus: f.employmentStatus, onEmploymentStatusChange: f.setEmploymentStatus,
     idCardFile: f.idCardFile, idCardFileName: f.idCardFileName, idCardKey: f.idCardKey, idCardUrl: f.idCardUrl,
     handleIdCardUpload: f.handleIdCardUpload, onIdCardClear: f.clearIdCard,
     bio: f.bio, onBioChange: f.setBio,
@@ -201,7 +202,7 @@ export function ProfileContent() {
 
   const experienceProps = {
     isEditing: editingTab === 'experience',
-    employmentStatus: f.employmentStatus, onEmploymentStatusChange: f.setEmploymentStatus,
+    employmentStatus: f.employmentStatus,
     role: f.role, onRoleChange: f.setRole,
     industry: f.industry, onIndustryChange: f.setIndustry,
     industryOther: f.industryOther, onIndustryOtherChange: f.setIndustryOther,
