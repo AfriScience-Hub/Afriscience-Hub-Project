@@ -19,6 +19,8 @@ export interface InnovationOption {
   isActive?: boolean;
   /** Optional description shown in info tooltips. */
   notes?: string;
+  /** Listing price - only the STAGE option type carries one. */
+  price?: string;
   count?: number;
 }
 
@@ -56,6 +58,7 @@ export async function fetchInnovationOptions(type?: InnovationOptionType): Promi
       content: String(o?.content ?? o?.name ?? o?.label ?? ''),
       isActive: o?.isActive,
       notes: o?.notes ?? o?.note,
+      price: o?.price != null ? String(o.price) : undefined,
       count: o?.count,
     }))
     .filter((o) => o.content);

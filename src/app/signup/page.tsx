@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -8,9 +8,12 @@ import { Mail, Lock, Eye, EyeOff, Phone, User, ArrowRight, Loader2 } from 'lucid
 import logoImg from "../../assets/logo.png";
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
+import { useAppDispatch } from '@/store/hooks';
+import { fetchGoogleClientId, googleAuth } from '@/store/authSlice';
 import { toast } from 'sonner';
 
 export default function SignUp() {
+  // --- All hooks first, before any early return ---
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fullName, setFullName] = useState('');
@@ -18,19 +21,125 @@ export default function SignUp() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [googleClientId, setGoogleClientId] = useState<string | null>(null);
+  const [gsiReady, setGsiReady] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signup, isAuthenticated } = useAuth();
+  const { signup, googleLogin, isAuthenticated } = useAuth();
+  const dispatch = useAppDispatch();
   const router = useRouter();
+  const scriptLoadedRef = useRef(false);
+  const gsiInitializedRef = useRef(false);
 
+  // Redirect if authenticated
   useEffect(() => {
     if (isAuthenticated) {
       router.replace('/dashboard');
     }
   }, [isAuthenticated, router]);
 
+  // Fetch Google client ID on mount.
+  useEffect(() => {
+    dispatch(fetchGoogleClientId()).then((res: any) => {
+      const data = res?.payload?.data ?? res?.payload ?? null;
+      console.log('=== GOOGLE CLIENT ID RESPONSE ===', data);
+      const id =
+        data?.CLIENT_ID ??
+        data?.clientId ??
+        data?.client_id ??
+        data?.googleClientId ??
+        data?.client ??
+        data?.id ??
+        data?.google_client_id ??
+        data?.details?.CLIENT_ID ??
+        data?.details?.clientId ??
+        data?.details?.client_id ??
+        null;
+      if (id) {
+        setGoogleClientId(id);
+      } else {
+        console.warn('No client ID field found in response. Full response:', data);
+        toast.error('Google client ID not found in server response. Check console for full response.');
+      }
+    });
+  }, [dispatch]);
+
+  // Load Google Identity Services script once we have a client ID.
+  useEffect(() => {
+    if (!googleClientId || scriptLoadedRef.current) return;
+    scriptLoadedRef.current = true;
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      setGsiReady(true);
+    };
+    script.onerror = () => {
+      toast.error('Failed to load Google Identity Services.');
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
+  }, [googleClientId]);
+
+  // Initialize Google Identity Services once script is ready.
+  useEffect(() => {
+    if (!gsiReady || gsiInitializedRef.current || !googleClientId) return;
+    if (!(window as any).google?.accounts?.id) {
+      console.error('Google Identity Services not available on window');
+      toast.error('Google sign-in is not available at the moment.');
+      return;
+    }
+    gsiInitializedRef.current = true;
+
+    try {
+      (window as any).google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: (resp: any) => {
+          const token = resp?.credential;
+          if (!token) return;
+          handleGoogleResponse(token);
+        },
+      });
+    } catch (err: any) {
+      console.error('Google initialize failed:', err);
+      toast.error(`Google sign-in initialization failed: ${err?.message || err}`);
+    }
+  }, [gsiReady, googleClientId]);
+
+  // --- Early returns AFTER all hooks ---
   if (isAuthenticated) {
     return null;
   }
+
+  const handleGoogleResponse = async (token: string) => {
+    setLoading(true);
+    try {
+      await googleLogin(token);
+      toast.success('Signed in with Google!');
+      router.push('/dashboard');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Google sign-up failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = () => {
+    if (!(window as any).google?.accounts?.id) {
+      toast.error('Google sign-in is not available.');
+      return;
+    }
+    try {
+      (window as any).google.accounts.id.prompt();
+    } catch (err: any) {
+      console.error('Google prompt failed:', err);
+      toast.error(`Google sign-in failed: ${err?.message || err}`);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,10 +178,6 @@ export default function SignUp() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleGoogleSignup = () => {
-    toast.info('Google sign-up coming soon.');
   };
 
   return (

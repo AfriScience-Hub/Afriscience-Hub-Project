@@ -1,16 +1,20 @@
 'use client';
 
-import { MoreVertical, Pencil, Power } from 'lucide-react';
+import { MoreVertical, Pencil, Power, Trash2 } from 'lucide-react';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
+import { formatPrice } from '@/lib/utils';
 import type { ManagedOption } from '../data';
 
 interface Props {
   options: ManagedOption[];
+  /** Show the price column (only the STAGE option type carries a price). */
+  showPrice?: boolean;
   onEdit: (opt: ManagedOption) => void;
+  onDelete: (id: string, name: string) => void;
   onToggleStatus: (id: string, currentStatus: string) => void;
 }
 
-export default function OptionsTable({ options, onEdit, onToggleStatus }: Props) {
+export default function OptionsTable({ options, showPrice = false, onEdit, onDelete, onToggleStatus }: Props) {
   if (options.length === 0) {
     return <p className="text-sm text-neutral-gray-medium py-8 text-center">No options yet.</p>;
   }
@@ -21,6 +25,9 @@ export default function OptionsTable({ options, onEdit, onToggleStatus }: Props)
         <thead>
           <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
             <th className="text-left px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Name</th>
+            {showPrice && (
+              <th className="text-left px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Price</th>
+            )}
             <th className="text-left px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Status</th>
             <th className="text-right px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Actions</th>
           </tr>
@@ -36,6 +43,15 @@ export default function OptionsTable({ options, onEdit, onToggleStatus }: Props)
                   )}
                 </span>
               </td>
+              {showPrice && (
+                <td className="px-4 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">
+                  {opt.price != null && opt.price !== '' ? (
+                    <span className="font-semibold text-neutral-black">{formatPrice(opt.price)}</span>
+                  ) : (
+                    <span className="text-neutral-gray-medium">—</span>
+                  )}
+                </td>
+              )}
               <td className="px-4 py-3">
                 <span
                   className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold ${
@@ -52,6 +68,7 @@ export default function OptionsTable({ options, onEdit, onToggleStatus }: Props)
                     items={[
                       { label: 'Edit', icon: <Pencil className="h-3.5 w-3.5 text-[#453DD8]" />, onClick: () => onEdit(opt) },
                       { label: opt.status === 'Active' ? 'Deactivate' : 'Activate', icon: <Power className="h-3.5 w-3.5" />, onClick: () => onToggleStatus(opt.id, opt.status) },
+                      { label: 'Delete', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => onDelete(opt.id, opt.name), danger: true },
                     ]}
                   />
                 </div>

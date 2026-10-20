@@ -2,9 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Lightbulb, Search, Plus, LayoutGrid, Heart, Flag, Users, Award, Tag, X } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Search, Plus, LayoutGrid, Heart, Flag, Users, Award, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MANAGE_TABS, TAB_DESCRIPTIONS, TAB_SINGULAR, tabTypeFor, TABS_WITHOUT_NOTE, type ManageTab, type ManagedOption } from './data';
+import {
+  MANAGE_TABS, TAB_DESCRIPTIONS, TAB_SINGULAR, tabTypeFor,
+  TABS_WITHOUT_NOTE, TABS_WITH_PRICE, type ManageTab, type ManagedOption,
+} from './data';
 import OptionsTable from './components/OptionsTable';
 import OptionDialog from './components/OptionDialog';
 import { api } from '@/lib/api';
@@ -16,7 +19,6 @@ const TAB_ICONS: Record<ManageTab, React.ComponentType<{ className?: string }>> 
   Stages: Flag,
   Ownership: Users,
   SDGs: Award,
-  Price: Tag,
 };
 
 export default function ManageOptionsPage() {
@@ -26,13 +28,14 @@ export default function ManageOptionsPage() {
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ManagedOption | null>(null);
-  const [priceDialogOpen, setPriceDialogOpen] = useState(false);
-  const [price, setPrice] = useState('');
-  const [priceSaving, setPriceSaving] = useState(false);
-  const [currentPrice, setCurrentPrice] = useState<string | null>(null);
-  const [priceLoading, setPriceLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<{ id: string; name: string } | null>(null);
+  const [deleteSaving, setDeleteSaving] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const tabType = tabTypeFor(activeTab);
+  const showPrice = TABS_WITH_PRICE.includes(activeTab);
 
   const fetchOptions = useCallback(async () => {
     setLoading(true);
@@ -46,6 +49,7 @@ export default function ManageOptionsPage() {
           name: o.content || o.name || '',
           status: o.isActive ? 'Active' : 'Inactive',
           isActive: o.isActive,
+          price: o.price != null ? String(o.price) : undefined,
           count: o.count ?? 0,
           note: o.notes ?? undefined,
         }))
@@ -61,44 +65,19 @@ export default function ManageOptionsPage() {
     fetchOptions();
   }, [fetchOptions]);
 
-  const fetchPrice = useCallback(async () => {
-    setPriceLoading(true);
-    try {
-      const res: any = await api.get('/listings/innovations/getPrice');
-      const data = res?.data ?? res;
-      if (typeof data === 'object' && data !== null) {
-        if ('value' in data) {
-          setCurrentPrice(String(data.value));
-        } else if ('price' in data) {
-          setCurrentPrice(String(data.price));
-        } else {
-          setCurrentPrice(null);
-        }
-      } else if (typeof data === 'number' || typeof data === 'string') {
-        setCurrentPrice(String(data));
-      } else {
-        setCurrentPrice(null);
-      }
-    } catch {
-      setCurrentPrice(null);
-    } finally {
-      setPriceLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (activeTab === 'Price') {
-      fetchPrice();
-    }
-  }, [activeTab, fetchPrice]);
-
   const filtered = options.filter((o) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return o.name.toLowerCase().includes(q);
   });
 
-  const handleSave = async (payload: { content: string; type: string; notes?: string }, isEdit: boolean, id?: string) => {
+  const handleSave = async (
+    payload: { content: string; type: string; notes?: string; price?: string },
+    isEdit: boolean,
+    id?: string
+  ) => {
+    setSaving(true);
+    setSaveError(null);
     try {
       if (isEdit && id) {
         // Send the current active flag so editing a name/note never flips the
@@ -114,11 +93,37 @@ export default function ManageOptionsPage() {
         await api.post('/listings/innovations/options', { ...payload, type: tabType });
         toast.success('Option added');
       }
+      // Only close once the request actually succeeded.
       setDialogOpen(false);
       setEditing(null);
       fetchOptions();
     } catch (e: any) {
-      toast.error(e?.message || 'Failed to save option');
+      // Keep the dialog open and show the error inside it.
+      setSaveError(e?.message || 'Failed to save option');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    setDeleteError(null);
+    setDeleting({ id, name });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleting) return;
+    setDeleteSaving(true);
+    setDeleteError(null);
+    try {
+      await api.delete(`/listings/innovations/options/${deleting.id}`);
+      toast.success(`"${deleting.name}" deleted`);
+      setDeleting(null);
+      fetchOptions();
+    } catch (e: any) {
+      // Keep the confirmation open and show the error inside it.
+      setDeleteError(e?.message || 'Failed to delete option');
+    } finally {
+      setDeleteSaving(false);
     }
   };
 
@@ -136,36 +141,15 @@ export default function ManageOptionsPage() {
   };
 
   const handleAdd = () => {
-    if (activeTab === 'Price') {
-      setPrice('');
-      setPriceDialogOpen(true);
-    } else {
-      setEditing(null);
-      setDialogOpen(true);
-    }
+    setEditing(null);
+    setSaveError(null);
+    setDialogOpen(true);
   };
 
   const handleEdit = (opt: ManagedOption) => {
     setEditing(opt);
+    setSaveError(null);
     setDialogOpen(true);
-  };
-
-  const handlePriceSave = async () => {
-    if (!price.trim()) {
-      toast.error('Price is required');
-      return;
-    }
-    setPriceSaving(true);
-    try {
-      await api.post('/listings/innovations/setPrice', { price: price.trim() });
-      toast.success('Price updated successfully');
-      setPriceDialogOpen(false);
-      fetchPrice();
-    } catch (e: any) {
-      toast.error(e?.message || 'Failed to update price');
-    } finally {
-      setPriceSaving(false);
-    }
   };
 
   return (
@@ -234,59 +218,39 @@ export default function ManageOptionsPage() {
                 onClick={handleAdd}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer shrink-0"
               >
-                <Plus className="h-3.5 w-3.5" /> {activeTab === 'Price' ? 'Set Price' : `Add ${TAB_SINGULAR[activeTab]}`}
+                <Plus className="h-3.5 w-3.5" /> Add {TAB_SINGULAR[activeTab]}
               </button>
-              {activeTab !== 'Price' && (
-                <div className="relative flex-1 sm:max-w-xs">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-gray-medium" />
-                  <input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder={`Search ${activeTab.toLowerCase()}...`}
-                    className="w-full pl-9 pr-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
-                  />
-                </div>
-              )}
+              <div className="relative flex-1 sm:max-w-xs">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-gray-medium" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={`Search ${activeTab.toLowerCase()}...`}
+                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
+                />
+              </div>
             </div>
 
-            {activeTab !== 'Price' ? (
-              <>
-                {loading ? (
-                  <div className="p-8 text-center">
-                    <div className="h-4 w-4 rounded-full border-2 border-neutral-gray-light border-t-brand-red-600 animate-spin mx-auto mb-2" />
-                    <p className="text-xs text-neutral-gray-medium">Loading options...</p>
-                  </div>
-                ) : (
-                  <>
-                    <OptionsTable
-                      options={filtered}
-                      onEdit={handleEdit}
-                      onToggleStatus={(id, currentStatus) => handleToggleStatus(id, currentStatus)}
-                    />
-                    <div className="px-4 py-2.5 border-t border-neutral-gray-light bg-neutral-bg-light/30">
-                      <p className="text-[11px] text-neutral-black">
-                        Showing {filtered.length} of {options.length} {activeTab.toLowerCase()}
-                      </p>
-                    </div>
-                  </>
-                )}
-              </>
-            ) : (
-              <div className="p-4 text-center text-neutral-black">
-                {priceLoading ? (
-                  <p className="text-sm text-neutral-black">Loading current price...</p>
-                ) : currentPrice ? (
-                  <>
-                    <p className="text-sm">Current price: <span className="font-semibold text-neutral-black">ASH { (Number(currentPrice) / 100).toLocaleString() }</span></p>
-                    <p className="text-xs mt-1">Use the "Set Price" button above to update the innovation listing price.</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-sm text-neutral-black italic">No set price yet</p>
-                    <p className="text-xs mt-1">Use the "Set Price" button above to set the innovation listing price.</p>
-                  </>
-                )}
+            {loading ? (
+              <div className="p-8 text-center">
+                <div className="h-4 w-4 rounded-full border-2 border-neutral-gray-light border-t-brand-red-600 animate-spin mx-auto mb-2" />
+                <p className="text-xs text-neutral-gray-medium">Loading options...</p>
               </div>
+            ) : (
+              <>
+                <OptionsTable
+                  options={filtered}
+                  showPrice={showPrice}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onToggleStatus={(id, currentStatus) => handleToggleStatus(id, currentStatus)}
+                />
+                <div className="px-4 py-2.5 border-t border-neutral-gray-light bg-neutral-bg-light/30">
+                  <p className="text-[11px] text-neutral-black">
+                    Showing {filtered.length} of {options.length} {activeTab.toLowerCase()}
+                  </p>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -294,44 +258,56 @@ export default function ManageOptionsPage() {
 
       <OptionDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => { if (!saving) { setDialogOpen(false); setSaveError(null); } }}
         onSave={handleSave}
         initial={editing}
         tabLabel={activeTab}
         tabType={tabType}
+        showPrice={showPrice}
+        saving={saving}
+        error={saveError}
       />
 
-      {/* Price Dialog */}
-      {activeTab === 'Price' && priceDialogOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setPriceDialogOpen(false)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-gray-light">
-              <h3 className="text-sm font-bold text-neutral-black">Set Innovation Price</h3>
-              <button onClick={() => setPriceDialogOpen(false)} className="h-8 w-8 rounded-full bg-neutral-bg-light hover:bg-neutral-gray-light flex items-center justify-center cursor-pointer">
-                <X className="h-4 w-4" />
-              </button>
+      {/* Delete confirmation */}
+      {deleting && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => { if (!deleteSaving) setDeleting(null); }}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-xl w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-4 border-b border-neutral-gray-light">
+              <h3 className="text-sm font-bold text-neutral-black">Delete option</h3>
             </div>
             <div className="p-5 space-y-4">
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold text-neutral-black">Price (ASH) *</span>
-                <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="e.g. 5000"
-                  className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
-                  autoFocus
-                  min="0"
-                  step="100"
-                />
-              </label>
+              <p className="text-sm text-neutral-gray-dark">
+                Are you sure you want to delete{' '}
+                <span className="font-semibold text-neutral-black">{deleting.name}</span>?
+                This option will be removed from the list and can no longer be selected by users.
+              </p>
+              {deleteError && (
+                <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700">
+                  {deleteError}
+                </p>
+              )}
             </div>
             <div className="flex gap-2 justify-end px-5 py-4 border-t border-neutral-gray-light">
-              <button onClick={() => setPriceDialogOpen(false)} className="px-4 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer">
+              <button
+                onClick={() => setDeleting(null)}
+                disabled={deleteSaving}
+                className="px-4 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer disabled:opacity-50"
+              >
                 Cancel
               </button>
-              <button onClick={handlePriceSave} disabled={!price.trim() || priceSaving} className="px-5 py-2 rounded-xl bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer disabled:opacity-50">
-                {priceSaving ? 'Saving...' : 'Save Price'}
+              <button
+                onClick={confirmDelete}
+                disabled={deleteSaving}
+                className="px-5 py-2 rounded-xl bg-brand-red-600 text-white text-xs font-semibold hover:bg-brand-red-700 cursor-pointer disabled:opacity-50 inline-flex items-center gap-1.5"
+              >
+                {deleteSaving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {deleteSaving ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>

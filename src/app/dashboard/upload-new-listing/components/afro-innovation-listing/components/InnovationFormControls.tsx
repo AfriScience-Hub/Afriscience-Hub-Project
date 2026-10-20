@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Plus, Upload, FileText, ChevronDown, Info } from 'lucide-react';
+import { formatPrice } from '@/lib/utils';
 
 export interface LicenseDoc { title: string; issuer: string; date: string; file: string; fileObj?: File; }
 
@@ -87,9 +88,11 @@ export function MultiSelectField({ label, placeholder, options, value, onChange,
   );
 }
 
-export function SingleSelectField({ label, placeholder, options, value, onChange, required, tooltips, descriptions }: {
+export function SingleSelectField({ label, placeholder, options, value, onChange, required, tooltips, descriptions, prices }: {
   label: string; placeholder: string; options: string[]; value: string;
   onChange: (v: string) => void; required?: boolean; tooltips?: Record<string, string>; descriptions?: Record<string, string>;
+  /** Price per option, shown at the right end of the row (STAGE options). */
+  prices?: Record<string, string>;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -108,8 +111,13 @@ export function SingleSelectField({ label, placeholder, options, value, onChange
             <button key={opt} type="button" onClick={() => { onChange(opt); setOpen(false); }}
               className={`flex w-full cursor-pointer flex-col rounded-md px-3 py-2 text-sm text-left hover:bg-brand-red-50 ${value === opt ? 'font-semibold text-brand-red-600' : 'text-neutral-gray-dark'}`}>
               <span className="flex items-center justify-between gap-3">
-                <span>{opt}</span>
-                {tooltips?.[opt] ? <OptionInfo text={tooltips[opt]} /> : null}
+                <span className="truncate">{opt}</span>
+                <span className="flex shrink-0 items-center gap-2">
+                  {prices?.[opt] && (
+                    <span className="text-xs font-semibold text-brand-navy-900">Price: {formatPrice(prices[opt])}</span>
+                  )}
+                  {tooltips?.[opt] ? <OptionInfo text={tooltips[opt]} /> : null}
+                </span>
               </span>
               {descriptions?.[opt] && <span className="text-[10px] text-neutral-gray-medium font-normal mt-0.5">{descriptions[opt]}</span>}
             </button>

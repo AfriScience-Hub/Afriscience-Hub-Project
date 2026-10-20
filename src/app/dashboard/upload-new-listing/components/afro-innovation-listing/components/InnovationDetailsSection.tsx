@@ -89,6 +89,13 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
     return map;
   };
 
+  /** Price per option, only the STAGE type carries one. */
+  const prices = (type: InnovationOptionType) => {
+    const map: Record<string, string> = {};
+    (options[type] ?? []).forEach((o) => { if (o.price != null && o.price !== '') map[o.content] = o.price; });
+    return map;
+  };
+
   const addMaterial = () => {
     const t = newMaterial.trim();
     if (t && !props.innovMaterials.includes(t)) {
@@ -116,7 +123,7 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
         descriptions={descriptions('OWNERSHIP', OWNERSHIP_DESCRIPTIONS)} />
       <SingleSelectField label="Stage" placeholder="Select innovation stage"
         options={names('STAGE')} value={props.innovStage} onChange={props.setInnovStage} required
-        descriptions={descriptions('STAGE', STAGE_DESCRIPTIONS)} />
+        descriptions={descriptions('STAGE', STAGE_DESCRIPTIONS)} prices={prices('STAGE')} />
       <MultiSelectField label="SDGs" placeholder="Select appropriate sustainable development goals your innovation address"
         options={names('SDG')} value={props.innovSdgs} onChange={props.setInnovSdgs} max={5} required />
 

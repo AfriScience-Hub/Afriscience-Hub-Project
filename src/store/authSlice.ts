@@ -173,6 +173,35 @@ export const verifyUserEmail = createAsyncThunk(
   }
 );
 
+// --- Google Auth ---
+
+/** GET /api/v1/auth/google/details — returns the Google client ID. */
+export const fetchGoogleClientId = createAsyncThunk(
+  'auth/fetchGoogleClientId',
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await api.get('/auth/google/details');
+      return data;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+/** POST /api/v1/auth/google — exchanges a Google ID token for a session. */
+export const googleAuth = createAsyncThunk(
+  'auth/googleAuth',
+  async (payload: { token: string }, { rejectWithValue }) => {
+    try {
+      const data = await api.post('/auth/google', payload);
+      persistTokens(data as any);
+      return { data, identifier: (data as any)?.details?.email || (data as any)?.user?.email || '' };
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 // --- Admin thunks ---
 
 export const signupAdmin = createAsyncThunk(
@@ -383,6 +412,19 @@ const authSlice = createSlice({
         }
       })
       .addCase(verifyUserEmail.rejected, (s, a) => { s.loading = false; s.error = a.payload as string; })
+      // Google Auth
+      .addCase(googleAuth.pending, (s) => { s.loading = true; s.error = null; })
+      .addCase(googleAuth.fulfilled, (s, a) => {
+        s.loading = false;
+        const resp = a.payload.data as any;
+        const token = resp?.accessToken || resp?.token || null;
+        s.user = applyTokenClaims(extractUser(a.payload.data, a.payload.identifier), token);
+        s.isAuthenticated = true;
+        s.accessToken = token;
+        s.refreshToken = resp?.refreshToken || null;
+        if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
+      })
+      .addCase(googleAuth.rejected, (s, a) => { s.loading = false; s.error = a.payload as string; })
       // signupUser
       .addCase(signupUser.pending, (s) => { s.loading = true; s.error = null; })
       .addCase(signupUser.fulfilled, (s) => { s.loading = false; })

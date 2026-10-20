@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, type ReactNode } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { signupUser, loginUser, verifyUserEmail, logoutThunk, setUser } from '@/store/authSlice';
+import { signupUser, loginUser, verifyUserEmail, logoutThunk, setUser, googleAuth } from '@/store/authSlice';
 import { resetProfile } from '@/store/profileSlice';
 import { resetWallet } from '@/store/walletSlice';
 import type { AuthUser } from '@/store/authSlice';
@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (identifier: string, password: string) => Promise<void>;
   signup: (name: string, email: string, phone: string, password: string) => Promise<void>;
   verifyEmail: (email: string, otp: string) => Promise<void>;
+  googleLogin: (token: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<AuthUser>) => void;
 }
@@ -39,6 +40,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (res.error || loginUser.rejected.match(res)) throw new Error((res.payload as string) || res.error?.message || 'Login failed');
   };
 
+  const googleLogin = async (token: string) => {
+    const res: any = await dispatch(googleAuth({ token }));
+    if (res.error || googleAuth.rejected.match(res)) throw new Error((res.payload as string) || res.error?.message || 'Google sign-in failed');
+  };
+
   const logout = () => {
     dispatch(logoutThunk());
     // Clear cached profile/wallet so the next session (or user) refetches.
@@ -52,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!isAuthenticated, login, signup, verifyEmail, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!isAuthenticated, login, signup, verifyEmail, googleLogin, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
