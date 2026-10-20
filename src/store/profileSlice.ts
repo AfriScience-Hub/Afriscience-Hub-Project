@@ -36,6 +36,8 @@ export interface ProfileState {
   completion: number; completionCompleted: boolean;
   completionSections: Record<string, CompletionSection> | null;
   completionLoading: boolean; completionLoaded: boolean;
+  /** True while the POST /profile/completion (wallet creation) is in flight. */
+  completionSubmitting: boolean;
   profileLoading: boolean; profileLoaded: boolean; profileError: string | null;
   saveLoading: boolean; saveError: string | null;
 }
@@ -229,7 +231,7 @@ const initialState: ProfileState = {
   portfolio: [], portfolioLoading: false, portfolioError: null,
   certs: [], certsLoading: false, certsError: null,
   completion: 0, completionCompleted: false, completionSections: null,
-  completionLoading: false, completionLoaded: false,
+  completionLoading: false, completionLoaded: false, completionSubmitting: false,
   profileLoading: false, profileLoaded: false, profileError: null,
   saveLoading: false, saveError: null,
 };
@@ -308,7 +310,9 @@ const profileSlice = createSlice({
         s.completionSections = a.payload.sections;
       })
       .addCase(fetchProfileCompletion.rejected, (s) => { s.completionLoading = false; })
-      .addCase(submitProfileCompletion.fulfilled, (s) => { s.saveLoading = false; });
+      .addCase(submitProfileCompletion.pending, (s) => { s.completionSubmitting = true; })
+      .addCase(submitProfileCompletion.fulfilled, (s) => { s.completionSubmitting = false; s.saveLoading = false; })
+      .addCase(submitProfileCompletion.rejected, (s) => { s.completionSubmitting = false; });
   },
 });
 

@@ -59,24 +59,20 @@ interface ExperienceSkillsTabProps {
 }
 
 function ExperienceDisplay(props: ExperienceSkillsTabProps) {
-  const showCurrent = props.employmentStatus === 'Employed (full time)' || props.employmentStatus === 'Self Employed (business owner)';
-
   return (
     <div className="space-y-6">
-      {showCurrent && (
-        <SectionCard title="Current Employment">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <Field label="Role" value={props.role} />
-            <Field label="Industry" value={props.industry} />
-            <Field label="Company" value={props.company} />
-            <Field label="Country" value={props.workCountry} />
-            <Field label="Resumption Date" value={props.resumptionDate ? new Date(props.resumptionDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null} />
-          </div>
-          <div className="mt-3">
-            <Field label="Role Description" value={props.roleDescription} />
-          </div>
-        </SectionCard>
-      )}
+      <SectionCard title="Current Employment">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <Field label="Role" value={props.role} />
+          <Field label="Industry" value={props.industry} />
+          <Field label="Company" value={props.company} />
+          <Field label="Country" value={props.workCountry} />
+          <Field label="Resumption Date" value={props.resumptionDate ? new Date(props.resumptionDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null} />
+        </div>
+        <div className="mt-3">
+          <Field label="Role Description" value={props.roleDescription} />
+        </div>
+      </SectionCard>
 
       {props.pastJobs.length > 0 && (
         <SectionCard title="Past Employment">

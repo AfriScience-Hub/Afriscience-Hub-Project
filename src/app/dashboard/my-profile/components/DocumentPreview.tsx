@@ -30,7 +30,7 @@ export function DocumentModal({ isOpen, onClose, title, url }: {
       <div className="relative bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-4 border-b border-neutral-gray-light">
           <h3 className="text-lg font-bold text-neutral-black truncate pr-4">{title}</h3>
-          <button type="button" onClick={onClose} className="p-2 rounded-lg hover:bg-neutral-bg-light transition-colors">
+          <button type="button" onClick={onClose} className="p-2 rounded-lg hover:bg-neutral-bg-light transition-colors cursor-pointer">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -91,7 +91,7 @@ export function FilePreview({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-brand-navy-900 border border-neutral-gray-light rounded-lg hover:bg-neutral-bg-light transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-brand-navy-900 border border-neutral-gray-light rounded-lg hover:bg-neutral-bg-light transition-colors cursor-pointer"
           >
             <Eye className="h-4 w-4 shrink-0" />
             View file

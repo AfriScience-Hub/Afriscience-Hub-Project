@@ -59,14 +59,11 @@ interface ExperienceSkillsTabProps {
 }
 
 export function ExperienceForm(props: ExperienceSkillsTabProps) {
-  const showCurrentEmployment = props.employmentStatus === 'Employed (full time)' || props.employmentStatus === 'Self Employed (business owner)';
-
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-bold text-neutral-black">Experience & Skills</h3>
 
-      {showCurrentEmployment && (
-        <div className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light p-4 space-y-4">
+      <div className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light p-4 space-y-4">
           <h4 className="text-sm font-bold text-neutral-black">Current Employment Details</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
@@ -110,8 +107,7 @@ export function ExperienceForm(props: ExperienceSkillsTabProps) {
             <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Role Description <span className="text-red-600">*</span></label>
             <textarea value={props.roleDescription} onChange={e => props.onRoleDescriptionChange(e.target.value)} rows={3} placeholder="Describe your responsibilities and achievements..." className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white focus:outline-none focus:border-brand-navy-900 resize-none" required />
           </div>
-        </div>
-      )}
+      </div>
 
       <div className="pt-4 border-t border-neutral-gray-light">
         <div className="flex items-center justify-between mb-4">

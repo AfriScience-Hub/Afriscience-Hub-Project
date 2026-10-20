@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  fetchFullProfile, fetchProfileCompletion,
+  fetchFullProfile, fetchProfileCompletion, submitProfileCompletion,
   createPersonalInfo, updatePersonalInfo,
   createSkill, updateSkill,
   createEducation, updateEducation,
@@ -13,6 +13,7 @@ import {
   createPortfolio, updatePortfolio,
   createCert, updateCert,
 } from '@/store/profileSlice';
+import { fetchWalletBalance } from '@/store/walletSlice';
 import { toast } from 'sonner';
 import { isNoGraduationClassLevel } from './educationLevels';
 import { uploadFile } from '@/lib/upload';
@@ -237,6 +238,27 @@ export function useProfileForm() {
   const updatePortfolioLink = (id: string, field: string, value: string) => setPortfolioLinks(p => p.map(x => x.id === id ? { ...x, [field]: value } : x));
 
   const refreshCompletion = useCallback(() => { dispatch(fetchProfileCompletion({ force: true })); }, [dispatch]);
+
+  /**
+   * POST /profile/completion - the backend checks whether the required profile
+   * details are present and creates the user's wallet when they are. This has
+   * to be a POST (not the GET used by refreshCompletion) or the wallet is
+   * never created.
+   */
+  const submitCompletion = useCallback(async () => {
+    try {
+      await dispatch(submitProfileCompletion()).unwrap();
+      // The wallet may have just been created - pick it up straight away.
+      dispatch(fetchWalletBalance());
+      refreshCompletion();
+      return true;
+    } catch {
+      // Not every detail is filled in yet, so the wallet is not created.
+      // That is expected, not an error worth surfacing to the user.
+      return false;
+    }
+  }, [dispatch, refreshCompletion]);
+
   const fail = (e: unknown, fallback: string) => {
     const msg = typeof e === 'string' ? e : e instanceof Error ? e.message : '';
     toast.error(msg || fallback);
@@ -298,9 +320,12 @@ export function useProfileForm() {
       }
       dispatch(fetchCurrentUser());
       refreshCompletion();
+      // The personal details are what the backend checks before creating the
+      // user's wallet, so ask it to re-evaluate now.
+      await submitCompletion();
       return true;
     } catch (e) { return fail(e, 'Failed to save personal info'); }
-  }, [username, gender, dateOfBirth, bio, phone, address, city, stateOfResidence, localGovt, country, zipCode, idCardType, idCardNumber, employmentStatus, website, idCardKey, avatarKey, degreeCertKey, cvKey, idCardFile, avatarFile, degreeCertFile, cvFile, hasPersonalInfo, dispatch, refreshCompletion, fail, avatarUrl, user, fullName]);
+  }, [username, gender, dateOfBirth, bio, phone, address, city, stateOfResidence, localGovt, country, zipCode, idCardType, idCardNumber, employmentStatus, website, idCardKey, avatarKey, degreeCertKey, cvKey, idCardFile, avatarFile, degreeCertFile, cvFile, hasPersonalInfo, dispatch, refreshCompletion, submitCompletion, fail, avatarUrl, user, fullName]);
 
   const saveSkills = useCallback(async () => { for (const s of skills) { if (!s.name.trim()) continue; const existing = existingIdsRef.current.skills.has(s.id); try { if (existing) { await dispatch(updateSkill({ id: s.id, name: s.name })).unwrap(); } else { const created = await dispatch(createSkill({ name: s.name })).unwrap(); existingIdsRef.current.skills.add(created.id); } } catch (e) { fail(e, 'Failed to save skill'); } } refreshCompletion(); }, [skills, dispatch, refreshCompletion, fail]);
   const saveEducation = useCallback(async () => {
@@ -344,8 +369,10 @@ export function useProfileForm() {
 
     toast.success('Education saved!');
     refreshCompletion();
+    // Education details are also required before the wallet is created.
+    await submitCompletion();
     return true;
-  }, [educationLevel, graduationClass, courseOfStudy, institution, yearOfGraduation, degreeCertUrl, degreeCertKey, degreeCertFile, otherCerts, profile.education, dispatch, refreshCompletion, fail]);
+  }, [educationLevel, graduationClass, courseOfStudy, institution, yearOfGraduation, degreeCertUrl, degreeCertKey, degreeCertFile, otherCerts, profile.education, dispatch, refreshCompletion, submitCompletion, fail]);
   const saveExperience = useCallback(async () => {
     const current = { organization: company, role, industry, country: workCountry, startDate: resumptionDate, roleDescription, isCurrent: true };
     try {
@@ -398,5 +425,6 @@ export function useProfileForm() {
     showOldPassword, setShowOldPassword, showNewPassword, setShowNewPassword,
     securityQuestion, setSecurityQuestion, securityAnswer, setSecurityAnswer,
     savePersonalInfo, saveSkills, saveEducation, saveExperience, saveLanguages, savePortfolio, saveAll,
+    submitCompletion,
   };
 }
