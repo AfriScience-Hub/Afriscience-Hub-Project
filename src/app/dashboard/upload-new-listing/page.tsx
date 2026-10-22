@@ -135,6 +135,16 @@ export default function UploadNewListing() {
 
   const handleProfileImageUpload = () => {};
 
+  // Read type parameter from URL to pre-select the listing type
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const typeParam = params.get('type');
+    if (typeParam && (['innovation', 'institute', 'scientist', 'center', 'award', 'competition'] as ListingType[]).includes(typeParam as ListingType)) {
+      setSelectedType(typeParam as ListingType);
+      setStep('form');
+    }
+  }, []);
+
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('id');
     if (!id) return;

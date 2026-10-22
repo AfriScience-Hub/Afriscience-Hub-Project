@@ -4,12 +4,19 @@ import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, MapPin, LayoutGrid, BadgeCheck, Layers, ShieldCheck, Loader2 } from 'lucide-react';
+
+const darkShimmerStyle = {
+  background: 'linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%)',
+  backgroundSize: '200% 100%',
+  animation: 'skeleton-shimmer 1.5s infinite linear',
+};
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
 import { toast } from 'sonner';
 import type { SubmissionRecord } from '../submissions/data';
 import SubmissionDetailModal from '../submissions/components/SubmissionDetailModal';
 import { INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS, AFRICAN_COUNTRIES } from '@/app/data/mockData';
 import { fetchAdminInnovations, mapAdminInnovation } from '../api';
+import { StatSkeleton, ChartSkeleton, ListSkeleton } from '../components/OverviewWidgets';
 
 const distinct = (items: string[]) => new Set(items).size;
 
@@ -90,13 +97,27 @@ export default function AllInnovationsPage() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        <StatCard iconBg="bg-emerald-100 text-emerald-600" icon={<CheckCircle className="h-4 w-4" />} label="Live Innovations" value={stats.live} />
-        <StatCard iconBg="bg-blue-100 text-blue-600" icon={<MapPin className="h-4 w-4" />} label="Countries" value={stats.countries} />
-        <StatCard iconBg="bg-purple-100 text-purple-600" icon={<LayoutGrid className="h-4 w-4" />} label="Fields" value={stats.fields} />
-        <StatCard iconBg="bg-amber-100 text-amber-600" icon={<Layers className="h-4 w-4" />} label="Interests" value={stats.interests} />
-        <StatCard iconBg="bg-indigo-100 text-indigo-600" icon={<Layers className="h-4 w-4" />} label="Stages" value={stats.stages} />
-        <StatCard iconBg="bg-teal-100 text-teal-600" icon={<ShieldCheck className="h-4 w-4" />} label="Ownership Types" value={stats.ownership} />
-        <StatCard iconBg="bg-green-100 text-green-600" icon={<BadgeCheck className="h-4 w-4" />} label="SDGs" value={stats.sdgs} />
+        {loading ? (
+          <>
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+          </>
+        ) : (
+          <>
+            <StatCard iconBg="bg-emerald-100 text-emerald-600" icon={<CheckCircle className="h-4 w-4" />} label="Live Innovations" value={stats.live} />
+            <StatCard iconBg="bg-blue-100 text-blue-600" icon={<MapPin className="h-4 w-4" />} label="Countries" value={stats.countries} />
+            <StatCard iconBg="bg-purple-100 text-purple-600" icon={<LayoutGrid className="h-4 w-4" />} label="Fields" value={stats.fields} />
+            <StatCard iconBg="bg-amber-100 text-amber-600" icon={<Layers className="h-4 w-4" />} label="Interests" value={stats.interests} />
+            <StatCard iconBg="bg-indigo-100 text-indigo-600" icon={<Layers className="h-4 w-4" />} label="Stages" value={stats.stages} />
+            <StatCard iconBg="bg-teal-100 text-teal-600" icon={<ShieldCheck className="h-4 w-4" />} label="Ownership Types" value={stats.ownership} />
+            <StatCard iconBg="bg-green-100 text-green-600" icon={<BadgeCheck className="h-4 w-4" />} label="SDGs" value={stats.sdgs} />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
@@ -142,9 +163,19 @@ export default function AllInnovationsPage() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-brand-red-600 mx-auto mb-2" />
-                    <p className="text-sm text-neutral-gray-medium">Loading innovations&hellip;</p>
+                  <td colSpan={9} className="p-8">
+                    <div className="animate-pulse space-y-4">
+                      <div className="bg-white rounded-lg border border-neutral-gray-light p-4 py-6">
+                        <div className="h-4 w-1/4 rounded" style={darkShimmerStyle} />
+                        <div className="mt-5 space-y-2">
+                          <div className="h-3 w-1/2 rounded" style={darkShimmerStyle} />
+                          <div className="h-3 w-3/4 rounded" style={darkShimmerStyle} />
+                          <div className="h-3 w-full rounded" style={darkShimmerStyle} />
+                          <div className="h-3 w-1/3 rounded" style={darkShimmerStyle} />
+                          <div className="h-3 w-2/3 rounded" style={darkShimmerStyle} />
+                        </div>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               )}

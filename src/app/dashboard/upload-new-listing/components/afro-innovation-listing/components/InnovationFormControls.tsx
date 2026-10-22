@@ -133,6 +133,7 @@ export function BulletInput({ label, items, setItems, placeholder, description, 
   placeholder: string; description?: string; required?: boolean;
 }) {
   const [input, setInput] = useState('');
+  const hasUnsaved = input.trim().length > 0;
   const add = () => { const t = input.trim(); if (t) { setItems(p => [...p, t]); setInput(''); } };
   return (
     <div className="rounded-lg border border-dashed border-neutral-gray-light p-4">
@@ -146,7 +147,7 @@ export function BulletInput({ label, items, setItems, placeholder, description, 
           {items.map((item, i) => (
             <div key={i} className="flex items-start gap-2 text-sm text-neutral-black">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-red-600" />
-              <span className="flex-1">{item}</span>
+              <span className="shrink-0">{item}</span>
               <button type="button" onClick={() => setItems(p => p.filter((_, j) => j !== i))} className="cursor-pointer text-red-400 hover:text-red-600 shrink-0">
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -163,6 +164,9 @@ export function BulletInput({ label, items, setItems, placeholder, description, 
           <Plus className="h-4 w-4" /> Add
         </button>
       </div>
+      {hasUnsaved && (
+        <p className="text-xs text-red-600 mt-1">Press Enter or click Add to save</p>
+      )}
     </div>
   );
 }

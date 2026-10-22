@@ -208,7 +208,7 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
               {props.innovUserGroups.map((g, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-neutral-black">
                   <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-red-600 flex-shrink-0" />
-                  <span className="flex-1">{g}</span>
+                  <span className="shrink-0">{g}</span>
                   <button type="button" onClick={() => props.setInnovUserGroups(p => p.filter((_, j) => j !== i))} className="cursor-pointer text-red-400 hover:text-red-600 flex-shrink-0">
                     <X className="h-3.5 w-3.5" />
                   </button>

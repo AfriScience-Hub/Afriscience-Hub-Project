@@ -3,6 +3,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Lightbulb, Search, Plus, LayoutGrid, Heart, Flag, Users, Award, Loader2, X } from 'lucide-react';
+import { StatSkeleton, ChartSkeleton, ListSkeleton } from '../components/OverviewWidgets';
+
+const darkShimmerStyle = {
+  background: 'linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%)',
+  backgroundSize: '200% 100%',
+  animation: 'skeleton-shimmer 1.5s infinite linear',
+};
 import { cn } from '@/lib/utils';
 import {
   MANAGE_TABS, TAB_DESCRIPTIONS, TAB_SINGULAR, tabTypeFor,
@@ -232,10 +239,7 @@ export default function ManageOptionsPage() {
             </div>
 
             {loading ? (
-              <div className="p-8 text-center">
-                <div className="h-4 w-4 rounded-full border-2 border-neutral-gray-light border-t-brand-red-600 animate-spin mx-auto mb-2" />
-                <p className="text-xs text-neutral-gray-medium">Loading options...</p>
-              </div>
+              <ListSkeleton />
             ) : (
               <>
                 <OptionsTable

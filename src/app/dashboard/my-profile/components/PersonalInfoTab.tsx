@@ -1,8 +1,10 @@
 'use client';
 
-import { Upload, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Upload, X, ChevronDown } from 'lucide-react';
 import { Field, SectionCard } from './FieldDisplay';
 import { FilePreview } from './DocumentPreview';
+import { WORLD_COUNTRIES } from '@/app/data/mockData';
 
 /** Phone numbers only accept digits and the usual separators - no letters. */
 const phoneOnly = (value: string) => value.replace(/[^\d+\-()\s]/g, '');
@@ -41,6 +43,49 @@ interface PersonalInfoTabProps {
   cvUrl: string;
   handleCvUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   clearCv?: () => void;
+}
+
+/** Searchable country dropdown listing every country in the world. */
+function CountryDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [search, setSearch] = useState('');
+  const [open, setOpen] = useState(false);
+  const [filtered, setFiltered] = useState(WORLD_COUNTRIES);
+
+  useEffect(() => {
+    setFiltered(WORLD_COUNTRIES.filter(c => c.toLowerCase().includes(search.toLowerCase())));
+  }, [search]);
+
+  return (
+    <div className="relative mt-4" onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-center gap-2 cursor-pointer" onClick={() => setOpen(!open)}>
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Type to search country…"
+          className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-sm focus:outline-none focus:border-brand-navy-900"
+        />
+        <ChevronDown className={`h-4 w-4 text-neutral-gray-medium transition-transform ${open ? 'rotate-180' : ''}`} />
+      </div>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full bg-white border border-neutral-gray-light rounded-lg shadow-lg max-h-60 overflow-y-auto">
+          {filtered.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-neutral-gray-medium">No countries found</div>
+          ) : (
+            filtered.map(c => (
+              <div
+                key={c}
+                onClick={() => { setOpen(false); setSearch(c); onChange(c); }}
+                className={`px-3 py-2 text-sm cursor-pointer hover:bg-neutral-bg-light ${value === c ? 'bg-brand-navy-900 text-white' : ''}`}
+              >
+                {c}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function PersonalDisplay(props: PersonalInfoTabProps) {
@@ -249,7 +294,7 @@ function PersonalForm(props: PersonalInfoTabProps) {
           </div>
           <div>
             <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Country <span className="text-red-600">*</span></label>
-            <input type="text" value={props.country} onChange={e => props.onCountryChange(e.target.value)} className={inputClass} required />
+            <CountryDropdown value={props.country} onChange={e => props.onCountryChange(e)} />
           </div>
           <div>
             <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Zip / Postal Code <span className="text-neutral-gray-medium">(Optional)</span></label>
@@ -258,7 +303,7 @@ function PersonalForm(props: PersonalInfoTabProps) {
         </div>
         <div className="mt-4">
           <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Website <span className="text-neutral-gray-medium">(Optional)</span></label>
-          <input type="url" value={props.website} onChange={e => props.onWebsiteChange(e.target.value)} placeholder="https://example.com" className={inputClass} />
+          <input type="text" value={props.website} onChange={e => props.onWebsiteChange(e.target.value)} placeholder="e.g. www.facebook.com/user or facebook.com/user" className={inputClass} />
         </div>
       </div>
     </div>

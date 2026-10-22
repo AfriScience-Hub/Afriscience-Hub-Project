@@ -4,12 +4,51 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  Lightbulb, MoreHorizontal, ArrowRight, Loader2,
+  Lightbulb, MoreHorizontal, ArrowRight,
   LayoutGrid, Settings2, Inbox,
   Eye, Clock, CheckCircle, XCircle, Share2,
 } from 'lucide-react';
-import { DonutCard, ListCard, EmptyState } from './components/OverviewWidgets';
+import { DonutCard, ListCard, EmptyState, GrowthChart, StatSkeleton, ChartSkeleton, ListSkeleton } from './components/OverviewWidgets';
 import { fetchAdminInnovations, mapAdminInnovation } from './api';
+
+const COLORS = [
+  '#453DD8', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#6366F1',
+];
+
+function computeSlices(items: any[], getKey: (item: any) => string | string[]): { name: string; percent: string; count: number; color: string }[] {
+  const counts: Record<string, number> = {};
+  items.forEach((item: any) => {
+    const rawKey = getKey(item);
+    const keys: string[] = Array.isArray(rawKey) ? rawKey : [rawKey];
+    keys.forEach((k: string) => {
+      const name = String(k).trim();
+      if (name) counts[name] = (counts[name] || 0) + 1;
+    });
+  });
+  const total = Object.values(counts).reduce((a: number, b: number) => a + b, 0);
+  return Object.entries(counts)
+    .sort(([, a], [, b]) => b - a)
+    .map(([name, count], i: number) => ({
+      name,
+      percent: total > 0 ? ((count / total) * 100).toFixed(1) : '0',
+      count,
+      color: COLORS[i % COLORS.length],
+    }));
+}
+
+function computeGrowth(items: any[]): { label: string; value: number }[] {
+  const monthly: Record<string, number> = {};
+  items.forEach(item => {
+    const date = new Date(item.submittedOn || item.createdAt || '');
+    if (!isNaN(date.getTime())) {
+      const label = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      monthly[label] = (monthly[label] || 0) + 1;
+    }
+  });
+  return Object.entries(monthly)
+    .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+    .map(([label, value]) => ({ label, value }));
+}
 
 export default function AfroInnovationsPage() {
   const [records, setRecords] = useState<any[]>([]);
@@ -55,6 +94,13 @@ export default function AfroInnovationsPage() {
   const pendingList = records.filter((r: any) => r.status === 'Pending Review').slice(0, 5);
   const rejectedList = records.filter((r: any) => r.status === 'Rejected').slice(0, 5);
   const recentList = records.filter((r: any) => r.status === 'Published').slice(0, 5);
+
+  const categorySlices = computeSlices(records, r => r.innovation?.field || '');
+  const stageSlices = computeSlices(records, r => r.innovation?.stage || '');
+  const interestSlices = computeSlices(records, r => r.innovation?.interests || []);
+  const ownershipSlices = computeSlices(records, r => r.innovation?.ownership || '');
+  const countrySlices = computeSlices(records, r => r.innovation?.country || '');
+  const growthData = computeGrowth(records);
 
   return (
     <div className="space-y-4">
@@ -104,6 +150,14 @@ export default function AfroInnovationsPage() {
                 <span className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0"><Inbox className="h-4 w-4 text-emerald-600" /></span>
                 <span className="text-xs font-semibold text-neutral-black">View Submissions</span>
               </Link>
+              <Link
+                href="/admin/categories/afro-innovations/create"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3.5 py-2.5 hover:bg-neutral-bg-light cursor-pointer"
+              >
+                <span className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0"><Lightbulb className="h-4 w-4 text-purple-600" /></span>
+                <span className="text-xs font-semibold text-neutral-black">Create Innovation</span>
+              </Link>
             </div>
           )}
         </div>
@@ -111,49 +165,75 @@ export default function AfroInnovationsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {stats.map((stat) => (
-          <div key={stat.label} className="bg-white rounded-lg border border-neutral-gray-light p-3">
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center ${stat.iconBg}`}>
-              {stat.icon === 'lightbulb' && <Lightbulb className="h-3.5 w-3.5" />}
-              {stat.icon === 'clock' && <Clock className="h-3.5 w-3.5" />}
-              {stat.icon === 'check' && <CheckCircle className="h-3.5 w-3.5" />}
-              {stat.icon === 'x' && <XCircle className="h-3.5 w-3.5" />}
-              {stat.icon === 'eye' && <Eye className="h-3.5 w-3.5" />}
-              {stat.icon === 'share' && <Share2 className="h-3.5 w-3.5" />}
+        {loading ? (
+          <>
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+          </>
+        ) : (
+          stats.map((stat) => (
+            <div key={stat.label} className="bg-white rounded-lg border border-neutral-gray-light p-3">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center ${stat.iconBg}`}>
+                {stat.icon === 'lightbulb' && <Lightbulb className="h-3.5 w-3.5" />}
+                {stat.icon === 'clock' && <Clock className="h-3.5 w-3.5" />}
+                {stat.icon === 'check' && <CheckCircle className="h-3.5 w-3.5" />}
+                {stat.icon === 'x' && <XCircle className="h-3.5 w-3.5" />}
+                {stat.icon === 'eye' && <Eye className="h-3.5 w-3.5" />}
+                {stat.icon === 'share' && <Share2 className="h-3.5 w-3.5" />}
+              </div>
+              <p className="text-lg font-bold text-neutral-black mt-1.5">{stat.value}</p>
+              <p className="text-[10px] text-neutral-gray-medium mt-0.5">{stat.label}</p>
+              {stat.change && (
+                <p className={`text-[10px] mt-0.5 ${stat.positive ? 'text-green-600' : 'text-red-500'}`}>{stat.change}</p>
+              )}
             </div>
-            <p className="text-lg font-bold text-neutral-black mt-1.5">{stat.value}</p>
-            <p className="text-[10px] text-neutral-gray-medium mt-0.5">{stat.label}</p>
-            {stat.change && (
-              <p className={`text-[10px] mt-0.5 ${stat.positive ? 'text-green-600' : 'text-red-500'}`}>{stat.change}</p>
-            )}
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
-          <h3 className="text-xs font-semibold text-neutral-black mb-3">Innovations Growth</h3>
-          <EmptyState />
-        </div>
-        <DonutCard title="Innovations by Category" total="—" slices={[]} />
-        <DonutCard title="Innovations by Stage" total="—" slices={[]} />
-        <DonutCard title="Innovations by Interest" total="—" slices={[]} />
-        <DonutCard title="Innovations by Ownership" total="—" slices={[]} />
-        <DonutCard title="Innovations by Country" total="—" slices={[]} />
+        {loading ? (
+          <>
+            <ChartSkeleton />
+            <ChartSkeleton />
+            <ChartSkeleton />
+            <ChartSkeleton />
+            <ChartSkeleton />
+            <ChartSkeleton />
+          </>
+        ) : (
+          <>
+            <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
+              <h3 className="text-xs font-semibold text-neutral-black mb-3">Innovations Growth</h3>
+              <GrowthChart data={growthData} />
+            </div>
+            <DonutCard title="Innovations by Category" total={categorySlices.length} slices={categorySlices} />
+            <DonutCard title="Innovations by Stage" total={stageSlices.length} slices={stageSlices} />
+            <DonutCard title="Innovations by Interest" total={interestSlices.length} slices={interestSlices} />
+            <DonutCard title="Innovations by Ownership" total={ownershipSlices.length} slices={ownershipSlices} />
+            <DonutCard title="Innovations by Country" total={countrySlices.length} slices={countrySlices} />
+          </>
+        )}
       </div>
 
       {/* Lists */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <ListCard title="Pending Approvals" viewHref="/admin/categories/afro-innovations/submissions">
           {loading ? (
-            <div className="py-6 text-center"><Loader2 className="h-5 w-5 animate-spin text-brand-red-600 mx-auto" /></div>
+            <ListSkeleton />
           ) : pendingList.length === 0 ? (
             <EmptyState message="No pending submissions." />
           ) : (
             pendingList.map((r: any) => (
-              <div key={r.id} className="flex items-start gap-2.5">
-                {r.innovation.logo && <Image src={r.innovation.logo} alt={r.innovation.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />}
+              <div key={r.id} className="flex items-center gap-2.5 my-3">
+                {r.innovation.logo && (
+                  <Image src={r.innovation.logo} alt={r.innovation.name} width={32} height={32} className="rounded-full object-cover shrink-0 h-8 w-8" />
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] font-medium text-neutral-black truncate">{r.innovation.name}</p>
                   <p className="text-[9px] text-neutral-gray-medium">{r.innovation.description}</p>
@@ -167,13 +247,15 @@ export default function AfroInnovationsPage() {
 
         <ListCard title="Recently Added" viewHref="/admin/categories/afro-innovations/all">
           {loading ? (
-            <div className="py-6 text-center"><Loader2 className="h-5 w-5 animate-spin text-brand-red-600 mx-auto" /></div>
+            <ListSkeleton />
           ) : recentList.length === 0 ? (
             <EmptyState message="No approved innovations yet." />
           ) : (
             recentList.map((r: any) => (
-              <div key={r.id} className="flex items-start gap-2.5">
-                {r.innovation.logo && <Image src={r.innovation.logo} alt={r.innovation.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />}
+              <div key={r.id} className="flex items-center gap-2.5 my-3">
+                {r.innovation.logo && (
+                  <Image src={r.innovation.logo} alt={r.innovation.name} width={32} height={32} className="rounded-full object-cover shrink-0 h-8 w-8" />
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] font-medium text-neutral-black truncate">{r.innovation.name}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
@@ -189,18 +271,24 @@ export default function AfroInnovationsPage() {
         </ListCard>
 
         <ListCard title="Top Viewed Innovations" viewHref="/admin/categories/afro-innovations/all">
-          <EmptyState />
+          {loading ? (
+            <ListSkeleton />
+          ) : (
+            <EmptyState />
+          )}
         </ListCard>
 
         <ListCard title="New Submissions" viewHref="/admin/categories/afro-innovations/submissions">
           {loading ? (
-            <div className="py-6 text-center"><Loader2 className="h-5 w-5 animate-spin text-brand-red-600 mx-auto" /></div>
+            <ListSkeleton />
           ) : pendingList.length === 0 ? (
             <EmptyState message="No new submissions." />
           ) : (
             pendingList.map((r: any) => (
-              <div key={r.id} className="flex items-start gap-2.5">
-                {r.innovation.logo && <Image src={r.innovation.logo} alt={r.innovation.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />}
+              <div key={r.id} className="flex items-start gap-2.5 my-3">
+                {r.innovation.logo && (
+                  <Image src={r.innovation.logo} alt={r.innovation.name} width={32} height={32} className="rounded-full object-cover shrink-0 h-8 w-8" />
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] font-medium text-neutral-black truncate">{r.innovation.name}</p>
                   <p className="text-[9px] text-neutral-gray-medium">{r.innovation.description}</p>
@@ -215,13 +303,15 @@ export default function AfroInnovationsPage() {
 
         <ListCard title="Rejected Innovations" viewHref="/admin/categories/afro-innovations/submissions">
           {loading ? (
-            <div className="py-6 text-center"><Loader2 className="h-5 w-5 animate-spin text-brand-red-600 mx-auto" /></div>
+            <ListSkeleton />
           ) : rejectedList.length === 0 ? (
             <EmptyState message="No rejected innovations." />
           ) : (
             rejectedList.map((r: any) => (
-              <div key={r.id} className="flex items-start gap-2.5">
-                {r.innovation.logo && <Image src={r.innovation.logo} alt={r.innovation.name} width={28} height={28} className="rounded-lg object-cover flex-shrink-0" />}
+              <div key={r.id} className="flex items-start gap-2.5 my-3">
+                {r.innovation.logo && (
+                  <Image src={r.innovation.logo} alt={r.innovation.name} width={32} height={32} className="rounded-full object-cover shrink-0 h-8 w-8" />
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] font-medium text-neutral-black truncate">{r.innovation.name}</p>
                   <p className="text-[9px] text-neutral-gray-medium truncate">{r.reasonForRejection || 'No reason provided.'}</p>
@@ -233,7 +323,11 @@ export default function AfroInnovationsPage() {
         </ListCard>
 
         <ListCard title="Top Shared Innovations" viewHref="/admin/categories/afro-innovations/all">
-          <EmptyState />
+          {loading ? (
+            <ListSkeleton />
+          ) : (
+            <EmptyState />
+          )}
         </ListCard>
       </div>
     </div>

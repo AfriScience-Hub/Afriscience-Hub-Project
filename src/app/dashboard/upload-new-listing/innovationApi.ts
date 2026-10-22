@@ -29,7 +29,7 @@ export interface InnovationPayload {
   socials: { platform: string; link: string }[];
 }
 
-const OWNERSHIP: Record<string, string> = {
+export const OWNERSHIP: Record<string, string> = {
   Private: 'PRIVATE',
   'Government | Public': 'GOVERNMENT_PUBLIC',
   Academic: 'ACADEMIC',
@@ -40,7 +40,7 @@ const OWNERSHIP: Record<string, string> = {
   Other: 'OTHER',
 };
 
-const STAGE: Record<string, string> = {
+export const STAGE: Record<string, string> = {
   Ideation: 'IDEATION',
   'Research & Development': 'RESEARCH_AND_DEVELOPMENT',
   Prototype: 'PROTOTYPE',
@@ -49,20 +49,22 @@ const STAGE: Record<string, string> = {
   Commercialization: 'COMMERCIALIZATION',
 };
 
-const SDG: Record<string, string> = {
+export const SDG: Record<string, string> = {
   'Good Health & Well-Being': 'Good Health & Well-being',
   'Industry, Innovation & Infrastructure': 'Industry/Innovation/Infrastructure',
 };
 
-const MEDIA: Record<string, string> = {
+export const MEDIA: Record<string, string> = {
   'Working Materials': 'WORKING_MATERIALS',
   'Work-in-Progress': 'WORK_IN_PROGRESS',
   'Finished Work': 'FINISHED_WORK',
 };
 
-const DIMENSION_UNIT_PAYLOAD: Record<string, string> = { mm: 'MM', cm: 'CM', in: 'INCH', ft: 'FT', m: 'M' };
+export const DIMENSION_UNIT_PAYLOAD: Record<string, string> = { mm: 'MM', cm: 'CM', in: 'INCH', ft: 'FT', m: 'M' };
 // The form dropdown shows "t" for tonnes but the API enum is TONNES.
-const WEIGHT_UNIT_PAYLOAD: Record<string, string> = { mg: 'MG', g: 'G', oz: 'OZ', lb: 'LB', kg: 'KG', t: 'TONNES' };
+export const WEIGHT_UNIT_PAYLOAD: Record<string, string> = { mg: 'MG', g: 'G', oz: 'OZ', lb: 'LB', kg: 'KG', t: 'TONNES' };
+
+export { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
 
 const REV = <T extends Record<string, string>>(map: T) =>
   Object.fromEntries(Object.entries(map).map(([k, v]) => [v, k])) as Record<string, string>;

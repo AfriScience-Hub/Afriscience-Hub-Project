@@ -7,9 +7,12 @@ import CollapsibleSection from './CollapsibleSection';
 
 export interface AwardEntry {
   id: string;
+  /** Position label, e.g. "1st Position" */
   position: string;
-  /** Reward items, comma separated */
-  items: string;
+  /** Prize amount */
+  amount: string;
+  /** What the winner receives */
+  description: string;
 }
 
 interface RewardsSectionProps {
@@ -27,7 +30,8 @@ const MEDAL_STYLES = [
 const EXTRA_STYLE = 'bg-[#453DD8]/10 text-[#453DD8]';
 
 let nextId = 1;
-const makeAward = (position = '', items = ''): AwardEntry => ({ id: `a${nextId++}`, position, items });
+const makeAward = (position = '', amount = '', description = ''): AwardEntry =>
+  ({ id: `a${nextId++}`, position, amount, description });
 
 /**
  * Section 6 — Rewards and Prizes: editable position rows pre-filled with the
@@ -56,7 +60,7 @@ export default function RewardsSection({ type, category, awards, onChange }: Rew
             <Lightbulb className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
             <p className="text-[11px] text-neutral-gray-dark leading-relaxed">
               Rewards below were pre-filled for <span className="font-bold text-neutral-black">{scope}</span>.
-              Adjust any position name, reward item or points value — the rows are fully editable.
+              Adjust any position name, amount or description — the rows are fully editable.
             </p>
           </div>
         )}
@@ -78,7 +82,7 @@ export default function RewardsSection({ type, category, awards, onChange }: Rew
                   {index < 3 ? <Medal className="h-4 w-4" /> : <Trophy className="h-4 w-4" />}
                 </span>
 
-                <div className="flex-1 min-w-0 grid sm:grid-cols-[180px_1fr] gap-2">
+                <div className="flex-1 min-w-0 grid sm:grid-cols-[160px_120px_1fr] gap-2">
                   <input
                     type="text"
                     value={award.position}
@@ -88,11 +92,20 @@ export default function RewardsSection({ type, category, awards, onChange }: Rew
                     className="w-full px-3 py-2 text-xs font-bold text-neutral-black rounded-lg border border-neutral-gray-light bg-white outline-none focus:border-[#453DD8]"
                   />
                   <input
+                    type="number"
+                    min={0}
+                    value={award.amount}
+                    onChange={(e) => update(award.id, { amount: e.target.value })}
+                    placeholder="Amount"
+                    aria-label={`Position ${index + 1} amount`}
+                    className="w-full px-3 py-2 text-xs text-neutral-black rounded-lg border border-neutral-gray-light bg-white outline-none focus:border-[#453DD8]"
+                  />
+                  <input
                     type="text"
-                    value={award.items}
-                    onChange={(e) => update(award.id, { items: e.target.value })}
-                    placeholder="e.g. Gold Medal, $1,000 cash prize, certificate of recognition"
-                    aria-label={`Position ${index + 1} rewards`}
+                    value={award.description}
+                    onChange={(e) => update(award.id, { description: e.target.value })}
+                    placeholder="e.g. Gold Medal, certificate of recognition"
+                    aria-label={`Position ${index + 1} description`}
                     className="w-full min-w-0 px-3 py-2 text-xs text-neutral-black rounded-lg border border-neutral-gray-light bg-white outline-none focus:border-[#453DD8]"
                   />
                 </div>

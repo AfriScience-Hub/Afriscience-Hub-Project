@@ -4,6 +4,13 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, XCircle, ShieldCheck, Clock, Loader2, X } from 'lucide-react';
+import { StatSkeleton } from '../components/OverviewWidgets';
+
+const darkShimmerStyle = {
+  background: 'linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%)',
+  backgroundSize: '200% 100%',
+  animation: 'skeleton-shimmer 1.5s infinite linear',
+};
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
 import { toast } from 'sonner';
 import type { SubmissionRecord, SubmissionStatus } from './data';
@@ -130,10 +137,21 @@ export default function SubmissionsPage() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard iconBg="bg-purple-100 text-purple-600" icon={<ShieldCheck className="h-4 w-4" />} label="Total Submissions" value={total} change={calcTrend(total, total - thisMonth)} positive />
-        <StatCard iconBg="bg-orange-100 text-orange-600" icon={<span className="text-sm">◷</span>} label="Pending Review" value={pending} change={calcTrend(pending, pending - thisMonth)} positive />
-        <StatCard iconBg="bg-green-100 text-green-600" icon={<CheckCircle className="h-4 w-4" />} label="Published" value={published} change={calcTrend(published, published - thisMonth)} positive />
-        <StatCard iconBg="bg-red-100 text-red-600" icon={<XCircle className="h-4 w-4" />} label="Rejected" value={rejected} change={calcTrend(rejected, rejected - thisMonth)} positive={false} />
+        {loading ? (
+          <>
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+          </>
+        ) : (
+          <>
+            <StatCard iconBg="bg-purple-100 text-purple-600" icon={<ShieldCheck className="h-4 w-4" />} label="Total Submissions" value={total} change={calcTrend(total, total - thisMonth)} positive />
+            <StatCard iconBg="bg-orange-100 text-orange-600" icon={<span className="text-sm">◷</span>} label="Pending Review" value={pending} change={calcTrend(pending, pending - thisMonth)} positive />
+            <StatCard iconBg="bg-green-100 text-green-600" icon={<CheckCircle className="h-4 w-4" />} label="Published" value={published} change={calcTrend(published, published - thisMonth)} positive />
+            <StatCard iconBg="bg-red-100 text-red-600" icon={<XCircle className="h-4 w-4" />} label="Rejected" value={rejected} change={calcTrend(rejected, rejected - thisMonth)} positive={false} />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
@@ -182,9 +200,19 @@ export default function SubmissionsPage() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-brand-red-600 mx-auto mb-2" />
-                    <p className="text-sm text-neutral-gray-medium">Loading innovations&hellip;</p>
+                  <td colSpan={8} className="p-8">
+                    <div className="animate-pulse space-y-4">
+                      <div className="bg-white rounded-lg border border-neutral-gray-light p-4 py-6">
+                        <div className="h-4 w-1/4 rounded" style={darkShimmerStyle} />
+                        <div className="mt-5 space-y-2">
+                          <div className="h-3 w-1/2 rounded" style={darkShimmerStyle} />
+                          <div className="h-3 w-3/4 rounded" style={darkShimmerStyle} />
+                          <div className="h-3 w-full rounded" style={darkShimmerStyle} />
+                          <div className="h-3 w-1/3 rounded" style={darkShimmerStyle} />
+                          <div className="h-3 w-2/3 rounded" style={darkShimmerStyle} />
+                        </div>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               )}

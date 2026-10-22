@@ -13,8 +13,16 @@ export interface BasicInfoState {
   type: string;
   category: string;
   entryFee: string;
+  /** Competition year, e.g. 2028 */
+  year: string;
   country: string;
   mediaTypes: string[];
+  /** Maximum number of media files a participant may submit. */
+  maxFiles: string;
+  /** Maximum size of a single uploaded media file, in MB. */
+  maxFileSizeMB: string;
+  /** Maximum video duration, in seconds. */
+  maxVideoDurationSeconds: string;
   start: string;
   submissionDeadline: string;
   votingDeadline: string;
@@ -92,14 +100,15 @@ export default function BasicInfoSection({ value, onChange }: BasicInfoSectionPr
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-3 gap-4">
           <div>
-            <label className="text-xs font-medium text-neutral-black block mb-1.5">Registration Fee <span className="text-brand-red-600">*</span></label>
+            <label htmlFor="comp-fee" className="text-xs font-medium text-neutral-black block mb-1.5">Registration Fee <span className="text-brand-red-600">*</span></label>
             <div className="flex gap-2">
               <span className="w-16 flex-shrink-0 px-3 py-2 text-xs text-neutral-black rounded-lg border border-neutral-gray-light bg-neutral-bg-light grid place-items-center font-semibold">
                 USD
               </span>
               <input
+                id="comp-fee"
                 type="number"
                 min={0}
                 aria-label="Registration fee amount in USD"
@@ -109,6 +118,20 @@ export default function BasicInfoSection({ value, onChange }: BasicInfoSectionPr
                 className={inputCls}
               />
             </div>
+          </div>
+          <div>
+            <label htmlFor="comp-year" className="text-xs font-medium text-neutral-black block mb-1.5">Year <span className="text-brand-red-600">*</span></label>
+            <input
+              id="comp-year"
+              type="number"
+              min={2000}
+              max={2100}
+              aria-label="Competition year"
+              value={value.year}
+              onChange={(e) => onChange({ year: e.target.value })}
+              placeholder="e.g. 2028"
+              className={inputCls}
+            />
           </div>
           <div>
             <label htmlFor="comp-country" className="text-xs font-medium text-neutral-black block mb-1.5">Select Country <span className="text-brand-red-600">*</span></label>
@@ -148,6 +171,50 @@ export default function BasicInfoSection({ value, onChange }: BasicInfoSectionPr
               );
             })}
           </div>
+        </div>
+
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div>
+            <label htmlFor="media-max-files" className="text-xs font-medium text-neutral-black block mb-1.5">Max Files <span className="text-brand-red-600">*</span></label>
+            <input
+              id="media-max-files"
+              type="number"
+              min={1}
+              aria-label="Maximum number of media files"
+              value={value.maxFiles}
+              onChange={(e) => onChange({ maxFiles: e.target.value })}
+              placeholder="e.g. 3"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label htmlFor="media-max-size" className="text-xs font-medium text-neutral-black block mb-1.5">Max File Size (MB) <span className="text-brand-red-600">*</span></label>
+            <input
+              id="media-max-size"
+              type="number"
+              min={1}
+              aria-label="Maximum media file size in megabytes"
+              value={value.maxFileSizeMB}
+              onChange={(e) => onChange({ maxFileSizeMB: e.target.value })}
+              placeholder="e.g. 5"
+              className={inputCls}
+            />
+          </div>
+          {value.mediaTypes.includes('Video') && (
+            <div>
+              <label htmlFor="media-max-duration" className="text-xs font-medium text-neutral-black block mb-1.5">Max Video Duration (secs)</label>
+              <input
+                id="media-max-duration"
+                type="number"
+                min={1}
+                aria-label="Maximum video duration in seconds"
+                value={value.maxVideoDurationSeconds}
+                onChange={(e) => onChange({ maxVideoDurationSeconds: e.target.value })}
+                placeholder="e.g. 120"
+                className={inputCls}
+              />
+            </div>
+          )}
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
