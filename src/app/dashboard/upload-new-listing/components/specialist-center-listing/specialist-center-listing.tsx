@@ -115,27 +115,27 @@ export default function SpecialistCenterListing({ onCancel }: SpecialistCenterLi
     <>
       <YourInformationSection info={yourInfo} />
 
-      <CollapsibleSection title="Center Identity" icon={<IdCard className="h-5 w-5 text-brand-red-600" />} badge="Required">
+      <CollapsibleSection title="Center identity" icon={<IdCard className="h-5 w-5 text-brand-red-600" />} badge="Required">
         <CenterIdentitySection identity={identity} onChange={patchIdentity} />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Center Information" icon={<Microscope className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
+      <CollapsibleSection title="Center information" icon={<Microscope className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
         <CenterInformationSection info={info} onChange={patchInfo} />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Service Fees & Other Fees" icon={<DollarSign className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+      <CollapsibleSection title="Service fees & other fees" icon={<DollarSign className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
         <CenterFeesSection services={info.services} fees={fees} onChange={patchFees} />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Scopes & Engagement Policies" icon={<Flag className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
+      <CollapsibleSection title="Scopes & engagement policies" icon={<Flag className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
         <CenterScopePolicySection scopes={scopes} setScopes={setScopes} policies={policies} setPolicies={setPolicies} />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Licenses & Achievements" icon={<ShieldCheck className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
+      <CollapsibleSection title="Licenses & achievements" icon={<ShieldCheck className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
         <CenterDocumentsSection licenses={licenses} setLicenses={setLicenses} awards={awards} setAwards={setAwards} />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Media Gallery" icon={<ImagePlus className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+      <CollapsibleSection title="Media gallery" icon={<ImagePlus className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
         <CenterGallerySection gallery={gallery} onChange={setGallery} />
       </CollapsibleSection>
 

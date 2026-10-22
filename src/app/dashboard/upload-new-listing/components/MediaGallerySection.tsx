@@ -44,7 +44,7 @@ export default function MediaGallerySection({ galleryImages, setGalleryImages, G
   };
 
   return (
-    <CollapsibleSection title="Media Gallery" icon={<ImagePlus className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+    <CollapsibleSection title="Media gallery" icon={<ImagePlus className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
       <div className="space-y-4">
         <p className="text-xs text-neutral-gray-medium">Upload images and videos organized by category.</p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

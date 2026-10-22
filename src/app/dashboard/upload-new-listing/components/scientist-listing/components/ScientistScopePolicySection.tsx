@@ -13,7 +13,7 @@ interface ScientistScopePolicySectionProps {
 
 export default function ScientistScopePolicySection({ scopes, setScopes, policies, setPolicies }: ScientistScopePolicySectionProps) {
   return (
-    <CollapsibleSection title="Scopes & Engagement Policies" icon={<Flag className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
+    <CollapsibleSection title="Scopes & engagement policies" icon={<Flag className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <Flag className="h-4 w-4 text-brand-navy-900" />

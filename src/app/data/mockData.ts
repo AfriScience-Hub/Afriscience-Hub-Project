@@ -283,22 +283,78 @@ export const INSTITUTES = [
     shares: 820,
     verified: true,
     bookingsCount: 845,
+    program: 'Day school',
+    currency: 'NGN',
+    currencySymbol: '₦',
+    usdRate: 1550,
+    workDays: 'Monday – Friday',
+    workHours: '7:30 AM – 4:00 PM',
+    activeStudents: 1500,
+    joined: 'September 2016',
     image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=1000',
     description: 'Lagos High School of Science & Tech is a premier secondary institution with a focus on STEM education, robotics, and future-ready skills. We nurture the next generation of African innovators through hands-on learning and character development.',
-    services: ['Secondary Education', 'Robotics Club', 'Coding Bootcamp', 'Competitions', 'Science Clubs', 'Virtual Reality Lab', 'Drones Program'],
+    services: ['Teaching & Learning', 'STEM & STEAM', 'Clubs (Science & Welfare)', 'Competitions & Olympiads', 'Sports & Physical Exercise', 'Technical Skills Development', 'Counselling (Academic & Personal)', 'Clinic & Health Programs'],
     scopes: ['Junior Secondary', 'Senior Secondary', 'Pre-University'],
     email: 'admissions@lagoshigh.ng',
     phone: '+234 800 987 654',
     website: 'www.lagoshigh.ng',
     tuitionFees: [
-      { level: 'JSS 1-3', range: '₦150,000 - ₦250,000' },
-      { level: 'SS 1-3', range: '₦250,000 - ₦400,000' }
+      { level: 'JSS 1', amount: 150000 },
+      { level: 'JSS 2', amount: 160000 },
+      { level: 'JSS 3', amount: 175000 },
+      { level: 'SS 1', amount: 250000 },
+      { level: 'SS 2', amount: 265000 },
+      { level: 'SS 3', amount: 280000 }
     ],
     otherFees: [
-      { item: 'Enrollment Fee', range: '₦50,000 - ₦75,000' },
-      { item: 'Tech & Lab Fee', range: '₦30,000 - ₦50,000' },
-      { item: 'Uniform & Sports Gear', range: '₦25,000 - ₦40,000' }
+      { item: 'Enrollment Fee', amount: 50000, description: 'One-time payment on admission. Covers onboarding, record set-up and student ID card issuance.' },
+      { item: 'Tech & Lab Fee', amount: 30000, description: 'Covers consumables and maintenance for the robotics, coding and science laboratories.' },
+      { item: 'Uniform & Sports Gear', amount: 25000, description: 'Complete uniform set plus sports kit, purchased once per academic cycle.' }
     ],
+    academicCalendar: {
+      firstTerm: 'September – December',
+      secondTerm: 'January – April',
+      thirdTerm: 'April – July'
+    },
+    gradingSystem: 'A1 (Excellent) 80–100 | B2 (Very Good) 70–79 | B3 (Good) 60–69 | C4 (Credit) 50–59 | C5 (Credit) 40–49 | C6 (Pass) 35–39 | D7 (Pass) 30–34 | E8 (Marginal) 25–29 | F9 (Fail) Below 25',
+    degreesAwarded: [
+      'Basic Education Certificate (BECE) – Junior Secondary',
+      'West African Senior School Certificate (WASSCE)',
+      'National Examinations Council Certificate (SSCE)'
+    ],
+    admissionRequirements: [
+      'Completed Junior Secondary School or equivalent placement test for JSS 1 entry',
+      'Five (5) credit passes including English Language and Mathematics at O\'Level for senior entry',
+      'Recent passport photograph and previous school report card',
+      'Entrance assessment in English, Mathematics and Science',
+      'Medical fitness report and immunization record'
+    ],
+    downloads: {
+      brochure: [
+        { name: '2026 School Brochure', format: 'PDF', size: '4.2 MB', updated: 'Aug 2026' },
+        { name: 'Admission Prospectus', format: 'PDF', size: '6.8 MB', updated: 'Aug 2026' }
+      ],
+      curriculum: [
+        { name: 'Junior Secondary Curriculum', format: 'PDF', size: '2.8 MB', updated: 'Jul 2026' },
+        { name: 'Senior Secondary Curriculum', format: 'PDF', size: '3.1 MB', updated: 'Jul 2026' }
+      ],
+      timetable: [
+        { name: '2026/2027 Academic Timetable', format: 'PDF', size: '640 KB', updated: 'Sep 2026' }
+      ],
+      feeStructure: [
+        { name: '2026/2027 Fee Structure', format: 'PDF', size: '310 KB', updated: 'Aug 2026' }
+      ],
+      policies: [
+        { name: 'Student Handbook & Policies', format: 'PDF', size: '1.1 MB', updated: 'May 2026' },
+        { name: 'Code of Conduct', format: 'PDF', size: '260 KB', updated: 'May 2026' }
+      ],
+      admissionForm: [
+        { name: '2026/2027 Admission Form', format: 'PDF', size: '480 KB', updated: 'Sep 2026' }
+      ],
+      others: [
+        { name: 'Transport Route Map', format: 'PDF', size: '920 KB', updated: 'Jun 2026' }
+      ]
+    },
     curriculum: ['Advanced Mathematics', 'Applied Physics', 'Organic Chemistry', 'Molecular Biology', 'Computer Programming', 'Robotics & Automation', 'AI Ethics', 'Entrepreneurship'],
     certifications: [
         { name: 'WAEC Approved', issuer: 'West African Examination Council', year: '2010', description: 'Fully accredited centre for West African Senior School Certificate Examination.' },
@@ -329,8 +385,14 @@ export const INSTITUTES = [
       frontGate: ['https://images.unsplash.com/photo-1579651745194-ff4b0f1580d0?auto=format&fit=crop&q=80&w=800'],
       compound: ['https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=800'],
       classrooms: ['https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=800'],
-      laboratories: ['https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1581093458791-9f302e6d862e?auto=format&fit=crop&q=80&w=800'],
       playground: ['https://images.unsplash.com/photo-1742129118964-2fb99c751cf3?auto=format&fit=crop&q=80&w=800'],
+      auditorium: ['https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&q=80&w=800'],
+      convenience: ['https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=800'],
+      laboratories: ['https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1581093458791-9f302e6d862e?auto=format&fit=crop&q=80&w=800'],
+      libraries: ['https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=800'],
+      offices: ['https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800'],
+      lobby: ['https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=800'],
+      uniforms: ['https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=800'],
       others: ['https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&q=80&w=800']
     }
   },
@@ -355,28 +417,104 @@ export const INSTITUTES = [
     shares: 180,
     verified: true,
     bookingsCount: 150,
+    program: 'Day school',
+    currency: 'ZAR',
+    currencySymbol: 'R',
+    usdRate: 18,
+    workDays: 'Monday – Friday',
+    workHours: '7:45 AM – 3:15 PM',
+    activeStudents: 620,
+    joined: 'January 2019',
     image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=1000',
     description: 'Nurturing young minds through hands-on science experiments and discovery.',
-    services: ['Primary Education', 'Science Fairs', 'Math Olympiad Training', 'Excursions', 'Health Programs'],
+    services: ['Teaching & Learning', 'Science Fairs & Exhibitions', 'Competitions & Olympiads', 'Excursions', 'Clinic & Health Programs', 'Clubs (Science & Welfare)'],
     scopes: ['Lower Primary', 'Upper Primary'],
     email: 'contact@ctscienceacademy.za',
     phone: '+27 21 555 0123',
     website: 'www.ctscienceacademy.za',
     tuitionFees: [
-      { level: 'Grade 1-3', range: 'R 2,000 - R 3,000' },
-      { level: 'Grade 4-7', range: 'R 3,000 - R 4,500' }
+      { level: 'Grade 1', amount: 2000 },
+      { level: 'Grade 2', amount: 2100 },
+      { level: 'Grade 3', amount: 2250 },
+      { level: 'Grade 4', amount: 3000 },
+      { level: 'Grade 5', amount: 3200 },
+      { level: 'Grade 6', amount: 3600 },
+      { level: 'Grade 7', amount: 4500 }
     ],
     otherFees: [
-      { item: 'Excursion Fee', range: 'R 500 - R 1,000' }
+      { item: 'Excursion Fee', amount: 500, description: 'Per term. Covers transport and entry for the three scheduled educational outings.' },
+      { item: 'Science Kit Deposit', amount: 350, description: 'Refundable deposit for the take-home experiment kit issued to every learner.' }
     ],
+    academicCalendar: {
+      firstTerm: 'January – March',
+      secondTerm: 'April – June',
+      thirdTerm: 'September – December'
+    },
+    gradingSystem: 'A (70–100) Outstanding | B (60–69) Meritful | C (50–59) Satisfactory | D (40–49) Developing | E (30–39) Beginning Support Required | F (Below 30) Not Achieved',
+    degreesAwarded: [
+      'National Senior Certificate (Grade 12 route, via partner school)',
+      'Foundation Phase Completion Certificate (Grade 3)',
+      'Senior Phase Completion Certificate (Grade 7)'
+    ],
+    admissionRequirements: [
+      'Completed Grade R or equivalent for Grade 1 entry',
+      'Birth certificate and immunization card',
+      'Transfer letter or last school report where applicable',
+      'Parent/guardian identification documents',
+      'A short informal assessment for Grade 4 entry'
+    ],
+    downloads: {
+      brochure: [
+        { name: '2026 School Brochure', format: 'PDF', size: '3.1 MB', updated: 'Aug 2026' },
+        { name: 'Admission Prospectus', format: 'PDF', size: '4.4 MB', updated: 'Aug 2026' }
+      ],
+      curriculum: [
+        { name: 'Foundation & Intermediate Curriculum', format: 'PDF', size: '1.9 MB', updated: 'Jul 2026' }
+      ],
+      timetable: [
+        { name: '2026 Academic Timetable', format: 'PDF', size: '510 KB', updated: 'Sep 2026' }
+      ],
+      feeStructure: [
+        { name: '2026 Fee Structure', format: 'PDF', size: '280 KB', updated: 'Aug 2026' }
+      ],
+      policies: [
+        { name: 'Learner Handbook & Policies', format: 'PDF', size: '860 KB', updated: 'Apr 2026' }
+      ],
+      admissionForm: [
+        { name: '2026 Admission Form', format: 'PDF', size: '420 KB', updated: 'Sep 2026' }
+      ],
+      others: []
+    },
     curriculum: ['Mathematics', 'Science', 'English', 'Afrikaans', 'Geography', 'History'],
-    certifications: [],
-    policies: [],
-    awards: [],
-    alumni: [],
+    certifications: [
+      { name: 'WCED Registered Independent School', issuer: 'Western Cape Education Department', year: '2015', description: 'Provincial registration confirming compliance with the South African Schools Act.' },
+      { name: 'Science Explorer Accreditation', issuer: 'SANSA Education Outreach', year: '2022', description: 'Accredited partner for the national hands-on science outreach curriculum.' }
+    ],
+    policies: [
+      'All learners take part in at least one science fair per academic year.',
+      'Small class sizes are maintained at a maximum of 24 learners per teacher.',
+      'Screen time is capped and balanced with outdoor practical sessions.'
+    ],
+    awards: [
+      { title: 'Provincial Science Fair – Gold', year: '2024' },
+      { title: 'Maths Olympiad Regional Team Trophy', year: '2025' }
+    ],
+    alumni: [
+      { name: 'Thandi Mokoena', role: 'Marine Biologist', impact: 'Leads a kelp-forest restoration programme along the Western Cape coastline.', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200' },
+      { name: 'Pieter van Wyk', role: 'Aerospace Engineer', impact: 'Works on small-satellite launch systems for the South African space programme.', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200' }
+    ],
     testimonials: [],
     gallery: {
-      classrooms: ['https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=800']
+      frontGate: ['https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?auto=format&fit=crop&q=80&w=800'],
+      compound: ['https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=800'],
+      classrooms: ['https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=800'],
+      playground: ['https://images.unsplash.com/photo-1526676037777-05a232554f77?auto=format&fit=crop&q=80&w=800'],
+      auditorium: ['https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=800'],
+      laboratories: ['https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=800'],
+      libraries: ['https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=800'],
+      offices: ['https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=800'],
+      uniforms: ['https://images.unsplash.com/photo-1571260899304-425eee4c7efc?auto=format&fit=crop&q=80&w=800'],
+      others: ['https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&q=80&w=800']
     }
   },
   {
@@ -400,22 +538,112 @@ export const INSTITUTES = [
     shares: 410,
     verified: true,
     bookingsCount: 410,
+    program: 'Boarding',
+    currency: 'GHS',
+    currencySymbol: 'GH₵',
+    usdRate: 12,
+    workDays: 'Monday – Saturday',
+    workHours: '7:00 AM – 5:00 PM',
+    activeStudents: 840,
+    joined: 'September 2014',
     image: 'https://images.unsplash.com/photo-1594608661623-aa0bd3a69d98?auto=format&fit=crop&q=80&w=1000',
     description: 'Empowering young women through excellence in education and moral values.',
-    services: ['Secondary Education', 'Boarding Facilities', 'Choir', 'Sports', 'Reunions'],
-    scopes: ['High School', 'Vocational Training'],
+    services: ['Teaching & Learning', 'Boarding Accommodation', 'Clubs (Science & Welfare)', 'Sports & Physical Exercise', 'Counselling (Academic & Personal)', 'Scholarships', 'Clinic & Health Programs'],
+    scopes: ['Junior Secondary', 'Senior Secondary', 'Vocational Training'],
     email: 'info@stmarysgirls.gh',
     phone: '+233 24 123 4567',
     website: 'www.stmarysgirls.gh',
-    tuitionFees: [],
-    otherFees: [],
-    curriculum: [],
-    certifications: [],
-    policies: [],
-    awards: [],
-    alumni: [],
-    testimonials: [],
-    gallery: {}
+    tuitionFees: [
+      { level: 'JSS 1', amount: 3200 },
+      { level: 'JSS 2', amount: 3400 },
+      { level: 'JSS 3', amount: 3600 },
+      { level: 'SS 1', amount: 4800 },
+      { level: 'SS 2', amount: 5000 },
+      { level: 'SS 3', amount: 5300 }
+    ],
+    otherFees: [
+      { item: 'Boarding Fee', amount: 2400, description: 'Per academic year. Covers lodging, three meals a day and house matron supervision.' },
+      { item: 'Uniform & Boarding Kit', amount: 750, description: 'One-time purchase of uniforms, house wear and the standard boarding starter kit.' },
+      { item: 'Development Levy', amount: 400, description: 'Annual levy supporting ongoing campus and laboratory upgrades.' }
+    ],
+    academicCalendar: {
+      firstTerm: 'September – December',
+      secondTerm: 'January – April',
+      thirdTerm: 'April – July'
+    },
+    gradingSystem: 'A1 (Excellent) 80–100 | B2 (Very Good) 70–79 | B3 (Good) 60–69 | C4 (Credit) 50–59 | C5 (Credit) 40–49 | C6 (Pass) 35–39 | D7 (Pass) 30–34 | E8 (Marginal) 25–29 | F9 (Fail) Below 25',
+    degreesAwarded: [
+      'Basic Education Certificate (BECE)',
+      'West African Senior School Certificate (WASSCE)'
+    ],
+    admissionRequirements: [
+      'BECE results or equivalent placement assessment for JSS 1 entry',
+      'Four (4) credit passes including English and Mathematics for senior secondary entry',
+      'Two passport photographs and birth certificate',
+      'Character reference from the previous school',
+      'Boarding application form and parent/guardian consent'
+    ],
+    downloads: {
+      brochure: [
+        { name: '2026 School Brochure', format: 'PDF', size: '3.6 MB', updated: 'Aug 2026' },
+        { name: 'Admission Prospectus', format: 'PDF', size: '5.1 MB', updated: 'Aug 2026' }
+      ],
+      curriculum: [
+        { name: 'Junior Secondary Curriculum', format: 'PDF', size: '2.2 MB', updated: 'Jul 2026' },
+        { name: 'Senior Secondary Curriculum', format: 'PDF', size: '2.5 MB', updated: 'Jul 2026' }
+      ],
+      timetable: [
+        { name: '2026/2027 Academic Timetable', format: 'PDF', size: '580 KB', updated: 'Sep 2026' }
+      ],
+      feeStructure: [
+        { name: '2026/2027 Fee Structure', format: 'PDF', size: '300 KB', updated: 'Aug 2026' }
+      ],
+      policies: [
+        { name: 'Boarding Handbook', format: 'PDF', size: '1.7 MB', updated: 'May 2026' },
+        { name: 'Student Handbook & Policies', format: 'PDF', size: '1.4 MB', updated: 'Jun 2026' }
+      ],
+      admissionForm: [
+        { name: '2026/2027 Admission Form', format: 'PDF', size: '460 KB', updated: 'Sep 2026' }
+      ],
+      others: [
+        { name: 'Uniform Price List', format: 'PDF', size: '180 KB', updated: 'Jul 2026' }
+      ]
+    },
+    curriculum: ['English Language', 'Core Mathematics', 'Integrated Science', 'Social Studies', 'Creative Arts', 'Computing', 'French', 'Home Economics', 'Physical Education'],
+    certifications: [
+      { name: 'GES Accredited Basic & Secondary School', issuer: 'Ghana Education Service', year: '2012', description: 'Full accreditation to run both the basic cycle and the senior secondary programme.' },
+      { name: 'Cambridge Lower Secondary Partner', issuer: 'Cambridge Assessment International', year: '2020', description: 'Partner centre offering the Cambridge Lower Secondary checkpoint pathway.' }
+    ],
+    policies: [
+      'Full boarding residents return to campus every Sunday by 5:00 PM.',
+      'All boarders take part in at least one welfare or science club per term.',
+      'A live-in matron and school nurse are on duty around the clock.'
+    ],
+    awards: [
+      { title: 'National Science & Maths Quiz – Quarter Finalist', year: '2024' },
+      { title: 'Ghana Girls Choir Competition – 1st Place', year: '2023' }
+    ],
+    alumni: [
+      { name: 'Abena Owusu', role: 'Paediatric Surgeon', impact: 'Founded a free surgical outreach serving 3,000+ children annually in the Ashanti Region.', image: 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=200' },
+      { name: 'Akosua Mensah', role: 'Civil Engineer', impact: 'Led the design of the Kwame Nkrumah Interchange upgrade in Accra.', image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200' }
+    ],
+    testimonials: [
+      { user: 'Mrs. Adjei', role: 'Parent', content: 'The boarding environment gave my daughter both structure and confidence. She came home leading her science club.', rating: 5 }
+    ],
+    gallery: {
+      frontGate: ['https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=800'],
+      compound: ['https://images.unsplash.com/photo-1519452575417-564c1401ecc0?auto=format&fit=crop&q=80&w=800'],
+      classrooms: ['https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=800'],
+      playground: ['https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&q=80&w=800'],
+      auditorium: ['https://images.unsplash.com/photo-1533158326339-7f3cf2404354?auto=format&fit=crop&q=80&w=800'],
+      convenience: ['https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=800'],
+      laboratories: ['https://images.unsplash.com/photo-1554475901-4538ddfbccc2?auto=format&fit=crop&q=80&w=800'],
+      libraries: ['https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=800'],
+      offices: ['https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&q=80&w=800'],
+      lobby: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800'],
+      uniforms: ['https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&q=80&w=800'],
+      others: ['https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=800']
+    }
   },
   {
     id: 'inst-5',
@@ -438,22 +666,116 @@ export const INSTITUTES = [
     shares: 720,
     verified: true,
     bookingsCount: 950,
+    program: 'Day & Boarding',
+    currency: 'EGP',
+    currencySymbol: 'E£',
+    usdRate: 48,
+    workDays: 'Monday – Thursday',
+    workHours: '8:00 AM – 3:30 PM',
+    activeStudents: 1180,
+    joined: 'August 2008',
     image: 'https://images.unsplash.com/photo-1544531696-608b6348c3b7?auto=format&fit=crop&q=80&w=1000',
     description: 'Offering a world-class international curriculum with a strong focus on digital learning.',
-    services: ['International Baccalaureate', 'Online Learning', 'Language Courses', 'Extra Lessons', 'PTA Meetings'],
+    services: ['Teaching & Learning', 'Boarding Accommodation', 'Extra Lessons', 'Counselling (Academic & Personal)', 'Competitions & Olympiads', 'Career Exposures', 'Seminars & Conferences', 'Scholarships'],
     scopes: ['IB Diploma', 'IGCSE'],
     email: 'admissions@cis.eg',
     phone: '+20 2 1234 5678',
     website: 'www.cis.eg',
-    tuitionFees: [],
-    otherFees: [],
-    curriculum: [],
-    certifications: [],
-    policies: [],
-    awards: [],
-    alumni: [],
-    testimonials: [],
-    gallery: {}
+    tuitionFees: [
+      { level: 'Year 7', amount: 62000 },
+      { level: 'Year 8', amount: 64000 },
+      { level: 'Year 9', amount: 66500 },
+      { level: 'Year 10', amount: 78000 },
+      { level: 'Year 11', amount: 81000 },
+      { level: 'Year 12', amount: 86000 }
+    ],
+    otherFees: [
+      { item: 'Application & Assessment', amount: 2500, description: 'Non-refundable. Covers the entrance assessment and admissions review.' },
+      { item: 'Boarding Fee', amount: 34000, description: 'Per academic year for full boarders, including meals and house supervision.' },
+      { item: 'IB Examination Fee', amount: 9800, description: 'Charged in the final IB year and remitted directly to the examination board.' },
+      { item: 'Transport Levy', amount: 5400, description: 'Optional. Covers the air-conditioned bus network across greater Cairo routes.' }
+    ],
+    academicCalendar: {
+      firstTerm: 'September – December',
+      secondTerm: 'January – March',
+      thirdTerm: 'April – June'
+    },
+    gradingSystem: 'IB 7 (Excellent) | IB 6 (Very Good) | IB 5 (Good) | IB 4 (Satisfactory) | IB 3 (Marginal) | IB 2 (Weak) | IB 1 (Very Weak) — IGCSE: A* A B C D E F',
+    degreesAwarded: [
+      'IB Diploma',
+      'IGCSE Certificate',
+      'American High School Diploma (transfer pathway)'
+    ],
+    admissionRequirements: [
+      'Two years of schooling in English at the primary level',
+      'CAT4 or equivalent cognitive assessment',
+      'Previous two years of school reports translated into English',
+      'Passport and residence documentation for international applicants',
+      'Interview with the head of section for Year 10 and above'
+    ],
+    downloads: {
+      brochure: [
+        { name: '2026/2027 School Brochure', format: 'PDF', size: '5.4 MB', updated: 'Aug 2026' },
+        { name: 'Admission Prospectus', format: 'PDF', size: '7.2 MB', updated: 'Aug 2026' }
+      ],
+      curriculum: [
+        { name: 'IGCSE Curriculum Guide', format: 'PDF', size: '3.3 MB', updated: 'Jul 2026' },
+        { name: 'IB Diploma Curriculum Guide', format: 'PDF', size: '4.1 MB', updated: 'Jul 2026' }
+      ],
+      timetable: [
+        { name: '2026/2027 Academic Timetable', format: 'PDF', size: '700 KB', updated: 'Sep 2026' }
+      ],
+      feeStructure: [
+        { name: '2026/2027 Fee Structure', format: 'PDF', size: '420 KB', updated: 'Aug 2026' }
+      ],
+      policies: [
+        { name: 'Boarding Handbook', format: 'PDF', size: '1.2 MB', updated: 'Apr 2026' },
+        { name: 'Safeguarding & Child Protection Policy', format: 'PDF', size: '2.1 MB', updated: 'Jun 2026' }
+      ],
+      admissionForm: [
+        { name: '2026/2027 Admission Form', format: 'PDF', size: '540 KB', updated: 'Sep 2026' }
+      ],
+      others: [
+        { name: 'University Destinations Report', format: 'PDF', size: '1.6 MB', updated: 'Jun 2026' }
+      ]
+    },
+    curriculum: ['English A', 'Mathematics', 'Biology', 'Chemistry', 'Physics', 'Business Management', 'Economics', 'Global Politics', 'Computer Science', 'Arabic', 'French'],
+    certifications: [
+      { name: 'IB World School Authorised', issuer: 'International Baccalaureate Organization', year: '2016', description: 'Authorised to deliver the full IB Diploma Programme to students aged 16–19.' },
+      { name: 'Cambridge International Centre', issuer: 'Cambridge Assessment International', year: '2011', description: 'Registered centre for Cambridge IGCSE and checkpoint examinations.' },
+      { name: 'CIS Accredited', issuer: 'Council of International Schools', year: '2019', description: 'Accredited member meeting international standards for curriculum and governance.' }
+    ],
+    policies: [
+      'All students sit the IB Diploma in their final two years unless exempted.',
+      'Boarding houses maintain a 1:8 staff-to-student supervision ratio.',
+      'University guidance begins in Year 10 with mandatory one-to-one counselling.'
+    ],
+    awards: [
+      { title: 'Model United Nations – Outstanding Delegation', year: '2025' },
+      { title: 'Pan-African Robotics Championship – 2nd Place', year: '2024' }
+    ],
+    alumni: [
+      { name: 'Layla Hassan', role: 'Data Scientist', impact: 'Built the demand-forecasting engine used by Egypt\'s largest logistics network.', image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=200' },
+      { name: 'Omar Farid', role: 'Architect', impact: 'Designed the award-winning New Cairo sustainable community centre.', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200' }
+    ],
+    testimonials: [
+      { user: 'Dr. El-Masry', role: 'Parent', content: 'The counselling team guided my son from Year 10 all the way to his IB results. He is now reading engineering at TU Delft.', rating: 5 },
+      { user: 'Yasmin A.', role: 'Alumna (Class of 2023)', content: 'The career exposure sessions brought in working engineers and doctors every month. It made my choices obvious.', rating: 5 }
+    ],
+    gallery: {
+      frontGate: ['https://images.unsplash.com/photo-1580537659466-0a9bfa916a54?auto=format&fit=crop&q=80&w=800'],
+      compound: ['https://images.unsplash.com/photo-1607013251379-e6eecfffe234?auto=format&fit=crop&q=80&w=800'],
+      classrooms: ['https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=800'],
+      playground: ['https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&q=80&w=800'],
+      auditorium: ['https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=800'],
+      convenience: ['https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=800'],
+      laboratories: ['https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1581093458791-9f302e6d862e?auto=format&fit=crop&q=80&w=800'],
+      libraries: ['https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=800'],
+      offices: ['https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=800'],
+      lobby: ['https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&q=80&w=800'],
+      uniforms: ['https://images.unsplash.com/photo-1571260899304-425eee4c7efc?auto=format&fit=crop&q=80&w=800'],
+      others: ['https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&q=80&w=800']
+    }
   },
   {
     id: 'inst-6',
@@ -476,22 +798,111 @@ export const INSTITUTES = [
     shares: 200,
     verified: false,
     bookingsCount: 220,
+    program: 'Boarding',
+    currency: 'RWF',
+    currencySymbol: 'RF',
+    usdRate: 1450,
+    workDays: 'Monday – Saturday',
+    workHours: '7:00 AM – 4:30 PM',
+    activeStudents: 960,
+    joined: 'February 2011',
     image: 'https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&q=80&w=1000',
     description: 'A historic institution dedicated to academic and athletic excellence.',
-    services: ['Secondary Education', 'Rugby Team', 'Cadet Corps', 'Exercises & Sports', 'Teaching & Learning'],
-    scopes: ['Secondary'],
+    services: ['Teaching & Learning', 'Boarding Accommodation', 'Sports & Physical Exercise', 'Clubs (Science & Welfare)', 'Extra Lessons', 'Technical Skills Development', 'PTA Meetings'],
+    scopes: ['Junior Secondary', 'Senior Secondary'],
     email: 'admin@kigaliboys.rw',
     phone: '+250 78 123 4567',
     website: 'www.kigaliboys.rw',
-    tuitionFees: [],
-    otherFees: [],
-    curriculum: [],
-    certifications: [],
-    policies: [],
-    awards: [],
-    alumni: [],
-    testimonials: [],
-    gallery: {}
+    tuitionFees: [
+      { level: 'S1', amount: 480000 },
+      { level: 'S2', amount: 500000 },
+      { level: 'S3', amount: 520000 },
+      { level: 'S4', amount: 610000 },
+      { level: 'S5', amount: 640000 },
+      { level: 'S6', amount: 670000 }
+    ],
+    otherFees: [
+      { item: 'Boarding Fee', amount: 380000, description: 'Per academic year. Covers dormitory lodging, meals and housemaster supervision.' },
+      { item: 'Sports & Kit Levy', amount: 45000, description: 'Annual levy for team kits, pitch maintenance and inter-school fixtures.' },
+      { item: 'Technical Workshop Fee', amount: 60000, description: 'Per year. Covers consumables for welding, carpentry and electrical workshops.' }
+    ],
+    academicCalendar: {
+      firstTerm: 'February – May',
+      secondTerm: 'June – August',
+      thirdTerm: 'September – November'
+    },
+    gradingSystem: 'A (80–100) Excellent | B (70–79) Very Good | C (60–69) Good | D (50–59) Satisfactory | E (40–49) Pass | F (Below 40) Fail',
+    degreesAwarded: [
+      'Lower Secondary Certificate (S3)',
+      'Rwanda National Senior Secondary Certificate (S6)'
+    ],
+    admissionRequirements: [
+      'Lower Secondary Certificate or national placement test for S1 entry',
+      'Four (4) credit passes including English and Mathematics for senior entry',
+      'Birth certificate and two passport photographs',
+      'Transfer certificate from the previous school',
+      'Boarding application signed by parent or guardian'
+    ],
+    downloads: {
+      brochure: [
+        { name: '2026/2027 School Brochure', format: 'PDF', size: '2.9 MB', updated: 'Aug 2026' },
+        { name: 'Admission Prospectus', format: 'PDF', size: '3.8 MB', updated: 'Aug 2026' }
+      ],
+      curriculum: [
+        { name: 'Lower Secondary Curriculum', format: 'PDF', size: '1.8 MB', updated: 'Jul 2026' },
+        { name: 'Upper Secondary Curriculum', format: 'PDF', size: '2.1 MB', updated: 'Jul 2026' }
+      ],
+      timetable: [
+        { name: '2026/2027 Academic Timetable', format: 'PDF', size: '520 KB', updated: 'Sep 2026' }
+      ],
+      feeStructure: [
+        { name: '2026/2027 Fee Structure', format: 'PDF', size: '290 KB', updated: 'Aug 2026' }
+      ],
+      policies: [
+        { name: 'Boarding Handbook', format: 'PDF', size: '1.3 MB', updated: 'Mar 2026' },
+        { name: 'Student Handbook & Policies', format: 'PDF', size: '980 KB', updated: 'May 2026' }
+      ],
+      admissionForm: [
+        { name: '2026/2027 Admission Form', format: 'PDF', size: '410 KB', updated: 'Sep 2026' }
+      ],
+      others: [
+        { name: 'Sports Fixtures Calendar', format: 'PDF', size: '340 KB', updated: 'Aug 2026' }
+      ]
+    },
+    curriculum: ['English', 'Kinyarwanda', 'Mathematics', 'Integrated Science', 'Social Studies', 'Computer Studies', 'French', 'Agriculture', 'Technical Drawing', 'Physical Education'],
+    certifications: [
+      { name: 'REB Accredited Secondary School', issuer: 'Rwanda Education Board', year: '2010', description: 'National accreditation to deliver the lower and upper secondary curriculum.' }
+    ],
+    policies: [
+      'Full boarders remain on campus through term and return home only on published breaks.',
+      'Every student joins at least one club, sport or technical workshop per term.',
+      'Prep supervision runs daily from 7:00 PM to 9:00 PM in the study halls.'
+    ],
+    awards: [
+      { title: 'National Rugby Sevens – Champions', year: '2025' },
+      { title: 'Rwanda Science Fair – 1st Place (Senior Division)', year: '2024' }
+    ],
+    alumni: [
+      { name: 'Eric Nshimiyimana', role: 'Renewable Energy Engineer', impact: 'Deployed solar micro-grids serving 40 off-grid villages in the Northern Province.', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200' },
+      { name: 'Jean-Paul Habimana', role: 'Sports Physician', impact: 'Team doctor for the national athletics squad and founder of a youth injury clinic.', image: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&q=80&w=200' }
+    ],
+    testimonials: [
+      { user: 'Mukamana J.', role: 'Parent', content: 'The prep culture here is serious. My son learned discipline alongside his sciences.', rating: 4 }
+    ],
+    gallery: {
+      frontGate: ['https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?auto=format&fit=crop&q=80&w=800'],
+      compound: ['https://images.unsplash.com/photo-1519452575417-564c1401ecc0?auto=format&fit=crop&q=80&w=800'],
+      classrooms: ['https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=800'],
+      playground: ['https://images.unsplash.com/photo-1526676037777-05a232554f77?auto=format&fit=crop&q=80&w=800'],
+      auditorium: ['https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&q=80&w=800'],
+      convenience: ['https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=800'],
+      laboratories: ['https://images.unsplash.com/photo-1554475901-4538ddfbccc2?auto=format&fit=crop&q=80&w=800'],
+      libraries: ['https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=800'],
+      offices: ['https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=800'],
+      lobby: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800'],
+      uniforms: ['https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&q=80&w=800'],
+      others: ['https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&q=80&w=800']
+    }
   }
 ];
 

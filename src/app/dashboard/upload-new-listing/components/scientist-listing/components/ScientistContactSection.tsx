@@ -19,7 +19,7 @@ export default function ScientistContactSection({ contact, onChange }: Scientist
   const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
 
   return (
-    <CollapsibleSection title="Contact Information" icon={<Phone className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+    <CollapsibleSection title="Contact information" icon={<Phone className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
       <div className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>

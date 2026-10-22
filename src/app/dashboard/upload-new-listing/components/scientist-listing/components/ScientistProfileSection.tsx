@@ -74,7 +74,7 @@ export default function ScientistProfileSection({ profile, onChange }: Scientist
   const wordCount = profile.bio.trim() ? profile.bio.trim().split(/\s+/).length : 0;
 
   return (
-    <CollapsibleSection title="Basic Profile Information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Required">
+    <CollapsibleSection title="Basic profile information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Required">
       <div className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <ImageUploader

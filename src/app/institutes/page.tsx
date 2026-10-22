@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { INSTITUTES } from '../data/mockData';
+import { DEFAULT_SCHOOL_SERVICES } from './data';
 import { Button } from '../components/ui/Button';
 import { toast } from 'sonner';
 import InstituteHeader from './components/InstituteHeader';
@@ -16,9 +17,10 @@ export default function Institutes() {
   const [openFilterSection, setOpenFilterSection] = useState<string | null>('class');
 
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
+  const [selectedPrograms, setSelectedPrograms] = useState<string[]>([]);
   const [selectedOwnerships, setSelectedOwnerships] = useState<string[]>([]);
   const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedServices, setSelectedServices] = useState<string[]>(DEFAULT_SCHOOL_SERVICES);
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedState, setSelectedState] = useState<string>('');
@@ -30,10 +32,11 @@ export default function Institutes() {
 
   const resetFilters = () => {
     setSelectedClasses([]);
+    setSelectedPrograms([]);
     setSelectedOwnerships([]);
     setSelectedGenders([]);
     setSelectedStatus([]);
-    setSelectedServices([]);
+    setSelectedServices(DEFAULT_SCHOOL_SERVICES);
     setSelectedCountry('');
     setSelectedState('');
     setOpenFilterSection('class');
@@ -59,9 +62,15 @@ export default function Institutes() {
     if (activeTab === 'schools' && isUniversity) return false;
     if (activeTab === 'universities' && !isUniversity) return false;
 
-    const matchesSearch = inst.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          inst.location.toLowerCase().includes(searchTerm.toLowerCase());
-    if (!matchesSearch) return false;
+    // Search matches name, class, gender, services, scopes, ownership,
+    // location and any other free-text keyword on the listing.
+    const haystack = [
+      inst.name, inst.class, inst.gender, inst.program, inst.ownership,
+      inst.type, inst.location, inst.state, inst.country, inst.motto,
+      inst.description, ...(inst.services || []), ...(inst.scopes || []),
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    if (!haystack.includes(searchTerm.trim().toLowerCase())) return false;
 
     if (activeTab === 'schools' && selectedClasses.length > 0) {
       const classMatch = selectedClasses.includes(inst.class || '') ||
@@ -69,6 +78,7 @@ export default function Institutes() {
       if (!classMatch) return false;
     }
 
+    if (activeTab === 'schools' && selectedPrograms.length > 0 && !selectedPrograms.includes(inst.program || '')) return false;
     if (selectedOwnerships.length > 0 && !selectedOwnerships.includes(inst.ownership || '')) return false;
     if (activeTab === 'schools' && selectedGenders.length > 0 && !selectedGenders.includes(inst.gender || '')) return false;
     if (selectedStatus.length > 0 && !selectedStatus.includes(inst.status || '')) return false;
@@ -101,6 +111,8 @@ export default function Institutes() {
             activeTab={activeTab}
             selectedClasses={selectedClasses}
             setSelectedClasses={setSelectedClasses}
+            selectedPrograms={selectedPrograms}
+            setSelectedPrograms={setSelectedPrograms}
             selectedOwnerships={selectedOwnerships}
             setSelectedOwnerships={setSelectedOwnerships}
             selectedGenders={selectedGenders}
@@ -145,11 +157,10 @@ export default function Institutes() {
               </div>
             ) : (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-                {filteredInstitutes.map((inst, index) => (
+                {filteredInstitutes.map((inst) => (
                   <InstituteCard
                     key={inst.id}
                     inst={inst}
-                    index={index}
                     archived={archivedIds.includes(inst.id)}
                     onToggleArchive={() => toggleArchive(inst.id)}
                   />

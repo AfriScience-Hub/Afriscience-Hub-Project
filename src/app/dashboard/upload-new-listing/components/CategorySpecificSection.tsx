@@ -36,7 +36,7 @@ export default function CategorySpecificSection({
   return (
     <>
       {selectedType === 'institute' && (
-        <CollapsibleSection title="Institute Classification" icon={<Building2 className="h-5 w-5 text-brand-red-600" />}>
+        <CollapsibleSection title="Institute classification" icon={<Building2 className="h-5 w-5 text-brand-red-600" />}>
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Class / Type <span className="text-red-500">*</span></label>
@@ -67,7 +67,7 @@ export default function CategorySpecificSection({
       )}
 
       {selectedType === 'scientist' && (
-        <CollapsibleSection title="Professional Details" icon={<Beaker className="h-5 w-5 text-brand-red-600" />}>
+        <CollapsibleSection title="Professional details" icon={<Beaker className="h-5 w-5 text-brand-red-600" />}>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Fields of Expertise</label>
@@ -111,7 +111,7 @@ export default function CategorySpecificSection({
       )}
 
       {selectedType === 'innovation' && (
-        <CollapsibleSection title="Innovation Details" icon={<Lightbulb className="h-5 w-5 text-brand-red-600" />}>
+        <CollapsibleSection title="Innovation details" icon={<Lightbulb className="h-5 w-5 text-brand-red-600" />}>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Innovation Category</label>
@@ -138,7 +138,7 @@ export default function CategorySpecificSection({
       )}
 
       {selectedType === 'competition' && (
-        <CollapsibleSection title="Competition Details" icon={<Trophy className="h-5 w-5 text-brand-red-600" />}>
+        <CollapsibleSection title="Competition details" icon={<Trophy className="h-5 w-5 text-brand-red-600" />}>
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Competition Type</label>
@@ -164,7 +164,7 @@ export default function CategorySpecificSection({
       )}
 
       {selectedType === 'award' && (
-        <CollapsibleSection title="Award Details" icon={<Award className="h-5 w-5 text-brand-red-600" />}>
+        <CollapsibleSection title="Award details" icon={<Award className="h-5 w-5 text-brand-red-600" />}>
           <div>
             <label className="block text-sm font-medium text-neutral-black mb-1">Award Type</label>
             <select value={awardType} onChange={e => setAwardType(e.target.value)}

@@ -45,7 +45,7 @@ export default function DocumentsSection({ certifications, setCertifications }: 
   };
 
   return (
-    <CollapsibleSection title="Certifications & Documents" icon={<FileText className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+    <CollapsibleSection title="Certifications & documents" icon={<FileText className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
       <div className="space-y-4">
         <p className="text-xs text-neutral-gray-medium">Upload licenses, certifications, accreditation documents, and awards (PDF or images).</p>
         {certifications.length > 0 && (

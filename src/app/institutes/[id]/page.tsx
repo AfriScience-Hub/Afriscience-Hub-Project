@@ -3,22 +3,18 @@
 import { useState, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
-import {
-  MapPin, Star, Share2, CheckCircle, Globe, Phone, MessageCircle,
-  Archive, ArchiveX, ThumbsUp, Eye
-} from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { INSTITUTES } from '@/app/data/mockData';
-import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { ContactServiceProviderModal } from '@/app/components/modals/ContactServiceProviderModal';
 import { MessagingModal } from '@/app/components/modals/MessagingModal';
 import TabButton from './components/TabButton';
+import InstituteHero from './components/InstituteHero';
 import OverviewTab from './components/OverviewTab';
 import AcademicsTab from './components/AcademicsTab';
 import AchievementsTab from './components/AchievementsTab';
 import GalleryTab from './components/GalleryTab';
+import DownloadsTab from './components/DownloadsTab';
 import ReviewsTab from './components/ReviewsTab';
 import ContactTab from './components/ContactTab';
 import NewsUpdatesTab from './components/NewsUpdatesTab';
@@ -32,7 +28,7 @@ function InstituteDetailsContent() {
   const [isArchived, setIsArchived] = useState(false);
   const [openAlbum, setOpenAlbum] = useState<string | null>(null);
   const [isLiked, setIsLiked] = useState(false);
-  const [isBookServiceOpen, setIsBookServiceOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
 
   const institute = INSTITUTES.find(inst => inst.id === id);
@@ -47,6 +43,8 @@ function InstituteDetailsContent() {
       </div>
     );
   }
+
+  const isUniversity = institute.type === 'University';
 
   const handleArchiveToggle = () => {
     setIsArchived(!isArchived);
@@ -64,147 +62,21 @@ function InstituteDetailsContent() {
     <div className="min-h-screen bg-neutral-bg-light pb-12">
       {/* HEADER */}
       <div className="bg-white border-b border-neutral-gray-light">
-        <div className="h-48 md:h-64 bg-brand-navy-900 relative overflow-hidden flex-shrink-0">
-          <Image src={institute.image} alt={institute.name} fill sizes="(max-width: 768px) 100vw, 1280px" className="object-cover object-center opacity-80" style={{ objectFit: 'cover', objectPosition: 'center' }} priority />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900/60 to-transparent pointer-events-none" />
-        </div>
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-6">
-          <div className="flex flex-col lg:flex-row gap-6">
-            <div className="flex-shrink-0">
-              <div className="relative h-32 w-32 md:h-40 md:w-40 rounded-xl border border-neutral-gray-light bg-white shadow-lg overflow-hidden">
-                <Image src={institute.image} alt={institute.name} fill className="object-cover" sizes="160px" />
-              </div>
-              <div className="flex items-center justify-center gap-1.5 mt-3">
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={cn("h-4 w-4", i < Math.floor(institute.rating) ? "text-amber-500 fill-current" : "text-neutral-gray-light")} />
-                  ))}
-                </div>
-                <span className="text-sm font-bold text-neutral-black">{institute.rating}</span>
-              </div>
-              <p className="text-xs text-neutral-gray-medium text-center mt-0.5">{institute.reviews} reviews</p>
-            </div>
-
-            <div className="flex-1 pt-2 lg:pt-14">
-              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className={cn(
-                      "px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide border",
-                      institute.status === 'Online'
-                        ? "bg-brand-red-100 text-brand-red-600 border-brand-red-100"
-                        : "bg-neutral-bg-light text-neutral-gray-dark border-neutral-gray-light"
-                    )}>
-                      {institute.status}
-                    </span>
-                    {institute.verified && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 text-blue-600 text-xs font-bold border border-blue-100">
-                        <CheckCircle className="h-3 w-3" /> Verified
-                      </span>
-                    )}
-                  </div>
-                  <h1 className="text-3xl font-bold text-neutral-black leading-tight mb-1">{institute.name}</h1>
-                  {institute.motto && <p className="text-neutral-gray-medium italic mb-2">&quot;{institute.motto}&quot;</p>}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-neutral-gray-dark mb-3">
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4 text-neutral-gray-medium" />
-                      {institute.address || 'Address Hidden'}
-                    </span>
-                    <span className="hidden sm:block text-neutral-gray-light">|</span>
-                    <span className="flex items-center gap-1.5">
-                      <Globe className="h-4 w-4 text-neutral-gray-medium" />
-                      {institute.location}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <span className="px-2 py-0.5 rounded bg-brand-navy-100 text-brand-navy-900 text-xs font-bold uppercase tracking-wide border border-brand-navy-100">
-                      {institute.type === 'University' ? `Type: ${institute.class}` : institute.class}
-                    </span>
-                    <span className="px-2 py-0.5 rounded bg-neutral-bg-light text-neutral-gray-dark text-xs font-bold border border-neutral-gray-light">
-                      {institute.ownership}
-                    </span>
-                    {institute.type !== 'University' && (
-                      <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 text-xs font-bold border border-purple-100">
-                        {institute.gender}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-4 min-w-[240px]">
-                  <Button className="w-full bg-brand-red-600 hover:bg-brand-red-700 shadow-sm py-6 text-lg" onClick={() => setIsBookServiceOpen(true)}>
-                    Book a Service
-                  </Button>
-                  {institute.bookingsCount && (
-                    <p className="text-xs text-center text-brand-navy-900 font-medium -mt-2">
-                      <CheckCircle className="inline h-3 w-3 mr-1" />
-                      {institute.bookingsCount}+ successful bookings
-                    </p>
-                  )}
-                  <div className="flex gap-2">
-                    <div className="flex-1 grid grid-cols-2 gap-2">
-                      <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Call" onClick={() => setActiveTab('contact')}>
-                        <Phone className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Message" onClick={() => setActiveTab('contact')}>
-                        <MessageCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="flex gap-2 flex-shrink-0">
-                      <Button variant="outline" className="px-3" title="Share Profile" onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(window.location.href);
-                          toast.success('Profile link copied to clipboard');
-                        } catch (err) {
-                          toast.success('Profile link copied to clipboard');
-                        }
-                      }}>
-                        <Share2 className="h-4 w-4" />
-                      </Button>
-                      <div className="relative group">
-                        <Button variant="outline" onClick={handleArchiveToggle} className={cn(isArchived && "bg-neutral-bg-light text-neutral-gray-dark")}>
-                          {isArchived ? <ArchiveX className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-                        </Button>
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-brand-navy-900 text-white text-xs rounded whitespace-nowrap shadow-lg z-50">
-                          {isArchived ? 'Remove from Archive' : 'Add to Archive'}
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-brand-navy-900" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-6 mt-6 pt-4 border-t border-neutral-gray-light text-sm text-neutral-gray-medium">
-                <div className="flex items-center gap-1.5">
-                  <Eye className="h-4 w-4" />
-                  <span className="font-semibold text-neutral-gray-dark">{institute.views ? (institute.views / 1000).toFixed(1) + 'k' : '0'}</span> Views
-                </div>
-                <button onClick={handleLikeToggle} className={cn("flex items-center gap-1.5 transition-colors cursor-pointer", isLiked ? "text-brand-red-600" : "hover:text-brand-red-600")}>
-                  <ThumbsUp className={cn("h-4 w-4", isLiked && "fill-current")} />
-                  <span className={cn("font-semibold", isLiked ? "text-brand-red-600" : "text-neutral-gray-dark")}>{currentLikes ? (currentLikes / 1000).toFixed(1) + 'k' : '0'}</span> Likes
-                </button>
-                <button onClick={() => setActiveTab('reviews')} className="flex items-center gap-1.5 hover:text-brand-red-600 transition-colors cursor-pointer">
-                  <MessageCircle className="h-4 w-4" />
-                  <span className="font-semibold text-neutral-gray-dark">{institute.reviews || 0}</span> Reviews
-                </button>
-                <button onClick={async () => {
-                  try { await navigator.clipboard.writeText(window.location.href); toast.success('Profile link copied — share it!'); }
-                  catch (err) { toast.success('Profile link copied — share it!'); }
-                }} className="flex items-center gap-1.5 hover:text-brand-navy-900 transition-colors cursor-pointer">
-                  <Share2 className="h-4 w-4" />
-                  <span className="font-semibold text-neutral-gray-dark">{institute.shares || 0}</span> Shares
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <InstituteHero
+          institute={institute}
+          onTabChange={setActiveTab}
+          isArchived={isArchived}
+          onArchiveToggle={handleArchiveToggle}
+          isLiked={isLiked}
+          onLikeToggle={handleLikeToggle}
+          currentLikes={currentLikes}
+          onRegister={() => setIsRegisterOpen(true)}
+        />
 
         {/* Tabs */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex overflow-x-auto no-scrollbar border-b border-neutral-gray-light">
-            {institute.type === 'University' ? (
+            {isUniversity ? (
               <>
                 <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')}>Profile & Services</TabButton>
                 <TabButton active={activeTab === 'academics'} onClick={() => setActiveTab('academics')}>Certifications & Policies</TabButton>
@@ -218,8 +90,9 @@ function InstituteDetailsContent() {
               <>
                 <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')}>Overview</TabButton>
                 <TabButton active={activeTab === 'academics'} onClick={() => setActiveTab('academics')}>Academics & Fees</TabButton>
-                <TabButton active={activeTab === 'achievements'} onClick={() => setActiveTab('achievements')}>Achievements</TabButton>
+                <TabButton active={activeTab === 'achievements'} onClick={() => setActiveTab('achievements')}>Licenses & Achievements</TabButton>
                 <TabButton active={activeTab === 'gallery'} onClick={() => { setActiveTab('gallery'); setOpenAlbum(null); }}>Media Gallery</TabButton>
+                <TabButton active={activeTab === 'downloads'} onClick={() => setActiveTab('downloads')}>Downloadable Resources</TabButton>
                 <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')}>Reviews</TabButton>
                 <TabButton active={activeTab === 'contact'} onClick={() => setActiveTab('contact')}>Contact</TabButton>
               </>
@@ -236,17 +109,18 @@ function InstituteDetailsContent() {
             {activeTab === 'academics' && <AcademicsTab institute={institute} />}
             {activeTab === 'achievements' && <AchievementsTab institute={institute} />}
             {activeTab === 'gallery' && <GalleryTab institute={institute} openAlbum={openAlbum} setOpenAlbum={setOpenAlbum} />}
+            {activeTab === 'downloads' && <DownloadsTab downloads={institute.downloads} />}
             {activeTab === 'news' && <NewsUpdatesTab institute={institute} />}
             {activeTab === 'reviews' && <ReviewsTab institute={institute} />}
             {activeTab === 'contact' && <ContactTab institute={institute} />}
           </div>
-          <Sidebar institute={institute} />
+          <Sidebar institute={institute} onRegister={() => setIsRegisterOpen(true)} />
         </div>
       </div>
 
       <ContactServiceProviderModal
-        isOpen={isBookServiceOpen}
-        onClose={() => setIsBookServiceOpen(false)}
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
         providerName={institute.name}
         providerId={institute.id}
         providerPhone={institute.phone}

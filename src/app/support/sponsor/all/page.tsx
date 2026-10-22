@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Search, SlidersHorizontal, Globe } from 'lucide-react';
+import { Search, SlidersHorizontal, Globe, ArrowRight } from 'lucide-react';
 import { useLocalStorage } from '@/lib/useLocalStorage';
 import { Button } from '../../../components/ui/Button';
 import { SidebarFilters } from './components/SidebarFilters';
@@ -61,15 +61,9 @@ export default function SponsorsListing() {
     <div className="min-h-screen bg-neutral-bg-light pb-16">
       <section className="bg-brand-navy-900 py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2 text-slate-400 text-sm mb-4">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <span>/</span>
-            <Link href="/support" className="hover:text-white">Support</Link>
-            <span>/</span>
-            <Link href="/support/sponsor" className="hover:text-white">Sponsor</Link>
-            <span>/</span>
-            <span className="text-white">All Sponsors</span>
-          </div>
+          <Link href="/support/sponsor" className="inline-flex items-center gap-1 text-slate-400 hover:text-white text-sm mb-6 transition-colors">
+            <ArrowRight className="h-3 w-3 rotate-180" /> Back to Sponsor
+          </Link>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2">Our Sponsors</h1>
           <p className="text-slate-300 text-lg">Browse organizations, companies and brands powering African science, technology and innovation</p>
         </div>

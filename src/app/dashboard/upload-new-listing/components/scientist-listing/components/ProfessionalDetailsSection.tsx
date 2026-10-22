@@ -131,7 +131,7 @@ export default function ProfessionalDetailsSection({ details, onChange }: Profes
   };
 
   return (
-    <CollapsibleSection title="Professional Details" icon={<FileText className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
+    <CollapsibleSection title="Professional details" icon={<FileText className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-2">Field <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(1 selection max)</span></label>

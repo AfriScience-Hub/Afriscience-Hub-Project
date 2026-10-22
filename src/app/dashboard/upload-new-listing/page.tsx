@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/context/AuthContext';
@@ -14,6 +14,7 @@ import AfroInnovationListing from './components/afro-innovation-listing/afro-inn
 import { firstSocialError } from './components/afro-innovation-listing/components/InnovatorInfoSection';
 import SpecialistCenterListing from './components/specialist-center-listing/specialist-center-listing';
 import ScientistListing from './components/scientist-listing/scientist-listing';
+import PrimarySecondaryListing from './components/primary-secondary-listing/primary-secondary-listing';
 import ContactSection from './components/ContactSection';
 import ServicesSection from './components/ServicesSection';
 import MediaGallerySection from './components/MediaGallerySection';
@@ -25,6 +26,7 @@ import { buildInnovationPayload, createInnovation, fetchInnovation, MEDIA_REV, O
 import { useInnovationOptions } from '@/app/data/innovationOptions';
 import { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
 import PriceConfirmModal from './components/PriceConfirmModal';
+import InstituteTypeSelectorModal, { type InstituteSubType } from '@/app/dashboard/components/InstituteTypeSelectorModal';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
 
@@ -68,7 +70,9 @@ export default function UploadNewListing() {
   const [saving, setSaving] = useState(false);
   const [showPriceConfirm, setShowPriceConfirm] = useState(false);
   const [selectedType, setSelectedType] = useState<ListingType | null>(null);
+  const [instituteSubType, setInstituteSubType] = useState<InstituteSubType | null>(null);
   const [step, setStep] = useState<'select' | 'form'>('select');
+  const [showInstituteTypeModal, setShowInstituteTypeModal] = useState(false);
 
   const [name, setName] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -139,7 +143,16 @@ export default function UploadNewListing() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const typeParam = params.get('type');
-    if (typeParam && (['innovation', 'institute', 'scientist', 'center', 'award', 'competition'] as ListingType[]).includes(typeParam as ListingType)) {
+    if (!typeParam) return;
+    // An institute listing always asks which kind of institute first, so a
+    // deep link behaves exactly like clicking the category card.
+    if (typeParam === 'institute') {
+      setSelectedType('institute');
+      setStep('select');
+      setShowInstituteTypeModal(true);
+      return;
+    }
+    if (['innovation', 'scientist', 'center', 'award', 'competition'].includes(typeParam)) {
       setSelectedType(typeParam as ListingType);
       setStep('form');
     }
@@ -384,8 +397,39 @@ export default function UploadNewListing() {
     setEditBaseline(listingSnapshot);
   }, [editId, prefilled, editBaseline, listingSnapshot]);
 
+  const handleSelectType = (typeId: string) => {
+    if (typeId === 'institute') {
+      setShowInstituteTypeModal(true);
+    } else {
+      // Closing here stops a still-open selector from following the user onto
+      // whichever listing they open next.
+      setShowInstituteTypeModal(false);
+      setSelectedType(typeId as ListingType);
+      setInstituteSubType(null);
+      setStep('form');
+    }
+  };
+
+  const handleInstituteTypeSelect = (instituteType: InstituteSubType) => {
+    setInstituteSubType(instituteType);
+    setSelectedType('institute');
+    setStep('form');
+  };
+
   if (step === 'select') {
-    return <ListingTypeSelector onSelectType={(typeId) => { setSelectedType(typeId as ListingType); setStep('form'); }} />;
+    return (
+      <>
+        <ListingTypeSelector onSelectType={handleSelectType} />
+        {/* Rendered here as well as on the form step: without it the selector
+            can never open from the category grid, and a stale open state would
+            surface on top of whichever listing is opened next. */}
+        <InstituteTypeSelectorModal
+          isOpen={showInstituteTypeModal}
+          onClose={() => setShowInstituteTypeModal(false)}
+          onSelectInstituteType={handleInstituteTypeSelect}
+        />
+      </>
+    );
   }
 
   const selectedTypeInfo = LISTING_TYPES.find(t => t.id === selectedType);
@@ -402,7 +446,7 @@ export default function UploadNewListing() {
                 <p className="text-sm text-neutral-gray-medium">Fill in the details below. Fields marked <span className="text-brand-red-600">*</span> are required.</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" onClick={() => { setStep('select'); setSelectedType(null); }}>
+            <Button variant="outline" size="sm" onClick={() => { setStep('select'); setSelectedType(null); setInstituteSubType(null); setShowInstituteTypeModal(false); }}>
               <X className="h-4 w-4 mr-1" /> Change Category
             </Button>
           </div>
@@ -410,9 +454,24 @@ export default function UploadNewListing() {
       )}
 
       {selectedType === 'center' ? (
-        <SpecialistCenterListing onCancel={() => { setStep('select'); setSelectedType(null); }} />
+        <SpecialistCenterListing onCancel={() => { setStep('select'); setSelectedType(null); setInstituteSubType(null); setShowInstituteTypeModal(false); }} />
       ) : selectedType === 'scientist' ? (
-        <ScientistListing onCancel={() => { setStep('select'); setSelectedType(null); }} />
+        <ScientistListing onCancel={() => { setStep('select'); setSelectedType(null); setInstituteSubType(null); setShowInstituteTypeModal(false); }} />
+      ) : selectedType === 'institute' && instituteSubType === 'primary-secondary' ? (
+        <PrimarySecondaryListing onCancel={() => { setStep('select'); setSelectedType(null); setInstituteSubType(null); setShowInstituteTypeModal(false); }} />
+      ) : selectedType === 'institute' && instituteSubType === 'university' ? (
+        <div className="space-y-5">
+          <div className="rounded-xl border border-neutral-gray-light bg-white p-8 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-red-50">
+              <Building2 className="h-8 w-8 text-brand-red-600" />
+            </div>
+            <h3 className="text-lg font-bold text-neutral-black mb-2">University Listing</h3>
+            <p className="text-neutral-gray-medium mb-6">University listing form coming soon.</p>
+            <Button variant="outline" onClick={() => { setStep('select'); setSelectedType(null); setInstituteSubType(null); setShowInstituteTypeModal(false); }}>
+              Back to Institute Types
+            </Button>
+          </div>
+        </div>
       ) : selectedType === 'innovation' ? (
         <AfroInnovationListing
           name={name} setName={setName}
@@ -481,7 +540,7 @@ export default function UploadNewListing() {
         </>
       )}
 
-      {selectedType !== 'innovation' && selectedType !== 'center' && selectedType !== 'scientist' && (
+      {selectedType !== 'innovation' && selectedType !== 'center' && selectedType !== 'scientist' && selectedType !== 'institute' && (
         <>
           <ServicesSection
             services={services} setServices={setServices}
@@ -503,12 +562,14 @@ export default function UploadNewListing() {
         </>
       )}
 
-      {selectedType !== 'center' && selectedType !== 'scientist' && (
+      {selectedType !== 'center' && selectedType !== 'scientist' && selectedType !== 'institute' && (
         <FormActions
           onCancel={() => {
             if (editId) { router.push('/dashboard/submissions'); return; }
             setStep('select');
             setSelectedType(null);
+            setInstituteSubType(null);
+            setShowInstituteTypeModal(false);
           }}
           onSubmit={handleSubmit}
           submitLabel={editId ? 'Save changes' : 'Submit for Review'}
@@ -524,6 +585,13 @@ export default function UploadNewListing() {
         saving={saving}
         onConfirm={performSubmit}
         onCancel={() => setShowPriceConfirm(false)}
+      />
+
+      {/* Institute type selector modal */}
+      <InstituteTypeSelectorModal
+        isOpen={showInstituteTypeModal}
+        onClose={() => setShowInstituteTypeModal(false)}
+        onSelectInstituteType={handleInstituteTypeSelect}
       />
     </div>
   );

@@ -2,188 +2,156 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  Users, BookOpen, Award, Clock, Download, FileText,
-  ShieldCheck, MapPin, Star, Building2
-} from 'lucide-react';
-import { toast } from 'sonner';
+import { Users, BookOpen, Award, Clock, Star, Building2, MapPin, Calendar } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
+import { cn } from '@/lib/utils';
 import { INSTITUTES } from '@/app/data/mockData';
 
 interface Institute {
   [key: string]: any;
 }
 
-export default function Sidebar({ institute }: { institute: Institute }) {
+/** One label/value row inside the highlights card. */
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-sm text-neutral-black flex-shrink-0">{label}</span>
+      <span className="text-sm text-neutral-gray-dark font-medium text-right">{children}</span>
+    </div>
+  );
+}
+
+export default function Sidebar({ institute, onRegister }: { institute: Institute; onRegister: () => void }) {
   const isUniversity = institute.type === 'University';
   const yearsOfExistence = institute.yearEstablished ? `${new Date().getFullYear() - institute.yearEstablished} yrs` : null;
   const awardsCount = institute.awards?.length || 0;
   const facultiesCount = institute.faculties?.length || 0;
   const alumniCount = institute.alumni?.length || 0;
 
+  // Similarity: class weighs most, then ownership, gender and program, then
+  // shared services and finally the same country.
+  const similar = INSTITUTES
+    .filter((i: any) => i.id !== institute.id && (i.type === 'University') === isUniversity)
+    .map((i: any) => ({
+      inst: i,
+      score:
+        (i.class && i.class === institute.class ? 3 : 0) +
+        (i.ownership && i.ownership === institute.ownership ? 2 : 0) +
+        (i.gender && i.gender === institute.gender ? 2 : 0) +
+        (i.program && i.program === institute.program ? 2 : 0) +
+        (i.country && i.country === institute.country ? 1 : 0) +
+        (i.services || []).filter((s: string) => (institute.services || []).includes(s)).length,
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, isUniversity ? 3 : 5)
+    .map(s => s.inst);
+
   return (
     <div className="lg:col-span-1 space-y-8">
-      <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-        <h3 className="text-lg font-bold text-neutral-black mb-6 flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-brand-red-600" /> Institute Highlights
-        </h3>
-        <div className="space-y-6">
-          {isUniversity ? (
-            <>
-              {yearsOfExistence && (
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 flex-shrink-0">
-                    <Clock className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-black text-neutral-black">{yearsOfExistence}</p>
-                    <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Years of Existence</p>
-                  </div>
-                </div>
-              )}
-              {facultiesCount > 0 && (
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
-                    <Building2 className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-black text-neutral-black">{facultiesCount}+</p>
-                    <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Faculties</p>
-                  </div>
-                </div>
-              )}
-              {awardsCount > 0 && (
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 flex-shrink-0">
-                    <Award className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-black text-neutral-black">{awardsCount}</p>
-                    <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Awards & Honours</p>
-                  </div>
-                </div>
-              )}
-              {alumniCount > 0 && (
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 flex-shrink-0">
-                    <Users className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-black text-neutral-black">{alumniCount}</p>
-                    <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Notable Alumni</p>
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
-                  <Users className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xl font-black text-neutral-black">1,500+</p>
-                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Active Students</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-lg bg-brand-red-50 flex items-center justify-center text-brand-red-600 flex-shrink-0">
-                  <BookOpen className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xl font-black text-neutral-black">45+</p>
-                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Specialized Labs</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 flex-shrink-0">
-                  <Award className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xl font-black text-neutral-black">12</p>
-                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Innovation Awards</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 flex-shrink-0">
-                  <Users className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xl font-black text-neutral-black">120+</p>
-                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Faculty & Staff</p>
-                </div>
-              </div>
+      {isUniversity ? (
+        <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+          <h3 className="text-lg font-bold text-neutral-black mb-6 flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-brand-red-600" /> Institute Highlights
+          </h3>
+          <div className="space-y-6">
+            {yearsOfExistence && (
               <div className="flex items-center gap-4">
                 <div className="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 flex-shrink-0">
                   <Clock className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xl font-black text-neutral-black">25 yrs</p>
-                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Years of Excellence</p>
+                  <p className="text-xl font-black text-neutral-black">{yearsOfExistence}</p>
+                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Years of Existence</p>
                 </div>
               </div>
-            </>
-          )}
-        </div>
-      </section>
-
-      <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-        <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
-          <Download className="h-5 w-5 text-brand-red-600" /> Downloadable Resources
-        </h3>
-        <div className="space-y-3">
-          {[
-            { name: 'School Brochure & Prospectus', icon: FileText },
-            { name: 'Fee Structure', icon: BookOpen },
-            { name: 'School Policies', icon: ShieldCheck },
-            { name: 'Admission Form', icon: FileText },
-          ].map((resource, idx) => (
-            <button
-              key={idx}
-              className="w-full flex items-center gap-3 p-3 rounded-lg border border-neutral-gray-light bg-neutral-bg-light/50 hover:bg-neutral-bg-light hover:border-brand-red-100 transition-all text-left group"
-              onClick={() => toast.info(`Download for "${resource.name}" will be available soon.`)}
-            >
-              <div className="h-8 w-8 rounded bg-brand-red-100 flex items-center justify-center text-brand-red-600 flex-shrink-0">
-                <resource.icon className="h-4 w-4" />
+            )}
+            {facultiesCount > 0 && (
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
+                  <Building2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-neutral-black">{facultiesCount}+</p>
+                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Faculties</p>
+                </div>
               </div>
-              <span className="text-sm font-medium text-neutral-gray-dark group-hover:text-brand-red-600 transition-colors">{resource.name}</span>
-              <Download className="h-4 w-4 text-neutral-gray-light ml-auto group-hover:text-brand-red-600 transition-colors" />
-            </button>
-          ))}
-        </div>
-      </section>
+            )}
+            {awardsCount > 0 && (
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 flex-shrink-0">
+                  <Award className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-neutral-black">{awardsCount}</p>
+                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Awards & Honours</p>
+                </div>
+              </div>
+            )}
+            {alumniCount > 0 && (
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 flex-shrink-0">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-neutral-black">{alumniCount}</p>
+                  <p className="text-xs text-neutral-gray-medium font-bold uppercase tracking-wider">Notable Alumni</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      ) : (
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+          <h3 className="text-sm font-bold text-neutral-gray-dark uppercase tracking-wider mb-4">School Highlights</h3>
+          <div className="space-y-4">
+            <Row label="Status">
+              <span className={cn(
+                "px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide border inline-block",
+                institute.status === 'Online'
+                  ? "bg-green-100 text-green-700 border-green-200"
+                  : "bg-neutral-bg-light text-neutral-gray-dark border-neutral-gray-light"
+              )}>
+                {institute.status}
+              </span>
+            </Row>
+            <Row label="Class">{institute.class || '—'}</Row>
+            <Row label="Program">{institute.program || '—'}</Row>
+            <Row label="Ownership">{institute.ownership || '—'}</Row>
+            <Row label="Gender">{institute.gender || '—'}</Row>
+            <Row label="Work Days">{institute.workDays || '—'}</Row>
+            <Row label="Work Hours">{institute.workHours || '—'}</Row>
+            <Row label="Active Students">{institute.activeStudents ? institute.activeStudents.toLocaleString() : '—'}</Row>
+            <Row label="Joined">
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5 text-neutral-gray-medium" />
+                {institute.joined || '—'}
+              </span>
+            </Row>
+            <Row label="Rating">
+              <span className="inline-flex items-center gap-1">
+                <Star className="h-3 w-3 text-amber-500 fill-current" />
+                {institute.rating}
+              </span>
+            </Row>
 
-      <section className="bg-brand-navy-900 rounded-xl p-6 text-white shadow-lg overflow-hidden relative">
-        <div className="relative z-10">
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-brand-red-600" /> Professional Listing
-          </h3>
-          <p className="text-brand-navy-100 text-sm leading-relaxed mb-6">
-            This institute is a verified partner of AfriScience Hub. All certifications and records have been vetted by our quality assurance team.
-          </p>
-          <Button className="w-full bg-brand-red-600 hover:bg-brand-red-700 text-white border-none font-bold">
-            View Verification PDF
-          </Button>
+            <div className="pt-4 border-t border-neutral-gray-light">
+              <Button className="w-full mb-3 bg-brand-red-600 hover:bg-brand-red-700" onClick={onRegister}>
+                Register Now
+              </Button>
+              <p className="text-xs text-neutral-gray-medium text-center">
+                Secure registration &amp; verified schools
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 h-32 w-32 bg-brand-navy-800 rounded-full blur-3xl opacity-50" />
-        <div className="absolute bottom-0 left-0 -mb-8 -ml-8 h-32 w-32 bg-brand-red-900/20 rounded-full blur-3xl opacity-50" />
-      </section>
-
-      <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-        <h3 className="text-lg font-bold text-neutral-black mb-4">Admissions Open</h3>
-        <p className="text-sm text-neutral-gray-dark mb-6 leading-relaxed">
-          Join the next cohort of innovators. Admissions for the 2025 academic session are currently ongoing.
-        </p>
-        <div className="space-y-3">
-          <Button className="w-full bg-brand-red-600 hover:bg-brand-red-700 text-white font-bold">Apply Now</Button>
-          <Button variant="outline" className="w-full border-brand-navy-900 text-brand-navy-900 font-bold">Request Prospectus</Button>
-        </div>
-      </section>
+      )}
 
       <section>
-        <h3 className="text-sm font-bold text-neutral-gray-medium uppercase tracking-wider mb-4 px-2">Similar Institutes</h3>
+        <h3 className="text-sm font-bold text-neutral-gray-medium uppercase tracking-wider mb-4 px-2">
+          {isUniversity ? 'Similar Institutes' : 'Similar Schools'}
+        </h3>
         <div className="space-y-4">
-          {INSTITUTES.filter((i: any) => i.id !== institute.id && i.class === institute.class).slice(0, 3).map((sim: any) => (
+          {similar.map((sim: any) => (
             <Link key={sim.id} href={`/institutes/${sim.id}`} className="flex gap-4 p-3 bg-white rounded-xl border border-neutral-gray-light hover:border-brand-red-600 hover:shadow-md transition-all group">
               <div className="relative h-16 w-16 rounded-lg overflow-hidden flex-shrink-0">
                 <Image src={sim.image} alt={sim.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" sizes="64px" />

@@ -16,7 +16,7 @@ interface ContactSectionProps {
 
 export default function ContactSection({ phone, setPhone, email, setEmail, website, setWebsite, socialLinks, setSocialLinks }: ContactSectionProps) {
   return (
-    <CollapsibleSection title="Contact Information" icon={<Phone className="h-5 w-5 text-brand-red-600" />}>
+    <CollapsibleSection title="Contact information" icon={<Phone className="h-5 w-5 text-brand-red-600" />}>
       <div className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>

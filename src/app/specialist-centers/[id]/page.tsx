@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  MapPin, Star, Share2, ThumbsUp, CheckCircle, Eye, Building2, Phone, Mail, Archive, ArchiveX, Calendar
+  MapPin, Star, Share2, ThumbsUp, CheckCircle, Eye, Building2, Phone, Mail, Archive, ArchiveX, Calendar, ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { SPECIALIST_CENTERS } from '@/app/data/mockData';
@@ -75,6 +75,11 @@ function SpecialistCenterDetailsContent() {
           <Image src={center.image} alt={center.name} fill sizes="100vw" className="object-cover object-center" style={{ objectFit: 'cover', objectPosition: 'center' }} />
           <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900/80 via-brand-navy-900/30 to-transparent" />
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+
+          <Link href="/specialist-centers" className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 text-white/90 hover:text-white transition-colors z-10">
+            <ArrowLeft className="h-5 w-5" />
+            <span className="text-sm font-medium">Back to Specialist Centers</span>
+          </Link>
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6">
@@ -189,7 +194,7 @@ function SpecialistCenterDetailsContent() {
               <div className="flex flex-wrap items-center gap-6 mt-6 pt-4 border-t border-neutral-gray-light text-sm text-neutral-gray-medium">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-4 w-4" /> Joined
-                  <span className="font-semibold text-neutral-gray-dark">{formatJoinedDate(center.createdAt) ? 'Joined ' + formatJoinedDate(center.createdAt) : '—'}</span>
+                  <span className="font-semibold text-neutral-gray-dark">{formatJoinedDate(center.createdAt) || '—'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Eye className="h-4 w-4" /> Views

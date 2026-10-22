@@ -45,7 +45,7 @@ interface AfroInnovationListingProps {
 export default function AfroInnovationListing(props: AfroInnovationListingProps) {
   return (
     <>
-      <CollapsibleSection title="Innovation Identity" icon={<IdCard className="h-5 w-5 text-brand-red-600" />} badge="Required">
+      <CollapsibleSection title="Innovation identity" icon={<IdCard className="h-5 w-5 text-brand-red-600" />} badge="Required">
         <InnovationIdentitySection
           name={props.name} setName={props.setName}
           profileImage={props.profileImage} setProfileImage={props.setProfileImage}
@@ -58,7 +58,7 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Innovation Details" icon={<Lightbulb className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
+      <CollapsibleSection title="Innovation details" icon={<Lightbulb className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
         <InnovationDetailsSection
           innovFields={props.innovFields} setInnovFields={props.setInnovFields}
           innovInterests={props.innovInterests} setInnovInterests={props.setInnovInterests}
@@ -79,7 +79,7 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Innovator's Information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
+      <CollapsibleSection title="Innovator's information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
         <InnovatorInfoSection
           socialHandles={props.socialHandles} setSocialHandles={props.setSocialHandles}
           agreed={props.agreed} setAgreed={props.setAgreed}

@@ -30,7 +30,11 @@ export default function InstituteHeader({
           <div className="relative w-full md:max-w-md">
             <input
               type="text"
-              placeholder={activeTab === 'universities' ? "Search universities database..." : "Search schools, location..."}
+              placeholder={
+                activeTab === 'universities'
+                  ? "Search universities database..."
+                  : "Search schools by name, class, gender, services, scopes, ownership, location or keyword."
+              }
               className="w-full h-12 rounded-xl border border-neutral-gray-light pl-12 pr-4 shadow-sm focus:border-brand-red-600 focus:outline-none focus:ring-2 focus:ring-brand-red-600/20 text-base"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

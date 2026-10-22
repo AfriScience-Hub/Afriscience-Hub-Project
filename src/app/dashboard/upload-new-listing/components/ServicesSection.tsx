@@ -29,7 +29,7 @@ export default function ServicesSection({ services, setServices, newService, set
   };
 
   return (
-    <CollapsibleSection title="Services & Offerings" icon={<Plus className="h-5 w-5 text-brand-red-600" />} badge="Add your services">
+    <CollapsibleSection title="Services & offerings" icon={<Plus className="h-5 w-5 text-brand-red-600" />} badge="Add your services">
       <div className="space-y-4">
         {services.length > 0 && (
           <div className="space-y-2">

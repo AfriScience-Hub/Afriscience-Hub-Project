@@ -35,7 +35,7 @@ export default function ScientistFeesSection({ services, fees, onChange }: Scien
   };
 
   return (
-    <CollapsibleSection title="Service Costs & Other Charges" icon={<DollarSign className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+    <CollapsibleSection title="Service costs & other charges" icon={<DollarSign className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">

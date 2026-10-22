@@ -7,7 +7,7 @@ import Image from 'next/image';
 import {
   MapPin, Star, Share2, CheckCircle, GraduationCap,
   Eye, ThumbsUp, MessageCircle, Archive, ArchiveX,
-  Phone, Mail, Calendar
+  Phone, Mail, Calendar, ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { SCIENTISTS } from '@/app/data/mockData';
@@ -92,6 +92,11 @@ export default function ScientistDetails() {
           <Image src={scientist.image} alt={scientist.name} fill sizes="100vw" className="object-cover object-center" />
           <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900/85 via-brand-navy-900/40 to-transparent" />
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+
+          <Link href="/scientists" className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 text-white/90 hover:text-white transition-colors z-10">
+            <ArrowLeft className="h-5 w-5" />
+            <span className="text-sm font-medium">Back to Scientists &amp; Technologists</span>
+          </Link>
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-6">
@@ -201,7 +206,7 @@ export default function ScientistDetails() {
               <div className="flex flex-wrap items-center gap-6 mt-10 pt-4 border-t border-neutral-gray-light text-sm text-neutral-gray-medium">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-4 w-4" /> Joined
-                  <span className="font-semibold text-neutral-gray-dark">{formatJoinedDate(scientist.createdAt) ? 'Joined ' + formatJoinedDate(scientist.createdAt) : '—'}</span>
+                  <span className="font-semibold text-neutral-gray-dark">{formatJoinedDate(scientist.createdAt) || '—'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Eye className="h-4 w-4" /> Views

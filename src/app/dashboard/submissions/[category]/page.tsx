@@ -12,6 +12,11 @@ import { cn } from '@/lib/utils';
 import { ListingCard } from '../../my-listings/components/ListingCard';
 import { unapprovedListings, fetchUserInnovations, type UserInnovation } from '../../my-listings/listingData';
 import { getCategory } from '../../submissionCategories';
+import InstituteTypeSelectorModal, {
+  INSTITUTE_SUBTYPE_LABEL,
+  isInstituteSubType,
+  type InstituteSubType,
+} from '../../components/InstituteTypeSelectorModal';
 
 export default function SubmissionCategoryPage() {
   const router = useRouter();
@@ -20,6 +25,26 @@ export default function SubmissionCategoryPage() {
 
   const [listings, setListings] = useState<UserInnovation[]>([]);
   const [loading, setLoading] = useState(true);
+  // Institute is split into two sub-types, chosen in the selector modal.
+  const [instituteSubType, setInstituteSubType] = useState<InstituteSubType | null>(null);
+  const [showInstituteModal, setShowInstituteModal] = useState(false);
+
+  // The sub-type travels in the query string so a refresh keeps the selection.
+  // Arriving without one reopens the selector instead of guessing.
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get('type');
+    if (isInstituteSubType(t)) {
+      setInstituteSubType(t);
+      setShowInstituteModal(false);
+    } else if (categoryId === 'institute') {
+      setShowInstituteModal(true);
+    }
+  }, [categoryId]);
+
+  const handleInstituteTypeSelect = useCallback((type: InstituteSubType) => {
+    setInstituteSubType(type);
+    router.replace(`/dashboard/submissions/institute?type=${type}`);
+  }, [router]);
 
   useEffect(() => {
     if (categoryId !== 'innovation') { setLoading(false); return; }
@@ -52,6 +77,13 @@ export default function SubmissionCategoryPage() {
     router.push(`/competitions/${sub.compId}/submission`);
   }, [router]);
 
+  // Institute shows the sub-type picked in the modal; other categories use
+  // their own label.
+  const effectiveLabel =
+    category?.id === 'institute' && instituteSubType
+      ? INSTITUTE_SUBTYPE_LABEL[instituteSubType]
+      : category?.label;
+
   const emptyState = (
     <div className="flex flex-col items-center justify-center py-14 text-center rounded-xl border-2 border-dashed border-neutral-gray-light bg-white">
       <div className="h-16 w-16 rounded-full bg-neutral-bg-light flex items-center justify-center mb-4">
@@ -59,7 +91,7 @@ export default function SubmissionCategoryPage() {
       </div>
       <h3 className="text-lg font-medium text-neutral-black">No submissions yet</h3>
       <p className="text-neutral-gray-medium max-w-sm mt-1">
-        You have not made any {category?.label.toLowerCase() ?? ''} submissions yet.
+        You have not made any {effectiveLabel?.toLowerCase() ?? ''} submissions yet.
       </p>
     </div>
   );
@@ -163,7 +195,7 @@ export default function SubmissionCategoryPage() {
                 {category?.label ?? 'Submissions'}
               </h1>
               <p className="text-sm text-neutral-gray-medium">
-                Your {category?.label.toLowerCase() ?? ''} submissions
+                Your {effectiveLabel?.toLowerCase() ?? ''} submissions
               </p>
             </div>
           </div>
@@ -177,6 +209,14 @@ export default function SubmissionCategoryPage() {
 
         {renderContent()}
       </div>
+
+      <InstituteTypeSelectorModal
+        isOpen={showInstituteModal}
+        onClose={() => setShowInstituteModal(false)}
+        onSelectInstituteType={handleInstituteTypeSelect}
+        title="Select institute type"
+        subtitle="Choose the kind of institute these submissions belong to"
+      />
     </div>
   );
 }

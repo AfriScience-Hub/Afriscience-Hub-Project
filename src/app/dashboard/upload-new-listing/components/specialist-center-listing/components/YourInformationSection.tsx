@@ -16,14 +16,14 @@ interface YourInformationSectionProps {
 
 export default function YourInformationSection({ info }: YourInformationSectionProps) {
   const fields: { label: string; value: string }[] = [
-    { label: 'Full Name', value: info.fullName },
-    { label: 'Phone Number', value: info.phone },
-    { label: 'E-mail Address', value: info.email },
+    { label: 'Full name', value: info.fullName },
+    { label: 'Phone number', value: info.phone },
+    { label: 'E-mail address', value: info.email },
     { label: 'Username', value: info.username },
   ];
 
   return (
-    <CollapsibleSection title="Your Information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Auto-populated by platform" defaultOpen={false}>
+    <CollapsibleSection title="Your information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Auto-populated by platform" defaultOpen={false}>
       <div className="space-y-4">
         <p className="text-xs text-neutral-gray-medium">These details are provided by the platform and cannot be edited here.</p>
         <div className="grid gap-4 sm:grid-cols-2">

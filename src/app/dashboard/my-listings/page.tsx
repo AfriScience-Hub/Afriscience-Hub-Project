@@ -7,12 +7,18 @@ import { PackageOpen } from 'lucide-react';
 import { ListingHeader } from './components/ListingHeader';
 import { ListingCard } from './components/ListingCard';
 import CategoryCardGrid from '../components/CategoryCardGrid';
+import InstituteTypeSelectorModal, {
+  INSTITUTE_SUBTYPE_LABEL,
+  type InstituteSubType,
+} from '../components/InstituteTypeSelectorModal';
 import { approvedListings, fetchUserInnovations, type UserInnovation } from './listingData';
 import { getCategory, LISTING_CATEGORIES, type SubmissionCategoryId } from '../submissionCategories';
 
 export default function MyListings() {
   const router = useRouter();
   const [selected, setSelected] = useState<SubmissionCategoryId | null>(null);
+  const [instituteSubType, setInstituteSubType] = useState<InstituteSubType | null>(null);
+  const [showInstituteModal, setShowInstituteModal] = useState(false);
   const [listings, setListings] = useState<UserInnovation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,9 +35,23 @@ export default function MyListings() {
   const approved = approvedListings(listings);
   const category = selected ? getCategory(selected) : undefined;
   const isInnovation = selected === 'innovation';
+  // Institute splits into two sub-types, so the label follows the modal pick.
+  const effectiveLabel =
+    selected === 'institute' && instituteSubType ? INSTITUTE_SUBTYPE_LABEL[instituteSubType] : category?.label;
 
   const handleSelect = useCallback((id: SubmissionCategoryId) => {
+    // Institute asks which kind of institute before showing anything.
+    if (id === 'institute') {
+      setShowInstituteModal(true);
+      return;
+    }
+    setInstituteSubType(null);
     setSelected(id);
+  }, []);
+
+  const handleInstituteTypeSelect = useCallback((type: InstituteSubType) => {
+    setInstituteSubType(type);
+    setSelected('institute');
   }, []);
 
   const emptyState = (
@@ -41,8 +61,8 @@ export default function MyListings() {
       </div>
       <h3 className="text-lg font-medium text-neutral-black">No listings yet</h3>
       <p className="text-neutral-gray-medium max-w-sm mt-1">
-        {category
-          ? `You have not created any ${category.label.toLowerCase()} listings yet.`
+        {effectiveLabel
+          ? `You have not created any ${effectiveLabel.toLowerCase()} listings yet.`
           : 'You have not created any listings yet.'}
       </p>
     </div>
@@ -54,7 +74,7 @@ export default function MyListings() {
         {selected ? (
           <div className="space-y-4">
             <button
-              onClick={() => setSelected(null)}
+              onClick={() => { setSelected(null); setInstituteSubType(null); }}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-gray-dark hover:text-brand-red-600 transition-colors cursor-pointer"
             >
               ‹ All categories
@@ -78,7 +98,7 @@ export default function MyListings() {
             ) : (
               <>
                 <p className="text-sm text-neutral-gray-medium">
-                  Showing <span className="font-semibold text-neutral-black">{category?.label}</span> listings
+                  Showing <span className="font-semibold text-neutral-black">{effectiveLabel}</span> listings
                 </p>
                 {emptyState}
               </>
@@ -98,6 +118,12 @@ export default function MyListings() {
           </>
         )}
       </div>
+
+      <InstituteTypeSelectorModal
+        isOpen={showInstituteModal}
+        onClose={() => setShowInstituteModal(false)}
+        onSelectInstituteType={handleInstituteTypeSelect}
+      />
     </div>
   );
 }

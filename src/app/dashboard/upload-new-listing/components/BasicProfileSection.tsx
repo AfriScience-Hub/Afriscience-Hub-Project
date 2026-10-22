@@ -49,7 +49,7 @@ export default function BasicProfileSection({
   };
 
   return (
-    <CollapsibleSection title="Basic Profile Information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Required">
+    <CollapsibleSection title="Basic profile information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Required">
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-2">Profile Image</label>

@@ -10,7 +10,7 @@ interface PoliciesSectionProps {
 
 export default function PoliciesSection({ policies, setPolicies }: PoliciesSectionProps) {
   return (
-    <CollapsibleSection title="Policies / Rules / Terms of Engagement" icon={<FileText className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+    <CollapsibleSection title="Policies / rules / terms of engagement" icon={<FileText className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
       <div>
         <textarea
           value={policies}

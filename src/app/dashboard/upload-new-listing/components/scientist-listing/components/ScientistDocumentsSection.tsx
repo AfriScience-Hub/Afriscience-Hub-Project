@@ -13,7 +13,7 @@ interface ScientistDocumentsSectionProps {
 
 export default function ScientistDocumentsSection({ certifications, setCertifications, achievements, setAchievements }: ScientistDocumentsSectionProps) {
   return (
-    <CollapsibleSection title="Certifications & Achievements" icon={<ShieldCheck className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
+    <CollapsibleSection title="Certifications & achievements" icon={<ShieldCheck className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-brand-navy-900" />

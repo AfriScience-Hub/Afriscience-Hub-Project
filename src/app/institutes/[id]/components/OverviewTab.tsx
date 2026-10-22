@@ -1,8 +1,10 @@
 'use client';
 
 import {
-  Building2, CheckCircle, Flag, ShieldCheck, Trophy, MapPin, Calendar
+  Building2, CheckCircle, Flag, ShieldCheck, Trophy, MapPin, Calendar, GraduationCap
 } from 'lucide-react';
+import InfoTooltip from '@/app/components/ui/InfoTooltip';
+import { SERVICE_DESCRIPTIONS } from '../../data';
 
 interface Institute {
   [key: string]: any;
@@ -59,6 +61,18 @@ export default function OverviewTab({ institute }: { institute: Institute }) {
         )}
       </section>
 
+      {institute.program && (
+        <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+          <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
+            <GraduationCap className="h-5 w-5 text-brand-navy-900" /> Program
+          </h3>
+          <div className="inline-flex items-center gap-3 rounded-xl border border-brand-navy-100 bg-brand-navy-50 px-4 py-3">
+            <span className="h-2.5 w-2.5 rounded-full bg-brand-navy-900 flex-shrink-0" />
+            <span className="text-base font-bold text-brand-navy-900">{institute.program}</span>
+          </div>
+        </section>
+      )}
+
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
         <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
           <CheckCircle className="h-5 w-5 text-brand-red-600" /> Services
@@ -66,8 +80,9 @@ export default function OverviewTab({ institute }: { institute: Institute }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {institute.services?.map((service: string, idx: number) => (
             <div key={idx} className="flex items-center gap-3 p-3 rounded-lg border border-neutral-gray-light bg-neutral-bg-light/50">
-              <div className="h-2 w-2 rounded-full bg-brand-red-600" />
-              <span className="text-neutral-gray-dark text-sm font-medium">{service}</span>
+              <div className="h-2 w-2 rounded-full bg-brand-red-600 flex-shrink-0" />
+              <span className="text-neutral-gray-dark text-sm font-medium flex-1">{service}</span>
+              {SERVICE_DESCRIPTIONS[service] && <InfoTooltip text={SERVICE_DESCRIPTIONS[service]} />}
             </div>
           ))}
         </div>
@@ -76,7 +91,7 @@ export default function OverviewTab({ institute }: { institute: Institute }) {
       {institute.scopes && institute.scopes.length > 0 && (
         <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
           <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
-            <Flag className="h-5 w-5 text-brand-navy-900" /> Scopes
+            <Flag className="h-5 w-5 text-brand-navy-900" /> Specialized Scopes
           </h3>
           <div className="flex flex-wrap gap-2">
             {institute.scopes.map((scope: string, idx: number) => (
@@ -91,7 +106,7 @@ export default function OverviewTab({ institute }: { institute: Institute }) {
       {institute.policies && institute.policies.length > 0 && (
         <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
           <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-brand-navy-900" /> Policies
+            <ShieldCheck className="h-5 w-5 text-brand-navy-900" /> Engagement Policies
           </h3>
           <ul className="space-y-3">
             {institute.policies.map((policy: string, idx: number) => {

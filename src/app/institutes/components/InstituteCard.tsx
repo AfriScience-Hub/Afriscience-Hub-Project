@@ -1,18 +1,20 @@
 'use client';
 
-import Link from 'next/link';
+import { useState } from 'react';
 import { ProtectedLink } from '@/app/components/ProtectedLink';
 import Image from 'next/image';
-import { MapPin, Star, CheckCircle, ThumbsUp, Share2, MessageCircle, Archive, ArchiveX } from 'lucide-react';
+import { MapPin, Star, CheckCircle, ThumbsUp, Share2, MessageCircle, Archive, ArchiveX, Eye } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { Button } from '../../components/ui/Button';
 import { toast } from 'sonner';
+import ImagePreviewModal from './ImagePreviewModal';
 
 type Institute = {
   id: string;
   name: string;
   type: string;
   class?: string;
+  program?: string;
   ownership?: string;
   gender?: string;
   status?: string;
@@ -30,12 +32,13 @@ type Institute = {
 
 type InstituteCardProps = {
   inst: Institute;
-  index: number;
   archived: boolean;
   onToggleArchive: () => void;
 };
 
-export default function InstituteCard({ inst, index, archived, onToggleArchive }: InstituteCardProps) {
+export default function InstituteCard({ inst, archived, onToggleArchive }: InstituteCardProps) {
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
   return (
     <div className="group flex flex-col rounded-xl border bg-white shadow-sm transition-all hover:shadow-md hover:border-brand-red-600/30 overflow-hidden">
       <div className="relative h-40 w-full overflow-hidden bg-slate-200">
@@ -46,9 +49,16 @@ export default function InstituteCard({ inst, index, archived, onToggleArchive }
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
-        <div className="absolute top-2 left-2 flex items-center justify-center h-6 w-6 rounded-full bg-brand-navy-900/80 text-white text-[10px] font-bold backdrop-blur-sm">
-          {index + 1}
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+
+        <button
+          className="absolute top-2 left-2 flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur text-slate-600 hover:text-brand-navy-900 shadow-sm transition-colors cursor-pointer"
+          title="Preview"
+          onClick={(e) => { e.preventDefault(); setIsPreviewOpen(true); }}
+        >
+          <Eye className="h-3.5 w-3.5" />
+        </button>
+
         <div className="absolute top-2 right-2 flex gap-1">
           <button
             className="flex items-center justify-center h-7 w-7 rounded-full bg-white/90 backdrop-blur text-slate-600 hover:text-blue-600 hover:bg-white shadow-sm transition-colors cursor-pointer"
@@ -74,13 +84,19 @@ export default function InstituteCard({ inst, index, archived, onToggleArchive }
             {archived ? <ArchiveX className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
           </button>
         </div>
+
         <div className="absolute bottom-2 left-2">
           <span className={cn(
-            "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide backdrop-blur-md",
-            inst.status === 'Online' ? "bg-brand-red-600 text-white" : "bg-white/90 text-slate-800"
+            "inline-block px-2 py-0.5 text-[10px] font-bold rounded backdrop-blur-md",
+            inst.status === 'Online' ? "bg-green-500 text-white" : "bg-neutral-gray-dark text-white"
           )}>
             {inst.status}
           </span>
+        </div>
+
+        <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 backdrop-blur-sm">
+          <Star className="h-2.5 w-2.5 text-amber-400 fill-current" />
+          <span className="text-[10px] font-bold text-white">{inst.rating}</span>
         </div>
       </div>
 
@@ -98,7 +114,7 @@ export default function InstituteCard({ inst, index, archived, onToggleArchive }
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-1 text-[10px] text-slate-600 mb-3 bg-neutral-bg-light p-2 rounded border border-neutral-gray-light">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-[10px] text-slate-600 mb-3 bg-neutral-bg-light p-2 rounded border border-neutral-gray-light">
           <div className="flex flex-col">
             <span className="text-slate-400">{inst.type === 'University' ? 'Type' : 'Class'}</span>
             <span className="font-semibold text-slate-700">{inst.class}</span>
@@ -111,30 +127,28 @@ export default function InstituteCard({ inst, index, archived, onToggleArchive }
             <span className="text-slate-400">Gender</span>
             <span className="font-semibold text-slate-700">{inst.gender}</span>
           </div>
-          <div className="flex flex-col col-span-3 mt-1 pt-1 border-t border-slate-200">
-            <span className="text-slate-400">Rating</span>
-            <div className="flex items-center gap-0.5 font-semibold text-amber-500">
-              <Star className="h-2.5 w-2.5 fill-current" />
-              {inst.rating} <span className="text-slate-400 font-normal ml-1">({inst.reviews} reviews)</span>
-            </div>
+          <div className="flex flex-col">
+            <span className="text-slate-400">Program</span>
+            <span className="font-semibold text-slate-700">{inst.program}</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-[10px] text-slate-400 mb-4 px-1">
+        <div className="flex justify-start items-center gap-3 text-[10px] text-slate-400 mb-4 px-1">
           <span className="flex items-center gap-1" title="Likes"><ThumbsUp className="h-3 w-3" /> {inst.likes ? (inst.likes / 1000).toFixed(1) + 'k' : '0'}</span>
           <span className="flex items-center gap-1" title="Reviews"><MessageCircle className="h-3 w-3" /> {inst.reviews || 0}</span>
           <span className="flex items-center gap-1" title="Shares"><Share2 className="h-3 w-3" /> {inst.shares || 0}</span>
         </div>
 
-        <div className="mt-auto grid grid-cols-2 gap-2">
-          <ProtectedLink href={`/institutes/${inst.id}`} className="w-full">
-            <Button size="sm" variant="outline" className="w-full text-xs h-8 px-0">Details</Button>
-          </ProtectedLink>
-          <ProtectedLink href={`/institutes/${inst.id}?tab=contact`} className="w-full">
-            <Button size="sm" className="w-full text-xs h-8 px-0 bg-brand-navy-900 hover:bg-brand-navy-800 text-white">Contact</Button>
+        <div className="mt-auto">
+          <ProtectedLink href={`/institutes/${inst.id}`} className="w-full block">
+            <Button size="sm" className="w-full bg-brand-navy-900 hover:bg-brand-navy-800 text-xs h-8 px-0">View Details</Button>
           </ProtectedLink>
         </div>
       </div>
+
+      {isPreviewOpen && (
+        <ImagePreviewModal src={inst.image} alt={inst.name} onClose={() => setIsPreviewOpen(false)} />
+      )}
     </div>
   );
 }

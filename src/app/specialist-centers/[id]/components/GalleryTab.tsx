@@ -36,7 +36,7 @@ export default function GalleryTab({ gallery, openAlbum, onSetOpenAlbum }: Galle
             <h3 className="text-lg font-bold text-neutral-black flex items-center gap-2">
               <Images className="h-5 w-5 text-brand-red-600" /> Media Gallery
             </h3>
-            <span className="text-xs text-neutral-gray-medium">{totalMedia} items · {filledCount} of {galleryEntries.length} albums · Max 10 files per album</span>
+            <span className="text-xs text-neutral-gray-medium">{totalMedia} items · {filledCount} of {galleryEntries.length} albums</span>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">

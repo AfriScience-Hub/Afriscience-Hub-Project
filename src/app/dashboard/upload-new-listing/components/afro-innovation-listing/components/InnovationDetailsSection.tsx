@@ -265,10 +265,10 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
 
       <hr className="border-neutral-gray-light" />
 
-      <DocSection title="Licenses & Certifications" items={props.innovLicenses} setItems={props.setInnovLicenses}
+      <DocSection title="Licenses & certifications" items={props.innovLicenses} setItems={props.setInnovLicenses}
         desc="To further authenticate your innovation, upload any licenses or certifications that your innovation has (if any). Uploaded documents are securely stored and protected from unauthorized access." />
 
-      <DocSection title="Honorary Awards" items={props.innovAwards} setItems={props.setInnovAwards}
+      <DocSection title="Honorary awards" items={props.innovAwards} setItems={props.setInnovAwards}
         desc="To further authenticate your innovation, upload any recognition awards that your innovation has received previously (if any). Uploaded documents are securely stored and protected from unauthorized access." />
 
       <div>
