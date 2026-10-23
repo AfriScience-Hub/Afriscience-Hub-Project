@@ -11,7 +11,7 @@ interface Props {
   onClose: () => void;
   /** Owns the save request, the toast and the closing of this modal. */
   onSave: (
-    payload: { content: string; notes?: string; price?: string },
+    payload: { content: string; field?: string; notes?: string; price?: string },
     isEdit: boolean,
     id?: string
   ) => void | Promise<void>;
@@ -19,6 +19,8 @@ interface Props {
   tabLabel: string;
   /** Singular tab label, e.g. "Category", used in the dialog title. */
   singular: string;
+  /** Field headings offered by the parent Field select (Categories/Services). */
+  fieldOptions?: string[];
   /** Show the price field (Country carries a per-row price). */
   showPrice?: boolean;
   /** Show the note field (Categories only). */
@@ -30,21 +32,23 @@ interface Props {
 }
 
 export default function OptionDialog({
-  open, onClose, onSave, initial, tabLabel, singular,
+  open, onClose, onSave, initial, tabLabel, singular, fieldOptions,
   showPrice = false, showNote = false, saving = false, error = null,
 }: Props) {
   const [name, setName] = useState('');
+  const [field, setField] = useState('');
   const [note, setNote] = useState('');
   const [price, setPrice] = useState('');
 
   useEffect(() => {
     if (open) {
       setName(initial?.name ?? '');
+      setField(initial?.field ?? fieldOptions?.[0] ?? '');
       setNote(initial?.note ?? '');
       // The stored price is in the smallest unit - show it divided by 100.
       setPrice(priceToInput(initial?.price));
     }
-  }, [open, initial]);
+  }, [open, initial, fieldOptions]);
 
   if (!open) return null;
 
@@ -53,9 +57,10 @@ export default function OptionDialog({
       toast.error('Name is required');
       return;
     }
-    const payload: { content: string; notes?: string; price?: string } = {
+    const payload: { content: string; field?: string; notes?: string; price?: string } = {
       content: name.trim(),
     };
+    if (fieldOptions?.length) payload.field = field;
     if (showNote) payload.notes = note.trim();
     if (showPrice && price.trim()) payload.price = priceToStorage(price);
     await onSave(payload, Boolean(initial), initial?.id);
@@ -92,6 +97,20 @@ export default function OptionDialog({
             />
           </label>
 
+          {fieldOptions?.length ? (
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold text-neutral-black">Field *</span>
+              <select
+                value={field}
+                onChange={(e) => setField(e.target.value)}
+                disabled={saving}
+                className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm bg-white cursor-pointer focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
+              >
+                {fieldOptions.map((f) => <option key={f}>{f}</option>)}
+              </select>
+            </label>
+          ) : null}
+
           {showPrice && (
             <label className="block space-y-1">
               <span className="text-xs font-semibold text-neutral-black">Price</span>
@@ -105,7 +124,7 @@ export default function OptionDialog({
                 className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
                 disabled={saving}
               />
-              <span className="text-[11px] text-neutral-gray-medium">Listing price applied to every centre in this group.</span>
+              <span className="text-[11px] text-neutral-gray-medium">Listing price applied to every listing in this group.</span>
             </label>
           )}
 

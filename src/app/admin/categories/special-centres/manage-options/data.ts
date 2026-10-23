@@ -6,12 +6,27 @@ export interface ManagedOption {
   status: OptionStatus;
   /** Raw active flag, sent back on edit so it is preserved. */
   isActive?: boolean;
+  /** Parent field for field-scoped tabs (Categories and Services). */
+  field?: string;
   /** Per-row listing price, only used by the Country tab. */
   price?: string;
   count: number;
   /** Info tooltip shown beside the option. Categories only. */
   note?: string;
 }
+
+/**
+ * The canonical field list. Categories and Services are grouped under these
+ * headings, so this must stay in sync with the Fields tab.
+ */
+export const CENTRE_FIELDS = [
+  'Medical',
+  'Engineering',
+  'Agriculture',
+  'Environmental Science',
+  'ICT & Software',
+  'Renewable Energy',
+];
 
 /** The single price shared by every category, held once for the whole tab. */
 export interface CategoryPrice {
@@ -75,20 +90,20 @@ export const SEED_OPTIONS: Record<ManageTab, ManagedOption[]> = {
     { id: 'f-6', name: 'Renewable Energy', status: 'Inactive', isActive: false, count: 6 },
   ],
   Categories: [
-    { id: 'c-1', name: 'Basic Clinical Diagnostics', status: 'Active', isActive: true, count: 32, note: 'Routine screening and general health checks.' },
-    { id: 'c-2', name: 'Haematology | Haematopoiesis', status: 'Active', isActive: true, count: 21, note: 'Blood analysis and blood-forming tissue studies.' },
-    { id: 'c-3', name: 'Molecular | Genetics', status: 'Active', isActive: true, count: 17, note: 'DNA, RNA and molecular sequencing work.' },
-    { id: 'c-4', name: 'Crop Science', status: 'Active', isActive: true, count: 14, note: '' },
-    { id: 'c-5', name: 'Solar & Energy Storage', status: 'Active', isActive: true, count: 12, note: '' },
-    { id: 'c-6', name: 'Robotics & Automation', status: 'Inactive', isActive: false, count: 8, note: '' },
+    { id: 'c-1', field: 'Medical', name: 'Basic Clinical Diagnostics', status: 'Active', isActive: true, count: 32, note: 'Routine screening and general health checks.' },
+    { id: 'c-2', field: 'Medical', name: 'Haematology | Haematopoiesis', status: 'Active', isActive: true, count: 21, note: 'Blood analysis and blood-forming tissue studies.' },
+    { id: 'c-3', field: 'Medical', name: 'Molecular | Genetics', status: 'Active', isActive: true, count: 17, note: 'DNA, RNA and molecular sequencing work.' },
+    { id: 'c-4', field: 'Agriculture', name: 'Crop Science', status: 'Active', isActive: true, count: 14, note: '' },
+    { id: 'c-5', field: 'Renewable Energy', name: 'Solar & Energy Storage', status: 'Active', isActive: true, count: 12, note: '' },
+    { id: 'c-6', field: 'ICT & Software', name: 'Robotics & Automation', status: 'Inactive', isActive: false, count: 8, note: '' },
   ],
   Services: [
-    { id: 's-1', name: 'Diagnosis (Screening)', status: 'Active', isActive: true, count: 41 },
-    { id: 's-2', name: 'Result Interpretation', status: 'Active', isActive: true, count: 36 },
-    { id: 's-3', name: 'Research & Development', status: 'Active', isActive: true, count: 28 },
-    { id: 's-4', name: 'Training (Industrial)', status: 'Active', isActive: true, count: 23 },
-    { id: 's-5', name: 'Quality Control & Assurance', status: 'Active', isActive: true, count: 19 },
-    { id: 's-6', name: 'Consultation', status: 'Inactive', isActive: false, count: 12 },
+    { id: 's-1', field: 'Medical', name: 'Diagnosis (Screening)', status: 'Active', isActive: true, count: 41 },
+    { id: 's-2', field: 'Medical', name: 'Result Interpretation', status: 'Active', isActive: true, count: 36 },
+    { id: 's-3', field: 'Engineering', name: 'Research & Development', status: 'Active', isActive: true, count: 28 },
+    { id: 's-4', field: 'Agriculture', name: 'Training (Industrial)', status: 'Active', isActive: true, count: 23 },
+    { id: 's-5', field: 'Environmental Science', name: 'Quality Control & Assurance', status: 'Active', isActive: true, count: 19 },
+    { id: 's-6', field: 'ICT & Software', name: 'Consultation', status: 'Inactive', isActive: false, count: 12 },
   ],
   Ownership: [
     { id: 'o-1', name: 'Private', status: 'Active', isActive: true, count: 38 },

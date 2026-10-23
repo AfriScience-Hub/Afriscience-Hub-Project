@@ -11,17 +11,19 @@ interface Props {
   onClose: () => void;
   initial: CategoryPrice;
   onSave: (price: CategoryPrice) => void;
+  /** Noun for the option the price applies to, e.g. "category" or "profession". */
+  title?: string;
 }
 
 const hasValue = (p: CategoryPrice) =>
   Boolean(p.africaOne || p.africaTwoOrMore || p.nonAfricaOne || p.nonAfricaTwoOrMore);
 
 /**
- * Sets the single price shared by every category, split per country group:
- * one rate for a single category and a higher rate for two or more, each
- * defined separately for African and non-African centres.
+ * Sets the single price shared by every option, split per country group:
+ * one rate for a single option and a higher rate for two or more, each
+ * defined separately for African and non-African listings.
  */
-export default function CategoryPriceDialog({ open, onClose, initial, onSave }: Props) {
+export default function CategoryPriceDialog({ open, onClose, initial, onSave, title = 'category' }: Props) {
   const [africaOne, setAfricaOne] = useState('');
   const [africaTwoOrMore, setAfricaTwoOrMore] = useState('');
   const [nonAfricaOne, setNonAfricaOne] = useState('');
@@ -93,15 +95,15 @@ export default function CategoryPriceDialog({ open, onClose, initial, onSave }: 
         <div className="p-5 space-y-4 overflow-y-auto">
           {group('African countries', (
             <>
-              {field('Price for one category', africaOne, setAfricaOne, 'e.g. 50')}
-              {field('Price for two or more categories', africaTwoOrMore, setAfricaTwoOrMore, 'e.g. 80')}
+              {field(`Price for one ${title}`, africaOne, setAfricaOne, 'e.g. 50')}
+              {field(`Price for two or more ${title}s`, africaTwoOrMore, setAfricaTwoOrMore, 'e.g. 80')}
             </>
           ))}
 
           {group('Non-African countries', (
             <>
-              {field('Price for one category', nonAfricaOne, setNonAfricaOne, 'e.g. 120')}
-              {field('Price for two or more categories', nonAfricaTwoOrMore, setNonAfricaTwoOrMore, 'e.g. 160')}
+              {field(`Price for one ${title}`, nonAfricaOne, setNonAfricaOne, 'e.g. 120')}
+              {field(`Price for two or more ${title}s`, nonAfricaTwoOrMore, setNonAfricaTwoOrMore, 'e.g. 160')}
             </>
           ))}
         </div>

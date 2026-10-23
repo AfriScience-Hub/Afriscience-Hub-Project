@@ -8,14 +8,18 @@ import {
   Users, Globe, Tag,
 } from 'lucide-react';
 import {
-  MANAGE_TABS, TAB_DESCRIPTIONS, TAB_SINGULAR,
+  MANAGE_TABS, TAB_DESCRIPTIONS, TAB_SINGULAR, CENTRE_FIELDS,
   TABS_WITHOUT_NOTE, TABS_TABLE_PRICE, TABS_DIALOG_PRICE, TABS_WITH_CREATE_PRICE,
   SEED_OPTIONS, SEED_CATEGORY_PRICE,
   type ManageTab, type ManagedOption, type CategoryPrice,
 } from './data';
 import OptionsTable from './components/OptionsTable';
+import FieldSections from './components/FieldSections';
 import OptionDialog from './components/OptionDialog';
 import CategoryPriceDialog from './components/CategoryPriceDialog';
+
+/** Tabs whose options are grouped under collapsible Field sections. */
+const FIELD_SCOPED: ManageTab[] = ['Categories', 'Services'];
 
 const hasPriceValues = (p: CategoryPrice) =>
   Boolean(p.africaOne || p.africaTwoOrMore || p.nonAfricaOne || p.nonAfricaTwoOrMore);
@@ -37,11 +41,14 @@ export default function ManageOptionsPage() {
   const [editing, setEditing] = useState<ManagedOption | null>(null);
   const [priceDialogOpen, setPriceDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState<{ id: string; name: string } | null>(null);
+  /** Field pre-selected when "Add" is pressed inside a field section. */
+  const [pendingField, setPendingField] = useState<string | null>(null);
 
   const showTablePrice = TABS_TABLE_PRICE.includes(activeTab);
   const showDialogPrice = TABS_DIALOG_PRICE.includes(activeTab);
   const showNote = !TABS_WITHOUT_NOTE.includes(activeTab);
   const showCreatePrice = TABS_WITH_CREATE_PRICE.includes(activeTab);
+  const isFieldScoped = FIELD_SCOPED.includes(activeTab);
 
   const rows = options[activeTab];
   const filtered = useMemo(() => {
@@ -53,21 +60,21 @@ export default function ManageOptionsPage() {
   const patchRows = (next: ManagedOption[]) => setOptions((prev) => ({ ...prev, [activeTab]: next }));
 
   const handleSave = async (
-    payload: { content: string; notes?: string; price?: string },
+    payload: { content: string; field?: string; notes?: string; price?: string },
     isEdit: boolean,
     id?: string
   ) => {
     if (isEdit && id) {
       patchRows(
         rows.map((o) => (o.id === id
-          ? { ...o, name: payload.content, note: payload.notes, price: payload.price ?? o.price }
+          ? { ...o, name: payload.content, field: payload.field ?? o.field, note: payload.notes, price: payload.price ?? o.price }
           : o))
       );
       setDialogOpen(false);
       setEditing(null);
     } else {
       patchRows([
-        { id: `${activeTab}-${Date.now()}`, name: payload.content, status: 'Active', isActive: true, count: 0, note: payload.notes, price: payload.price },
+        { id: `${activeTab}-${Date.now()}`, name: payload.content, field: payload.field, status: 'Active', isActive: true, count: 0, note: payload.notes, price: payload.price },
         ...rows,
       ]);
       setDialogOpen(false);
@@ -80,8 +87,10 @@ export default function ManageOptionsPage() {
     patchRows(rows.map((o) => (o.id === id ? { ...o, status: nextActive ? 'Active' : 'Inactive', isActive: nextActive } : o)));
   };
 
-  const handleAdd = () => { setEditing(null); setDialogOpen(true); };
-  const handleEdit = (opt: ManagedOption) => { setEditing(opt); setDialogOpen(true); };
+  const handleAdd = () => { setEditing(null); setPendingField(null); setDialogOpen(true); };
+  /** Add button inside a field section pre-selects that field in the dialog. */
+  const handleAddUnder = (field: string) => { setEditing(null); setPendingField(field); setDialogOpen(true); };
+  const handleEdit = (opt: ManagedOption) => { setEditing(opt); setPendingField(null); setDialogOpen(true); };
 
   /** Saving the category price also refreshes the per-group Country prices. */
   const handleCategoryPriceSave = (price: CategoryPrice) => {
@@ -201,16 +210,34 @@ export default function ManageOptionsPage() {
               </div>
             )}
 
-            <OptionsTable
-              options={filtered}
-              showPrice={showTablePrice}
-              priceMode={activeTab === 'Categories' ? 'scheme' : 'row'}
-              categoryPrice={categoryPrice}
-              showNote={showNote}
-              onEdit={handleEdit}
-              onDelete={(id, name) => setDeleting({ id, name })}
-              onToggleStatus={handleToggleStatus}
-            />
+            {isFieldScoped ? (
+              <div className="p-3.5">
+                <FieldSections
+                  fields={CENTRE_FIELDS}
+                  options={filtered}
+                  showPrice={showTablePrice}
+                  categoryPrice={categoryPrice}
+                  showNote={showNote}
+                  singular={TAB_SINGULAR[activeTab]}
+                  emptyHint={`No ${activeTab.toLowerCase()} added under this field yet.`}
+                  onEdit={handleEdit}
+                  onDelete={(id, name) => setDeleting({ id, name })}
+                  onToggleStatus={handleToggleStatus}
+                  onAddUnder={handleAddUnder}
+                />
+              </div>
+            ) : (
+              <OptionsTable
+                options={filtered}
+                showPrice={showTablePrice}
+                priceMode="row"
+                categoryPrice={categoryPrice}
+                showNote={showNote}
+                onEdit={handleEdit}
+                onDelete={(id, name) => setDeleting({ id, name })}
+                onToggleStatus={handleToggleStatus}
+              />
+            )}
 
             <div className="px-4 py-2.5 border-t border-neutral-gray-light bg-neutral-bg-light/30">
               <p className="text-[11px] text-neutral-black">
@@ -223,11 +250,12 @@ export default function ManageOptionsPage() {
 
       <OptionDialog
         open={dialogOpen}
-        onClose={() => { setDialogOpen(false); setEditing(null); }}
+        onClose={() => { setDialogOpen(false); setEditing(null); setPendingField(null); }}
         onSave={handleSave}
-        initial={editing}
+        initial={editing ?? (pendingField ? { id: '', name: '', status: 'Active', count: 0, field: pendingField } : null)}
         tabLabel={activeTab}
         singular={TAB_SINGULAR[activeTab]}
+        fieldOptions={isFieldScoped ? CENTRE_FIELDS : undefined}
         showPrice={showDialogPrice}
         showNote={showNote}
       />

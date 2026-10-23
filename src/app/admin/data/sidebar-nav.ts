@@ -63,7 +63,7 @@ export const SIDEBAR_NAV: SidebarItem[] = [
     children: [
       { label: 'Institutes', href: ADMIN_ROUTES.institutes },
       { label: 'Scientists & Technologies', href: ADMIN_ROUTES.scientistsTechnologies },
-      { label: 'Special Centres', href: ADMIN_ROUTES.specialCentres },
+      { label: 'Specialist Centers', href: ADMIN_ROUTES.specialCentres },
       { label: 'Afro Innovations', href: ADMIN_ROUTES.afroInnovations },
       { label: 'Competitions', href: ADMIN_ROUTES.competitions },
       { label: 'Awards', href: ADMIN_ROUTES.awards },
