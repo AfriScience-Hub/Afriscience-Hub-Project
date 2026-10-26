@@ -13,17 +13,17 @@ const CURRENCY = 'USD';
 
 export function WalletTab() {
   const dispatch = useAppDispatch();
-  const { wallet, walletLoading, walletError } = useAppSelector((s) => s.wallet);
+  const { wallet, walletLoading, walletError, historyPagination } = useAppSelector((s) => s.wallet);
   const [topupOpen, setTopupOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchWalletBalance());
-    dispatch(fetchWalletHistory());
+    dispatch(fetchWalletHistory({ page: 1 }));
   }, [dispatch]);
 
   const refresh = () => {
     dispatch(fetchWalletBalance());
-    dispatch(fetchWalletHistory());
+    dispatch(fetchWalletHistory({ page: historyPagination?.page ?? 1 }));
   };
 
   return (

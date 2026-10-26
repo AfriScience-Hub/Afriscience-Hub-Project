@@ -54,5 +54,5 @@ export function priceToStorage(value?: string | number | null): string {
   if (value === null || value === undefined || value === '') return '';
   const n = Number(value);
   if (!Number.isFinite(n)) return '';
-  return String(Math.round(n * 100));
+  return String(Math.round(n));
 }

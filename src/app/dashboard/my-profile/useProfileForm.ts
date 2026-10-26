@@ -167,6 +167,99 @@ export function useProfileForm() {
     existingIdsRef.current.certs = new Set(profile.certs.map(c => c.id));
   }, [profile.certs]);
 
+  /**
+   * Discards every unsaved change across all tabs and restores the form from
+   * the last saved profile in Redux. Covers typed fields, added/removed rows
+   * (skills, jobs, languages, certificates, portfolio links) and file picks.
+   */
+  const resetUnsavedChanges = useCallback(() => {
+    const p: any = profile.personal;
+    const rawAvatar = p?.avatar || p?.displayPhoto || p?.displayPhotoUrl || p?.avatarUrl || p?.photo;
+
+    // Personal information
+    setFullName(p?.fullName || [p?.firstname, p?.middlename, p?.surname].filter(Boolean).join(' ') || user?.name || '');
+    setUsername(p?.username || '');
+    setGender(GENDER_REV[p?.gender] || p?.gender || '');
+    setDateOfBirth(p?.dateOfBirth || '');
+    setIdCardType(ID_CARD_REV[p?.idCardType] || p?.idCardType || '');
+    setIdCardNumber(p?.idCardNumber || '');
+    setBio(p?.bio || '');
+    setEmail(p?.email || user?.email || '');
+    setPhone(p?.phone || '');
+    setAltPhone(p?.alternativePhone || '');
+    setAddress(p?.address || '');
+    setCity(p?.city || '');
+    setStateOfResidence(p?.state || '');
+    setLocalGovt(p?.lga || '');
+    setCountry(p?.country || '');
+    setZipCode(p?.postalCode || '');
+    setWebsite(p?.website || '');
+    setEmploymentStatus(EMP_REV[p?.employmentStatus] || p?.employmentStatus || '');
+
+    // Uploaded / selected files go back to what the server has.
+    setAvatarFile(null); setAvatarFileName(''); setAvatarKey('');
+    setAvatarUrl(normalizeFileSrc(rawAvatar) || '');
+    setIdCardFile(null); setIdCardKey('');
+    setIdCardUrl(normalizeFileSrc(p?.idCardUrl) || normalizeFileSrc(p?.idCardFile) || '');
+    setIdCardFileName(p?.idCardFile ? fileNameOf(p.idCardFile) : '');
+    setCvFile(null); setCvKey('');
+    setCvUrl(normalizeFileSrc(p?.cvUrl) || normalizeFileSrc(p?.cvFile) || normalizeFileSrc(p?.cv) || '');
+    const cvRaw = p?.cvUrl || p?.cvFile || p?.cv;
+    setCvFileName(cvRaw ? fileNameOf(cvRaw) : '');
+
+    // Education & certifications
+    const e = profile.education[0];
+    setEducationLevel(e?.educationLevel || '');
+    setEducationLevelOther('');
+    setGraduationClass(e?.graduationClass || '');
+    setGraduationClassOther('');
+    setCourseOfStudy(e?.courseOfStudy || '');
+    setInstitution(e?.institution || '');
+    setYearOfGraduation(e?.yearOfGraduation ? String(e.yearOfGraduation) : '');
+    setDegreeCertFile(null); setDegreeCertKey('');
+    savedDegreeCertRef.current = e?.degreeCertificate || '';
+    setDegreeCertUrl(e?.degreeCertificate || '');
+    setDegreeCertFileName(fileNameOf(e?.degreeCertificate));
+    setOtherCerts(profile.certs.map(c => ({
+      id: c.id,
+      title: c.title || '',
+      issuer: c.issuer || '',
+      year: c.year ? String(c.year) : '',
+      file: null,
+      fileName: fileNameOf(c.file),
+      fileKey: c.file || '',
+    })));
+
+    // Experience, skills, languages & portfolio links
+    const current = profile.experience.find(exp => exp.isCurrent);
+    setRole(current?.role || '');
+    setIndustry(current?.industry || '');
+    setIndustryOther('');
+    setCompany(current?.organization || '');
+    setWorkCountry(current?.country || '');
+    setResumptionDate(current?.startDate || '');
+    setRoleDescription(current?.roleDescription || '');
+    setPastJobs(profile.experience.filter(exp => !exp.isCurrent).map(exp => ({
+      id: exp.id,
+      organization: exp.organization || '',
+      role: exp.role || '',
+      industry: exp.industry || '',
+      country: exp.country || '',
+      startDate: exp.startDate || '',
+      roleDescription: exp.roleDescription || '',
+    })));
+    setSkills(profile.skills.map(s => ({ id: s.id, name: s.name })));
+    setLanguages(profile.languages.map(l => ({ id: l.id, name: l.language, proficiency: PROF_REV[l.proficiency] || l.proficiency })));
+    setPortfolioLinks(profile.portfolio.map(link => ({ id: link.id, url: link.link, label: link.label })));
+
+    // Reset the ids that decide between POST (create) and PATCH (update).
+    existingIdsRef.current.skills = new Set(profile.skills.map(s => s.id));
+    existingIdsRef.current.experience = new Set(profile.experience.map(exp => exp.id));
+    existingIdsRef.current.languages = new Set(profile.languages.map(l => l.id));
+    existingIdsRef.current.portfolio = new Set(profile.portfolio.map(link => link.id));
+    existingIdsRef.current.certs = new Set(profile.certs.map(c => c.id));
+  }, [profile, user?.name, user?.email]);
+
   const hasPersonalInfo = !!profile.personal;
 
   const handleIdCardUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -425,6 +518,6 @@ export function useProfileForm() {
     showOldPassword, setShowOldPassword, showNewPassword, setShowNewPassword,
     securityQuestion, setSecurityQuestion, securityAnswer, setSecurityAnswer,
     savePersonalInfo, saveSkills, saveEducation, saveExperience, saveLanguages, savePortfolio, saveAll,
-    submitCompletion,
+    submitCompletion, resetUnsavedChanges,
   };
 }

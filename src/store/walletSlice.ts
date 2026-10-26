@@ -40,6 +40,22 @@ export interface TopupResult {
   totalAmount: number;
 }
 
+export interface WalletHistoryPagination {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  nextPage: number | null;
+  previousPage: number | null;
+}
+
+export interface WalletHistoryArgs {
+  page?: number;
+  limit?: number;
+}
+
 interface WalletState {
   wallet: WalletInfo | null;
   walletLoading: boolean;
@@ -47,6 +63,7 @@ interface WalletState {
   history: WalletTransaction[];
   historyLoading: boolean;
   historyError: string | null;
+  historyPagination: WalletHistoryPagination | null;
   topup: TopupResult | null;
   topupLoading: boolean;
   topupError: string | null;
@@ -59,6 +76,7 @@ const initialState: WalletState = {
   history: [],
   historyLoading: false,
   historyError: null,
+  historyPagination: null,
   topup: null,
   topupLoading: false,
   topupError: null,
@@ -91,6 +109,24 @@ function normalizeTransaction(t: any): WalletTransaction {
   } as WalletTransaction;
 }
 
+function normalizePagination(p: any): WalletHistoryPagination | null {
+  if (!p) return null;
+  const page = Number(p.page) || 1;
+  const limit = Number(p.limit) || 0;
+  const totalItems = Number(p.totalItems) || 0;
+  const totalPages = Number(p.totalPages) || Math.max(1, Math.ceil(totalItems / (limit || 1)));
+  return {
+    page,
+    limit,
+    totalItems,
+    totalPages,
+    hasNext: Boolean(p.hasNext) || page < totalPages,
+    hasPrevious: Boolean(p.hasPrevious) || page > 1,
+    nextPage: p.nextPage ?? (page < totalPages ? page + 1 : null),
+    previousPage: p.previousPage ?? (page > 1 ? page - 1 : null),
+  };
+}
+
 // The wallet is created automatically once the user completes their personal
 // information, so there is no create/detect-location call anymore.
 export const fetchWalletBalance = createAsyncThunk('wallet/balance', async (_, { rejectWithValue }) => {
@@ -101,17 +137,24 @@ export const fetchWalletBalance = createAsyncThunk('wallet/balance', async (_, {
   } catch (e: any) { return rejectWithValue(extractPendingOrError(e)); }
 });
 
-export const fetchWalletHistory = createAsyncThunk('wallet/history', async (_, { rejectWithValue }) => {
-  try {
-    const r: any = await api.get('/wallet/history');
-    const inner = r?.data ?? r;
-    const list = Array.isArray(inner) ? inner : Array.isArray(inner?.data) ? inner.data : (Array.isArray(r) ? r : []);
-    return {
-      transactions: (list as WalletTransaction[]).map(normalizeTransaction),
-      pagination: inner?.pagination ?? r?.pagination ?? null,
-    };
-  } catch (e: any) { return rejectWithValue(extractPendingOrError(e)); }
-});
+export const fetchWalletHistory = createAsyncThunk(
+  'wallet/history',
+  async (args: WalletHistoryArgs | undefined, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      if (args?.page) params.set('page', String(args.page));
+      if (args?.limit) params.set('limit', String(args.limit));
+      const query = params.toString();
+      const r: any = await api.get(`/wallet/history${query ? `?${query}` : ''}`);
+      const inner = r?.data ?? r;
+      const list = Array.isArray(inner) ? inner : Array.isArray(inner?.data) ? inner.data : (Array.isArray(r) ? r : []);
+      return {
+        transactions: (list as WalletTransaction[]).map(normalizeTransaction),
+        pagination: normalizePagination(inner?.pagination ?? r?.pagination),
+      };
+    } catch (e: any) { return rejectWithValue(extractPendingOrError(e)); }
+  }
+);
 
 export const topUpWallet = createAsyncThunk('wallet/topup', async (amount: string, { rejectWithValue }) => {
   try {
@@ -141,7 +184,11 @@ const walletSlice = createSlice({
       .addCase(fetchWalletBalance.fulfilled, (s, a) => { s.walletLoading = false; s.wallet = a.payload; })
       .addCase(fetchWalletBalance.rejected, (s, a) => { s.walletLoading = false; s.walletError = a.payload as string; })
       .addCase(fetchWalletHistory.pending, (s) => { s.historyLoading = true; })
-      .addCase(fetchWalletHistory.fulfilled, (s, a) => { s.historyLoading = false; s.history = a.payload.transactions; })
+      .addCase(fetchWalletHistory.fulfilled, (s, a) => {
+        s.historyLoading = false;
+        s.history = a.payload.transactions;
+        s.historyPagination = a.payload.pagination;
+      })
       .addCase(fetchWalletHistory.rejected, (s, a) => { s.historyLoading = false; s.historyError = a.payload as string; })
       .addCase(topUpWallet.pending, (s) => { s.topupLoading = true; s.topupError = null; })
       .addCase(topUpWallet.fulfilled, (s, a) => { s.topupLoading = false; s.topup = a.payload; })

@@ -4,6 +4,7 @@ import { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { X, ImagePlus } from 'lucide-react';
 import { normalizeFileSrc } from '@/lib/files';
+import { countWords, limitWords, MAX_BIO_WORDS } from '../../../wordUtils';
 
 interface InnovationIdentitySectionProps {
   name: string;
@@ -132,12 +133,14 @@ export default function InnovationIdentitySection({
         <label className="block text-sm font-medium text-neutral-black mb-1">Short Bio / Description <span className="text-red-500">*</span></label>
         <textarea
           value={bio}
-          onChange={e => setBio(e.target.value)}
+          onChange={e => setBio(limitWords(e.target.value, MAX_BIO_WORDS))}
           rows={3}
           className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 resize-none"
           placeholder="Describe innovation in more details"
         />
-        <p className="text-xs text-neutral-gray-medium mt-1">{bio.length}/500 words max.</p>
+        <p className={`text-xs mt-1 ${countWords(bio) >= MAX_BIO_WORDS ? 'text-brand-red-600' : 'text-neutral-gray-medium'}`}>
+          {countWords(bio)}/{MAX_BIO_WORDS} words max.
+        </p>
       </div>
     </div>
   );

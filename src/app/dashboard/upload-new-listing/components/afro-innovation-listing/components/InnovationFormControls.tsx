@@ -165,7 +165,9 @@ export function BulletInput({ label, items, setItems, placeholder, description, 
         </button>
       </div>
       {hasUnsaved && (
-        <p className="text-xs text-red-600 mt-1">Press Enter or click Add to save</p>
+        <p className="mt-1 flex items-center gap-1 text-xs text-blue-600">
+          <Info className="h-3.5 w-3.5 flex-shrink-0" /> Press Enter or click Add to save
+        </p>
       )}
     </div>
   );
@@ -188,38 +190,8 @@ export function DocSection({ title, items, setItems, desc }: {
     if (fileRef.current) fileRef.current.value = '';
   };
 
-  const [yearInput, setYearInput] = useState('');
-  const [yearOpen, setYearOpen] = useState(false);
-  const yearRef = useRef<HTMLDivElement>(null);
-  const filteredYears = YEAR_OPTIONS.filter(y => String(y).startsWith(yearInput)).slice(0, 50);
-
-  useEffect(() => {
-    if (!yearOpen) return;
-    const handler = (e: MouseEvent) => { if (yearRef.current && !yearRef.current.contains(e.target as Node)) setYearOpen(false); };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [yearOpen]);
-
-  const handleYearSelect = (y: number) => {
-    setDocDate(String(y));
-    setYearInput(String(y));
-    setYearOpen(false);
-  };
-
-  const handleYearChange = (val: string) => {
-    // At most four digits, and only a real year (1900 .. current year + 10).
-    const digits = val.replace(/\D/g, '').slice(0, 4);
-    setYearInput(digits);
-    const y = Number(digits);
-    if (digits.length === 4 && y >= YEAR_OPTIONS[0] && y <= YEAR_OPTIONS[YEAR_OPTIONS.length - 1]) {
-      setDocDate(digits);
-    } else {
-      setDocDate('');
-    }
-    setYearOpen(true);
-  };
-
   const canAdd = docTitle.trim() && docIssuer.trim() && docDate.trim() && docFile;
+  const hasUnsaved = !!(docTitle.trim() || docIssuer.trim() || docDate || docFile);
 
   return (
     <div>
@@ -245,38 +217,33 @@ export function DocSection({ title, items, setItems, desc }: {
       )}
       <div className="space-y-2 rounded-lg border border-dashed border-neutral-gray-light p-3">
         <input type="text" value={docTitle} onChange={e => setDocTitle(e.target.value)}
-          className="w-full rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Document title *" />
+          className="w-full rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Document title" />
         <div className="flex gap-2">
           <input type="text" value={docIssuer} onChange={e => setDocIssuer(e.target.value)}
-            className="flex-1 rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Issuer *" />
-          <div ref={yearRef} className="relative w-32">
-            <input type="text" inputMode="numeric" maxLength={4} value={yearInput} onChange={e => handleYearChange(e.target.value)}
-              onFocus={() => setYearOpen(true)}
-              className="w-full rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Year" />
-            {yearOpen && yearInput.length > 0 && filteredYears.length > 0 && (
-              <div className="absolute left-0 top-full z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-neutral-gray-light bg-white p-1 shadow-sm">
-                {filteredYears.map(y => (
-                  <button key={y} type="button" onMouseDown={() => handleYearSelect(y)}
-                    className="flex w-full cursor-pointer rounded-md px-3 py-1.5 text-sm text-neutral-gray-dark hover:bg-brand-red-50 text-left">
-                    {y}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+            className="flex-1 rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="Issuer" />
+          <select value={docDate} onChange={e => setDocDate(e.target.value)}
+            className="w-32 cursor-pointer rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+            <option value="">Year</option>
+            {[...YEAR_OPTIONS].reverse().map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
         </div>
         <div className="flex gap-2">
           <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setDocFile(e.target.files?.[0] || null)}
             className="hidden" id={`file-${title.replace(/\s/g, '')}`} />
           <button type="button" onClick={() => document.getElementById(`file-${title.replace(/\s/g, '')}`)?.click()}
             className="flex cursor-pointer items-center gap-1 rounded-lg border border-dashed border-brand-red-300 px-3 py-2 text-xs font-medium text-brand-red-600 hover:bg-brand-red-50 transition-colors flex-1 justify-center">
-            <Upload className="h-3.5 w-3.5" /> {docFile ? docFile.name : 'Select file (PDF, JPG, PNG) *'}
+            <Upload className="h-3.5 w-3.5" /> {docFile ? docFile.name : 'Select file (PDF, JPG, PNG)'}
           </button>
           <button type="button" onClick={handleAdd} disabled={!canAdd}
             className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 px-4 py-2 text-xs font-medium text-white hover:bg-brand-red-700 disabled:opacity-40 disabled:cursor-not-allowed">
             <Plus className="h-3.5 w-3.5" /> Add
           </button>
         </div>
+        {hasUnsaved && (
+          <p className="flex items-center gap-1 text-xs text-blue-600">
+            <Info className="h-3.5 w-3.5 flex-shrink-0" /> Click Add to save this document
+          </p>
+        )}
       </div>
     </div>
   );

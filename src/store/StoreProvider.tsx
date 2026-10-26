@@ -1,23 +1,35 @@
 'use client';
 import { Provider } from 'react-redux';
 import { store } from './index';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { hydrateFromStorage, fetchCurrentUser } from './authSlice';
+import { useAppSelector } from './hooks';
 
 function Hydrator({ children }: { children: React.ReactNode }) {
+  const hydrated = useAppSelector((s) => s.auth.hydrated);
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const loadedForSession = useRef(false);
+
   useEffect(() => {
     store.dispatch(hydrateFromStorage());
-    const isAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
-    const userToken = typeof window !== 'undefined' && localStorage.getItem('afrisciencehub_token');
-    const adminToken = typeof window !== 'undefined' && localStorage.getItem('afrisciencehub_admin_token');
-    const hasToken = isAdmin ? adminToken : userToken;
-    if (hasToken) {
-      // GET /auth/me returns the current user (including the avatar when set),
-      // so the display picture renders immediately on load — no need to visit
-      // the profile page first.
-      store.dispatch(fetchCurrentUser());
-    }
   }, []);
+
+  // Load the full user (GET /auth/me, falling back to GET /profile for the
+  // display picture) once per signed-in session. This runs on every page and
+  // again right after login, so the avatar is available platform-wide without
+  // the user ever visiting their profile page.
+  useEffect(() => {
+    if (!hydrated) return;
+    const isAdmin = window.location.pathname.startsWith('/admin');
+    const hasToken = !!localStorage.getItem(isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token');
+    if (!isAuthenticated && !hasToken) {
+      loadedForSession.current = false;
+      return;
+    }
+    if (loadedForSession.current) return;
+    loadedForSession.current = true;
+    store.dispatch(fetchCurrentUser());
+  }, [hydrated, isAuthenticated]);
 
   return <>{children}</>;
 }

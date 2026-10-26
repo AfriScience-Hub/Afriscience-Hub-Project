@@ -33,6 +33,8 @@ export interface AdminInnovation {
   recommendations: string | string[];
   cautions: string | string[];
   status: string;
+  isVerified?: boolean;
+  verified?: boolean;
   reviewedBy: string | null;
   reasonForRejection: string | null;
   createdAt: string;
@@ -105,6 +107,12 @@ export async function approveInnovation(id: string) {
 
 export async function rejectInnovation(id: string, reason: string) {
   return api.post(`/listings/innovations/admin/rejection/${id}`, { reason });
+}
+
+/** Verifies or unverifies a published innovation. */
+export async function setInnovationVerification(id: string, isVerified: boolean) {
+  const r = await api.post(`/listings/innovations/admin/verify/${id}`, { isVerified });
+  return unwrapData(r);
 }
 
 /** Maps the API status enum to the UI status label. */
@@ -216,7 +224,7 @@ export function mapAdminInnovation(api: AdminInnovation) {
       ? new Date(api.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
       : '',
     status: mapApiStatus(api.status),
-    verified: false,
+    verified: Boolean(api.isVerified ?? api.verified),
     publishedBy: api.reviewer
       ? {
         name: `${api.reviewer.firstName || ''} ${api.reviewer.lastName || ''}`.trim() || '—',

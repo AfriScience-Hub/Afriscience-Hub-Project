@@ -8,6 +8,8 @@ import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { LISTING_TYPES, AFRICAN_COUNTRIES, GALLERY_CATEGORIES, type ListingType, type ServiceEntry } from './data';
 import ListingTypeSelector from './components/ListingTypeSelector';
+import DraftListView from './components/DraftListView';
+import DraftSavingModal from './components/DraftSavingModal';
 import BasicProfileSection from './components/BasicProfileSection';
 import CategorySpecificSection from './components/CategorySpecificSection';
 import AfroInnovationListing from './components/afro-innovation-listing/afro-innovation-listing';
@@ -22,13 +24,20 @@ import DocumentsSection from './components/DocumentsSection';
 import PoliciesSection from './components/PoliciesSection';
 import FormActions from './components/FormActions';
 import { uploadFile } from '@/lib/upload';
-import { buildInnovationPayload, createInnovation, fetchInnovation, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, toStorageKey, updateInnovation } from './innovationApi';
+import {
+  buildInnovationPayload, createInnovation, createInnovationDraft,
+  fetchInnovation, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, submitInnovationDraft,
+  toStorageKey, updateInnovation, updateInnovationDraft, type InnovationPayload,
+} from './innovationApi';
 import { useInnovationOptions } from '@/app/data/innovationOptions';
 import { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
-import PriceConfirmModal from './components/PriceConfirmModal';
+import PriceConfirmModal, { type ListingPlan } from './components/PriceConfirmModal';
+import ListingSuccessModal from './components/ListingSuccessModal';
 import InstituteTypeSelectorModal, { type InstituteSubType } from '@/app/dashboard/components/InstituteTypeSelectorModal';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
+import { fetchWalletBalance } from '@/store/walletSlice';
+import { countWords, limitWords, MAX_BIO_WORDS } from './wordUtils';
 
 /**
  * Extracts a display string from an API array item.
@@ -59,19 +68,29 @@ function toStringArray(arr: unknown, preferredKeys: string[]): string[] {
   return arr.map(item => pickValue(item, preferredKeys)).filter(Boolean);
 }
 
+/** True when the API rejected a request because the wallet cannot cover it. */
+function isInsufficientBalanceError(value: unknown): boolean {
+  const message = typeof value === 'string' ? value : value instanceof Error ? value.message : '';
+  return /insufficient|not enough|low balance|wallet balance/i.test(message);
+}
+
 export default function UploadNewListing() {
   const dispatch = useAppDispatch();
   const { user } = useAuth();
   const router = useRouter();
   const personal = useAppSelector((s) => s.profile.personal);
   const [editId, setEditId] = useState<string | null>(null);
+  const [draftId, setDraftId] = useState<string | null>(null);
   const [editBaseline, setEditBaseline] = useState<string | null>(null);
   const [prefilled, setPrefilled] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [draftSavingOpen, setDraftSavingOpen] = useState(false);
   const [showPriceConfirm, setShowPriceConfirm] = useState(false);
+  const [successInfo, setSuccessInfo] = useState<{ title: string; message: string } | null>(null);
+  const [payingUser, setPayingUser] = useState(false);
   const [selectedType, setSelectedType] = useState<ListingType | null>(null);
   const [instituteSubType, setInstituteSubType] = useState<InstituteSubType | null>(null);
-  const [step, setStep] = useState<'select' | 'form'>('select');
+  const [step, setStep] = useState<'select' | 'drafts' | 'form'>('select');
   const [showInstituteTypeModal, setShowInstituteTypeModal] = useState(false);
 
   const [name, setName] = useState('');
@@ -158,76 +177,101 @@ export default function UploadNewListing() {
     }
   }, []);
 
-  useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get('id');
-    if (!id) return;
-    setEditId(id);
+  /** Populates every Afro-Innovation form field from a listing/draft record. */
+  const applyInnovationToForm = (item: any) => {
+    setName(item.innovationName || item.name || '');
+    const imageUrl = item.image || null;
+    setProfileImage(imageUrl);
+    setProfileImagePreview(imageUrl); // for preview in edit/draft mode
+    // The API returns signed URLs — the form/payload deal in storage keys only.
+    setProfileImageKey(toStorageKey(imageUrl) || null);
+    setCountry(item.country || '');
+    setBio(limitWords(item.shortDescription || item.bio || '', MAX_BIO_WORDS));
+    // Fields, interests, sdgs may be plain string[] or array of objects
+    // (e.g. [{ field: 'Hybrid' }]) depending on the API version — map both.
+    setInnovFields(toStringArray(item.fields, ['field', 'name', 'title', 'value']));
+    setInnovInterests(
+      toStringArray(item.interests, ['interest', 'name', 'title', 'value'])
+        .map((i: string) => i.replace(/\|/g, ' | ')),
+    );
+    setInnovOwnership(OWNERSHIP_REV[item.ownership] || item.ownership || '');
+    setInnovStage(STAGE_REV[item.stage] || item.stage || '');
+    setInnovSdgs(
+      toStringArray(item.sdgs, ['sdg', 'name', 'title', 'value', 'goal'])
+        .map((s: string) => SDG_REV[s] || s),
+    );
+    setInnovMaterials(Array.isArray(item.materialsUsed) ? item.materialsUsed : item.materialsUsed ? String(item.materialsUsed).split(', ').filter(Boolean) : []);
+    setInnovDimensions({
+      length: item.length != null ? String(item.length) : '',
+      width: item.width != null ? String(item.width) : '',
+      height: item.height != null ? String(item.height) : '',
+      unit: ({ INCH: 'in' } as Record<string, string>)[String(item.dimensionUnit || '').toUpperCase()] || String(item.dimensionUnit || 'cm').toLowerCase(),
+    });
+    setInnovWeight({ value: item.weight != null ? String(item.weight) : '', unit: ({ TONNES: 't', TON: 't' } as Record<string, string>)[String(item.weightUnit || '').toUpperCase()] || String(item.weightUnit || 'kg').toLowerCase() });
+    setInnovUserGroups(toStringArray(item.userGroups, ['userGroup', 'name', 'title', 'value']));
+    const lines = (v: unknown) => typeof v === 'string' ? v.split('\n').filter(Boolean) : Array.isArray(v) ? v : [];
+    setInnovApplications(lines(item.applications));
+    setInnovImpact(lines(item.impact));
+    setInnovRecommendations(lines(item.recommendations));
+    setInnovCautions(lines(item.cautions));
+    const docs = item.documents || [];
+    // documentFile/mediaFile come back as signed URLs — store the bare keys
+    // so re-submitting the form never sends URLs where keys are expected.
+    setInnovLicenses(docs.filter((d: any) => d.type === 'CERTIFICATION').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: toStorageKey(d.documentFile) })));
+    setInnovAwards(docs.filter((d: any) => d.type === 'AWARD').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: toStorageKey(d.documentFile) })));
+    setInnovGallery((item.media || []).map((m: any) => ({ category: MEDIA_REV[m.category] || m.category, type: 'image' as const, name: toStorageKey(m.mediaFile) })));
+    // Innovator info from the innovation record (if present)
+    if (item.phone) setPhone(item.phone);
+    if (item.email) setEmail(item.email);
+    if (item.website) setWebsite(item.website);
+    // Socials from the API: new format [{ platform, link }] or legacy object
+    const rawSocials = item.socials ?? item.socialLinks;
+    if (Array.isArray(rawSocials)) {
+      const rows = rawSocials
+        .map((s: any) => ({
+          name: String(s?.platform ?? s?.name ?? ''),
+          link: String(s?.link ?? s?.url ?? ''),
+        }))
+        .filter((s: { name: string; link: string }) => s.name.trim() || s.link.trim());
+      if (rows.length) setSocialHandles(rows);
+    } else if (rawSocials && typeof rawSocials === 'object') {
+      const rows = Object.entries(rawSocials)
+        .filter(([, v]) => String(v ?? '').trim())
+        .map(([name, link]) => ({ name, link: String(link) }));
+      if (rows.length) setSocialHandles(rows);
+    }
+    setPayingUser(item.payingUser === true);
+  };
+
+  /** Loads a draft/listing record and opens the Afro-Innovation form. */
+  const openInnovationRecord = async (id: string, asDraft: boolean) => {
+    const item = await fetchInnovation(id);
+    resetInnovationForm();
+    setDraftId(asDraft ? id : null);
+    setEditId(asDraft ? null : id);
+    setEditBaseline(null);
+    setPrefilled(false);
     setSelectedType('innovation');
     setStep('form');
-    fetchInnovation(id).then((item: any) => {
-      setName(item.innovationName || item.name || '');
-      const imageUrl = item.image || null;
-      setProfileImage(imageUrl);
-      setProfileImagePreview(imageUrl); // for preview in edit mode
-      // The API returns signed URLs — the form/payload deal in storage keys only.
-      setProfileImageKey(toStorageKey(imageUrl) || null);
-      setCountry(item.country || '');
-      setBio(item.shortDescription || item.bio || '');
-      // Fields, interests, sdgs may be plain string[] or array of objects
-      // (e.g. [{ field: 'Hybrid' }]) depending on the API version — map both.
-      setInnovFields(toStringArray(item.fields, ['field', 'name', 'title', 'value']));
-      setInnovInterests(
-        toStringArray(item.interests, ['interest', 'name', 'title', 'value'])
-          .map((i: string) => i.replace(/\|/g, ' | ')),
-      );
-      setInnovOwnership(OWNERSHIP_REV[item.ownership] || item.ownership || '');
-      setInnovStage(STAGE_REV[item.stage] || item.stage || '');
-      setInnovSdgs(
-        toStringArray(item.sdgs, ['sdg', 'name', 'title', 'value', 'goal'])
-          .map((s: string) => SDG_REV[s] || s),
-      );
-      setInnovMaterials(Array.isArray(item.materialsUsed) ? item.materialsUsed : item.materialsUsed ? String(item.materialsUsed).split(', ').filter(Boolean) : []);
-      setInnovDimensions({
-        length: item.length != null ? String(item.length) : '',
-        width: item.width != null ? String(item.width) : '',
-        height: item.height != null ? String(item.height) : '',
-        unit: ({ INCH: 'in' } as Record<string, string>)[String(item.dimensionUnit || '').toUpperCase()] || String(item.dimensionUnit || 'cm').toLowerCase(),
-      });
-      setInnovWeight({ value: item.weight != null ? String(item.weight) : '', unit: ({ TONNES: 't', TON: 't' } as Record<string, string>)[String(item.weightUnit || '').toUpperCase()] || String(item.weightUnit || 'kg').toLowerCase() });
-      setInnovUserGroups(toStringArray(item.userGroups, ['userGroup', 'name', 'title', 'value']));
-      const lines = (v: unknown) => typeof v === 'string' ? v.split('\n').filter(Boolean) : Array.isArray(v) ? v : [];
-      setInnovApplications(lines(item.applications));
-      setInnovImpact(lines(item.impact));
-      setInnovRecommendations(lines(item.recommendations));
-      setInnovCautions(lines(item.cautions));
-      const docs = item.documents || [];
-      // documentFile/mediaFile come back as signed URLs — store the bare keys
-      // so re-submitting the form never sends URLs where keys are expected.
-      setInnovLicenses(docs.filter((d: any) => d.type === 'CERTIFICATION').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: toStorageKey(d.documentFile) })));
-      setInnovAwards(docs.filter((d: any) => d.type === 'AWARD').map((d: any) => ({ title: d.documentTitle, issuer: d.issuer, date: String(d.year || ''), file: toStorageKey(d.documentFile) })));
-      setInnovGallery((item.media || []).map((m: any) => ({ category: MEDIA_REV[m.category] || m.category, type: 'image' as const, name: toStorageKey(m.mediaFile) })));
-      // Innovator info from the innovation record (if present)
-      if (item.phone) setPhone(item.phone);
-      if (item.email) setEmail(item.email);
-      if (item.website) setWebsite(item.website);
-      // Socials from the API: new format [{ platform, link }] or legacy object
-      const rawSocials = item.socials ?? item.socialLinks;
-      if (Array.isArray(rawSocials)) {
-        const rows = rawSocials
-          .map((s: any) => ({
-            name: String(s?.platform ?? s?.name ?? ''),
-            link: String(s?.link ?? s?.url ?? ''),
-          }))
-          .filter((s: { name: string; link: string }) => s.name.trim() || s.link.trim());
-        if (rows.length) setSocialHandles(rows);
-      } else if (rawSocials && typeof rawSocials === 'object') {
-        const rows = Object.entries(rawSocials)
-          .filter(([, v]) => String(v ?? '').trim())
-          .map(([name, link]) => ({ name, link: String(link) }));
-        if (rows.length) setSocialHandles(rows);
-      }
-      setPrefilled(true);
-    }).catch((e: any) => toast.error(e?.message || 'Failed to load innovation'));
+    applyInnovationToForm(item);
+    setPrefilled(true);
+  };
+
+  const handleContinueDraft = async (id: string) => {
+    await openInnovationRecord(id, true);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const draftParam = params.get('draftId') || params.get('draft');
+    if (draftParam) {
+      openInnovationRecord(draftParam, true).catch((e: any) => toast.error(e?.message || 'Failed to load draft'));
+      return;
+    }
+    const id = params.get('id');
+    if (!id) return;
+    openInnovationRecord(id, false).catch((e: any) => toast.error(e?.message || 'Failed to load innovation'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Make sure the profile is loaded so the innovator info can be prefilled.
@@ -244,26 +288,32 @@ export default function UploadNewListing() {
     if (email) setEmail(v => v || email);
   }, [personal, step, user?.email]);
 
-  const handleSubmit = async () => {
-    if (!name.trim() || !country) {
-      toast.error('Please fill in at least the Name and Country fields');
-      return;
-    }
-    if (selectedType !== 'innovation') {
-      toast.success('Listing submitted for verification! You will be notified once reviewed.');
-      setStep('select');
-      setSelectedType(null);
-      return;
-    }
-    // Type checks: reject bad input before anything is uploaded or sent.
-    // Edit already passed these checks on create — only block a brand-new listing.
-    if (!editId) {
-      const socialIssue = firstSocialError(socialHandles);
-      if (socialIssue) {
-        toast.error(socialIssue);
-        return;
-      }
-    }
+  /**
+   * First missing/invalid required Afro-Innovation field, or null when the
+   * listing is complete enough to submit for review. Saving drafts does not
+   * use this check — drafts may be incomplete.
+   */
+  const innovationRequiredError = (): string | null => {
+    if (!name.trim()) return 'Innovation name is required.';
+    if (!country) return 'Country is required.';
+    if (!bio.trim()) return 'Short bio / description is required.';
+    if (countWords(bio) > MAX_BIO_WORDS) return `Short bio must be ${MAX_BIO_WORDS} words or fewer.`;
+    if (!profileImageFile && !profileImageKey && !profileImage) return 'Innovation profile image is required.';
+    if (innovFields.length === 0) return 'Select at least one innovation field.';
+    if (innovInterests.length === 0) return 'Select at least one interest.';
+    if (!innovOwnership) return 'Select the innovation ownership.';
+    if (!innovStage) return 'Select the innovation stage.';
+    if (innovSdgs.length === 0) return 'Select at least one SDG.';
+    if (innovMaterials.length === 0) return 'Add at least one material used in the innovation.';
+    if (innovUserGroups.length === 0) return 'Add at least one user group.';
+    if (innovApplications.length === 0) return 'Add at least one application.';
+    if (innovImpact.length === 0) return 'Add at least one impact.';
+    if (innovRecommendations.length === 0) return 'Add at least one recommendation.';
+    if (innovCautions.length === 0) return 'Add at least one caution.';
+    if (innovGallery.length === 0) return 'Add at least one media file to the gallery.';
+    const socialIssue = firstSocialError(socialHandles);
+    if (socialIssue) return socialIssue;
+    if (!agreed) return 'Please accept the undertaking remark before submitting.';
     const numericFields: [string, string][] = [
       ['Length', innovDimensions.length],
       ['Width', innovDimensions.width],
@@ -272,12 +322,31 @@ export default function UploadNewListing() {
     ];
     for (const [label, value] of numericFields) {
       if (value.trim() && (!Number.isFinite(Number(value)) || Number(value) < 0)) {
-        toast.error(`${label} must be a non-negative number`);
-        return;
+        return `${label} must be a non-negative number.`;
       }
     }
-    if (!editId && innovGallery.length === 0) {
-      toast.error('Please add at least one media file to the gallery');
+    return null;
+  };
+
+  const handleSubmit = async () => {
+    if (!name.trim() || !country) {
+      toast.error('Please fill in at least the Name and Country fields');
+      return;
+    }
+    if (selectedType !== 'innovation') {
+      const label = LISTING_TYPES.find(t => t.id === selectedType)?.label || 'Listing';
+      setSuccessInfo({
+        title: `${label} submitted`,
+        message: `Your ${label.toLowerCase()} listing has been submitted and is now waiting for review.`,
+      });
+      setStep('select');
+      setSelectedType(null);
+      return;
+    }
+    // A listing can only be submitted when every required field is complete.
+    const requiredError = innovationRequiredError();
+    if (requiredError) {
+      toast.error(requiredError);
       return;
     }
     // A brand-new listing is confirmed with the amount it will cost first.
@@ -288,81 +357,123 @@ export default function UploadNewListing() {
     await performSubmit();
   };
 
-  const performSubmit = async () => {
+  /** Uploads staged files and builds the API payload. Throws on upload failure. */
+  const prepareUploadedPayload = async (isPaid: boolean): Promise<InnovationPayload> => {
+    let finalProfileImageKey = profileImageKey;
+    if (profileImageFile) {
+      try {
+        const uploaded = await uploadFile(profileImageFile);
+        finalProfileImageKey = uploaded.key || uploaded.url;
+        setProfileImageKey(finalProfileImageKey);
+        setProfileImageFile(null);
+      } catch {
+        throw new Error('Failed to upload profile image. Please try again.');
+      }
+    }
+
+    // Nothing has uploaded until this point: staged files upload now, then the
+    // payload is sent to the endpoint.
+    let finalInnovGallery = innovGallery;
+    if (innovGallery.some(g => g.file)) {
+      try {
+        finalInnovGallery = await Promise.all(innovGallery.map(async g => {
+          if (!g.file) return g;
+          const uploaded = await uploadFile(g.file);
+          const { file: _file, ...rest } = g;
+          return { ...rest, name: uploaded.key || uploaded.url };
+        }));
+        setInnovGallery(finalInnovGallery);
+      } catch {
+        throw new Error('Failed to upload media files. Please try again.');
+      }
+    }
+
+    const uploadDocs = (docs: { title: string; issuer: string; date: string; file: string; fileObj?: File }[]) =>
+      Promise.all(docs.map(async d => {
+        if (!d.fileObj) return d; // already on the server (edit mode) — keep as is
+        const uploaded = await uploadFile(d.fileObj);
+        const { fileObj: _fileObj, ...rest } = d;
+        return { ...rest, file: uploaded.key || uploaded.url };
+      }));
+
+    let finalInnovLicenses = innovLicenses;
+    let finalInnovAwards = innovAwards;
+    try {
+      finalInnovLicenses = await uploadDocs(innovLicenses);
+      finalInnovAwards = await uploadDocs(innovAwards);
+      setInnovLicenses(finalInnovLicenses);
+      setInnovAwards(finalInnovAwards);
+    } catch {
+      throw new Error('Failed to upload documents. Please try again.');
+    }
+
+    return buildInnovationPayload({
+      name, profileImage: finalProfileImageKey, payingUser: isPaid, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
+      innovSdgs, innovMaterials, innovDimensions, innovWeight, innovUserGroups, innovApplications,
+      innovImpact, innovRecommendations, innovCautions,
+      innovLicenses: finalInnovLicenses, innovAwards: finalInnovAwards, innovGallery: finalInnovGallery, socialHandles,
+      knownUserGroups: userGroupOptions,
+    });
+  };
+
+  /** Creates a new draft or updates the currently open draft. */
+  const persistDraft = async (payload: InnovationPayload): Promise<string | null> => {
+    if (draftId) {
+      await updateInnovationDraft(draftId, payload);
+      return draftId;
+    }
+    const created: any = await createInnovationDraft(payload);
+    const id = created?.id ?? created?._id ?? created?.draftId ?? created?.draft?.id ?? created?.draft?._id ?? created?.innovation?.id;
+    const nextId = id ? String(id) : null;
+    if (nextId) setDraftId(nextId);
+    return nextId;
+  };
+
+  /** Saves the current form as a draft when a paid submission cannot be funded. */
+  const saveDraftForTopUp = async (isPaid: boolean, existingPayload?: InnovationPayload) => {
     setShowPriceConfirm(false);
+    setDraftSavingOpen(true);
     setSaving(true);
     try {
-      // Upload profile image if a new file was selected
-      let finalProfileImageKey = profileImageKey;
-      if (profileImageFile) {
-        try {
-          const uploaded = await uploadFile(profileImageFile);
-          finalProfileImageKey = uploaded.key || uploaded.url;
-        } catch {
-          toast.error('Failed to upload profile image. Please try again.');
-          setSaving(false);
-          return;
-        }
-      }
-
-      // Nothing has uploaded until this point: staged files upload now,
-      // then the payload is sent to the endpoint.
-      let finalInnovGallery = innovGallery;
-      try {
-        if (innovGallery.some(g => g.file)) {
-          finalInnovGallery = await Promise.all(innovGallery.map(async g => {
-            if (!g.file) return g;
-            const uploaded = await uploadFile(g.file);
-            return { ...g, name: uploaded.key || uploaded.url };
-          }));
-        }
-      } catch {
-        toast.error('Failed to upload media files. Please try again.');
-        setSaving(false);
-        return;
-      }
-
-      const uploadDocs = (docs: { title: string; issuer: string; date: string; file: string; fileObj?: File }[]) =>
-        Promise.all(docs.map(async d => {
-          if (!d.fileObj) return d; // already on the server (edit mode) — keep as is
-          const uploaded = await uploadFile(d.fileObj);
-          return { ...d, file: uploaded.key || uploaded.url };
-        }));
-
-      let finalInnovLicenses = innovLicenses;
-      let finalInnovAwards = innovAwards;
-      try {
-        finalInnovLicenses = await uploadDocs(innovLicenses);
-        finalInnovAwards = await uploadDocs(innovAwards);
-      } catch {
-        toast.error('Failed to upload documents. Please try again.');
-        setSaving(false);
-        return;
-      }
-
-      const payload = buildInnovationPayload({
-        name, profileImage: finalProfileImageKey, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
-        innovSdgs, innovMaterials, innovDimensions, innovWeight, innovUserGroups, innovApplications,
-        innovImpact, innovRecommendations, innovCautions,
-        innovLicenses: finalInnovLicenses, innovAwards: finalInnovAwards, innovGallery: finalInnovGallery, socialHandles,
-        knownUserGroups: userGroupOptions,
-      });
-      if (editId) await updateInnovation(editId, payload);
-      else await createInnovation(payload);
-      toast.success(editId ? 'Innovation updated' : 'Innovation submitted');
-      // Submissions live on the submissions page, grouped by category.
-      setTimeout(() => router.push('/dashboard/submissions'), 1500);
-    } catch (e: any) {
-      toast.error(e?.message || 'Failed to save innovation');
+      const payload = existingPayload ?? await prepareUploadedPayload(isPaid);
+      await persistDraft(payload);
+      setDraftSavingOpen(false);
       setSaving(false);
-      return;
+      toast.success('Your submission was saved as a draft. Top up your wallet to continue.');
+      router.push('/dashboard/my-profile?tab=wallet');
+    } catch (e: any) {
+      setDraftSavingOpen(false);
+      setSaving(false);
+      toast.error(e?.message || 'Could not save your submission as a draft. Please try again.');
     }
-    setSaving(false);
+  };
+
+  /** "Save as Draft" / "Update Draft" button handler. */
+  const handleSaveDraft = async () => {
+    if (saving) return;
+    setSaving(true);
+    const wasUpdate = !!draftId;
+    try {
+      const payload = await prepareUploadedPayload(payingUser);
+      const id = await persistDraft(payload);
+      if (!id && !draftId) {
+        toast.success('Draft saved. Open View Drafts to continue it.');
+      } else {
+        toast.success(wasUpdate ? 'Draft updated' : 'Draft saved');
+      }
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to save draft');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /** Clears all Afro-Innovation form state (used after submit or when starting fresh). */
+  const resetInnovationForm = () => {
     setEditId(null);
+    setDraftId(null);
     setEditBaseline(null);
     setPrefilled(false);
-    setStep('select');
-    setSelectedType(null);
     setName(''); setProfileImage(null); setProfileImageKey(null); setProfileImageFile(null); setProfileImagePreview(null); setCountry(''); setStateRegion('');
     setBio(''); setPhone(''); setEmail(''); setWebsite('');
     setSocialLinks({ x: '', linkedin: '', facebook: '', instagram: '' });
@@ -374,6 +485,83 @@ export default function UploadNewListing() {
     setInnovApplications([]); setInnovImpact([]); setInnovRecommendations([]); setInnovCautions([]);
     setInnovLicenses([]); setInnovAwards([]); setInnovGallery([]);
     setSocialHandles([{ name: '', link: '' }]);
+    setPayingUser(false);
+  };
+
+  const performSubmit = async (plan?: ListingPlan) => {
+    setSaving(true);
+
+    // Paid plans are paid from the wallet. If the balance is too low, the
+    // submission is saved as a draft and the user is sent to top up.
+    const isPaid = plan === 'paid' ? true : plan === 'free' ? false : payingUser;
+    if (plan === 'paid' && stagePrice) {
+      const priceMajor = Number(stagePrice) / 100;
+      if (Number.isFinite(priceMajor) && priceMajor > 0) {
+        try {
+          const wallet = await dispatch(fetchWalletBalance()).unwrap();
+          if (!wallet || wallet.balance < priceMajor) {
+            await saveDraftForTopUp(isPaid);
+            return;
+          }
+        } catch (e) {
+          // A balance endpoint that reports an insufficient balance also saves
+          // a draft; other failures are left to the server to decide.
+          if (isInsufficientBalanceError(e)) {
+            await saveDraftForTopUp(isPaid);
+            return;
+          }
+        }
+      }
+    }
+
+    let payload: InnovationPayload;
+    try {
+      payload = await prepareUploadedPayload(isPaid);
+    } catch (e: any) {
+      setShowPriceConfirm(false);
+      toast.error(e?.message || 'Failed to prepare your listing. Please try again.');
+      setSaving(false);
+      return;
+    }
+
+    try {
+      if (draftId) {
+        // Persist the latest edits, then promote the draft to a submission.
+        await updateInnovationDraft(draftId, payload);
+        await submitInnovationDraft(draftId, { payingUser: isPaid });
+      } else if (editId) {
+        await updateInnovation(editId, payload);
+      } else {
+        await createInnovation(payload);
+      }
+      setShowPriceConfirm(false);
+      setPayingUser(isPaid);
+      setSuccessInfo({
+        title: draftId
+          ? 'Draft submitted successfully'
+          : editId
+            ? 'Innovation updated successfully'
+            : 'Innovation submitted successfully',
+        message: draftId
+          ? 'Your draft has been submitted as a listing and is now waiting for review.'
+          : editId
+            ? 'Your innovation listing has been updated. Any changes will be reviewed by the AfriScience Hub Team.'
+            : 'Your innovation listing has been submitted and is now waiting for review.',
+      });
+    } catch (e: any) {
+      setShowPriceConfirm(false);
+      if (isInsufficientBalanceError(e?.message || e)) {
+        await saveDraftForTopUp(isPaid, payload);
+        return;
+      }
+      toast.error(e?.message || 'Failed to save innovation');
+      setSaving(false);
+      return;
+    }
+    setSaving(false);
+    resetInnovationForm();
+    setStep('select');
+    setSelectedType(null);
   };
 
   // Derived state & effects (must run on every render, before any early returns)
@@ -390,7 +578,12 @@ export default function UploadNewListing() {
     ? firstSocialError(socialHandles) === null
     : Object.values(socialLinks).some(v => v.trim().length > 0);
   const editDirty = !!editId && editBaseline !== null && listingSnapshot !== editBaseline;
-  const isFormValid = editId ? editDirty && !!name.trim() && !!country && agreed : agreed && hasAnySocial;
+  const innovationComplete = selectedType === 'innovation' && innovationRequiredError() === null;
+  const isFormValid = selectedType === 'innovation'
+    ? innovationComplete && (!editId || editDirty)
+    : editId
+      ? editDirty && !!name.trim() && !!country && agreed
+      : agreed && hasAnySocial;
 
   useEffect(() => {
     if (!editId || !prefilled || editBaseline) return;
@@ -404,6 +597,7 @@ export default function UploadNewListing() {
       // Closing here stops a still-open selector from following the user onto
       // whichever listing they open next.
       setShowInstituteTypeModal(false);
+      resetInnovationForm();
       setSelectedType(typeId as ListingType);
       setInstituteSubType(null);
       setStep('form');
@@ -416,10 +610,14 @@ export default function UploadNewListing() {
     setStep('form');
   };
 
+  if (step === 'drafts') {
+    return <DraftListView onBack={() => setStep('select')} onContinue={handleContinueDraft} />;
+  }
+
   if (step === 'select') {
     return (
       <>
-        <ListingTypeSelector onSelectType={handleSelectType} />
+        <ListingTypeSelector onSelectType={handleSelectType} onViewDrafts={() => setStep('drafts')} />
         {/* Rendered here as well as on the form step: without it the selector
             can never open from the category grid, and a stale open state would
             surface on top of whichever listing is opened next. */}
@@ -427,6 +625,16 @@ export default function UploadNewListing() {
           isOpen={showInstituteTypeModal}
           onClose={() => setShowInstituteTypeModal(false)}
           onSelectInstituteType={handleInstituteTypeSelect}
+        />
+        <ListingSuccessModal
+          open={!!successInfo}
+          title={successInfo?.title}
+          message={successInfo?.message}
+          onClose={() => setSuccessInfo(null)}
+          onGoToSubmissions={() => {
+            setSuccessInfo(null);
+            router.push('/dashboard/submissions');
+          }}
         />
       </>
     );
@@ -442,13 +650,25 @@ export default function UploadNewListing() {
             <div className="flex items-center gap-3">
               {selectedTypeInfo && <selectedTypeInfo.icon className="h-6 w-6 text-brand-red-600" />}
               <div>
-                <h2 className="text-xl font-bold text-neutral-black">New {selectedTypeInfo?.label} Listing</h2>
-                <p className="text-sm text-neutral-gray-medium">Fill in the details below. Fields marked <span className="text-brand-red-600">*</span> are required.</p>
+                <h2 className="text-xl font-bold text-neutral-black">
+                  {draftId ? 'Listing Draft' : `New ${selectedTypeInfo?.label} Listing`}
+                </h2>
+                <p className="text-sm text-neutral-gray-medium">
+                  {draftId
+                    ? 'Continue editing your saved draft. Update it or submit it for review when ready.'
+                    : <>Fill in the details below. Fields marked <span className="text-brand-red-600">*</span> are required.</>}
+                </p>
               </div>
             </div>
-            <Button variant="outline" size="sm" onClick={() => { setStep('select'); setSelectedType(null); setInstituteSubType(null); setShowInstituteTypeModal(false); }}>
-              <X className="h-4 w-4 mr-1" /> Change Category
-            </Button>
+            {draftId ? (
+              <Button variant="outline" size="sm" onClick={() => setStep('drafts')}>
+                <X className="h-4 w-4 mr-1" /> Back to Drafts
+              </Button>
+            ) : (
+              <Button variant="outline" size="sm" onClick={() => { setStep('select'); setSelectedType(null); setInstituteSubType(null); setShowInstituteTypeModal(false); }}>
+                <X className="h-4 w-4 mr-1" /> Change Category
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -566,12 +786,17 @@ export default function UploadNewListing() {
         <FormActions
           onCancel={() => {
             if (editId) { router.push('/dashboard/submissions'); return; }
+            if (draftId) { setStep('drafts'); return; }
             setStep('select');
             setSelectedType(null);
             setInstituteSubType(null);
             setShowInstituteTypeModal(false);
           }}
           onSubmit={handleSubmit}
+          onSaveDraft={selectedType === 'innovation' ? () => { void handleSaveDraft(); } : undefined}
+          showDraft={!editId}
+          draftLabel={draftId ? 'Update Draft' : 'Save as Draft'}
+          draftDisabled={saving}
           submitLabel={editId ? 'Save changes' : 'Submit for Review'}
           disabled={saving || !isFormValid}
         />
@@ -583,7 +808,7 @@ export default function UploadNewListing() {
         price={stagePrice}
         stage={innovStage}
         saving={saving}
-        onConfirm={performSubmit}
+        onConfirm={(plan) => { void performSubmit(plan); }}
         onCancel={() => setShowPriceConfirm(false)}
       />
 
@@ -593,6 +818,21 @@ export default function UploadNewListing() {
         onClose={() => setShowInstituteTypeModal(false)}
         onSelectInstituteType={handleInstituteTypeSelect}
       />
+
+      {/* Success confirmation — no automatic redirect; the user decides. */}
+      <ListingSuccessModal
+        open={!!successInfo}
+        title={successInfo?.title}
+        message={successInfo?.message}
+        onClose={() => setSuccessInfo(null)}
+        onGoToSubmissions={() => {
+          setSuccessInfo(null);
+          router.push('/dashboard/submissions');
+        }}
+      />
+
+      {/* Shown while an under-funded paid submission is auto-saved as a draft. */}
+      <DraftSavingModal open={draftSavingOpen} />
     </div>
   );
 }

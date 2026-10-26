@@ -64,12 +64,38 @@ function persistTokens(data: any, isAdmin = false) {
   localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
 }
 
+/**
+ * Returns the first value that can actually be rendered. Profiles expose the
+ * picture under different names/locations (`displayPhoto` at the top level of
+ * /profile, nested under `profile` on /auth/me), and an expired first
+ * candidate must not hide a valid later one.
+ */
+function firstResolvableSrc(...values: unknown[]): string | undefined {
+  for (const value of values) {
+    if (typeof value !== 'string' || !value.trim()) continue;
+    const resolved = resolveAvatarSrc(value);
+    if (resolved) return resolved;
+  }
+  return undefined;
+}
+
+/** Pulls the display picture out of either the /profile or /auth/me payload. */
+function extractAvatarFromPayload(data: any): string | undefined {
+  const d = data?.data?.user ?? data?.details ?? data?.user ?? data?.data ?? data;
+  if (!d || typeof d !== 'object') return undefined;
+  const personal = d.personal || d.personalInfo || d.userProfile || d.profileInfo || {};
+  const profile = d.profile || personal;
+  return firstResolvableSrc(
+    d.displayPhoto, d.avatar, d.avatarUrl, d.displayPhotoUrl, d.photo, d.profileImage, d.image,
+    personal.displayPhoto, personal.avatar, personal.avatarUrl, personal.photo, personal.profileImage, personal.image,
+    profile.displayPhoto, profile.avatar, profile.avatarUrl, profile.photo, profile.profileImage, profile.image,
+  );
+}
+
 function extractUser(data: any, fallbackIdentifier?: string): AuthUser {
   const u = data?.details || data?.user || data?.data?.user || data?.data || {};
   const isEmail = fallbackIdentifier?.includes('@');
-  const profile = u?.profile || u?.personalInfo || u?.userProfile || u?.profileInfo || {};
-  const rawAvatar = u.avatar || u.avatarUrl || u.displayPhotoUrl || u.displayPhoto || u.photo || u.profileImage || u.image
-    || profile.displayPhoto || profile.avatar || profile.avatarUrl || profile.photo || profile.profileImage || profile.image;
+  const profile = u?.profile || u?.personalInfo || u?.userProfile || u?.profileInfo || u?.personal || {};
   return {
     name: u.name || u.fullName || u.firstName || (fallbackIdentifier ? (isEmail ? fallbackIdentifier.split('@')[0] : 'User') : 'User'),
     email: u.email || (isEmail ? fallbackIdentifier || '' : ''),
@@ -78,7 +104,7 @@ function extractUser(data: any, fallbackIdentifier?: string): AuthUser {
     // bare key whose signed URL we captured at upload time. Unresolvable
     // values (raw bucket URL, expired key) become undefined -> initials
     // fallback, never a broken image.
-    avatar: resolveAvatarSrc(rawAvatar),
+    avatar: extractAvatarFromPayload(data),
     createdAt: u.createdAt,
     updatedAt: u.updatedAt,
   };
@@ -272,19 +298,59 @@ export const refreshUserToken = createRefreshThunk('auth/refreshUser', '/auth/re
 // Admin session refresh — POST /api/v1/admin/auth/refresh (not shared with users)
 export const refreshAdminToken = createRefreshThunk('auth/refreshAdmin', '/admin/auth/refresh', true);
 
-export const fetchCurrentUser = createAsyncThunk(
-  'auth/fetchCurrentUser',
-  async (_, { rejectWithValue }) => {
+/**
+ * Loads the signed-in user's details and, most importantly, their display
+ * picture.
+ *
+ * Order of preference:
+ *   1. GET /auth/me        — user object with the picture nested in `profile`.
+ *   2. GET /profile        — top-level `displayPhoto` (also re-signs the URL).
+ *   3. JWT claims / cached user — only when neither endpoint yields a picture.
+ *
+ * The initials placeholder in <Avatar> is therefore only shown when all of the
+ * above come back without an image.
+ */
+export const fetchCurrentUser = createAsyncThunk<
+  AuthUser,
+  void,
+  { state: { auth: AuthState }; rejectValue: string }
+>('auth/fetchCurrentUser', async (_, { getState, rejectWithValue }) => {
+  const token = storedToken();
+  const existing = getState().auth.user;
+  let user: AuthUser | null = null;
+  let error: string | null = null;
+
+  try {
+    const data = await api.get('/auth/me');
+    user = applyTokenClaims(extractUser(data), token);
+  } catch (err: any) {
+    error = err.message;
+  }
+
+  // /auth/me can omit the picture (or hand back an expired signed URL).
+  // /profile returns `displayPhoto` and a freshly signed URL, so use it as the
+  // fallback before ever falling back to initials.
+  if (!user?.avatar) {
     try {
-      const data = await api.get('/auth/me');
-      // /auth/me may omit the avatar — the JWT claims carry it, so the
-      // picture stays available without a separate profile fetch.
-      return applyTokenClaims(extractUser(data), storedToken());
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+      const profileData = await api.get('/profile');
+      const avatar = extractAvatarFromPayload(profileData);
+      if (avatar) {
+        if (user) user = { ...user, avatar };
+        else if (existing) user = { ...existing, avatar };
+      }
+    } catch {
+      // No profile yet — keep whatever /me/JWT gave us.
     }
   }
-);
+
+  if (!user) {
+    if (existing) return existing;
+    return rejectWithValue(error || 'Unable to load user');
+  }
+
+  // If /me failed but a cached user exists, preserve the cached identity fields.
+  return existing && !existing.avatar && user.avatar ? { ...existing, ...user } : user;
+});
 
 export const fetchSessions = createAsyncThunk(
   'auth/fetchSessions',
@@ -460,15 +526,16 @@ const authSlice = createSlice({
         s.user = null; s.isAuthenticated = false; s.accessToken = null; s.refreshToken = null;
       })
       .addCase(fetchCurrentUser.fulfilled, (s, a) => {
-        // /auth/me may omit the avatar — keep the one we already have in that case.
-        // If it provides one, normalize it (resolve keys, drop legacy placeholders).
-        // IMPORTANT: Never overwrite a valid avatar with undefined.
+        // Never overwrite a valid avatar with undefined, and never drop fields
+        // we already know about when /auth/me returned a partial user.
         const incoming = a.payload;
         const normalizedAvatar = incoming.avatar ? resolveAvatarSrc(incoming.avatar) : undefined;
-        const merged = !normalizedAvatar && s.user?.avatar
-          ? { ...incoming, avatar: s.user.avatar }
-          : { ...incoming, avatar: normalizedAvatar ?? s.user?.avatar };
-        s.user = merged;
+        const existingAvatar = s.user?.avatar ? resolveAvatarSrc(s.user.avatar) : undefined;
+        s.user = {
+          ...s.user,
+          ...incoming,
+          avatar: normalizedAvatar ?? existingAvatar,
+        };
         s.isAuthenticated = true;
         if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
       })

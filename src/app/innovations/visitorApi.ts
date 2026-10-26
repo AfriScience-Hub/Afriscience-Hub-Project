@@ -186,6 +186,7 @@ export function mapVisitorInnovation(raw: any): any {
     sdgs: sdgList,
     image: normalizeFileSrc(raw.image || raw.displayPhoto || raw.profileImage || raw.avatar || raw.photo) || IMAGE_FALLBACK,
     status: 'Online',
+    verified: Boolean(raw.isVerified ?? raw.verified),
     country: raw.country || '',
     state: raw.state || '',
     location: raw.location || raw.country || '',

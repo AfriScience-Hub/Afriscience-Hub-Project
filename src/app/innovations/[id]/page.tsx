@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   ArrowLeft, MapPin, Eye, Share2, Archive, ArchiveX,
-  Award, ThumbsUp, Camera, Maximize2,
+  Award, ThumbsUp, Camera, Maximize2, BadgeCheck,
   MessageCircle, ChevronLeft, ChevronRight as ChevronRightIcon
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
@@ -147,7 +147,17 @@ export default function InnovationDetails() {
         </button>
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8 z-10">
           <div className="container mx-auto">
-            <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">{innovation.name}</h1>
+            <h1 className="mb-2 flex flex-wrap items-center gap-1 text-2xl font-bold text-white sm:text-4xl">
+              <span>{innovation.name}</span>
+              {innovation.verified && (
+                <BadgeCheck
+                  className="h-5 w-5 shrink-0 fill-blue-500 text-white sm:h-8 sm:w-8"
+                  aria-label="Verified innovation"
+                >
+                  <title>This listing has been verified by Afriscience Hub</title>
+                </BadgeCheck>
+              )}
+            </h1>
             <p className="text-sm text-white/70 font-mono tracking-wider mb-2">{innovation.idTag}</p>
             <div className="flex flex-wrap items-center gap-2 mb-2">
               {innovation.field.map((f: string) => (

@@ -1,17 +1,31 @@
 'use client';
 
+import { FileText } from 'lucide-react';
+import { Button } from '@/app/components/ui/Button';
 import { LISTING_TYPES } from '../data';
 
 interface ListingTypeSelectorProps {
   onSelectType: (typeId: string) => void;
+  onViewDrafts?: () => void;
 }
 
-export default function ListingTypeSelector({ onSelectType }: ListingTypeSelectorProps) {
+export default function ListingTypeSelector({ onSelectType, onViewDrafts }: ListingTypeSelectorProps) {
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-neutral-gray-light bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-neutral-black mb-1">Upload New Listing</h2>
-        <p className="text-sm text-neutral-gray-medium mb-6">Select the category that best describes what you'd like to list on AfriScience Hub.</p>
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-neutral-black mb-1">Upload New Listing</h2>
+            <p className="text-sm text-neutral-gray-medium">
+              Select the category that best describes what you&apos;d like to list on AfriScience Hub.
+            </p>
+          </div>
+          {onViewDrafts && (
+            <Button variant="outline" onClick={onViewDrafts} className="gap-2">
+              <FileText className="h-4 w-4" /> View Drafts
+            </Button>
+          )}
+        </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {LISTING_TYPES.map(type => (

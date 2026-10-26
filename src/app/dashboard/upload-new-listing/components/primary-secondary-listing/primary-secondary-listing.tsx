@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
 import CollapsibleSection from '../CollapsibleSection';
 import FormActions from '../FormActions';
+import ListingSuccessModal from '../ListingSuccessModal';
 import UndertakingSection from '../UndertakingSection';
 import { useRouter } from 'next/navigation';
 import YourInformationSection from './components/YourInformationSection';
@@ -38,6 +39,13 @@ export default function PrimarySecondaryListing({ onCancel }: PrimarySecondaryLi
   const [resources, setResources] = useState<DownloadableResources>(EMPTY_RESOURCES);
   const [highlight, setHighlight] = useState<SchoolHighlight>(EMPTY_HIGHLIGHT);
   const [agreed, setAgreed] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const finish = () => {
+    setShowSuccess(false);
+    resetForm();
+    onCancel();
+  };
 
   useEffect(() => { dispatch(fetchFullProfile()); }, [dispatch]);
 
@@ -101,10 +109,7 @@ export default function PrimarySecondaryListing({ onCancel }: PrimarySecondaryLi
     if (!identity.name.trim() || !identity.country) return toast.error('Please fill in the School Name and Country');
     if (!fullName || !profileEmail) return toast.error('Your platform information is incomplete — please complete your profile first');
 
-    toast.success('Your listing will be submitted for review by the AfriScience Hub Team. Once approved, it will be published on the platform. Your listing will earn a "Verified Badge" once all submitted documents are successfully verified.');
-    resetForm();
-    onCancel();
-    setTimeout(() => router.push('/dashboard/listings'), 1500);
+    setShowSuccess(true);
   };
 
   return (
@@ -141,6 +146,14 @@ export default function PrimarySecondaryListing({ onCancel }: PrimarySecondaryLi
         onCancel={() => { resetForm(); onCancel(); }}
         onSubmit={handleSubmit}
         disabled={!isFormValid}
+      />
+
+      <ListingSuccessModal
+        open={showSuccess}
+        title="School listing submitted"
+        message="Your primary/secondary school listing has been submitted and is now waiting for review."
+        onClose={finish}
+        onGoToSubmissions={() => { finish(); router.push('/dashboard/submissions'); }}
       />
     </>
   );

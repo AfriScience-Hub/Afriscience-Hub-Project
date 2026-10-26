@@ -140,6 +140,8 @@ export default function AdminCreateInnovationPage() {
         buildInnovationPayload({
           name,
           profileImage: finalProfileImageKey,
+          // Admin-created listings get full visibility.
+          payingUser: true,
           country,
           bio,
           innovFields,

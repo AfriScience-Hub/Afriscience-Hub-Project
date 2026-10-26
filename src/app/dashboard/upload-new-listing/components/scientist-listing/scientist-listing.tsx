@@ -6,6 +6,7 @@ import { useAuth } from '@/app/context/AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
 import FormActions from '../FormActions';
+import ListingSuccessModal from '../ListingSuccessModal';
 import UndertakingSection from '../UndertakingSection';
 import { useRouter } from 'next/navigation';
 import { type DocEntry, EMPTY_DOC } from '../DocList';
@@ -54,6 +55,13 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [contact, setContact] = useState<ScientistContact>(EMPTY_CONTACT);
   const [agreed, setAgreed] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const finish = () => {
+    setShowSuccess(false);
+    resetForm();
+    onCancel();
+  };
 
   useEffect(() => { dispatch(fetchFullProfile()); }, [dispatch]);
 
@@ -103,10 +111,7 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
     if (!hasAnySocial) return toast.error('Please provide at least one social handle');
     if (!agreed) return toast.error('Please accept the undertaking remark before submitting');
 
-    toast.success('Your listing will be submitted for review by the AfriScience Hub Team. Once approved, it will be published on the platform. Your listing will earn a \u201cVerified Badge\u201d once all submitted documents are successfully verified.');
-    resetForm();
-    onCancel();
-    setTimeout(() => router.push('/dashboard/listings'), 1500);
+    setShowSuccess(true);
   };
 
   return (
@@ -134,6 +139,14 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
         onCancel={() => { resetForm(); onCancel(); }}
         onSubmit={handleSubmit}
         disabled={!isFormValid}
+      />
+
+      <ListingSuccessModal
+        open={showSuccess}
+        title="Scientist & Technologist submitted"
+        message="Your scientist & technologist listing has been submitted and is now waiting for review."
+        onClose={finish}
+        onGoToSubmissions={() => { finish(); router.push('/dashboard/submissions'); }}
       />
     </>
   );

@@ -15,6 +15,7 @@ import { ExperienceSkillsTab } from './components/ExperienceSkillsTab';
 import { WalletTab } from './components/WalletTab';
 import { SystemSecurityTab } from './components/SystemSecurityTab';
 import { useProfileForm } from './useProfileForm';
+import { fetchFullProfile } from '@/store/profileSlice';
 import { ProfileSkeleton } from './components/ProfileSkeleton';
 
 type TabKey = 'personal' | 'education' | 'experience' | 'wallet' | 'system';
@@ -55,6 +56,7 @@ export function ProfileContent() {
   const [editingTab, setEditingTab] = useState<TabKey | null>(null);
   const f = useProfileForm();
   const { updateUser } = useAuth();
+  const dispatch = useAppDispatch();
   const profile = useAppSelector((s) => s.profile);
   const isEditing = editingTab !== null;
   const canAccessTabs = f.hasPersonalInfo;
@@ -103,8 +105,20 @@ export function ProfileContent() {
     }
   }, [f.personalLoaded, editingTab, f.fullName, f.email, f.username, f.gender, f.dateOfBirth, f.idCardType, f.idCardNumber, f.phone, f.address, f.city, f.stateOfResidence, f.country]);
 
-  const handleStartEdit = () => setEditingTab(activeTab);
-  const handleCancel = () => setEditingTab(null);
+  const handleStartEdit = () => {
+    // Always start from the last saved state, never leftovers from a previous edit.
+    f.resetUnsavedChanges();
+    setEditingTab(activeTab);
+  };
+  const handleCancel = () => {
+    // Close the editor first, then throw away every unsaved field, added/removed
+    // row and picked file so nothing looks as if it had been saved.
+    setEditingTab(null);
+    f.resetUnsavedChanges();
+    // Refresh from the server in the background (force bypasses the "already
+    // loaded" guard) so the form also picks up changes made elsewhere.
+    void dispatch(fetchFullProfile({ force: true }));
+  };
   const [saving, setSaving] = useState(false);
 
   const handleTabChange = (key: string) => {
@@ -226,7 +240,7 @@ export function ProfileContent() {
         fullName={f.fullName}
         username={f.username}
         completionPct={f.completionPct}
-        avatar={f.avatarUrl || f.user?.avatar}
+        avatar={f.user?.avatar || f.avatarUrl}
         showAvatarEdit={editingTab === 'personal'}
         onAvatarChange={f.handleAvatarUpload}
         avatarUploading={f.avatarUploading}
@@ -256,11 +270,7 @@ export function ProfileContent() {
         {activeTab !== 'wallet' && (
           <div className="px-6 py-4 border-t border-neutral-gray-light bg-neutral-bg-light/50">
             <div className="flex items-center justify-end gap-3">
-              {activeTab === 'system' ? (
-                <Button type="button" onClick={handleSaveDraft} loading={saving} className="gap-2 bg-green-600 hover:bg-green-700">
-                  <Save className="h-4 w-4" /> Save
-                </Button>
-              ) : isEditing ? (
+              {isEditing ? (
                 <>
                   <Button type="button" variant="outline" onClick={handleCancel} disabled={saving} className="gap-2">
                     <X className="h-4 w-4" /> Cancel
@@ -274,9 +284,6 @@ export function ProfileContent() {
                 </>
               ) : (
                 <>
-                  <Button type="button" onClick={handleSaveDraft} variant="outline" loading={saving} className="gap-2">
-                    <Save className="h-4 w-4" /> Save as Draft
-                  </Button>
                   <Button type="button" onClick={handleStartEdit} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700">
                     <EditIcon className="h-4 w-4" /> Edit
                   </Button>

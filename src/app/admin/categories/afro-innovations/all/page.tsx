@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import type { SubmissionRecord } from '../submissions/data';
 import SubmissionDetailModal from '../submissions/components/SubmissionDetailModal';
 import { INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS, AFRICAN_COUNTRIES } from '@/app/data/mockData';
-import { fetchAdminInnovations, mapAdminInnovation } from '../api';
+import { fetchAdminInnovations, mapAdminInnovation, setInnovationVerification } from '../api';
 import { StatSkeleton, ChartSkeleton, ListSkeleton } from '../components/OverviewWidgets';
 
 const distinct = (items: string[]) => new Set(items).size;
@@ -30,6 +30,7 @@ export default function AllInnovationsPage() {
   const [countryFilter, setCountryFilter] = useState('All Countries');
   const [verifiedFilter, setVerifiedFilter] = useState('All');
   const [selected, setSelected] = useState<SubmissionRecord | null>(null);
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -64,7 +65,21 @@ export default function AllInnovationsPage() {
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
 
-  const toggleVerify = (id: string) => setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, verified: !r.verified } : r)));
+  const toggleVerify = async (record: SubmissionRecord) => {
+    const nextVerified = !record.verified;
+    setVerifyingId(record.id);
+    try {
+      await setInnovationVerification(record.id, nextVerified);
+      setRecords((prev) =>
+        prev.map((r) => (r.id === record.id ? { ...r, verified: nextVerified } : r))
+      );
+      toast.success(nextVerified ? 'Innovation verified' : 'Innovation unverified');
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to update verification');
+    } finally {
+      setVerifyingId(null);
+    }
+  };
   const saveRecord = (updated: SubmissionRecord) => setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
 
   const stats = {
@@ -223,7 +238,13 @@ export default function AllInnovationsPage() {
                       triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                       items={[
                         { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
-                        { label: r.verified ? 'Unverify' : 'Verify', icon: <BadgeCheck className="h-3.5 w-3.5" />, onClick: () => toggleVerify(r.id) },
+                        {
+                          label: verifyingId === r.id ? 'Updating...' : r.verified ? 'Unverify' : 'Verify',
+                          icon: verifyingId === r.id
+                            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            : <BadgeCheck className="h-3.5 w-3.5" />,
+                          onClick: () => { if (verifyingId !== r.id) toggleVerify(r); },
+                        },
                       ]}
                     />
                   </td>

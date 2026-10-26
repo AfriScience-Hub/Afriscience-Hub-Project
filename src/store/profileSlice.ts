@@ -176,7 +176,7 @@ function looksLikePersonal(v: unknown): v is Record<string, any> {
   return typeof o.fullName === 'string' || typeof o.firstname === 'string' || typeof o.surname === 'string' || typeof o.phone === 'string' || typeof o.email === 'string';
 }
 
-export const fetchFullProfile = createAsyncThunk('profile/fetchFull', async (_, { rejectWithValue }) => {
+export const fetchFullProfile = createAsyncThunk('profile/fetchFull', async (_arg: { force?: boolean } | undefined, { rejectWithValue }) => {
   try {
     const r: any = await api.get('/profile');
     const d = unwrap<any>(r) || {};
@@ -197,9 +197,10 @@ export const fetchFullProfile = createAsyncThunk('profile/fetchFull', async (_, 
   } catch (e: any) { return rejectWithValue(e.message); }
 }, {
   // Only ever one request: skip while in-flight, and skip once already loaded.
-  condition: (_, { getState }) => {
+  condition: (arg, { getState }) => {
     const s = (getState() as any).profile;
-    return !s.profileLoading && !s.profileLoaded;
+    if (s.profileLoading) return false;
+    return arg?.force ? true : !s.profileLoaded;
   },
 });
 

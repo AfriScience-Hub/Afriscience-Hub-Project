@@ -4,6 +4,8 @@ import { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
 export interface InnovationPayload {
   image: string;
   innovationName: string;
+  /** false = Free Plan (single entry per category), true = annual Paid Plan. */
+  payingUser: boolean;
   country: string;
   shortDescription: string;
   fields: string[];
@@ -105,7 +107,7 @@ function num(v: string) {
 }
 
 export function buildInnovationPayload(input: {
-  name: string; profileImage: string | null; country: string; bio: string;
+  name: string; profileImage: string | null; payingUser: boolean; country: string; bio: string;
   innovFields: string[]; innovInterests: string[]; innovOwnership: string; innovStage: string;
   innovSdgs: string[]; innovMaterials: string[];
   innovDimensions: { length: string; width: string; height: string; unit: string };
@@ -131,6 +133,7 @@ export function buildInnovationPayload(input: {
     // coming back from an edit prefill would otherwise be re-submitted as-is).
     image: toStorageKey(input.profileImage),
     innovationName: input.name,
+    payingUser: input.payingUser,
     country: input.country,
     shortDescription: input.bio,
     fields: input.innovFields,
@@ -183,6 +186,7 @@ export async function fetchInnovations() {
   const r: any = await api.get('/listings/innovations');
   const data = unwrapData(r);
   if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.data)) return data.data;
   if (Array.isArray(data?.innovations)) return data.innovations;
   if (Array.isArray(data?.listings)) return data.listings;
   if (Array.isArray(r)) return r;
@@ -191,5 +195,41 @@ export async function fetchInnovations() {
 
 export async function fetchInnovation(id: string) {
   const r: any = await api.get(`/listings/innovations/${id}`);
+  return unwrapData(r);
+}
+
+/** Creates a new Afro-Innovation draft (the form can be incomplete). */
+export async function createInnovationDraft(body: InnovationPayload) {
+  const r = await api.post('/listings/innovations/drafts', body as unknown as Record<string, unknown>);
+  return unwrapData(r);
+}
+
+/** Updates an existing draft. */
+export async function updateInnovationDraft(id: string, body: InnovationPayload) {
+  const r = await api.patch(`/listings/innovations/${id}`, body as unknown as Record<string, unknown>);
+  return unwrapData(r);
+}
+
+/** Promotes a saved draft to a listing and sends it for review. */
+export async function submitInnovationDraft(id: string, body?: Record<string, unknown>) {
+  const r = await api.post(`/listings/innovations/${id}/submit`, body);
+  return unwrapData(r);
+}
+
+/** Lists the current user's listing drafts. */
+export async function fetchInnovationDrafts() {
+  const r: any = await api.get('/listings/innovations?status=DRAFT');
+  const data = unwrapData(r);
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.innovations)) return data.innovations;
+  if (Array.isArray(data?.listings)) return data.listings;
+  if (Array.isArray(r)) return r;
+  return [];
+}
+
+/** Deletes an innovation (used for drafts from the drafts list). */
+export async function deleteInnovation(id: string) {
+  const r = await api.delete(`/listings/innovations/${id}`);
   return unwrapData(r);
 }

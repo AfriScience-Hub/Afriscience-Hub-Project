@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ProtectedLink } from '../../components/ProtectedLink';
 import Image from 'next/image';
-import { Eye, ThumbsUp, Share2, Archive, ArchiveX, MapPin } from 'lucide-react';
+import { Eye, ThumbsUp, Share2, Archive, ArchiveX, MapPin, BadgeCheck } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { toast } from 'sonner';
 import { type Innovation } from '../../data/mockData';
@@ -51,7 +51,17 @@ export default function InnovationCard({ inn, archived, onToggleArchive, onPrevi
 
         <div className="absolute bottom-3 left-3 text-white pr-3">
           <span className="text-[10px] font-semibold bg-white/20 backdrop-blur-sm px-1.5 py-0.5 rounded mb-1 inline-block">{inn.ownership}</span>
-          <h3 className="font-bold text-lg leading-tight">{inn.name}</h3>
+          <h3 className="flex items-center gap-1.5 font-bold text-lg leading-tight">
+            <span>{inn.name}</span>
+            {inn.verified && (
+              <BadgeCheck
+                className="h-4 w-4 shrink-0 fill-blue-500 text-white"
+                aria-label="Verified innovation"
+              >
+                <title>This listing has been verified by Afriscience Hub</title>
+              </BadgeCheck>
+            )}
+          </h3>
           <p className="text-xs text-neutral-gray-light flex items-center gap-1 mt-0.5">
             <MapPin className="h-3 w-3" /> {inn.country}
           </p>

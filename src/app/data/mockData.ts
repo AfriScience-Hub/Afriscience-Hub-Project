@@ -1269,6 +1269,8 @@ export interface Innovation {
   sdgs: string[];
   image: string;
   status: 'Online' | 'Offline';
+  /** Platform-verified innovation badge. */
+  verified?: boolean;
   country: string;
   state: string;
   location: string;

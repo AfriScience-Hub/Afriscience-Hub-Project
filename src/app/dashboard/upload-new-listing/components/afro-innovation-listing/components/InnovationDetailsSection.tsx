@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Plus, Upload, ImagePlus, Film } from 'lucide-react';
+import { X, Plus, Upload, ImagePlus, Film, Info } from 'lucide-react';
 import { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
 import {
   useInnovationOptionsMap, optionNames, type InnovationOptionType,
@@ -144,6 +144,11 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
                 <Plus className="h-4 w-4" /> Add
               </button>
             </div>
+            {newMaterial.trim() && (
+              <p className="mb-2 flex items-center gap-1 text-xs text-blue-600">
+                <Info className="h-3.5 w-3.5 flex-shrink-0" /> Press Enter or click Add to save this material
+              </p>
+            )}
             {props.innovMaterials.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {props.innovMaterials.map((mat, i) => (

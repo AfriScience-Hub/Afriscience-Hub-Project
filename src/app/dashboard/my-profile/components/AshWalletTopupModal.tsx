@@ -40,7 +40,7 @@ export function AshWalletTopupModal({ open, currency, onClose }: AshWalletTopupM
 
   const handleDone = () => {
     dispatch(fetchWalletBalance());
-    dispatch(fetchWalletHistory());
+    dispatch(fetchWalletHistory({ page: 1 }));
     setAmount('');
     setErrorMsg('');
     onClose();

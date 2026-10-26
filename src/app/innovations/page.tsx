@@ -25,6 +25,7 @@ interface Innovation {
   sdgs: string[];
   image: string;
   status: 'Online' | 'Offline';
+  verified?: boolean;
   country: string;
   state: string;
   location: string;

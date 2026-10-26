@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
 import CollapsibleSection from '../CollapsibleSection';
 import FormActions from '../FormActions';
+import ListingSuccessModal from '../ListingSuccessModal';
 import { useRouter } from 'next/navigation';
 import YourInformationSection, { type YourInformation } from './components/YourInformationSection';
 import CenterIdentitySection from './components/CenterIdentitySection';
@@ -52,6 +53,13 @@ export default function SpecialistCenterListing({ onCancel }: SpecialistCenterLi
   const [awards, setAwards] = useState<CenterDocEntry[]>([]);
   const [gallery, setGallery] = useState<Record<string, MediaItem[]>>({});
   const [agreed, setAgreed] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const finish = () => {
+    setShowSuccess(false);
+    resetForm();
+    onCancel();
+  };
 
   useEffect(() => { dispatch(fetchFullProfile()); }, [dispatch]);
 
@@ -105,10 +113,7 @@ export default function SpecialistCenterListing({ onCancel }: SpecialistCenterLi
     if (!identity.name.trim() || !identity.country) return toast.error('Please fill in the Center Name and Country');
     if (!fullName || !profileEmail) return toast.error('Your platform information is incomplete — please complete your profile first');
 
-    toast.success('Your listing will be submitted for review by the AfriScience Hub Team. Once approved, it will be published on the platform. Your listing will earn a \u201cVerified Badge\u201d once all submitted documents are successfully verified.');
-    resetForm();
-    onCancel();
-    setTimeout(() => router.push('/dashboard/listings'), 1500);
+    setShowSuccess(true);
   };
 
   return (
@@ -145,6 +150,14 @@ export default function SpecialistCenterListing({ onCancel }: SpecialistCenterLi
         onCancel={() => { resetForm(); onCancel(); }}
         onSubmit={handleSubmit}
         disabled={!isFormValid}
+      />
+
+      <ListingSuccessModal
+        open={showSuccess}
+        title="Specialist Center submitted"
+        message="Your specialist center listing has been submitted and is now waiting for review."
+        onClose={finish}
+        onGoToSubmissions={() => { finish(); router.push('/dashboard/submissions'); }}
       />
     </>
   );

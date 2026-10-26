@@ -1,129 +1,137 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { PackageOpen } from 'lucide-react';
 import { ListingHeader } from './components/ListingHeader';
-import { ListingCard } from './components/ListingCard';
-import CategoryCardGrid from '../components/CategoryCardGrid';
-import InstituteTypeSelectorModal, {
+import { approvedListings, fetchUserInnovations, type UserInnovation } from './listingData';
+import { getCategory } from '../submissionCategories';
+import ListingTabs, { type ListingTabItem } from '../components/ListingTabs';
+import ListingTable, { type ListingTableRow } from '../components/ListingTable';
+import {
+  INSTITUTE_SUBTYPES,
   INSTITUTE_SUBTYPE_LABEL,
   type InstituteSubType,
 } from '../components/InstituteTypeSelectorModal';
-import { approvedListings, fetchUserInnovations, type UserInnovation } from './listingData';
-import { getCategory, LISTING_CATEGORIES, type SubmissionCategoryId } from '../submissionCategories';
+
+type ListingTabId = 'all' | 'innovation' | 'center' | 'institute' | 'scientist';
+
+const LISTING_TABS: { id: ListingTabId; label: string }[] = [
+  { id: 'all', label: 'All Listings' },
+  { id: 'innovation', label: 'Afro-Innovation' },
+  { id: 'center', label: 'Specialist Centers' },
+  { id: 'institute', label: 'Institute' },
+  { id: 'scientist', label: 'Scientists & Technologists' },
+];
+
+const SUB_TABS: ListingTabItem[] = INSTITUTE_SUBTYPES.map((type) => ({
+  id: type.id,
+  label: type.label,
+}));
 
 export default function MyListings() {
   const router = useRouter();
-  const [selected, setSelected] = useState<SubmissionCategoryId | null>(null);
-  const [instituteSubType, setInstituteSubType] = useState<InstituteSubType | null>(null);
-  const [showInstituteModal, setShowInstituteModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<ListingTabId>('all');
+  const [instituteSubType, setInstituteSubType] = useState<InstituteSubType>('primary-secondary');
   const [listings, setListings] = useState<UserInnovation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     fetchUserInnovations()
-      .then((rows) => { if (!cancelled) setListings(rows); })
+      .then((rows) => {
+        if (!cancelled) setListings(rows);
+      })
       .catch((e: any) => toast.error(e?.message || 'Failed to load listings'))
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Only listings the platform has approved are shown here.
-  const approved = approvedListings(listings);
-  const category = selected ? getCategory(selected) : undefined;
-  const isInnovation = selected === 'innovation';
-  // Institute splits into two sub-types, so the label follows the modal pick.
-  const effectiveLabel =
-    selected === 'institute' && instituteSubType ? INSTITUTE_SUBTYPE_LABEL[instituteSubType] : category?.label;
+  const approved = useMemo(() => approvedListings(listings), [listings]);
 
-  const handleSelect = useCallback((id: SubmissionCategoryId) => {
-    // Institute asks which kind of institute before showing anything.
-    if (id === 'institute') {
-      setShowInstituteModal(true);
-      return;
-    }
-    setInstituteSubType(null);
-    setSelected(id);
-  }, []);
+  const countFor = (id: ListingTabId) =>
+    id === 'all'
+      ? approved.length
+      : approved.filter((listing) => listing.categoryId === id).length;
 
-  const handleInstituteTypeSelect = useCallback((type: InstituteSubType) => {
-    setInstituteSubType(type);
-    setSelected('institute');
-  }, []);
+  const tabs: ListingTabItem[] = LISTING_TABS.map((tab) => ({
+    ...tab,
+    count: countFor(tab.id),
+  }));
 
-  const emptyState = (
-    <div className="flex flex-col items-center justify-center py-14 text-center rounded-xl border-2 border-dashed border-neutral-gray-light bg-neutral-bg-light/30">
-      <div className="h-16 w-16 rounded-full bg-white flex items-center justify-center mb-4">
-        <PackageOpen className="h-8 w-8 text-neutral-gray-light" />
-      </div>
-      <h3 className="text-lg font-medium text-neutral-black">No listings yet</h3>
-      <p className="text-neutral-gray-medium max-w-sm mt-1">
-        {effectiveLabel
-          ? `You have not created any ${effectiveLabel.toLowerCase()} listings yet.`
-          : 'You have not created any listings yet.'}
-      </p>
-    </div>
+  const visibleListings = useMemo(() => {
+    if (activeTab === 'all') return approved;
+    return approved.filter((listing) => listing.categoryId === activeTab);
+  }, [approved, activeTab]);
+
+  const rows: ListingTableRow[] = useMemo(
+    () =>
+      visibleListings.map((listing) => ({
+        id: listing.id,
+        name: listing.name,
+        category: listing.category,
+        status: listing.status,
+        image: listing.image,
+        submittedAt: listing.submittedAt,
+        approvedAt: listing.approvedAt,
+        onPreview: () => router.push(`/dashboard/my-listings/${listing.id}`),
+        onEdit: () => router.push(`/dashboard/upload-new-listing?id=${listing.id}`),
+      })),
+    [visibleListings, router]
   );
+
+  const activeLabel = LISTING_TABS.find((tab) => tab.id === activeTab)?.label ?? 'listings';
+
+  let emptyDescription = 'You have not created any listings yet.';
+  if (activeTab === 'institute') {
+    emptyDescription = `You have no approved ${INSTITUTE_SUBTYPE_LABEL[
+      instituteSubType
+    ].toLowerCase()} institute listings yet.`;
+  } else if (activeTab !== 'all') {
+    const label = getCategory(activeTab)?.label ?? activeLabel;
+    emptyDescription = `You have no approved ${label.toLowerCase()} listings yet.`;
+  }
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-neutral-gray-light bg-white p-6 shadow-sm">
-        {selected ? (
-          <div className="space-y-4">
-            <button
-              onClick={() => { setSelected(null); setInstituteSubType(null); }}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-gray-dark hover:text-brand-red-600 transition-colors cursor-pointer"
-            >
-              ‹ All categories
-            </button>
+      <div className="overflow-hidden rounded-xl border border-neutral-gray-light bg-white p-6 shadow-sm">
+        <ListingHeader
+          count={approved.length}
+          onNewListing={() => router.push('/dashboard/upload-new-listing')}
+        />
 
-            {isInnovation ? (
-              loading ? (
-                <p className="text-sm text-neutral-gray-medium">Loading listings...</p>
-              ) : approved.length === 0 ? emptyState : (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {approved.map((listing) => (
-                    <ListingCard
-                      key={listing.id}
-                      listing={listing}
-                      onEdit={() => router.push(`/dashboard/upload-new-listing?id=${listing.id}`)}
-                      onPreview={() => router.push(`/dashboard/my-listings/${listing.id}`)}
-                    />
-                  ))}
-                </div>
-              )
-            ) : (
-              <>
-                <p className="text-sm text-neutral-gray-medium">
-                  Showing <span className="font-semibold text-neutral-black">{effectiveLabel}</span> listings
-                </p>
-                {emptyState}
-              </>
-            )}
+        <ListingTabs
+          tabs={tabs}
+          active={activeTab}
+          onChange={(id) => setActiveTab(id as ListingTabId)}
+          ariaLabel="Listing categories"
+        />
+
+        {activeTab === 'institute' && (
+          <div className="border-b border-neutral-gray-light bg-neutral-bg-light/30 px-4 py-3">
+            <ListingTabs
+              tabs={SUB_TABS}
+              active={instituteSubType}
+              onChange={(id) => setInstituteSubType(id as InstituteSubType)}
+              variant="pill"
+              ariaLabel="Institute types"
+            />
           </div>
-        ) : (
-          <>
-            <ListingHeader
-              count={approved.length}
-              onNewListing={() => router.push('/dashboard/upload-new-listing')}
-            />
-            <CategoryCardGrid
-              onSelect={handleSelect}
-              categories={LISTING_CATEGORIES}
-              subtitle="Select a category to see the listings you have created under it."
-            />
-          </>
         )}
-      </div>
 
-      <InstituteTypeSelectorModal
-        isOpen={showInstituteModal}
-        onClose={() => setShowInstituteModal(false)}
-        onSelectInstituteType={handleInstituteTypeSelect}
-      />
+        <ListingTable
+          rows={rows}
+          loading={loading}
+          showApprovedDate
+          emptyTitle="No listings yet"
+          emptyDescription={emptyDescription}
+        />
+      </div>
     </div>
   );
 }
