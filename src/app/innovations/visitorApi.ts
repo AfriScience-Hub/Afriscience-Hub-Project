@@ -31,7 +31,9 @@ export async function fetchVisitorInnovations(filters: VisitorInnovationFilters 
   if (filters.page) params.set('page', String(filters.page));
 
   const endpoint = `/listings/innovations/list/visitors?${params.toString()}`;
-  const r: any = await api.get(endpoint);
+  // Visitor data is public. Never send a stale bearer token here; an expired
+  // token must not turn a listing page into a login redirect.
+  const r: any = await api.get(endpoint, { auth: 'none' });
   const data = r?.data ?? r;
   return {
     data: Array.isArray(data) ? data : (data?.data ?? []),
@@ -44,7 +46,7 @@ export async function fetchVisitorInnovations(filters: VisitorInnovationFilters 
  * Returns every approved innovation (no pagination params required).
  */
 export async function fetchApprovedInnovations(): Promise<any[]> {
-  const r: any = await api.get('/listings/innovations?status=APPROVED');
+  const r: any = await api.get('/listings/innovations?status=APPROVED', { auth: 'none' });
   const data = r?.data ?? r;
   return Array.isArray(data) ? data : (data?.data ?? []);
 }
@@ -54,7 +56,9 @@ export async function fetchApprovedInnovations(): Promise<any[]> {
  * Returns a single innovation for the visitor detail page.
  */
 export async function fetchVisitorInnovationById(id: string): Promise<any> {
-  const r: any = await api.get(`/listings/innovations/list/visitors/${id}`);
+  // The detail page is protected by its layout. Use the optional auth mode so
+  // an expired session can refresh, or be rejected on a protected route.
+  const r: any = await api.get(`/listings/innovations/list/visitors/${id}`, { auth: 'optional' });
   const data = r?.data ?? r;
   return data;
 }

@@ -21,7 +21,7 @@ export default function ListingTypeSelector({ onSelectType, onViewDrafts }: List
             </p>
           </div>
           {onViewDrafts && (
-            <Button variant="outline" onClick={onViewDrafts} className="gap-2">
+            <Button variant="outline" onClick={onViewDrafts} className="gap-2 border-2 border-red-600 shadow-sm text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-600">
               <FileText className="h-4 w-4" /> View Drafts
             </Button>
           )}

@@ -14,8 +14,8 @@ export default function AdminProfilePage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const handleLogout = async () => {
-    await dispatch(logoutThunk() as any);
+  const handleLogout = () => {
+    void dispatch(logoutThunk() as any);
     toast.success('Signed out');
     router.replace('/admin/login');
   };

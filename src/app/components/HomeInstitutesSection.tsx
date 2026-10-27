@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, Star, MapPin } from 'lucide-react';
 import { INSTITUTES } from '@/app/data/mockData';
 import { Button } from '@/app/components/ui/Button';
+import { ProtectedLink } from '@/app/components/ProtectedLink';
 
 export function HomeInstitutesSection() {
   return (
@@ -21,7 +22,7 @@ export function HomeInstitutesSection() {
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {INSTITUTES.slice(0, 3).map((inst) => (
-            <Link key={inst.id} href={`/institutes/${inst.id}`}
+            <ProtectedLink key={inst.id} href={`/institutes/${inst.id}`}
               className="overflow-hidden rounded-xl bg-white shadow-sm border border-neutral-gray-light hover:shadow-md transition-shadow block"
             >
               <div className="h-48 bg-slate-200 relative">
@@ -49,7 +50,7 @@ export function HomeInstitutesSection() {
                 </div>
                 <Button variant="outline" className="w-full">View Profile</Button>
               </div>
-            </Link>
+            </ProtectedLink>
           ))}
         </div>
       </div>

@@ -1,3 +1,5 @@
+import { isAdminPath, isProtectedPath } from './authRoutes';
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface ApiResponse<T = unknown> {
@@ -10,48 +12,40 @@ interface ApiResponse<T = unknown> {
   error?: string;
 }
 
-let isRefreshing = { admin: false, user: false };
-let failedQueue: { admin: Array<{ resolve: (v: string) => void; reject: (e: any) => void }>, user: Array<{ resolve: (v: string) => void; reject: (e: any) => void }> } = { admin: [], user: [] };
+export type AuthMode = 'required' | 'optional' | 'none';
 
-function onRefreshed(token: string | null, scope: 'admin' | 'user') {
-  failedQueue[scope].forEach((p) => (token ? p.resolve(token) : p.reject(new Error('Refresh failed'))));
-  failedQueue[scope] = [];
+export interface ApiRequestOptions extends RequestInit {
+  /** How this request should use the signed-in session. Defaults to optional. */
+  auth?: AuthMode;
+  /** Prevents the global handler from navigating to login. */
+  suppressAuthRedirect?: boolean;
+  /** Explicit bearer token, useful when local storage has already been cleared. */
+  token?: string;
+  _retry?: boolean;
+  _anonymousRetry?: boolean;
 }
+
+type AuthScope = 'admin' | 'user';
+
+let refreshPromises: Record<AuthScope, Promise<string | null> | null> = {
+  admin: null,
+  user: null,
+};
 
 /** Determines whether we're operating in admin context based on endpoint or current page. */
 function isAdminContext(endpoint?: string): boolean {
   if (endpoint?.startsWith('/admin')) return true;
-  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) return true;
+  if (typeof window !== 'undefined' && isAdminPath(window.location.pathname)) return true;
   return false;
 }
 
-export async function refreshAccessToken(isAdmin = false): Promise<string | null> {
-  if (typeof window === 'undefined') return null;
-  const scope = isAdmin ? 'admin' : 'user';
-  const endpoint = isAdmin ? '/admin/auth/refresh' : '/auth/refresh';
-  const refreshRes = await fetch(`${BASE_URL}${endpoint}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  });
-  const refreshData = await refreshRes.json().catch(() => ({}));
-  const newAccess =
-    refreshData?.accessToken ||
-    refreshData?.token ||
-    (refreshData as any)?.data?.accessToken ||
-    (refreshData as any)?.data?.token ||
-    null;
-  if (refreshRes.ok && newAccess) {
-    setAccessToken(newAccess, isAdmin);
-    onRefreshed(newAccess, scope);
-  } else {
-    onRefreshed(null, scope);
-  }
-  return newAccess;
+function scopeFor(endpoint?: string): AuthScope {
+  return isAdminContext(endpoint) ? 'admin' : 'user';
 }
 
-function getAccessToken(endpoint?: string): string | null {
+function getAccessToken(endpoint?: string, override?: string): string | null {
   if (typeof window === 'undefined') return null;
+  if (override !== undefined) return override || null;
   const admin = isAdminContext(endpoint);
   return localStorage.getItem(admin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token');
 }
@@ -70,6 +64,9 @@ function clearAuthStorage() {
   localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
   localStorage.removeItem('afrisciencehub_user');
   localStorage.removeItem('afrisciencehub_admin');
+  // Let Redux clear the in-memory session as well. This is important on public
+  // pages where we continue as a guest instead of doing a hard redirect.
+  window.dispatchEvent(new Event('auth:session-expired'));
 }
 
 function decodeJwtExp(token: string): number | null {
@@ -77,11 +74,18 @@ function decodeJwtExp(token: string): number | null {
     const payload = token.split('.')[1];
     if (!payload) return null;
     const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
-    const json = JSON.parse(atob(normalized));
+    const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+    const json = JSON.parse(atob(padded));
     return typeof json.exp === 'number' ? json.exp * 1000 : null;
   } catch {
     return null;
   }
+}
+
+function isTokenExpired(token: string, bufferMs = 30_000): boolean {
+  const exp = decodeJwtExp(token);
+  if (exp === null) return false;
+  return Date.now() >= exp - bufferMs;
 }
 
 /**
@@ -91,29 +95,121 @@ function decodeJwtExp(token: string): number | null {
 export function isAccessTokenExpired(bufferMs = 30_000): boolean {
   const token = getAccessToken();
   if (!token) return true;
-  const exp = decodeJwtExp(token);
-  if (exp === null) return false;
-  return Date.now() >= exp - bufferMs;
+  return isTokenExpired(token, bufferMs);
+}
+
+async function performRefresh(scope: AuthScope): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  const isAdmin = scope === 'admin';
+  const endpoint = isAdmin ? '/admin/auth/refresh' : '/auth/refresh';
+
+  try {
+    // No body needed: the HttpOnly refresh cookie is sent automatically
+    // because of `credentials: 'include'`. Never read it from JS.
+    const refreshRes = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
+    const refreshData = await refreshRes.json().catch(() => ({}));
+    const newAccess =
+      refreshData?.accessToken ||
+      refreshData?.token ||
+      (refreshData as any)?.data?.accessToken ||
+      (refreshData as any)?.data?.token ||
+      null;
+
+    if (refreshRes.ok && newAccess) {
+      setAccessToken(newAccess, isAdmin);
+      return newAccess;
+    }
+  } catch {
+    // Network failure or invalid refresh response. Caller decides what to do.
+  }
+
+  return null;
+}
+
+/** Refreshes an access token, sharing one in-flight refresh per scope. */
+function refreshTokens(scope: AuthScope): Promise<string | null> {
+  if (!refreshPromises[scope]) {
+    refreshPromises[scope] = performRefresh(scope).finally(() => {
+      refreshPromises[scope] = null;
+    });
+  }
+  return refreshPromises[scope]!;
+}
+
+export async function refreshAccessToken(isAdmin = false): Promise<string | null> {
+  return refreshTokens(isAdmin ? 'admin' : 'user');
+}
+
+function shouldRedirectToLogin(scope: AuthScope, options: ApiRequestOptions): boolean {
+  if (options.suppressAuthRedirect || typeof window === 'undefined') return false;
+  if (options.auth === 'required') return true;
+  if (scope === 'admin') return isAdminPath(window.location.pathname);
+  return isProtectedPath(window.location.pathname);
+}
+
+function redirectToLogin(scope: AuthScope, options: ApiRequestOptions) {
+  if (!shouldRedirectToLogin(scope, options) || typeof window === 'undefined') return;
+
+  const loginPath = scope === 'admin' ? '/admin/login' : '/login';
+  const from = window.location.pathname + window.location.search;
+  const query = `reason=session_expired${from ? `&from=${encodeURIComponent(from)}` : ''}`;
+  window.location.href = `${loginPath}?${query}`;
+}
+
+function handleAuthFailure(scope: AuthScope, options: ApiRequestOptions) {
+  clearAuthStorage();
+  redirectToLogin(scope, options);
+}
+
+function requestError(data: ApiResponse<unknown>, status: number): Error {
+  const details = (data as any)?.errors || (data as any)?.error;
+  if (Array.isArray(details)) return new Error(details.join('\n'));
+  return new Error(data.message || data.error || `Request failed (${status})`);
 }
 
 async function request<T>(
   endpoint: string,
-  options: RequestInit & { _retry?: boolean } = {}
+  options: ApiRequestOptions = {},
 ): Promise<ApiResponse<T>> {
-  const url = `${BASE_URL}${endpoint}`;
-  const scope: 'admin' | 'user' = isAdminContext(endpoint) ? 'admin' : 'user';
-  const token = getAccessToken(endpoint);
+  const auth = options.auth ?? 'optional';
+  const scope = scopeFor(endpoint);
+  const {
+    _retry,
+    _anonymousRetry,
+    auth: _auth,
+    suppressAuthRedirect,
+    token: overrideToken,
+    ...fetchOpts
+  } = options;
+  const pageProtected =
+    typeof window !== 'undefined' && isProtectedPath(window.location.pathname);
 
-  const isFormData = options.body instanceof FormData;
+  let token = auth === 'none' ? null : getAccessToken(endpoint, overrideToken);
+
+  // Do not send a JWT we already know is expired. Try the refresh cookie first.
+  if (token && isTokenExpired(token) && !_retry) {
+    token = await refreshTokens(scope);
+    if (!token) {
+      clearAuthStorage();
+      if (auth === 'required' || pageProtected) {
+        redirectToLogin(scope, options);
+        throw new Error('Session expired, please sign in again');
+      }
+      // Public optional request: continue anonymously rather than redirecting.
+    }
+  }
+
   const headers: HeadersInit = {
-    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    ...(fetchOpts.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options.headers,
+    ...fetchOpts.headers,
   };
 
-  const { _retry, ...fetchOpts } = options;
-
-  const res = await fetch(url, {
+  const res = await fetch(`${BASE_URL}${endpoint}`, {
     ...fetchOpts,
     headers,
     // Must be 'include' so the browser sends/stores the HttpOnly refresh-token
@@ -131,135 +227,100 @@ async function request<T>(
 
   if (!res.ok) {
     const msg = (data.message || data.error || '').toLowerCase();
-    const isExpired = (res.status === 401 || res.status === 400) && (msg.includes('expired') || msg.includes('token'));
-    const isAdminNotVerified = res.status === 403 && msg.includes('not verified');
-    const isAdminRequest = scope === 'admin';
-    const refreshEndpoint = isAdminRequest ? '/admin/auth/refresh' : '/auth/refresh';
+    const isTokenError =
+      (res.status === 401 || res.status === 400) &&
+      (msg.includes('expired') || msg.includes('token'));
 
-    if ((isExpired || isAdminNotVerified) && !_retry && endpoint !== refreshEndpoint) {
-      if (isRefreshing[scope]) {
-        return new Promise<ApiResponse<T>>((resolve, reject) => {
-          failedQueue[scope].push({
-            resolve: (newToken) =>
-              resolve(request<T>(endpoint, { ...options, _retry: true, headers: { ...options.headers, Authorization: `Bearer ${newToken}` } } as any)),
-            reject,
+    if (auth !== 'none' && isTokenError && !_retry) {
+      if (token) {
+        const newToken = await refreshTokens(scope);
+        if (newToken) {
+          return request<T>(endpoint, { ...options, _retry: true, token: newToken });
+        }
+
+        handleAuthFailure(scope, options);
+
+        // A public/optional request should still render as a guest if its
+        // endpoint allows anonymous access. Never hard-redirect the listing.
+        if (
+          auth !== 'required' &&
+          !pageProtected &&
+          !_anonymousRetry
+        ) {
+          return request<T>(endpoint, {
+            ...options,
+            _retry: true,
+            _anonymousRetry: true,
+            auth: 'none',
           });
-        });
-      }
-
-      isRefreshing[scope] = true;
-      try {
-        // No body needed: the HttpOnly refresh cookie is sent automatically
-        // because of `credentials: 'include'`. Never read it from JS.
-        // Admin requests refresh via the admin endpoint so admin sessions
-        // are not terminated by the user-session refresh flow (and vice versa).
-        const refreshRes = await fetch(`${BASE_URL}${refreshEndpoint}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-        });
-        const refreshData = await refreshRes.json().catch(() => ({}));
-        const newAccess =
-          refreshData?.accessToken ||
-          refreshData?.token ||
-          (refreshData as any)?.data?.accessToken ||
-          (refreshData as any)?.data?.token ||
-          null;
-
-        if (refreshRes.ok && newAccess) {
-          setAccessToken(newAccess, isAdminRequest);
-          isRefreshing[scope] = false;
-          onRefreshed(newAccess, scope);
-          return request<T>(endpoint, { ...options, _retry: true, headers: { ...options.headers, Authorization: `Bearer ${newAccess}` } } as any);
         }
-        throw new Error(refreshData.message || 'Refresh failed');
-      } catch (e) {
-        isRefreshing[scope] = false;
-        onRefreshed(null, scope);
-        if (typeof window !== 'undefined') {
-          clearAuthStorage();
-          // Check both the failed request endpoint AND the current page location
-          // to ensure admin users are redirected to admin login even if the
-          // expired request was to a non-admin endpoint (e.g., /auth/me).
-          const isAdminPage = window.location.pathname.startsWith('/admin');
-          const loginPath = (isAdminRequest || isAdminPage) ? '/admin/login' : '/login';
-          // Remember where the user was so a successful re-login returns them
-          // to the same page instead of the default landing page.
-          const from = window.location.pathname + window.location.search;
-          const query = `reason=session_expired${from ? `&from=${encodeURIComponent(from)}` : ''}`;
-          window.location.href = `${loginPath}?${query}`;
-        }
-        throw new Error('Session expired, please sign in again');
       }
+      // No token was sent at all. That is a guest request to a public page —
+      // never attempt refresh or redirect from it.
+    } else if (isTokenError && _retry && token) {
+      // A freshly-refreshed token was rejected. Treat the session as dead.
+      handleAuthFailure(scope, options);
     }
 
-    const details = (data as any)?.errors || (data as any)?.error;
-    if (Array.isArray(details)) throw new Error(details.join('\n'));
-    throw new Error(data.message || data.error || `Request failed (${res.status})`);
+    throw requestError(data, res.status);
   }
 
   return data;
 }
 
 export const api = {
-  post<T>(endpoint: string, body?: Record<string, unknown>) {
+  post<T>(endpoint: string, body?: Record<string, unknown>, options?: ApiRequestOptions) {
     return request<T>(endpoint, {
+      ...options,
       method: 'POST',
       body: body ? JSON.stringify(body) : undefined,
     });
   },
 
-  get<T>(endpoint: string) {
-    return request<T>(endpoint, { method: 'GET' });
+  get<T>(endpoint: string, options?: ApiRequestOptions) {
+    return request<T>(endpoint, { ...options, method: 'GET' });
   },
 
-  put<T>(endpoint: string, body?: Record<string, unknown>) {
+  put<T>(endpoint: string, body?: Record<string, unknown>, options?: ApiRequestOptions) {
     return request<T>(endpoint, {
+      ...options,
       method: 'PUT',
       body: JSON.stringify(body),
     });
   },
 
-  delete<T>(endpoint: string) {
-    return request<T>(endpoint, { method: 'DELETE' });
+  delete<T>(endpoint: string, options?: ApiRequestOptions) {
+    return request<T>(endpoint, { ...options, method: 'DELETE' });
   },
 
-  patch<T>(endpoint: string, body?: Record<string, unknown>) {
+  patch<T>(endpoint: string, body?: Record<string, unknown>, options?: ApiRequestOptions) {
     return request<T>(endpoint, {
+      ...options,
       method: 'PATCH',
       body: body ? JSON.stringify(body) : undefined,
     });
   },
 
-  postFormData<T>(endpoint: string, formData: FormData) {
-    const token = getAccessToken(endpoint);
-    const headers: HeadersInit = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+  postFormData<T>(endpoint: string, formData: FormData, options?: ApiRequestOptions) {
     return request<T>(endpoint, {
+      ...options,
       method: 'POST',
-      headers,
       body: formData,
     });
   },
 
-  putFormData<T>(endpoint: string, formData: FormData) {
-    const token = getAccessToken(endpoint);
-    const headers: HeadersInit = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+  putFormData<T>(endpoint: string, formData: FormData, options?: ApiRequestOptions) {
     return request<T>(endpoint, {
+      ...options,
       method: 'PUT',
-      headers,
       body: formData,
     });
   },
 
-  patchFormData<T>(endpoint: string, formData: FormData) {
-    const token = getAccessToken(endpoint);
-    const headers: HeadersInit = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+  patchFormData<T>(endpoint: string, formData: FormData, options?: ApiRequestOptions) {
     return request<T>(endpoint, {
+      ...options,
       method: 'PATCH',
-      headers,
       body: formData,
     });
   },

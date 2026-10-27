@@ -41,7 +41,7 @@ export default function SignUp() {
   useEffect(() => {
     dispatch(fetchGoogleClientId()).then((res: any) => {
       const data = res?.payload?.data ?? res?.payload ?? null;
-      console.log('=== GOOGLE CLIENT ID RESPONSE ===', data);
+      // console.log('=== GOOGLE CLIENT ID RESPONSE ===', data);
       const id =
         data?.CLIENT_ID ??
         data?.clientId ??

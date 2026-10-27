@@ -73,7 +73,8 @@ export default function AdminCreateInnovationPage() {
     if (profileImageFile) {
       try {
         const uploaded = await uploadFile(profileImageFile);
-        finalProfileImageKey = uploaded.key || uploaded.url;
+        if (!uploaded.key) throw new Error('Upload did not return a storage key.');
+        finalProfileImageKey = uploaded.key;
       } catch {
         toast.error('Failed to upload profile image. Please try again.');
         setSaving(false);
@@ -89,7 +90,8 @@ export default function AdminCreateInnovationPage() {
           innovGallery.map(async (g) => {
             if (!g.file) return g;
             const uploaded = await uploadFile(g.file);
-            return { ...g, name: uploaded.key || uploaded.url };
+            if (!uploaded.key) throw new Error('Upload did not return a storage key.');
+            return { ...g, name: uploaded.key };
           })
         );
       } catch {
@@ -107,7 +109,8 @@ export default function AdminCreateInnovationPage() {
           innovLicenses.map(async (d) => {
             if (!d.fileObj) return d;
             const uploaded = await uploadFile(d.fileObj);
-            return { ...d, file: uploaded.key || uploaded.url };
+            if (!uploaded.key) throw new Error('Upload did not return a storage key.');
+            return { ...d, file: uploaded.key };
           })
         );
       } catch {
@@ -125,7 +128,8 @@ export default function AdminCreateInnovationPage() {
           innovAwards.map(async (d) => {
             if (!d.fileObj) return d;
             const uploaded = await uploadFile(d.fileObj);
-            return { ...d, file: uploaded.key || uploaded.url };
+            if (!uploaded.key) throw new Error('Upload did not return a storage key.');
+            return { ...d, file: uploaded.key };
           })
         );
       } catch {

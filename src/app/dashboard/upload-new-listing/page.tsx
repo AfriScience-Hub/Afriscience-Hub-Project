@@ -363,7 +363,8 @@ export default function UploadNewListing() {
     if (profileImageFile) {
       try {
         const uploaded = await uploadFile(profileImageFile);
-        finalProfileImageKey = uploaded.key || uploaded.url;
+        if (!uploaded.key) throw new Error('Upload did not return a storage key.');
+        finalProfileImageKey = uploaded.key;
         setProfileImageKey(finalProfileImageKey);
         setProfileImageFile(null);
       } catch {
@@ -379,8 +380,9 @@ export default function UploadNewListing() {
         finalInnovGallery = await Promise.all(innovGallery.map(async g => {
           if (!g.file) return g;
           const uploaded = await uploadFile(g.file);
+          if (!uploaded.key) throw new Error('Upload did not return a storage key.');
           const { file: _file, ...rest } = g;
-          return { ...rest, name: uploaded.key || uploaded.url };
+          return { ...rest, name: uploaded.key };
         }));
         setInnovGallery(finalInnovGallery);
       } catch {
@@ -392,8 +394,9 @@ export default function UploadNewListing() {
       Promise.all(docs.map(async d => {
         if (!d.fileObj) return d; // already on the server (edit mode) — keep as is
         const uploaded = await uploadFile(d.fileObj);
+        if (!uploaded.key) throw new Error('Upload did not return a storage key.');
         const { fileObj: _fileObj, ...rest } = d;
-        return { ...rest, file: uploaded.key || uploaded.url };
+        return { ...rest, file: uploaded.key };
       }));
 
     let finalInnovLicenses = innovLicenses;
@@ -526,9 +529,9 @@ export default function UploadNewListing() {
 
     try {
       if (draftId) {
-        // Persist the latest edits, then promote the draft to a submission.
-        await updateInnovationDraft(draftId, payload);
-        await submitInnovationDraft(draftId, { payingUser: isPaid });
+        // The submit endpoint accepts the full listing payload; PATCHing the
+        // draft first would validate it as a draft and can reject media fields.
+        await submitInnovationDraft(draftId, payload);
       } else if (editId) {
         await updateInnovation(editId, payload);
       } else {

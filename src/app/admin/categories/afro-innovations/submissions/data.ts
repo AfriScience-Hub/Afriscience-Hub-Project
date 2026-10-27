@@ -53,6 +53,8 @@ export interface SubmissionRecord {
   submittedTime: string;
   status: SubmissionStatus;
   verified?: boolean;
+  /** True when the submission was made on the annual paid plan. */
+  payingUser?: boolean;
   publishedBy: { name: string; date: string; avatar: string } | null;
   innovator: SubmissionInnovator;
   socials: { platform: string; link: string }[];

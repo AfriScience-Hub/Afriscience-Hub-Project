@@ -56,6 +56,70 @@ export interface UsersListResult {
   pagination: UsersPagination | null;
 }
 
+export interface UserFetchOptions {
+  /** Bypass the short-lived cache (manual refresh or after a mutation). */
+  force?: boolean;
+}
+
+type CacheEntry<T> = {
+  value?: T;
+  promise?: Promise<T>;
+  expiresAt: number;
+};
+
+/**
+ * User-management screens are mounted more than once by React's development
+ * double-effect and by the admin shell hydrating. A short-lived request cache
+ * plus in-flight promise sharing keeps each endpoint to one network call while
+ * the same data is being viewed.
+ */
+const requestCache = new Map<string, CacheEntry<unknown>>();
+const REQUEST_CACHE_TTL_MS = 10_000;
+
+function cachedRequest<T>(
+  key: string,
+  request: () => Promise<T>,
+  force = false
+): Promise<T> {
+  const now = Date.now();
+
+  if (!force) {
+    const entry = requestCache.get(key) as CacheEntry<T> | undefined;
+    if (entry) {
+      if (entry.promise) return entry.promise;
+      if (entry.value !== undefined && entry.expiresAt > now) {
+        return Promise.resolve(entry.value);
+      }
+    }
+  }
+
+  const promise = request()
+    .then((value) => {
+      requestCache.set(key, {
+        value,
+        expiresAt: Date.now() + REQUEST_CACHE_TTL_MS,
+      });
+      return value;
+    })
+    .catch((error) => {
+      requestCache.delete(key);
+      throw error;
+    });
+
+  requestCache.set(key, {
+    promise,
+    expiresAt: now + REQUEST_CACHE_TTL_MS,
+  });
+  return promise;
+}
+
+/** Clears cached user lists after a suspend/restore mutation. */
+function invalidateUserCache(): void {
+  for (const key of requestCache.keys()) {
+    if (key.startsWith('users:')) requestCache.delete(key);
+  }
+}
+
 function normalizeList(body: any): UsersListResult {
   const b = body?.data && !Array.isArray(body.data) && Array.isArray(body.data?.data) ? body.data : body;
   const data = Array.isArray(b?.data) ? b.data : Array.isArray(b) ? b : [];
@@ -94,34 +158,41 @@ export function displayUserId(user: AdminUser): string {
 
 export const DEFAULT_PAGE_SIZE = 10;
 
-export async function fetchAllUsers(params: { page?: number; limit?: number } = {}): Promise<UsersListResult> {
+export async function fetchAllUsers(
+  params: { page?: number; limit?: number } = {},
+  options: UserFetchOptions = {}
+): Promise<UsersListResult> {
   const page = params.page || 1;
   const limit = params.limit || DEFAULT_PAGE_SIZE;
-  const res: any = await api.get(`/admin/users?page=${page}&limit=${limit}`);
-  return normalizeList(res);
+  return cachedRequest(`users:list:${page}:${limit}`, async () => {
+    const res: any = await api.get(`/admin/users?page=${page}&limit=${limit}`);
+    return normalizeList(res);
+  }, options.force);
 }
 
-export async function fetchSuspendedUsers(params: { page?: number; limit?: number } = {}): Promise<UsersListResult> {
-  const page = params.page || 1;
-  const limit = params.limit || DEFAULT_PAGE_SIZE;
-  const res: any = await api.get(`/admin/users/suspended?page=${page}&limit=${limit}`);
-  return normalizeList(res);
+export async function fetchSuspendedUsers(options: UserFetchOptions = {}): Promise<UsersListResult> {
+  return cachedRequest('users:suspended', async () => {
+    const res: any = await api.get('/admin/users/suspended');
+    return normalizeList(res);
+  }, options.force);
 }
 
 export async function fetchAdminUser(id: string): Promise<AdminUser | null> {
-  const res: any = await api.get(`/admin/users/${id}`);
+  const res: any = await api.get(`/admin/users/details/${id}`);
   const b = res?.data && !Array.isArray(res.data) && res.data?.id ? res.data : res;
   return b?.id ? b as AdminUser : (b?.details?.id ? b?.details as AdminUser : null);
 }
 
 export async function suspendUser(id: string): Promise<string> {
   const res: any = await api.post(`/admin/users/suspend/${id}`);
+  invalidateUserCache();
   const b = res?.data && !Array.isArray(res.data) ? res.data : res;
   return b?.message || 'User suspended successfully';
 }
 
 export async function restoreUser(id: string): Promise<string> {
   const res: any = await api.post(`/admin/users/restore/${id}`);
+  invalidateUserCache();
   const b = res?.data && !Array.isArray(res.data) ? res.data : res;
   return b?.message || 'User restored successfully';
 }

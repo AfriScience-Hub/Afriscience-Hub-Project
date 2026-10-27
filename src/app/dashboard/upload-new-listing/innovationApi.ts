@@ -76,6 +76,21 @@ export const STAGE_REV = REV(STAGE);
 export const SDG_REV = REV(SDG);
 export const MEDIA_REV = REV(MEDIA);
 
+const S3_BUCKET_HOST = /^https?:\/\/afriscience-buckset\.s3\.[^/]+\//i;
+
+/** Removes the public "uploads/" folder from a storage key. */
+function stripUploadsPrefix(key: string): string {
+  return key.replace(/^(?:uploads\/)+/i, '').replace(/^\/+/, '');
+}
+
+function decodeKey(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 /**
  * Converts a stored file value into the bare storage key the API expects.
  *
@@ -84,21 +99,47 @@ export const MEDIA_REV = REV(MEDIA);
  * just the file name, with NO "uploads/" folder. The backend adds that folder
  * itself when signing display URLs, so including it here would store
  * "uploads/uploads/<file>" and every display URL would 404 upstream.
- * Bare keys pass through untouched; external non-bucket URLs are unchanged.
+ *
+ * URLs are never sent to the API: bucket URLs and ordinary /uploads/ URLs are
+ * reduced to their key, and an unrecognised URL falls back to its last path
+ * segment so the 255-character field limit cannot be breached.
  */
 export function toStorageKey(value?: string | null): string {
   if (!value) return '';
-  const v = value.trim();
+  let v = value.trim();
   if (!v) return '';
-  // Already a bare storage key — send it exactly as-is.
-  if (!/^https?:\/\//i.test(v)) return v.replace(/^\/+/, '');
-  // Signed/unsigned URL (incl. the legacy malformed "https://uploads/..." form):
-  // the key is only the file path after the "/uploads/" folder.
+
+  // Some API clients return a URL-encoded URL (https%3A%2F%2F...).
+  if (!/^https?:\/\//i.test(v) && /^https?%3A%2F%2F/i.test(v)) {
+    v = decodeKey(v);
+  }
+
+  // Already a bare storage key — remove the public uploads folder if present.
+  if (!/^https?:\/\//i.test(v)) return stripUploadsPrefix(v);
+
   const path = v.split(/[?#]/)[0];
-  const match = path.match(/\/uploads\/(.+)$/i);
-  if (match) return match[1];
-  // Not one of our bucket files (e.g. an external link) — leave it as-is.
-  return v;
+
+  // Legacy malformed form: "https://uploads/<key>".
+  const legacy = path.match(/^https?:\/\/uploads\/(.+)$/i);
+  if (legacy) return stripUploadsPrefix(decodeKey(legacy[1]));
+
+  // Our private S3 bucket: everything after the host is the key.
+  if (S3_BUCKET_HOST.test(path)) {
+    return stripUploadsPrefix(decodeKey(path.replace(S3_BUCKET_HOST, '')));
+  }
+
+  // Any other URL that exposes the uploads folder.
+  const uploads = path.match(/\/uploads\/(.+)$/i);
+  if (uploads) return stripUploadsPrefix(decodeKey(uploads[1]));
+
+  // Unknown host: never send a URL where the API expects a key. Use the last
+  // path segment as a best-effort key.
+  try {
+    const segments = new URL(path).pathname.split('/').filter(Boolean);
+    return stripUploadsPrefix(decodeKey(segments.pop() || ''));
+  } catch {
+    return stripUploadsPrefix(decodeKey(path));
+  }
 }
 
 function num(v: string) {
@@ -211,8 +252,8 @@ export async function updateInnovationDraft(id: string, body: InnovationPayload)
 }
 
 /** Promotes a saved draft to a listing and sends it for review. */
-export async function submitInnovationDraft(id: string, body?: Record<string, unknown>) {
-  const r = await api.post(`/listings/innovations/${id}/submit`, body);
+export async function submitInnovationDraft(id: string, body: InnovationPayload) {
+  const r = await api.post(`/listings/innovations/${id}/submit`, body as unknown as Record<string, unknown>);
   return unwrapData(r);
 }
 

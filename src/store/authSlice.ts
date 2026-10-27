@@ -320,6 +320,9 @@ export const fetchCurrentUser = createAsyncThunk<
   let user: AuthUser | null = null;
   let error: string | null = null;
 
+  // No token means no session. Never restore a cached identity on its own.
+  if (!token) return rejectWithValue('No active session');
+
   try {
     const data = await api.get('/auth/me');
     user = applyTokenClaims(extractUser(data), token);
@@ -330,7 +333,7 @@ export const fetchCurrentUser = createAsyncThunk<
   // /auth/me can omit the picture (or hand back an expired signed URL).
   // /profile returns `displayPhoto` and a freshly signed URL, so use it as the
   // fallback before ever falling back to initials.
-  if (!user?.avatar) {
+  if (!user?.avatar && storedToken()) {
     try {
       const profileData = await api.get('/profile');
       const avatar = extractAvatarFromPayload(profileData);
@@ -342,6 +345,10 @@ export const fetchCurrentUser = createAsyncThunk<
       // No profile yet — keep whatever /me/JWT gave us.
     }
   }
+
+  // The token may have been cleared while the requests were in flight (for
+  // example a failed refresh on a public page). Do not resurrect the session.
+  if (!storedToken()) return rejectWithValue(error || 'Session ended');
 
   if (!user) {
     if (existing) return existing;
@@ -368,21 +375,47 @@ export const fetchSessions = createAsyncThunk(
   }
 );
 
-export const logoutThunk = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
-  try {
-    // credentials:'include' (set in lib/api) sends the HttpOnly refresh cookie
-    // so the backend can clear it. Still clear local state even on failure.
-    await api.post('/auth/logout');
-  } catch (err: any) {
-    // still clear locally even if server fails
+/** Best-effort server logout. Local state is already cleared before this runs. */
+async function requestRemoteLogout(token: string | null, isAdmin: boolean) {
+  if (typeof window === 'undefined') return;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!baseUrl) return;
+
+  const endpoints = isAdmin
+    ? ['/admin/auth/logout', '/auth/logout']
+    : ['/auth/logout'];
+
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(`${baseUrl}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        credentials: 'include',
+      });
+      // Try the next endpoint only when the admin-specific one is unavailable.
+      if (isAdmin && (res.status === 404 || res.status === 405)) continue;
+      return;
+    } catch {
+      return;
+    }
   }
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('afrisciencehub_token');
-    localStorage.removeItem('afrisciencehub_admin_token');
-    localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
-    localStorage.removeItem('afrisciencehub_user');
-    localStorage.removeItem('afrisciencehub_admin');
-  }
+}
+
+export const logoutThunk = createAsyncThunk('auth/logout', async (_, { getState, dispatch }) => {
+  const state = getState() as { auth: AuthState };
+  const isAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+  const token =
+    (typeof window !== 'undefined'
+      ? localStorage.getItem(isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token')
+      : null) || state.auth.accessToken;
+
+  // Clear the UI and storage synchronously, before any network call. Logging
+  // out must never wait on the server or be converted into "session expired".
+  dispatch(logoutLocal());
+  await requestRemoteLogout(token, isAdmin);
 });
 
 const initialState: AuthState = {
@@ -423,7 +456,22 @@ const authSlice = createSlice({
         const isAdmin = window.location.pathname.startsWith('/admin');
         const userKey = isAdmin ? 'afrisciencehub_admin' : 'afrisciencehub_user';
         const tokenKey = isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token';
+        const token = localStorage.getItem(tokenKey);
         const stored = localStorage.getItem(userKey);
+
+        state.accessToken = token;
+        state.refreshToken = null;
+
+        // A cached user is not a session. Require a token as well, otherwise
+        // the UI claims to be signed in and the next request produces a bogus
+        // "session expired" redirect.
+        if (!token) {
+          state.user = null;
+          state.isAuthenticated = false;
+          localStorage.removeItem(userKey);
+          return;
+        }
+
         if (stored) {
           const parsed = JSON.parse(stored);
           // Re-normalize anything an older build persisted: drops the hard-coded
@@ -435,12 +483,34 @@ const authSlice = createSlice({
           }
           // Fill any gaps (e.g. avatar) from the token's claims so the profile
           // picture renders immediately on reload too.
-          state.user = parsed ? applyTokenClaims(parsed, tokenKey ? localStorage.getItem(tokenKey) : null) : parsed;
+          state.user = parsed ? applyTokenClaims(parsed, token) : parsed;
           state.isAuthenticated = true;
+        } else {
+          state.user = null;
+          state.isAuthenticated = false;
         }
-        state.accessToken = localStorage.getItem(tokenKey);
-        state.refreshToken = localStorage.getItem('afrisciencehub_refresh');
-      } catch {}
+      } catch {
+        state.user = null;
+        state.isAuthenticated = false;
+      }
+    },
+    logoutLocal(state) {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.sessions = [];
+      state.sessionsPagination = null;
+      state.sessionsLoading = false;
+      state.sessionsError = null;
+
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('afrisciencehub_token');
+        localStorage.removeItem('afrisciencehub_admin_token');
+        localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
+        localStorage.removeItem('afrisciencehub_user');
+        localStorage.removeItem('afrisciencehub_admin');
+      }
     },
     clearError(state) {
       state.error = null;
@@ -549,5 +619,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, hydrateFromStorage, clearError } = authSlice.actions;
+export const { setUser, hydrateFromStorage, logoutLocal, clearError } = authSlice.actions;
 export default authSlice.reducer;

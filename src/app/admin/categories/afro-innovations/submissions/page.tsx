@@ -17,6 +17,7 @@ import type { SubmissionRecord, SubmissionStatus } from './data';
 import SubmissionDetailModal from './components/SubmissionDetailModal';
 import { INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS, INNOVATION_OWNERSHIP, INNOVATION_SDGS, AFRICAN_COUNTRIES } from '@/app/data/mockData';
 import { fetchAdminInnovations, mapAdminInnovation, approveInnovation, rejectInnovation } from '../api';
+import SubscriptionBadge from '../components/SubscriptionBadge';
 
 export default function SubmissionsPage() {
   const [records, setRecords] = useState<SubmissionRecord[]>([]);
@@ -29,6 +30,7 @@ export default function SubmissionsPage() {
   const [ownershipFilter, setOwnershipFilter] = useState<string>('All Ownership');
   const [sdgFilter, setSdgFilter] = useState<string>('All SDGs');
   const [countryFilter, setCountryFilter] = useState<string>('All Countries');
+  const [subscriptionFilter, setSubscriptionFilter] = useState<string>('All Subscriptions');
   const [selected, setSelected] = useState<SubmissionRecord | null>(null);
   const [page, setPage] = useState(1);
   const perPage = 10;
@@ -43,9 +45,14 @@ export default function SubmissionsPage() {
       if (ownershipFilter !== 'All Ownership' && r.innovation.ownership !== ownershipFilter) return false;
       if (sdgFilter !== 'All SDGs' && !r.innovation.sdgs.includes(sdgFilter)) return false;
       if (countryFilter !== 'All Countries' && r.innovation.country !== countryFilter) return false;
+      if (subscriptionFilter !== 'All Subscriptions') {
+        const paid = r.payingUser === true;
+        if (subscriptionFilter === 'Paid Plan' && !paid) return false;
+        if (subscriptionFilter === 'Free Plan' && paid) return false;
+      }
       return true;
     });
-  }, [records, search, statusFilter, fieldFilter, stageFilter, interestFilter, ownershipFilter, sdgFilter, countryFilter]);
+  }, [records, search, statusFilter, fieldFilter, stageFilter, interestFilter, ownershipFilter, sdgFilter, countryFilter, subscriptionFilter]);
 
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
@@ -180,11 +187,16 @@ export default function SubmissionsPage() {
         <select value={countryFilter} onChange={(e) => setCountryFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Countries</option>{AFRICAN_COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
+        <select value={subscriptionFilter} onChange={(e) => setSubscriptionFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
+          <option>All Subscriptions</option>
+          <option>Paid Plan</option>
+          <option>Free Plan</option>
+        </select>
       </div>
 
       <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[1180px]">
+          <table className="w-full text-sm min-w-[1300px]">
             <thead>
               <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Innovation</th>
@@ -193,6 +205,7 @@ export default function SubmissionsPage() {
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Stage</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Ownership</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Country</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Subscription</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Status</th>
                 <th className="text-right px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Actions</th>
               </tr>
@@ -200,7 +213,7 @@ export default function SubmissionsPage() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={8} className="p-8">
+                  <td colSpan={9} className="p-8">
                     <div className="animate-pulse space-y-4">
                       <div className="bg-white rounded-lg border border-neutral-gray-light p-4 py-6">
                         <div className="h-4 w-1/4 rounded" style={darkShimmerStyle} />
@@ -237,6 +250,7 @@ export default function SubmissionsPage() {
                   <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.innovation.stage}</span></td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.ownership}</td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.country}</td>
+                  <td className="px-3 py-2.5"><SubscriptionBadge payingUser={r.payingUser} /></td>
                   <td className="px-3 py-2.5"><span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${r.status === 'Pending Review' ? 'bg-amber-50 text-amber-700' : r.status === 'Published' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{r.status}</span></td>
                   <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                     <TableActionMenu

@@ -126,7 +126,13 @@ export default function SubmissionDetailModal({
                       </div>
                     )}
                     <Field label="Submitted By" value={submission.user?.fullName || '—'} />
-                    <Field label="Published By" value={submission.publishedBy?.name || '—'} />
+                    <div className="space-y-3">
+                      <Field label="Published By" value={submission.publishedBy?.name || '—'} />
+                      <Field
+                        label="Subscription"
+                        value={submission.payingUser === true ? 'Paid Plan' : 'Free Plan'}
+                      />
+                    </div>
                   </div>
 
                   <div className="pt-2">

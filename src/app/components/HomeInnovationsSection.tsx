@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { INNOVATIONS } from '@/app/data/mockData';
 import { Button } from '@/app/components/ui/Button';
+import { ProtectedLink } from '@/app/components/ProtectedLink';
 
 export function HomeInnovationsSection() {
   return (
@@ -38,9 +39,9 @@ export function HomeInnovationsSection() {
               </div>
               <h3 className="text-xl font-bold text-white mb-1">{item.name}</h3>
               <p className="text-slate-300 text-sm mb-4 line-clamp-1">by {item.creator}</p>
-              <Link href={`/innovations/${item.id}`}>
+              <ProtectedLink href={`/innovations/${item.id}`}>
                 <Button size="sm" className="w-full bg-white text-brand-navy-900 hover:bg-neutral-bg-light">Learn More</Button>
-              </Link>
+              </ProtectedLink>
             </div>
           </div>
         ))}

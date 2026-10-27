@@ -17,6 +17,7 @@ import SubmissionDetailModal from '../submissions/components/SubmissionDetailMod
 import { INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS, AFRICAN_COUNTRIES } from '@/app/data/mockData';
 import { fetchAdminInnovations, mapAdminInnovation, setInnovationVerification } from '../api';
 import { StatSkeleton, ChartSkeleton, ListSkeleton } from '../components/OverviewWidgets';
+import SubscriptionBadge from '../components/SubscriptionBadge';
 
 const distinct = (items: string[]) => new Set(items).size;
 
@@ -29,6 +30,7 @@ export default function AllInnovationsPage() {
   const [stageFilter, setStageFilter] = useState('All Stages');
   const [countryFilter, setCountryFilter] = useState('All Countries');
   const [verifiedFilter, setVerifiedFilter] = useState('All');
+  const [subscriptionFilter, setSubscriptionFilter] = useState('All Subscriptions');
   const [selected, setSelected] = useState<SubmissionRecord | null>(null);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -59,8 +61,13 @@ export default function AllInnovationsPage() {
     if (countryFilter !== 'All Countries' && r.innovation.country !== countryFilter) return false;
     if (verifiedFilter === 'Verified' && !r.verified) return false;
     if (verifiedFilter === 'Unverified' && r.verified) return false;
+    if (subscriptionFilter !== 'All Subscriptions') {
+      const paid = r.payingUser === true;
+      if (subscriptionFilter === 'Paid Plan' && !paid) return false;
+      if (subscriptionFilter === 'Free Plan' && paid) return false;
+    }
     return true;
-  }), [live, search, fieldFilter, interestFilter, stageFilter, countryFilter, verifiedFilter]);
+  }), [live, search, fieldFilter, interestFilter, stageFilter, countryFilter, verifiedFilter, subscriptionFilter]);
 
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
@@ -157,11 +164,16 @@ export default function AllInnovationsPage() {
           <option value="Verified">Verified</option>
           <option value="Unverified">Unverified</option>
         </select>
+        <select value={subscriptionFilter} onChange={(e) => setSubscriptionFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
+          <option>All Subscriptions</option>
+          <option>Paid Plan</option>
+          <option>Free Plan</option>
+        </select>
       </div>
 
       <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[1360px]">
+          <table className="w-full text-sm min-w-[1440px]">
             <thead>
               <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Innovation</th>
@@ -170,6 +182,7 @@ export default function AllInnovationsPage() {
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Stage</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Ownership</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Country</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Subscription</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Published By</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Status</th>
                 <th className="text-right px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Actions</th>
@@ -178,7 +191,7 @@ export default function AllInnovationsPage() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={9} className="p-8">
+                  <td colSpan={10} className="p-8">
                     <div className="animate-pulse space-y-4">
                       <div className="bg-white rounded-lg border border-neutral-gray-light p-4 py-6">
                         <div className="h-4 w-1/4 rounded" style={darkShimmerStyle} />
@@ -196,7 +209,7 @@ export default function AllInnovationsPage() {
               )}
               {!loading && live.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center">
+                  <td colSpan={10} className="p-8 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-16 w-16 rounded-full bg-neutral-bg-light border border-neutral-gray-light flex items-center justify-center">
                         <Lightbulb className="h-8 w-8 text-neutral-gray-medium" />
@@ -228,6 +241,7 @@ export default function AllInnovationsPage() {
                   <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.innovation.stage}</span></td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.ownership}</td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.country}</td>
+                  <td className="px-3 py-2.5"><SubscriptionBadge payingUser={r.payingUser} /></td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.publishedBy?.name || '—'}</td>
                   <td className="px-3 py-2.5">
                     <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-emerald-50 text-emerald-700">Live</span>

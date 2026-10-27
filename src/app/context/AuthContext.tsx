@@ -1,8 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, type ReactNode } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { signupUser, loginUser, verifyUserEmail, logoutThunk, setUser, googleAuth } from '@/store/authSlice';
+import { signupUser, loginUser, verifyUserEmail, logoutThunk, logoutLocal, setUser, googleAuth } from '@/store/authSlice';
 import { resetProfile } from '@/store/profileSlice';
 import { resetWallet } from '@/store/walletSlice';
 import type { AuthUser } from '@/store/authSlice';
@@ -24,6 +24,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((s) => s.auth);
+
+  // The API layer emits this when a refresh fails. On protected pages it will
+  // also navigate to login; on public pages we simply continue as a guest.
+  useEffect(() => {
+    const onSessionExpired = () => {
+      dispatch(logoutLocal());
+      dispatch(resetProfile());
+      dispatch(resetWallet());
+    };
+    window.addEventListener('auth:session-expired', onSessionExpired);
+    return () => window.removeEventListener('auth:session-expired', onSessionExpired);
+  }, [dispatch]);
 
   const signup = async (name: string, email: string, phone: string, password: string) => {
     const res: any = await dispatch(signupUser({ fullName: name, email, phone, password, confirmPassword: password }));

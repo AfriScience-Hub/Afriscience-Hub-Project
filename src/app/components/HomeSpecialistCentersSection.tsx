@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, Star, MapPin, Microscope } from 'lucide-react';
 import { SPECIALIST_CENTERS } from '@/app/data/mockData';
 import { Button } from '@/app/components/ui/Button';
+import { ProtectedLink } from '@/app/components/ProtectedLink';
 
 export function HomeSpecialistCentersSection() {
   return (
@@ -47,9 +48,9 @@ export function HomeSpecialistCentersSection() {
                   <span key={i} className="text-xs bg-neutral-bg-light text-slate-600 px-2 py-1 rounded">{s}</span>
                 ))}
               </div>
-              <Link href={`/specialist-centers/${center.id}`}>
+              <ProtectedLink href={`/specialist-centers/${center.id}`}>
                 <Button variant="outline" className="w-full">View Center</Button>
-              </Link>
+              </ProtectedLink>
             </div>
           </div>
         ))}

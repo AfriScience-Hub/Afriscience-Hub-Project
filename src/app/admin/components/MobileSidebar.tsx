@@ -24,9 +24,9 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const { user } = useAppSelector((s) => s.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const handleSignOut = async () => {
+  const handleSignOut = () => {
     onClose();
-    await (dispatch as any)(logoutThunk());
+    void (dispatch as any)(logoutThunk());
     toast.success('Signed out');
     router.replace('/admin/login');
   };

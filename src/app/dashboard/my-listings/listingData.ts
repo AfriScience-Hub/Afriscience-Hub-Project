@@ -1,7 +1,7 @@
 import { normalizeFileSrc } from '@/lib/files';
 import { fetchInnovations } from '../upload-new-listing/innovationApi';
 import type { SubmissionCategoryId } from '../submissionCategories';
-import { statusKind } from './statusUtils';
+import { statusKind, isDraftStatus } from './statusUtils';
 
 export interface UserInnovation {
   id: string;
@@ -54,5 +54,5 @@ export function approvedListings(listings: UserInnovation[]): UserInnovation[] {
 
 /** Submissions still under review or rejected - shown on the submissions page. */
 export function unapprovedListings(listings: UserInnovation[]): UserInnovation[] {
-  return listings.filter((l) => statusKind(l.status) !== 'approved');
+  return listings.filter((l) => statusKind(l.status) !== 'approved' && !isDraftStatus(l.status));
 }

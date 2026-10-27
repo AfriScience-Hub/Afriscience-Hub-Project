@@ -19,8 +19,8 @@ export default function AdminSidebar() {
   const { user } = useAppSelector((s) => s.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const handleSignOut = async () => {
-    await (dispatch as any)(logoutThunk());
+  const handleSignOut = () => {
+    void (dispatch as any)(logoutThunk());
     toast.success('Signed out');
     router.replace('/admin/login');
   };

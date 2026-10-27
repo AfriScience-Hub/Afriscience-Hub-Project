@@ -35,6 +35,8 @@ export interface AdminInnovation {
   status: string;
   isVerified?: boolean;
   verified?: boolean;
+  /** True when the submission was made on the annual paid plan. */
+  payingUser?: boolean;
   reviewedBy: string | null;
   reasonForRejection: string | null;
   createdAt: string;
@@ -190,6 +192,7 @@ export function mapAdminInnovation(api: AdminInnovation) {
 
   return {
     id: api.id,
+    payingUser: api.payingUser === true,
     innovation: {
       logo: api.image || '',
       name: api.innovationName || '',

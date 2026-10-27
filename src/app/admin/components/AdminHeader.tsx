@@ -28,8 +28,8 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const handleLogout = async () => {
-    await dispatch(logoutThunk() as any);
+  const handleLogout = () => {
+    void dispatch(logoutThunk());
     toast.success('Signed out');
     router.replace('/admin/login');
   };

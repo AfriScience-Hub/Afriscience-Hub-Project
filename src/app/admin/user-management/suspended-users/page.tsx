@@ -8,7 +8,6 @@ import {
   fetchSuspendedUsers,
   restoreUser,
   userDisplayName,
-  userCountry,
   displayUserId,
   formatISODate,
   DEFAULT_PAGE_SIZE,
@@ -31,11 +30,11 @@ export default function SuspendedUsersPage() {
   const [pendingRestore, setPendingRestore] = useState<AdminUser | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (force = false) => {
     setLoading(true);
     setError('');
     try {
-      const list = await fetchSuspendedUsers({ page: currentPage, limit: pageSize });
+      const list = await fetchSuspendedUsers({ force });
       setUsers(list.data);
       setPagination(list.pagination);
     } catch (e) {
@@ -47,7 +46,7 @@ export default function SuspendedUsersPage() {
     }
   }, [currentPage, pageSize]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { void load(); }, [load]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -69,7 +68,7 @@ export default function SuspendedUsersPage() {
       const message = await restoreUser(user.id);
       toast.success(message || 'User restored');
       setPendingRestore(null);
-      await load();
+      await load(true);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Failed to restore user');
     } finally {
@@ -93,7 +92,7 @@ export default function SuspendedUsersPage() {
           <p className="text-xs text-neutral-gray-dark mt-0.5">Manage users who have been suspended from the platform.</p>
         </div>
         <button
-          onClick={load}
+          onClick={() => void load(true)}
           disabled={loading}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-neutral-gray-light rounded-lg text-xs font-medium text-neutral-gray-dark hover:bg-neutral-bg-light disabled:opacity-50 cursor-pointer"
         >
@@ -106,7 +105,7 @@ export default function SuspendedUsersPage() {
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-gray-medium" />
           <input
             type="text"
-            placeholder="Search by name, email or ID..."
+            placeholder="Search by name, email, phone or ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-neutral-gray-light focus:border-[#453DD8] focus:ring-1 focus:ring-[#453DD8] outline-none"
@@ -121,7 +120,7 @@ export default function SuspendedUsersPage() {
               <tr className="border-b border-neutral-gray-light bg-neutral-bg-light">
                 <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">User</th>
                 <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">Email</th>
-                <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">Country</th>
+                <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">Phone</th>
                 <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">Suspended On</th>
                 <th className="text-right px-3 py-2 font-medium text-neutral-gray-dark">Actions</th>
               </tr>
@@ -138,7 +137,7 @@ export default function SuspendedUsersPage() {
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center">
                     <p className="text-sm font-medium text-red-600">{error}</p>
-                    <button onClick={load} className="mt-2 text-xs text-[#453DD8] font-medium hover:underline cursor-pointer">Try again</button>
+                    <button onClick={() => void load(true)} className="mt-2 text-xs text-[#453DD8] font-medium hover:underline cursor-pointer">Try again</button>
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
@@ -169,7 +168,7 @@ export default function SuspendedUsersPage() {
                       </div>
                     </td>
                     <td className="px-3 py-2.5 text-[10px] text-neutral-gray-dark">{user.email}</td>
-                    <td className="px-3 py-2.5 text-[10px] text-neutral-gray-dark whitespace-nowrap">{userCountry(user)}</td>
+                    <td className="px-3 py-2.5 text-[10px] text-neutral-gray-dark whitespace-nowrap">{user.phone || '—'}</td>
                     <td className="px-3 py-2.5 text-[10px] text-neutral-gray-dark whitespace-nowrap">{formatISODate(user.deletedAt)}</td>
                     <td className="px-3 py-2.5 text-right">
                       {busyId === user.id ? (

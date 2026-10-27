@@ -40,17 +40,19 @@ export default function AllUsersPage() {
   const [pendingSuspend, setPendingSuspend] = useState<AdminUser | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (force = false) => {
     setLoading(true);
     setError('');
     try {
       const [list, suspended] = await Promise.all([
-        fetchAllUsers({ page: currentPage, limit: pageSize }),
-        fetchSuspendedUsers({ page: 1, limit: 1 }).catch(() => null),
+        fetchAllUsers({ page: currentPage, limit: pageSize }, { force }),
+        fetchSuspendedUsers({ force }).catch(() => null),
       ]);
       setUsers(list.data);
       setPagination(list.pagination);
-      setTotalSuspended(suspended?.pagination?.totalItems ?? null);
+      setTotalSuspended(
+        suspended ? suspended.pagination?.totalItems ?? suspended.data.length : null
+      );
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load users');
       setUsers([]);
@@ -60,7 +62,7 @@ export default function AllUsersPage() {
     }
   }, [currentPage, pageSize]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { void load(); }, [load]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -86,7 +88,7 @@ export default function AllUsersPage() {
       const message = await suspendUser(user.id);
       toast.success(message || 'User suspended');
       setPendingSuspend(null);
-      await load();
+      await load(true);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Failed to suspend user');
     } finally {
@@ -117,7 +119,7 @@ export default function AllUsersPage() {
           <h1 className="text-xl font-bold text-neutral-black">User Management</h1>
         </div>
         <button
-          onClick={load}
+          onClick={() => void load(true)}
           disabled={loading}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-neutral-gray-light rounded-lg text-xs font-medium text-neutral-gray-dark hover:bg-neutral-bg-light disabled:opacity-50 cursor-pointer"
         >
@@ -195,7 +197,7 @@ export default function AllUsersPage() {
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center">
                     <p className="text-sm font-medium text-red-600">{error}</p>
-                    <button onClick={load} className="mt-2 text-xs text-[#453DD8] font-medium hover:underline cursor-pointer">Try again</button>
+                    <button onClick={() => void load(true)} className="mt-2 text-xs text-[#453DD8] font-medium hover:underline cursor-pointer">Try again</button>
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (

@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ShoppingBag, Globe } from 'lucide-react';
 import { MOCK_SPONSORS } from '../../all/data';
+import { ProtectedLink } from '@/app/components/ProtectedLink';
 
 export default function CatalogByIndustry() {
   const { industry } = useParams<{ industry: string }>();
@@ -41,9 +42,9 @@ export default function CatalogByIndustry() {
             {sponsors.map(sponsor => (
               <div key={sponsor.id} className="bg-white rounded-2xl shadow-sm border border-neutral-gray-light overflow-hidden hover:shadow-md transition-shadow">
                 <div className="p-5">
-                  <Link href={`/support/sponsor/${sponsor.id}`}>
+                  <ProtectedLink href={`/support/sponsor/${sponsor.id}`}>
                     <h3 className="font-bold text-neutral-black text-lg mb-2 hover:text-brand-red-600 transition-colors">{sponsor.name}</h3>
-                  </Link>
+                  </ProtectedLink>
                   <p className="text-xs text-neutral-gray-medium mb-1">{sponsor.state}, {sponsor.country}</p>
                   <p className="text-sm text-neutral-gray-dark line-clamp-2 mb-4">{sponsor.description}</p>
                   <div>

@@ -23,6 +23,11 @@ export function statusKind(status?: string | null): ListingStatusKind {
   return 'pending';
 }
 
+/** True for saved drafts, which belong in the drafts view, not submissions. */
+export function isDraftStatus(status?: string | null): boolean {
+  return normalize(status) === 'draft';
+}
+
 /** Edit + Preview while under review; approved/rejected listings are preview-only. */
 export function isEditable(status?: string | null): boolean {
   return statusKind(status) === 'pending';

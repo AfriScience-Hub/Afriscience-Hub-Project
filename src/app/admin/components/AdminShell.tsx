@@ -18,15 +18,20 @@ export default function AdminShell({ children }: AdminShellProps) {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated } = useAppSelector((s) => s.auth);
-  const [hydrated, setHydrated] = useState(false);
+  const { isAuthenticated, hydrated } = useAppSelector((s) => s.auth);
 
-  useEffect(() => setHydrated(true), []);
+  useEffect(() => {
+    if (!hydrated) return;
+    if (NO_SHELL_ROUTES.includes(pathname)) {
+      if (isAuthenticated) router.replace('/admin/dashboard');
+      return;
+    }
+    if (!isAuthenticated) router.replace('/admin/login');
+  }, [hydrated, isAuthenticated, pathname, router]);
 
-  // Auth pages: if already logged in, bounce to dashboard
+  // Auth pages: if already logged in, bounce to dashboard.
   if (NO_SHELL_ROUTES.includes(pathname)) {
     if (hydrated && isAuthenticated) {
-      router.replace('/admin/dashboard');
       return (
         <div className="min-h-screen flex items-center justify-center bg-neutral-bg-light">
           <Loader2 className="h-8 w-8 animate-spin text-brand-red-600" />
@@ -36,16 +41,10 @@ export default function AdminShell({ children }: AdminShellProps) {
     return <>{children}</>;
   }
 
-  if (!hydrated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-bg-light">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-red-600" />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    router.replace('/admin/login');
+  // Wait for the persisted admin session before mounting page content. Without
+  // this guard the protected page can mount, redirect, and mount again while
+  // localStorage hydration is still running, duplicating its initial fetches.
+  if (!hydrated || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-bg-light">
         <Loader2 className="h-8 w-8 animate-spin text-brand-red-600" />
