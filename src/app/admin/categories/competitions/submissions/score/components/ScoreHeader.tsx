@@ -20,15 +20,15 @@ export default function ScoreHeader() {
           <span>&rsaquo;</span>
           <Link href={ADMIN_ROUTES.competitionsSubmissions} className="hover:text-neutral-black">Submissions</Link>
           <span>&rsaquo;</span>
-          <span className="text-neutral-black font-medium">Scoring</span>
+          <span className="text-neutral-black font-medium">View Work &amp; Score</span>
         </div>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center flex-shrink-0">
             <ClipboardCheck className="h-5 w-5 text-purple-600" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-xl font-bold text-neutral-black leading-tight">Score Contestant</h1>
-            <p className="text-[11px] text-neutral-gray-dark mt-0.5">Evaluate and score this contestant based on the judging criteria below.</p>
+            <h1 className="text-xl font-bold text-neutral-black leading-tight">View Work &amp; Score</h1>
+            <p className="text-[11px] text-neutral-gray-dark mt-0.5">Review the submitted work and score it against the judging criteria below.</p>
           </div>
         </div>
       </div>

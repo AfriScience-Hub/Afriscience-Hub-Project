@@ -132,14 +132,6 @@ const TYPE_CONTENT: Record<string, { description: string; requirements: string[]
   },
 };
 
-/** Presentation categories in this dataset map onto the reward keys. */
-const REWARD_CATEGORY_ALIAS: Record<string, string> = {
-  'Primary School': 'Lower Primary',
-  'Secondary School': 'Senior Secondary',
-  Undergraduate: 'Undergraduates',
-  'General (18+)': 'Undergraduates',
-};
-
 const make = (
   id: number,
   name: string,
@@ -154,7 +146,7 @@ const make = (
 ): AllCompetition => {
   const defaults = TYPE_DEFAULTS[type] ?? TYPE_DEFAULTS['Afri-Anime'];
   const content = TYPE_CONTENT[type] ?? TYPE_CONTENT['Afri-Anime'];
-  const rewardCategory = type === 'Afri-Presentations' ? REWARD_CATEGORY_ALIAS[category] ?? category : category;
+  const rewardCategory = category;
   return {
     id,
     name,
@@ -181,34 +173,30 @@ const make = (
 
 export const ALL_COMPETITIONS: AllCompetition[] = [
   // Ongoing (8) — start reached, deadline ahead
-  make(1, 'Afri-Anime: Climate Heroes', 'Afri-Anime', 'Secondary School', 'Nigeria', 20, '2025-02-12', -45, 30, 428),
-  make(2, 'Robotics Africa Cup 2025', 'Afri-Presentations', 'Undergraduate', 'Kenya', 50, '2025-03-03', -20, 45, 312),
-  make(3, 'AgriTech Solutions Africa', 'Afri-Presentations', 'General (18+)', 'Ghana', 30, '2025-04-18', -10, 60, 186),
-  make(4, 'Young Innovators Africa', 'Afri-MySpace', 'Primary School', 'Nigeria', 15, '2025-05-02', -6, 24, 96),
-  make(5, 'Solar Power Africa Challenge', 'Afri-Presentations', 'Undergraduate', 'South Africa', 40, '2025-06-11', -30, 15, 274),
+  make(1, 'Afri-Anime: Climate Heroes', 'Afri-Anime', 'General (18+)', 'Nigeria', 20, '2025-02-12', -45, 30, 428),
+  make(2, 'Robotics Africa Cup 2025', 'Afri-Presentations', 'Undergraduates', 'Kenya', 50, '2025-03-03', -20, 45, 312),
+  make(3, 'AgriTech Solutions Africa', 'Afri-Presentations', 'Graduates', 'Ghana', 30, '2025-04-18', -10, 60, 186),
+  make(4, 'Young Innovators Africa', 'Afri-MySpace', 'General (18+)', 'Nigeria', 15, '2025-05-02', -6, 24, 96),
+  make(5, 'Solar Power Africa Challenge', 'Afri-Presentations', 'Undergraduates', 'South Africa', 40, '2025-06-11', -30, 15, 274),
   make(6, 'Digital Health Hackathon', 'Afri-Memes', 'General (18+)', 'Egypt', 25, '2025-07-09', -12, 7, 341),
-  make(7, 'Clean Water Innovation Prize', 'Afri-Presentations', 'Secondary School', 'Uganda', 10, '2025-08-21', -3, 52, 158),
-  make(8, 'Youth Coding Tournament', 'Afri-Anime', 'Primary School', 'Tanzania', 0, '2025-09-30', -18, 40, 503),
+  make(7, 'Clean Water Innovation Prize', 'Afri-Presentations', 'Senior Secondary', 'Uganda', 10, '2025-08-21', -3, 52, 158),
+  make(8, 'Youth Coding Tournament', 'Afri-Anime', 'General (18+)', 'Tanzania', 0, '2025-09-30', -18, 40, 503),
   // Upcoming (6) — start date still ahead
-  make(9, 'Healthcare Innovation Challenge', 'Afri-Memes', 'Secondary School', 'South Africa', 0, '2025-04-25', 16, 90, 0),
-  make(10, 'Space Explorers Animation', 'Afri-Anime', 'Secondary School', 'Rwanda', 20, '2026-01-14', 8, 75, 0),
-  make(11, 'Climate-Smart Agriculture', 'Afri-Presentations', 'Undergraduate', 'Ethiopia', 35, '2026-02-02', 30, 120, 0),
+  make(9, 'Healthcare Innovation Challenge', 'Afri-Memes', 'General (18+)', 'South Africa', 0, '2025-04-25', 16, 90, 0),
+  make(10, 'Space Explorers Animation', 'Afri-Anime', 'General (18+)', 'Rwanda', 20, '2026-01-14', 8, 75, 0),
+  make(11, 'Climate-Smart Agriculture', 'Afri-Presentations', 'Undergraduates', 'Ethiopia', 35, '2026-02-02', 30, 120, 0),
   make(12, 'Meme Science Challenge', 'Afri-Memes', 'General (18+)', 'Morocco', 5, '2026-03-19', 21, 50, 0),
-  make(13, 'Young Scientists MySpace', 'Afri-MySpace', 'Primary School', 'Ghana', 10, '2026-04-07', 45, 100, 0),
-  make(14, 'Robotics Lab Showcase', 'Afri-Presentations', 'Undergraduate', 'Kenya', 45, '2026-05-26', 60, 135, 0),
+  make(13, 'Young Scientists MySpace', 'Afri-MySpace', 'General (18+)', 'Ghana', 10, '2026-04-07', 45, 100, 0),
+  make(14, 'Robotics Lab Showcase', 'Afri-Presentations', 'Undergraduates', 'Kenya', 45, '2026-05-26', 60, 135, 0),
   // Past (10) — voting deadline passed
-  make(15, 'Save Our Oceans', 'Afri-Memes', 'Secondary School', 'Egypt', 25, '2025-01-10', -260, -150, 510),
-  make(16, 'African Research Excellence', 'Afri-Presentations', 'General (18+)', 'Kenya', 0, '2024-11-28', -300, -200, 284),
-  make(17, 'Tech for a Better Africa', 'Afri-MySpace', 'Secondary School', 'Rwanda', 30, '2024-12-14', -330, -240, 367),
+  make(15, 'Save Our Oceans', 'Afri-Memes', 'General (18+)', 'Egypt', 25, '2025-01-10', -260, -150, 510),
+  make(16, 'African Research Excellence', 'Afri-Presentations', 'Graduates', 'Kenya', 0, '2024-11-28', -300, -200, 284),
+  make(17, 'Tech for a Better Africa', 'Afri-MySpace', 'General (18+)', 'Rwanda', 30, '2024-12-14', -330, -240, 367),
   make(18, 'Water Preservation Memes', 'Afri-Memes', 'General (18+)', 'Nigeria', 10, '2025-01-22', -280, -180, 445),
-  make(19, 'Primary Science Fair', 'Afri-MySpace', 'Primary School', 'Uganda', 5, '2025-02-28', -230, -130, 192),
-  make(20, 'Astronomy Picture Day', 'Afri-Anime', 'Secondary School', 'South Africa', 15, '2025-03-15', -200, -110, 378),
-  make(21, 'Green Energy Pitch', 'Afri-Presentations', 'Undergraduate', 'Ghana', 35, '2025-04-02', -180, -95, 264),
-  make(22, 'Biotech Breakthroughs', 'Afri-Presentations', 'General (18+)', 'Kenya', 40, '2025-05-19', -150, -70, 305),
-  make(23, 'Wildlife Heroes Animation', 'Afri-Anime', 'Secondary School', 'Tanzania', 20, '2025-06-25', -120, -45, 487),
-  make(24, 'Digital Divide Stories', 'Afri-MySpace', 'Undergraduate', 'Ethiopia', 10, '2025-08-05', -90, -20, 221),
+  make(19, 'Primary Science Fair', 'Afri-MySpace', 'General (18+)', 'Uganda', 5, '2025-02-28', -230, -130, 192),
+  make(20, 'Astronomy Picture Day', 'Afri-Anime', 'General (18+)', 'South Africa', 15, '2025-03-15', -200, -110, 378),
+  make(21, 'Green Energy Pitch', 'Afri-Presentations', 'Undergraduates', 'Ghana', 35, '2025-04-02', -180, -95, 264),
+  make(22, 'Biotech Breakthroughs', 'Afri-Presentations', 'Graduates', 'Kenya', 40, '2025-05-19', -150, -70, 305),
+  make(23, 'Wildlife Heroes Animation', 'Afri-Anime', 'General (18+)', 'Tanzania', 20, '2025-06-25', -120, -45, 487),
+  make(24, 'Digital Divide Stories', 'Afri-MySpace', 'General (18+)', 'Ethiopia', 10, '2025-08-05', -90, -20, 221),
 ];
-
-export const TYPE_OPTIONS = ['All Types', 'Afri-Anime', 'Afri-Presentations', 'Afri-Memes', 'Afri-MySpace'];
-export const CATEGORY_OPTIONS = ['All Categories', 'Primary School', 'Secondary School', 'Undergraduate', 'General (18+)'];
-export const COUNTRY_OPTIONS = ['All Countries', 'Nigeria', 'Kenya', 'Ghana', 'South Africa', 'Egypt', 'Rwanda', 'Uganda', 'Tanzania', 'Ethiopia', 'Morocco'];

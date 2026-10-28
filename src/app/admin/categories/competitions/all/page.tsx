@@ -12,6 +12,7 @@ import AllCompetitionsTable from './components/AllCompetitionsTable';
 import AllCompetitionsPagination from './components/AllCompetitionsPagination';
 import CompetitionDetailModal from './components/CompetitionDetailModal';
 import AssignJudgesModal from './components/AssignJudgesModal';
+import { categoryForType } from '../filterOptions';
 
 const PER_PAGE = 8;
 
@@ -43,7 +44,13 @@ export default function AllCompetitionsPage() {
   const [assignTarget, setAssignTarget] = useState<AllCompetition | null>(null);
 
   const updateFilters = (patch: Partial<AllCompetitionsFilterState>) => {
-    setFilters((prev) => ({ ...prev, ...patch }));
+    setFilters((prev) => {
+      const next = { ...prev, ...patch };
+      if (patch.type !== undefined) {
+        next.category = categoryForType(patch.type);
+      }
+      return next;
+    });
     setPage(1);
   };
 
@@ -52,19 +59,25 @@ export default function AllCompetitionsPage() {
     setPage(1);
   };
 
+  /** Stats and tab counts follow the current filter selection. */
+  const filteredByFilters = useMemo(
+    () => ALL_COMPETITIONS.filter((row) => matchFilters(row, filters)),
+    [filters]
+  );
+
   const counts = useMemo(() => {
-    const c = { 'All Competitions': ALL_COMPETITIONS.length, Ongoing: 0, Upcoming: 0, Past: 0 } as Record<AllCompetitionsTab, number>;
-    ALL_COMPETITIONS.forEach((row) => { c[STATUS_BY_ID.get(row.id)!] += 1; });
+    const c = { 'All Competitions': filteredByFilters.length, Ongoing: 0, Upcoming: 0, Past: 0 } as Record<AllCompetitionsTab, number>;
+    filteredByFilters.forEach((row) => { c[STATUS_BY_ID.get(row.id)!] += 1; });
     return c;
-  }, []);
+  }, [filteredByFilters]);
 
   const filtered = useMemo(
     () =>
-      ALL_COMPETITIONS.filter((row) => {
+      filteredByFilters.filter((row) => {
         if (activeTab !== 'All Competitions' && STATUS_BY_ID.get(row.id) !== activeTab) return false;
-        return matchFilters(row, filters);
+        return true;
       }),
-    [activeTab, filters]
+    [activeTab, filteredByFilters]
   );
 
   const activeCount = useMemo(

@@ -16,7 +16,7 @@ interface DateRangePickerProps {
   placeholder?: string;
 }
 
-const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-2.5 py-1.5 text-xs text-neutral-gray-dark bg-white outline-none focus:border-brand-red-600';
+const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-2.5 py-1.5 text-xs text-neutral-black bg-white outline-none focus:border-neutral-gray-light';
 
 const formatISO = (iso: string | null): string => {
   if (!iso) return '';
@@ -118,7 +118,7 @@ export default function DateRangePicker({ value, onChange, placeholder = 'Select
         onClick={openPicker}
         className={cn(
           "flex items-center gap-1.5 px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer bg-white whitespace-nowrap",
-          hasValue ? "border-brand-red-600 text-brand-red-600 font-medium" : "border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light"
+          hasValue ? "border-neutral-gray-light text-neutral-black font-medium" : "border-neutral-gray-light text-neutral-black hover:bg-neutral-bg-light"
         )}
       >
         <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
@@ -139,7 +139,7 @@ export default function DateRangePicker({ value, onChange, placeholder = 'Select
                 key={preset.label}
                 type="button"
                 onClick={() => onChange(preset.range)}
-                className="px-2 py-1 rounded border border-neutral-gray-light text-[10px] text-neutral-gray-dark hover:border-brand-red-600 hover:text-brand-red-600 cursor-pointer"
+                className="px-2 py-1 rounded border border-neutral-gray-light text-[10px] text-neutral-gray-dark hover:border-neutral-gray-medium hover:text-neutral-black cursor-pointer"
               >
                 {preset.label}
               </button>

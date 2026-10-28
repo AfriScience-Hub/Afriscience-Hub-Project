@@ -30,7 +30,7 @@ const COLUMNS: { key: string; label: string; sort?: SortKey; align?: 'right' }[]
   { key: 'type', label: 'Type' },
   { key: 'category', label: 'Categories' },
   { key: 'country', label: 'Country' },
-  { key: 'regFee', label: 'Reg. Fee (USD)', align: 'right' },
+  { key: 'regFee', label: 'Reg. Fee (USD)' },
   { key: 'startISO', label: 'Start Date' },
   { key: 'submissionISO', label: 'Submission Deadline' },
   { key: 'participants', label: 'Participants' },
@@ -123,7 +123,7 @@ export default function AllCompetitionsTable({ rows, onView, onAssignJudges, onE
                   <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700">{row.category}</span>
                 </td>
                 <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{row.country}</td>
-                <td className="px-3 py-3 text-xs text-neutral-gray-dark text-right whitespace-nowrap font-medium">{formatRegFee(row.regFee)}</td>
+                <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap font-medium">{formatRegFee(row.regFee)}</td>
                 <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{formatDate(row.startISO)}</td>
                 <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{formatDate(row.submissionISO)}</td>
                 <td className="px-3 py-3 text-xs text-neutral-black whitespace-nowrap font-medium">{row.participants.toLocaleString()}</td>

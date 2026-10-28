@@ -14,7 +14,7 @@ const ICONS: Record<string, React.ElementType> = {
 
 /**
  * Summary cards for the View Submissions page:
- * Total, Pending Review, Approved, Rejected and Finalists.
+ * Total, Pending Review, Scored, Disqualified and Finalists.
  */
 export default function SubmissionsStats() {
   return (

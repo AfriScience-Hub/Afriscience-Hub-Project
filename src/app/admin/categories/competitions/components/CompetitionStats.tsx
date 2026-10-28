@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trophy, Calendar, Play, CheckCircle, Users, Star } from 'lucide-react';
+import { Trophy, Calendar, Play, CheckCircle, Users, Star, Zap } from 'lucide-react';
 import { STATS } from '../data';
 
 const STAT_ICONS: Record<string, React.ElementType> = {
@@ -9,14 +9,15 @@ const STAT_ICONS: Record<string, React.ElementType> = {
   check: CheckCircle,
   users: Users,
   star: Star,
+  boost: Zap,
 };
 
 /**
- * The six summary stat cards on the Competitions overview page.
+ * The summary stat cards on the Competitions overview page.
  */
 export default function CompetitionStats() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-3">
       {STATS.map((stat) => {
         const Icon = STAT_ICONS[stat.icon] || Trophy;
         return (

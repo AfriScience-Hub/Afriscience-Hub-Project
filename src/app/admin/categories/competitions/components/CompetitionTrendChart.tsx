@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { TREND_DATA } from '../data';
 
 /**
- * "Competitions Trend" area/line chart card.
+ * "Registration Trend" area/line chart card.
  */
 export default function CompetitionTrendChart() {
   const [period, setPeriod] = useState('This Week');
@@ -13,7 +13,7 @@ export default function CompetitionTrendChart() {
   return (
     <div className="bg-white rounded-lg border border-neutral-gray-light p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-semibold text-neutral-black">Competitions Trend</h3>
+        <h3 className="text-xs font-semibold text-neutral-black">Registration Trend</h3>
         <select
           value={period}
           onChange={(e) => setPeriod(e.target.value)}

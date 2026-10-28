@@ -35,27 +35,54 @@ export const UPCOMING_COMPETITIONS: Competition[] = [
   { id: 8, name: 'STEM Hackathon Africa', category: 'Education', categoryColor: 'bg-yellow-100 text-yellow-700', country: 'Ghana', participants: 0, votes: 0, status: 'Upcoming', expected: 350, startsIn: 'Starts in 31 days', startDate: 'Jun 28, 2025', startDateISO: '2025-06-28', logo: LOGO },
 ];
 
-export const STATUS_OPTIONS = ['All Status', 'Ongoing', 'Upcoming', 'Completed'] as const;
-export const CATEGORY_OPTIONS = ['All Categories', 'Technology', 'Innovation', 'Environment', 'Research', 'Health', 'Agriculture', 'Education'] as const;
-export const COUNTRY_OPTIONS = ['All Countries', 'Nigeria', 'Ghana', 'Kenya', 'South Africa'] as const;
-
 export const STATS = [
   { label: 'Total Competitions', value: '24', change: '↑ 14.3% this month', positive: true, iconBg: 'bg-purple-100 text-purple-600', icon: 'trophy' },
-  { label: 'Upcoming', value: '6', sub: 'Starts soon', iconBg: 'bg-orange-100 text-orange-600', icon: 'calendar' },
   { label: 'Ongoing', value: '8', sub: 'In progress', iconBg: 'bg-blue-100 text-blue-600', icon: 'play' },
+  { label: 'Upcoming', value: '6', sub: 'Starts soon', iconBg: 'bg-orange-100 text-orange-600', icon: 'calendar' },
   { label: 'Completed', value: '10', sub: 'This year', iconBg: 'bg-green-100 text-green-600', icon: 'check' },
   { label: 'Total Participants', value: '3,142', change: '↑ 21.6% this month', positive: true, iconBg: 'bg-indigo-100 text-indigo-600', icon: 'users' },
   { label: 'Total Votes Cast', value: '128,547', change: '↑ 18.7% this month', positive: true, iconBg: 'bg-yellow-100 text-yellow-600', icon: 'star' },
+  { label: 'Total Votes Boosted', value: '38,420', change: '↑ 9.4% this month', positive: true, iconBg: 'bg-pink-100 text-pink-600', icon: 'boost' },
 ];
 
-export const TABS = ['Overview', 'All Competitions', 'Submissions', 'Reports'];
-
 export const PARTICIPANTS_BY_TYPE = [
-  { name: 'Students', percent: '42.5%', count: 1336, color: 'bg-blue-500' },
-  { name: 'Researchers', percent: '23.1%', count: 725, color: 'bg-green-500' },
-  { name: 'Startups', percent: '16.8%', count: 528, color: 'bg-purple-500' },
-  { name: 'Institutions', percent: '11.2%', count: 352, color: 'bg-orange-500' },
-  { name: 'Others', percent: '6.4%', count: 202, color: 'bg-gray-300' },
+  { name: 'Afri-Anime', percent: '32.5%', count: 1020, color: '#3B82F6' },
+  { name: 'Afri-Presentations', percent: '27.5%', count: 865, color: '#22C55E' },
+  { name: 'Afri-Memes', percent: '22.4%', count: 704, color: '#A855F7' },
+  { name: 'Afri-MySpace', percent: '17.6%', count: 553, color: '#F97316' },
+];
+
+export const PARTICIPANTS_BY_COUNTRY = [
+  { name: 'Nigeria', percent: '28.4%', count: 892, color: '#3B82F6' },
+  { name: 'Kenya', percent: '20.7%', count: 651, color: '#22C55E' },
+  { name: 'Ghana', percent: '16.3%', count: 512, color: '#A855F7' },
+  { name: 'South Africa', percent: '13.9%', count: 438, color: '#F97316' },
+  { name: 'Egypt', percent: '10.1%', count: 317, color: '#EAB308' },
+  { name: 'Other African Countries', percent: '10.6%', count: 332, color: '#D1D5DB' },
+];
+
+export const BOOST_VOTE_PACKAGES = [
+  { name: 'Starter (50 votes)', percent: '36.5%', count: 420, color: '#3B82F6' },
+  { name: 'Bronze (100 votes)', percent: '26.9%', count: 310, color: '#22C55E' },
+  { name: 'Silver (250 votes)', percent: '18.7%', count: 215, color: '#A855F7' },
+  { name: 'Gold (500 votes)', percent: '12.2%', count: 140, color: '#F97316' },
+  { name: 'Platinum (1,000 votes)', percent: '5.7%', count: 65, color: '#EAB308' },
+];
+
+export const TOP_VOTED_PARTICIPANTS = [
+  { name: 'Chidera Okafor', meta: 'Afri-Anime · Nigeria', value: '12,480' },
+  { name: 'Amara Nwosu', meta: 'Afri-Anime · Kenya', value: '11,230' },
+  { name: 'David Nnaji', meta: 'Afri-Memes · Egypt', value: '10,915' },
+  { name: 'Grace Bello', meta: 'Afri-Presentations · Nigeria', value: '9,870' },
+  { name: 'Yaw Boateng', meta: 'Afri-MySpace · Ghana', value: '9,245' },
+];
+
+export const TOP_BOOSTED_PARTICIPANTS = [
+  { name: 'Amara Nwosu', meta: 'Afri-Anime · Kenya', value: '4,850' },
+  { name: 'Chidera Okafor', meta: 'Afri-Anime · Nigeria', value: '4,320' },
+  { name: 'Zainab Osei', meta: 'Afri-Memes · South Africa', value: '3,940' },
+  { name: 'Ikemefuna Obi', meta: 'Afri-MySpace · Rwanda', value: '3,510' },
+  { name: 'Fatima Bello', meta: 'Afri-Presentations · Egypt', value: '3,225' },
 ];
 
 export const VOTES_DATA = [
@@ -67,6 +94,17 @@ export const VOTES_DATA = [
   { label: 'May 25', value: 28000 },
   { label: 'May 26', value: 24000 },
   { label: 'May 27', value: 30000 },
+];
+
+export const BOOST_VOTE_TRENDS = [
+  { label: 'May 20', value: 3200 },
+  { label: 'May 21', value: 4100 },
+  { label: 'May 22', value: 3900 },
+  { label: 'May 23', value: 5200 },
+  { label: 'May 24', value: 4800 },
+  { label: 'May 25', value: 6100 },
+  { label: 'May 26', value: 5700 },
+  { label: 'May 27', value: 6800 },
 ];
 
 export const TREND_DATA = [

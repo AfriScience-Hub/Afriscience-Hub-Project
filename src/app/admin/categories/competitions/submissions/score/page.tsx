@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import ScoreHeader from './components/ScoreHeader';
 import ScoringSheet from './components/ScoringSheet';
+import SubmissionWorkSummary from './components/SubmissionWorkSummary';
 import { SCORE_CRITERIA, TOTAL_MAX, isValidScore } from './data';
 import { SUBMISSIONS } from '../data';
 
@@ -45,6 +46,7 @@ function ScoreContestantContent() {
   return (
     <div className="space-y-4">
       <ScoreHeader />
+      {submission && <SubmissionWorkSummary submission={submission} />}
       <ScoringSheet scores={scores} onScore={setScore} total={total} complete={complete} onSave={handleSave} />
     </div>
   );
