@@ -60,6 +60,19 @@ export default function ContactTab({ contact }: ContactTabProps) {
         </div>
       </section>
 
+      <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+        <h3 className="text-lg font-bold text-neutral-black mb-4">Send a Message</h3>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input type="text" placeholder="Your Name" defaultValue={user?.name || ''} className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
+            <input type="email" placeholder="Your Email" defaultValue={user?.email || ''} className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
+          </div>
+          <input type="text" placeholder="Subject" className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
+          <textarea rows={4} placeholder="Your Message" className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 resize-none" />
+          <Button className="bg-brand-red-600 hover:bg-brand-red-700">Send Message</Button>
+        </div>
+      </section>
+
       {contact?.mapCoords && (
         <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
           <h3 className="text-lg font-bold text-neutral-black mb-4 flex items-center gap-2">
@@ -77,19 +90,6 @@ export default function ContactTab({ contact }: ContactTabProps) {
           </div>
         </section>
       )}
-
-      <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-        <h3 className="text-lg font-bold text-neutral-black mb-4">Send a Message</h3>
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input type="text" placeholder="Your Name" defaultValue={user?.name || ''} className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
-            <input type="email" placeholder="Your Email" defaultValue={user?.email || ''} className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
-          </div>
-          <input type="text" placeholder="Subject" className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
-          <textarea rows={4} placeholder="Your Message" className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 resize-none" />
-          <Button className="bg-brand-red-600 hover:bg-brand-red-700">Send Message</Button>
-        </div>
-      </section>
     </div>
   );
 }

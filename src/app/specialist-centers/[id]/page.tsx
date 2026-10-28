@@ -221,8 +221,8 @@ function SpecialistCenterDetailsContent() {
           <div className="flex overflow-x-auto no-scrollbar">
             <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')}>Overview & Services</TabButton>
             <TabButton active={activeTab === 'licenses'} onClick={() => setActiveTab('licenses')}>Licenses & Achievements</TabButton>
-            <TabButton active={activeTab === 'gallery'} onClick={() => { setActiveTab('gallery'); setOpenAlbum(null); }}>Media Gallery</TabButton>
             <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')}>Reviews</TabButton>
+            <TabButton active={activeTab === 'gallery'} onClick={() => { setActiveTab('gallery'); setOpenAlbum(null); }}>Media Gallery</TabButton>
             <TabButton active={activeTab === 'contact'} onClick={() => setActiveTab('contact')}>Contact</TabButton>
           </div>
         </div>
@@ -237,11 +237,11 @@ function SpecialistCenterDetailsContent() {
             {activeTab === 'licenses' && (
               <LicensesTab center={center} />
             )}
-            {activeTab === 'gallery' && (
-              <GalleryTab gallery={center.gallery as any} openAlbum={openAlbum} onSetOpenAlbum={setOpenAlbum} />
-            )}
             {activeTab === 'reviews' && (
               <ReviewsTab center={center} />
+            )}
+            {activeTab === 'gallery' && (
+              <GalleryTab gallery={center.gallery as any} openAlbum={openAlbum} onSetOpenAlbum={setOpenAlbum} />
             )}
             {activeTab === 'contact' && (
               <ContactTab contact={center.contact} />

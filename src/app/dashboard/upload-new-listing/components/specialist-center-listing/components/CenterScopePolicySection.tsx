@@ -17,6 +17,9 @@ export default function CenterScopePolicySection({ scopes, setScopes, policies, 
         <Flag className="h-4 w-4 text-brand-navy-900" />
         <h4 className="text-sm font-bold uppercase tracking-wide text-neutral-black">Scopes</h4>
       </div>
+      <p className="text-xs text-neutral-gray-medium">
+        List other specific areas of expertise that your establishment is equipped to handle – e.g. tests, topics, techniques, tools, instrumentations, etc.
+      </p>
       <EntryList
         label="Scopes"
         hint="multiple entries allowed"
@@ -29,9 +32,12 @@ export default function CenterScopePolicySection({ scopes, setScopes, policies, 
         <FileText className="h-4 w-4 text-brand-red-600" />
         <h4 className="text-sm font-bold uppercase tracking-wide text-neutral-black">Engagement Policies</h4>
       </div>
+      <p className="text-xs text-neutral-gray-medium">
+        Mention important guidelines that clients must adhere to when requesting the services of your establishment.
+      </p>
       <EntryList
         label="Engagement Policies"
-        hint="important guidelines for client requests, multiple entries allowed"
+        hint="multiple entries allowed"
         placeholder="e.g. All test results are delivered within 24-48 hours"
         entries={policies}
         onChange={setPolicies}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowLeft, IdCard, Microscope, DollarSign, Flag, ShieldCheck, ImagePlus, Send, Loader2 } from 'lucide-react';
+import { ArrowLeft, IdCard, Microscope, DollarSign, Flag, ShieldCheck, ImagePlus, Clock, Send, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -15,8 +15,9 @@ import CenterInformationSection from '@/app/dashboard/upload-new-listing/compone
 import CenterFeesSection from '@/app/dashboard/upload-new-listing/components/specialist-center-listing/components/CenterFeesSection';
 import CenterScopePolicySection from '@/app/dashboard/upload-new-listing/components/specialist-center-listing/components/CenterScopePolicySection';
 import CenterDocumentsSection from '@/app/dashboard/upload-new-listing/components/specialist-center-listing/components/CenterDocumentsSection';
+import CenterHighlightSection from '@/app/dashboard/upload-new-listing/components/specialist-center-listing/components/CenterHighlightSection';
 import CenterGallerySection, { type MediaItem } from '@/app/dashboard/upload-new-listing/components/specialist-center-listing/components/CenterGallerySection';
-import type { CenterDocEntry, CenterFees, CenterIdentity, CenterInformation } from '@/app/dashboard/upload-new-listing/components/specialist-center-listing/types';
+import type { CenterDocEntry, CenterFees, CenterHighlight, CenterIdentity, CenterInformation } from '@/app/dashboard/upload-new-listing/components/specialist-center-listing/types';
 
 const EMPTY_IDENTITY: CenterIdentity = {
   profileImage: null, backgroundImage: null, name: '', motto: '', address: '',
@@ -30,6 +31,10 @@ const EMPTY_INFO: CenterInformation = {
 };
 
 const EMPTY_FEES: CenterFees = { serviceFees: {}, otherFees: [] };
+
+const EMPTY_HIGHLIGHT: CenterHighlight = { responseTime: '', workDays: [], workHours: [] };
+
+const EMPTY_LICENSE: CenterDocEntry = { name: '', issuer: '', year: '', file: null, previewUrl: null };
 
 /**
  * Admin counterpart of the dashboard specialist centre form. It composes the
@@ -45,8 +50,9 @@ export default function AdminCreateCentrePage() {
   const [fees, setFees] = useState<CenterFees>(EMPTY_FEES);
   const [scopes, setScopes] = useState<string[]>([]);
   const [policies, setPolicies] = useState<string[]>([]);
-  const [licenses, setLicenses] = useState<CenterDocEntry[]>([]);
+  const [licenses, setLicenses] = useState<CenterDocEntry[]>([{ ...EMPTY_LICENSE }]);
   const [awards, setAwards] = useState<CenterDocEntry[]>([]);
+  const [highlight, setHighlight] = useState<CenterHighlight>(EMPTY_HIGHLIGHT);
   const [gallery, setGallery] = useState<Record<string, MediaItem[]>>({});
   const [agreed, setAgreed] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -61,17 +67,20 @@ export default function AdminCreateCentrePage() {
   const patchIdentity = (patch: Partial<CenterIdentity>) => setIdentity((prev) => ({ ...prev, ...patch }));
   const patchInfo = (patch: Partial<CenterInformation>) => setInfo((prev) => ({ ...prev, ...patch }));
   const patchFees = (patch: Partial<CenterFees>) => setFees((prev) => ({ ...prev, ...patch }));
+  const patchHighlight = (patch: Partial<CenterHighlight>) => setHighlight((prev) => ({ ...prev, ...patch }));
 
   const resetForm = () => {
     setIdentity(EMPTY_IDENTITY);
     setInfo(EMPTY_INFO);
     setFees(EMPTY_FEES);
-    setScopes([]); setPolicies([]); setLicenses([]); setAwards([]);
+    setScopes([]); setPolicies([]); setLicenses([{ ...EMPTY_LICENSE }]); setAwards([]);
+    setHighlight(EMPTY_HIGHLIGHT);
     setGallery({}); setAgreed(false);
   };
 
   const hasAnySocial = Object.values(identity.socials).some((v) => v.trim().length > 0);
   const descriptionWords = identity.description.trim() ? identity.description.trim().split(/\s+/).length : 0;
+  const highlightOk = !!highlight.responseTime && highlight.workDays.length > 0 && highlight.workHours.length > 0;
 
   const isFormValid =
     identity.name.trim() && identity.address.trim() && identity.country &&
@@ -79,7 +88,7 @@ export default function AdminCreateCentrePage() {
     descriptionWords <= 1000 && hasAnySocial &&
     info.field && info.categories.length > 0 && info.ownership &&
     (info.ownership !== 'Other' || info.ownershipOther.trim()) &&
-    info.services.length > 0 && agreed;
+    info.services.length > 0 && highlightOk && agreed;
 
   const handleSubmit = () => {
     if (descriptionWords > 1000) return toast.error('Center Description must be a maximum of 1000 words');
@@ -89,6 +98,9 @@ export default function AdminCreateCentrePage() {
     if (!info.ownership) return toast.error('Please select an Ownership type');
     if (info.ownership === 'Other' && !info.ownershipOther.trim()) return toast.error('Please specify the Ownership type');
     if (info.services.length === 0) return toast.error('Please select at least one Service');
+    if (!highlight.responseTime) return toast.error('Please select a Response Time');
+    if (highlight.workDays.length === 0) return toast.error('Please select at least one Work Day');
+    if (highlight.workHours.length === 0) return toast.error('Please add at least one Work Hour');
     if (!agreed) return toast.error('Please accept the undertaking remark before submitting');
     if (!identity.name.trim() || !identity.country) return toast.error('Please fill in the Center Name and Country');
 
@@ -130,27 +142,31 @@ export default function AdminCreateCentrePage() {
 
       <YourInformationSection info={yourInfo} />
 
-      <CollapsibleSection title="Center identity" icon={<IdCard className="h-5 w-5 text-brand-red-600" />} badge="Required">
+      <CollapsibleSection title="Center Identity" icon={<IdCard className="h-5 w-5 text-brand-red-600" />} badge="Required">
         <CenterIdentitySection identity={identity} onChange={patchIdentity} />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Center information" icon={<Microscope className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
+      <CollapsibleSection title="Center Information" icon={<Microscope className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
         <CenterInformationSection info={info} onChange={patchInfo} />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Service fees & other fees" icon={<DollarSign className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+      <CollapsibleSection title="Service Fees & Other Fees" icon={<DollarSign className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
         <CenterFeesSection services={info.services} fees={fees} onChange={patchFees} />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Scopes & engagement policies" icon={<Flag className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
+      <CollapsibleSection title="Scopes & Engagement Policies" icon={<Flag className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
         <CenterScopePolicySection scopes={scopes} setScopes={setScopes} policies={policies} setPolicies={setPolicies} />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Licenses & achievements" icon={<ShieldCheck className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
+      <CollapsibleSection title="Licenses & Achievements" icon={<ShieldCheck className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
         <CenterDocumentsSection licenses={licenses} setLicenses={setLicenses} awards={awards} setAwards={setAwards} />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Media gallery" icon={<ImagePlus className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+      <CollapsibleSection title="Center Highlight" icon={<Clock className="h-5 w-5 text-brand-navy-900" />} badge="Required" defaultOpen={false}>
+        <CenterHighlightSection highlight={highlight} onChange={patchHighlight} />
+      </CollapsibleSection>
+
+      <CollapsibleSection title="Media Gallery" icon={<ImagePlus className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
         <CenterGallerySection gallery={gallery} onChange={setGallery} />
       </CollapsibleSection>
 

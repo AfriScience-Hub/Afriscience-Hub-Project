@@ -18,20 +18,28 @@ export interface ProfessionalDetails {
 
 export interface ServiceCharge {
   description: string;
-  costRange: string;
+  minCost: string;
+  maxCost: string;
   currency: string;
 }
 
 export interface OtherCharge {
   name: string;
   description: string;
-  cost: string;
+  minCost: string;
+  maxCost: string;
   currency: string;
 }
 
 export interface ScientistFees {
   serviceCosts: Record<string, ServiceCharge>;
   otherCharges: OtherCharge[];
+}
+
+export interface ProfessionalHighlight {
+  responseTime: string;
+  workDays: string[];
+  workHours: string[];
 }
 
 export interface ScientistContact {

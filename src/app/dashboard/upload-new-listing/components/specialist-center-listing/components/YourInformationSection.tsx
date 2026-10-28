@@ -23,7 +23,7 @@ export default function YourInformationSection({ info }: YourInformationSectionP
   ];
 
   return (
-    <CollapsibleSection title="Your information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Auto-populated by platform" defaultOpen={false}>
+    <CollapsibleSection title="Your Information" icon={<User className="h-5 w-5 text-brand-red-600" />} badge="Auto-populated by platform" defaultOpen={false}>
       <div className="space-y-4">
         <p className="text-xs text-neutral-gray-medium">These details are provided by the platform and cannot be edited here.</p>
         <div className="grid gap-4 sm:grid-cols-2">

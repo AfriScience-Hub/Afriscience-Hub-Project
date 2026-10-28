@@ -39,14 +39,24 @@ export function OptionInfo({ text }: { text: string }) {
   );
 }
 
-export function MultiSelectField({ label, placeholder, options, value, onChange, max, required, tooltips, descriptions }: {
+export function MultiSelectField({ label, placeholder, options, value, onChange, max, required, tooltips, descriptions, hint, searchable, searchPlaceholder }: {
   label: string; placeholder: string; options: string[]; value: string[];
   onChange: (v: string[] | ((p: string[]) => string[])) => void; max: number;
   required?: boolean; tooltips?: Record<string, string>; descriptions?: Record<string, string>;
+  hint?: string; searchable?: boolean; searchPlaceholder?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => { if (!open) return; const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); }; document.addEventListener('mousedown', handler); return () => document.removeEventListener('mousedown', handler); }, [open]);
+  useEffect(() => { if (!open) setQuery(''); }, [open]);
+  const visibleOptions = searchable && query.trim()
+    ? options.filter((opt) => opt.toLowerCase().includes(query.trim().toLowerCase()))
+    : options;
+  const toggleOpen = () => {
+    if (open) setQuery('');
+    setOpen((v) => !v);
+  };
   const toggle = (opt: string) => {
     onChange(p => {
       const arr = typeof p === 'function' ? (p as (prev: string[]) => string[])(value) : p;
@@ -58,15 +68,29 @@ export function MultiSelectField({ label, placeholder, options, value, onChange,
   return (
     <div ref={ref}>
       <label className="mb-2 block text-sm font-medium text-neutral-black">{label} {required && <span className="text-red-500">*</span>}</label>
-      <button type="button" onClick={() => setOpen(v => !v)}
+      {hint && <p className="mb-2 text-xs text-neutral-gray-medium">{hint}</p>}
+      <button type="button" onClick={toggleOpen}
         className="flex min-h-10 w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-neutral-gray-light bg-white px-4 py-2 text-left outline-none focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
         <span className={`min-w-0 flex-1 truncate text-xs sm:text-sm ${value.length ? 'text-neutral-black' : 'text-neutral-gray-medium'}`}>{value.length ? value.join(', ') : placeholder}</span>
         <ChevronDown size={15} className={`shrink-0 text-neutral-gray-medium transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       <p className="mt-1 text-[11px] text-neutral-gray-medium sm:text-xs">{value.length}/{max} selected</p>
       {open && (
-        <div className="mt-2 max-h-60 overflow-y-auto rounded-lg border border-neutral-gray-light bg-white p-2 shadow-sm">
-          {options.map(opt => {
+        <div className="mt-2 rounded-lg border border-neutral-gray-light bg-white p-2 shadow-sm">
+          {searchable && (
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={searchPlaceholder || 'Search options...'}
+              className="mb-2 w-full rounded-md border border-neutral-gray-light px-3 py-2 text-xs outline-none focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600"
+            />
+          )}
+          <div className="max-h-56 overflow-y-auto">
+          {visibleOptions.length === 0 && (
+            <p className="px-3 py-2 text-xs italic text-neutral-gray-medium">No matching options.</p>
+          )}
+          {visibleOptions.map(opt => {
             const checked = value.includes(opt);
             const disabled = !checked && value.length >= max;
             return (
@@ -82,17 +106,18 @@ export function MultiSelectField({ label, placeholder, options, value, onChange,
               </label>
             );
           })}
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-export function SingleSelectField({ label, placeholder, options, value, onChange, required, tooltips, descriptions, prices }: {
+export function SingleSelectField({ label, placeholder, options, value, onChange, required, tooltips, descriptions, prices, hint }: {
   label: string; placeholder: string; options: string[]; value: string;
   onChange: (v: string) => void; required?: boolean; tooltips?: Record<string, string>; descriptions?: Record<string, string>;
   /** Price per option, shown at the right end of the row (STAGE options). */
-  prices?: Record<string, string>;
+  prices?: Record<string, string>; hint?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -100,6 +125,7 @@ export function SingleSelectField({ label, placeholder, options, value, onChange
   return (
     <div ref={ref}>
       <label className="mb-2 block text-sm font-medium text-neutral-black">{label} {required && <span className="text-red-500">*</span>}</label>
+      {hint && <p className="mb-2 text-xs text-neutral-gray-medium">{hint}</p>}
       <button type="button" onClick={() => setOpen(v => !v)}
         className="flex min-h-10 w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-neutral-gray-light bg-white px-4 py-2 text-left outline-none focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
         <span className={`min-w-0 flex-1 truncate text-xs sm:text-sm ${value ? 'text-neutral-black' : 'text-neutral-gray-medium'}`}>{value || placeholder}</span>

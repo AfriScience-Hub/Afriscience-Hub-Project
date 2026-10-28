@@ -15,9 +15,10 @@ import ProfessionalDetailsSection from './components/ProfessionalDetailsSection'
 import ScientistFeesSection from './components/ScientistFeesSection';
 import ScientistScopePolicySection from './components/ScientistScopePolicySection';
 import ScientistDocumentsSection from './components/ScientistDocumentsSection';
+import ProfessionalHighlightSection from './components/ProfessionalHighlightSection';
 import ScientistGallerySection from './components/ScientistGallerySection';
 import ScientistContactSection from './components/ScientistContactSection';
-import type { ProfessionalDetails, ScientistContact, ScientistFees, ScientistProfile } from './types';
+import type { ProfessionalDetails, ProfessionalHighlight, ScientistContact, ScientistFees, ScientistProfile } from './types';
 import type { MediaItem } from './components/ScientistGallerySection';
 
 const EMPTY_PROFILE: ScientistProfile = {
@@ -33,6 +34,10 @@ const EMPTY_FEES: ScientistFees = { serviceCosts: {}, otherCharges: [] };
 const EMPTY_CONTACT: ScientistContact = {
   phone: '', email: '', website: '',
   socials: { LinkedIn: '', Twitter: '', Instagram: '', Facebook: '' },
+};
+
+const EMPTY_HIGHLIGHT: ProfessionalHighlight = {
+  responseTime: '', workDays: [], workHours: [],
 };
 
 interface ScientistListingProps {
@@ -52,6 +57,7 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
   const [policies, setPolicies] = useState<string[]>([]);
   const [certifications, setCertifications] = useState<DocEntry[]>([EMPTY_DOC]);
   const [achievements, setAchievements] = useState<DocEntry[]>([EMPTY_DOC]);
+  const [highlight, setHighlight] = useState<ProfessionalHighlight>(EMPTY_HIGHLIGHT);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [contact, setContact] = useState<ScientistContact>(EMPTY_CONTACT);
   const [agreed, setAgreed] = useState(false);
@@ -77,6 +83,7 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
   const patchProfile = (patch: Partial<ScientistProfile>) => setProfile(prev => ({ ...prev, ...patch }));
   const patchDetails = (patch: Partial<ProfessionalDetails>) => setDetails(prev => ({ ...prev, ...patch }));
   const patchFees = (patch: Partial<ScientistFees>) => setFees(prev => ({ ...prev, ...patch }));
+  const patchHighlight = (patch: Partial<ProfessionalHighlight>) => setHighlight(prev => ({ ...prev, ...patch }));
   const patchContact = (patch: Partial<ScientistContact>) => setContact(prev => ({ ...prev, ...patch }));
 
   const resetForm = () => {
@@ -84,18 +91,20 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
     setDetails(EMPTY_DETAILS);
     setFees(EMPTY_FEES);
     setScopes([]); setPolicies([]); setCertifications([EMPTY_DOC]); setAchievements([EMPTY_DOC]);
+    setHighlight(EMPTY_HIGHLIGHT);
     setMedia([]); setContact(EMPTY_CONTACT); setAgreed(false);
   };
 
   const hasAnySocial = Object.values(contact.socials).some(v => v.trim().length > 0);
   const bioWords = profile.bio.trim() ? profile.bio.trim().split(/\s+/).length : 0;
   const certificatesOk = !details.degree || ['Field Expert | No Degree', 'Others'].includes(details.degree) || !!details.degreeCertificate;
+  const highlightOk = !!highlight.responseTime && highlight.workDays.length > 0 && highlight.workHours.length > 0;
 
   const isFormValid =
     profile.name.trim() && profile.country && profile.bio.trim() && bioWords <= 1000 &&
     details.field && details.professions.length > 0 && details.degree &&
     (details.professions.includes('Other') ? details.professionOther.trim() : true) &&
-    details.services.length > 0 && certificatesOk &&
+    details.services.length > 0 && certificatesOk && highlightOk &&
     contact.phone.trim() && contact.email.trim() && hasAnySocial && agreed;
 
   const handleSubmit = () => {
@@ -106,6 +115,9 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
     if (details.professions.includes('Other') && !details.professionOther.trim()) return toast.error('Please specify the other Profession');
     if (!details.degree) return toast.error('Please select a Degree');
     if (!certificatesOk) return toast.error('Please upload your Degree Certificate to verify your academic qualification');
+    if (!highlight.responseTime) return toast.error('Please select a Response Time');
+    if (highlight.workDays.length === 0) return toast.error('Please select at least one Work Day');
+    if (highlight.workHours.length === 0) return toast.error('Please add at least one Work Hour');
     if (details.services.length === 0) return toast.error('Please select at least one Service');
     if (!contact.phone.trim() || !contact.email.trim()) return toast.error('Please provide your Phone Number and E-mail');
     if (!hasAnySocial) return toast.error('Please provide at least one social handle');
@@ -128,6 +140,8 @@ export default function ScientistListing({ onCancel }: ScientistListingProps) {
         certifications={certifications} setCertifications={setCertifications}
         achievements={achievements} setAchievements={setAchievements}
       />
+
+      <ProfessionalHighlightSection highlight={highlight} onChange={patchHighlight} />
 
       <ScientistGallerySection media={media} onChange={setMedia} />
 

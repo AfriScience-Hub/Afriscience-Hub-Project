@@ -102,7 +102,7 @@ export default function ScientistProfileSection({ profile, onChange }: Scientist
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-neutral-black mb-1">Country <span className="text-red-500">*</span></label>
-            <select value={profile.country} onChange={(e) => onChange({ country: e.target.value })} className={`${inputClass} cursor-pointer`}>
+            <select value={profile.country} onChange={(e) => onChange({ country: e.target.value, stateRegion: '' })} className={`${inputClass} cursor-pointer`}>
               <option value="">Select Country</option>
               {WORLD_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -114,8 +114,9 @@ export default function ScientistProfileSection({ profile, onChange }: Scientist
               list="scientist-state-region-options"
               value={profile.stateRegion}
               onChange={(e) => onChange({ stateRegion: e.target.value })}
-              className={inputClass}
-              placeholder="Select or enter state/region"
+              disabled={!profile.country}
+              className={`${inputClass} disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-medium`}
+              placeholder={profile.country ? 'Select or enter state/region' : 'Select a country first'}
             />
             <datalist id="scientist-state-region-options">
               {(STATES[profile.country] || []).map(s => <option key={s} value={s} />)}

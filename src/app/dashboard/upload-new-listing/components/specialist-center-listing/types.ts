@@ -29,20 +29,28 @@ export interface CenterInformation {
 
 export interface ServiceFee {
   description: string;
-  costRange: string;
+  minCost: string;
+  maxCost: string;
   currency: string;
 }
 
 export interface OtherFee {
   name: string;
   description: string;
-  cost: string;
+  minCost: string;
+  maxCost: string;
   currency: string;
 }
 
 export interface CenterFees {
   serviceFees: Record<string, ServiceFee>;
   otherFees: OtherFee[];
+}
+
+export interface CenterHighlight {
+  responseTime: string;
+  workDays: string[];
+  workHours: string[];
 }
 
 export interface CenterDocEntry {

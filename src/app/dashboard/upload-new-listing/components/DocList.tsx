@@ -21,6 +21,8 @@ interface DocListProps {
   onChange: (entries: DocEntry[]) => void;
   addButtonClassName?: string;
   namePlaceholder?: string;
+  /** Explanatory text shown directly below the section label. */
+  hint?: string;
 }
 
 export const EMPTY_DOC: DocEntry = { name: '', issuer: '', year: '', file: null, previewUrl: null };
@@ -32,7 +34,7 @@ function truncateName(name: string, max = 30): string {
   return `${base.slice(0, max - ext.length - 3)}...${ext}`;
 }
 
-export default function DocList({ label, addLabel, entries, onChange, addButtonClassName, namePlaceholder }: DocListProps) {
+export default function DocList({ label, addLabel, entries, onChange, addButtonClassName, namePlaceholder, hint }: DocListProps) {
   const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-3 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
 
   const update = (idx: number, patch: Partial<DocEntry>) => {
@@ -62,6 +64,7 @@ export default function DocList({ label, addLabel, entries, onChange, addButtonC
   return (
     <div>
       <label className="block text-sm font-medium text-neutral-black mb-1">{label} <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple entries allowed)</span></label>
+      {hint && <p className="mb-2 text-xs text-neutral-gray-medium">{hint}</p>}
       <div className="space-y-3">
         {entries.map((entry, idx) => (
           <div key={idx} className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light/50 p-4">

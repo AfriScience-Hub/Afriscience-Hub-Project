@@ -1,19 +1,8 @@
 'use client';
 
-import { Star, ShieldCheck, Trophy } from 'lucide-react';
+import { Calendar, Star } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
-import { cn } from '@/lib/utils';
-
-interface Certification {
-  name: string;
-  issuer: string;
-  year: string;
-}
-
-interface Award {
-  title: string;
-  year: string;
-}
+import { cn, formatJoinedDate } from '@/lib/utils';
 
 interface SidebarProps {
   center: {
@@ -25,8 +14,7 @@ interface SidebarProps {
     workHours?: string;
     bookingsCount?: number;
     rating: number;
-    certifications?: Certification[];
-    awards?: Award[];
+    createdAt?: string;
   };
   onBookService: () => void;
 }
@@ -73,40 +61,20 @@ export default function Sidebar({ center, onBookService }: SidebarProps) {
             <span className="text-sm text-neutral-gray-dark font-medium">{center.bookingsCount}+</span>
           </div>
           <div className="flex items-center justify-between">
+            <span className="text-sm text-neutral-black flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-neutral-gray-medium" /> Joined
+            </span>
+            <span className="text-sm text-neutral-gray-dark font-medium">
+              {formatJoinedDate(center.createdAt) || '—'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
             <span className="text-sm text-neutral-black">Rating</span>
             <div className="flex items-center gap-1">
               <Star className="h-3 w-3 text-amber-500 fill-current" />
               <span className="text-sm font-bold text-neutral-black">{center.rating}</span>
             </div>
           </div>
-
-          {center.certifications && center.certifications.length > 0 && (
-            <div className="pt-4 border-t border-neutral-gray-light">
-              <p className="text-xs font-bold text-neutral-gray-dark uppercase mb-2">Certifications</p>
-              <div className="space-y-1.5">
-                {center.certifications.slice(0, 3).map((cert, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <ShieldCheck className="h-3 w-3 text-green-600 flex-shrink-0" />
-                    <span className="text-xs text-neutral-gray-dark">{cert.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {center.awards && center.awards.length > 0 && (
-            <div className="pt-4 border-t border-neutral-gray-light">
-              <p className="text-xs font-bold text-neutral-gray-dark uppercase mb-2">Awards</p>
-              <div className="space-y-1.5">
-                {center.awards.slice(0, 3).map((award, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <Trophy className="h-3 w-3 text-amber-500 flex-shrink-0" />
-                    <span className="text-xs text-neutral-gray-dark">{award.title} ({award.year})</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div className="pt-4 border-t border-neutral-gray-light">
             <Button className="w-full mb-3 bg-brand-navy-900 hover:bg-brand-navy-800" onClick={onBookService}>

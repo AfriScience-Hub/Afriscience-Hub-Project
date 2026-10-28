@@ -111,7 +111,7 @@ export default function CenterIdentitySection({ identity, onChange }: CenterIden
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">Country <span className="text-red-500">*</span></label>
-          <select value={identity.country} onChange={(e) => onChange({ country: e.target.value })} className={`${inputClass} cursor-pointer`}>
+          <select value={identity.country} onChange={(e) => onChange({ country: e.target.value, stateRegion: '' })} className={`${inputClass} cursor-pointer`}>
             <option value="">Select Country</option>
             {WORLD_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
@@ -123,8 +123,9 @@ export default function CenterIdentitySection({ identity, onChange }: CenterIden
             list="center-state-region-options"
             value={identity.stateRegion}
             onChange={(e) => onChange({ stateRegion: e.target.value })}
-            className={inputClass}
-            placeholder="Select or enter state/region"
+            disabled={!identity.country}
+            className={`${inputClass} disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-medium`}
+            placeholder={identity.country ? 'Select or enter state/region' : 'Select a country first'}
           />
           <datalist id="center-state-region-options">
             {(STATES[identity.country] || []).map(s => <option key={s} value={s} />)}
@@ -135,17 +136,22 @@ export default function CenterIdentitySection({ identity, onChange }: CenterIden
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">Phone Number <span className="text-red-500">*</span></label>
+          <p className="mb-2 text-xs text-neutral-gray-medium">Enter establishment&rsquo;s phone number</p>
           <input type="tel" value={identity.phone} onChange={(e) => onChange({ phone: e.target.value })} className={inputClass} placeholder="+234 800 000 0000" />
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">E-mail <span className="text-red-500">*</span></label>
+          <p className="mb-2 text-xs text-neutral-gray-medium">Enter establishment&rsquo;s E-mail address</p>
           <input type="email" value={identity.email} onChange={(e) => onChange({ email: e.target.value })} className={inputClass} placeholder="info@example.com" />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">Website</label>
-        <input type="url" value={identity.website} onChange={(e) => onChange({ website: e.target.value })} className={inputClass} placeholder="https://www.example.com (optional)" />
+        <label className="block text-sm font-medium text-neutral-black mb-1">
+          Website <span className="text-[10px] font-normal text-neutral-gray-medium">(Optional)</span>
+        </label>
+        <p className="mb-2 text-xs text-neutral-gray-medium">Enter establishment&rsquo;s website (if any)</p>
+        <input type="url" value={identity.website} onChange={(e) => onChange({ website: e.target.value })} className={inputClass} placeholder="https://www.example.com" />
       </div>
 
       <div>
@@ -175,7 +181,7 @@ export default function CenterIdentitySection({ identity, onChange }: CenterIden
           onChange={(e) => onChange({ description: e.target.value })}
           rows={5}
           className={`${inputClass} resize-none`}
-          placeholder="Detailed description of the establishment..."
+          placeholder="Give a detailed description of your specialist establishment"
         />
         <p className={`mt-1 text-xs ${wordCount > 1000 ? 'text-red-500' : 'text-neutral-gray-medium'}`}>{wordCount}/1000 words</p>
       </div>

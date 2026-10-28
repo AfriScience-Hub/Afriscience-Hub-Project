@@ -1,7 +1,7 @@
 'use client';
 
-import { Calendar, Clock, Star, ShieldCheck } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Calendar, Clock, Star } from 'lucide-react';
+import { cn, formatJoinedDate } from '@/lib/utils';
 import { Button } from '@/app/components/ui/Button';
 
 interface SidebarProps {
@@ -59,26 +59,21 @@ export default function Sidebar({ scientist }: SidebarProps) {
         </div>
 
         <div className="flex items-center justify-between">
+          <span className="text-sm text-neutral-black flex items-center gap-1.5">
+            <Calendar className="h-3.5 w-3.5 text-neutral-gray-medium" /> Joined
+          </span>
+          <span className="text-sm text-neutral-gray-dark font-medium">
+            {formatJoinedDate(scientist.createdAt) || '—'}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-black">Rating</span>
           <div className="flex items-center gap-1">
             <Star className="h-3 w-3 text-amber-500 fill-current" />
             <span className="text-sm font-bold text-neutral-black">{scientist.rating}</span>
           </div>
         </div>
-
-        {scientist.certifications && scientist.certifications.length > 0 && (
-          <div className="pt-4 border-t border-neutral-gray-light">
-            <p className="text-xs font-bold text-neutral-gray-dark uppercase mb-2">Certifications</p>
-            <div className="space-y-1.5">
-              {scientist.certifications.slice(0, 3).map((cert: any, idx: number) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <ShieldCheck className="h-3 w-3 text-green-600 flex-shrink-0" />
-                  <span className="text-xs text-neutral-gray-dark">{cert.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         <div className="pt-4 border-t border-neutral-gray-light">
           <Button className="w-full mb-3 bg-brand-navy-900 hover:bg-brand-navy-800">

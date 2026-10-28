@@ -1,84 +1,189 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import { MapPin, Tag, Flag, Phone, Calendar, FileText, MessageSquare, User } from 'lucide-react';
-import type { CompetitionSubmission } from '../../data';
+import {
+  Ban, Calendar, ExternalLink, IdCard, Link2, Mail, MapPin,
+  Phone, School, Trophy, UserRound, Users,
+} from 'lucide-react';
+import type { CompetitionSubmission, SocialHandle } from '../../data';
 
-function Field({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
+function SectionCard({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-neutral-gray-light bg-white p-4 space-y-3">
+      <h3 className="text-xs font-bold text-neutral-black flex items-center gap-1.5">
+        <Icon className="h-4 w-4 text-neutral-gray-medium" /> {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
+
+function Detail({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value?: string | null }) {
   return (
     <div className="flex items-start gap-2.5">
       <Icon className="h-4 w-4 text-neutral-gray-medium mt-0.5 flex-shrink-0" />
       <div className="min-w-0">
         <p className="text-[10px] text-neutral-gray-medium">{label}</p>
-        <p className="text-xs font-medium text-neutral-black break-words">{value}</p>
+        <p className="text-xs font-medium text-neutral-black break-words">{value || '—'}</p>
+      </div>
+    </div>
+  );
+}
+
+function socialHref({ platform, handle }: SocialHandle): string | null {
+  const raw = handle.trim();
+  if (!raw) return null;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (/^[\w-]+(\.[\w-]+)+/i.test(raw)) return `https://${raw}`;
+
+  const clean = raw.replace(/^@/, '');
+  switch (platform.toLowerCase()) {
+    case 'instagram': return `https://instagram.com/${clean}`;
+    case 'facebook': return `https://facebook.com/${clean}`;
+    case 'linkedin': return `https://linkedin.com/in/${clean}`;
+    case 'whatsapp': return `https://wa.me/${clean.replace(/\D/g, '')}`;
+    case 'x':
+    case 'twitter': return `https://x.com/${clean}`;
+    default: return null;
+  }
+}
+
+function SocialLinks({ handles }: { handles?: SocialHandle[] }) {
+  if (!handles || handles.length === 0) return <p className="text-xs text-neutral-gray-medium">No social handles provided.</p>;
+  return (
+    <div className="flex flex-wrap gap-2">
+      {handles.map((social) => {
+        const href = socialHref(social);
+        const content = (
+          <>
+            <span className="font-semibold">{social.platform}</span>
+            <span>{social.handle}</span>
+            {href && <ExternalLink className="h-3 w-3" />}
+          </>
+        );
+        return href ? (
+          <a
+            key={`${social.platform}-${social.handle}`}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-neutral-gray-light bg-neutral-bg-light text-[11px] text-neutral-gray-dark hover:text-neutral-black hover:bg-neutral-bg-light/80"
+          >
+            {content}
+          </a>
+        ) : (
+          <span key={`${social.platform}-${social.handle}`} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-neutral-gray-light bg-neutral-bg-light text-[11px] text-neutral-gray-dark">
+            {content}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+function DocumentPreview({ title, type, src }: { title: string; type?: string | null; src?: string | null }) {
+  if (!src) return null;
+  return (
+    <div className="rounded-xl border border-neutral-gray-light overflow-hidden">
+      <div className="relative w-full aspect-video bg-neutral-bg-light">
+        <Image src={src} alt={title} fill sizes="(max-width: 768px) 100vw, 640px" className="object-contain" />
+      </div>
+      <div className="px-3 py-2 flex items-center justify-between gap-2 border-t border-neutral-gray-light">
+        <div>
+          <p className="text-xs font-semibold text-neutral-black">{title}</p>
+          <p className="text-[10px] text-neutral-gray-medium">{type || 'Identification document'}</p>
+        </div>
+        <a href={src} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] font-medium text-[#453DD8] hover:underline whitespace-nowrap">
+          Open <ExternalLink className="h-3 w-3" />
+        </a>
       </div>
     </div>
   );
 }
 
 /**
- * Body of the View Submission page: gallery + entry info, submitted-by
- * card, key fields and the participant's message.
+ * Applicant details for the View Details page. Work media and scoring live
+ * on the separate View Work & Score page.
  */
 export default function SubmissionDetails({ submission }: { submission: CompetitionSubmission }) {
-  const [activeImg, setActiveImg] = useState(0);
+  const isPresentation = submission.type === 'Afri-Presentations';
 
   return (
     <div className="p-5 space-y-5">
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-4 items-start">
+        <div className="flex-shrink-0">
+          <div className="relative h-20 w-20 rounded-2xl overflow-hidden bg-neutral-bg-light border border-neutral-gray-light">
+            <Image src={submission.avatar} alt={submission.participant} fill sizes="80px" className="object-cover" />
+          </div>
+          <p className="text-[10px] text-neutral-gray-medium text-center mt-1">Profile picture</p>
+        </div>
         <div className="flex-1 min-w-0">
-          <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-neutral-gray-light">
-            <Image src={submission.gallery[activeImg]} alt={`${submission.title} preview`} fill sizes="(max-width: 768px) 100vw, 60vw" className="object-cover" />
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-lg font-bold text-neutral-black">{submission.participant}</h2>
+            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700">{submission.idTag}</span>
+            {submission.disqualified && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-red-600">
+                <Ban className="h-3 w-3" /> Disqualified
+              </span>
+            )}
           </div>
-          <div className="flex gap-2 mt-2">
-            {submission.gallery.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveImg(i)}
-                aria-label={`View image ${i + 1}`}
-                className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 cursor-pointer ${i === activeImg ? 'border-[#453DD8]' : 'border-transparent opacity-70 hover:opacity-100'}`}
-              >
-                <Image src={img} alt="" fill sizes="56px" className="object-cover" />
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="sm:w-64 flex-shrink-0 space-y-3">
-          <div>
-            <p className="text-sm font-bold text-neutral-black">{submission.title}</p>
-            <p className="text-[11px] text-neutral-gray-medium mt-1">{submission.description}</p>
-          </div>
-          <div className="flex items-center gap-2.5 pt-3 border-t border-neutral-gray-light">
-            <Image src={submission.avatar} alt={submission.participant} width={36} height={36} className="h-9 w-9 rounded-full object-cover flex-shrink-0" />
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-neutral-black flex items-center gap-1">
-                <User className="h-3 w-3 text-neutral-gray-medium" /> {submission.participant}
-              </p>
-              <p className="text-[10px] text-neutral-gray-medium truncate">{submission.email}</p>
-            </div>
-          </div>
-          <p className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-700">
-            <FileText className="h-3 w-3" /> {submission.fileType}
+          <p className="text-[11px] text-neutral-gray-medium mt-1">
+            {submission.type} &middot; {submission.category} &middot; {submission.country}
           </p>
+          <div className="grid sm:grid-cols-2 gap-x-4 gap-y-3 mt-4">
+            <Detail icon={Mail} label="Email" value={submission.email} />
+            <Detail icon={Phone} label="Contact" value={submission.contact} />
+            <Detail icon={Trophy} label="Competition" value={submission.competition} />
+            <Detail icon={Calendar} label="Submitted" value={`${submission.submittedOn} at ${submission.submittedTime}`} />
+          </div>
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-neutral-gray-light">
-        <Field icon={Tag} label="Category" value={submission.category} />
-        <Field icon={Flag} label="Competition Type" value={submission.type} />
-        <Field icon={MapPin} label="Country" value={submission.country} />
-        <Field icon={Phone} label="Contact" value={submission.contact} />
-        <Field icon={Calendar} label="Submission Date" value={`${submission.submittedOn} at ${submission.submittedTime}`} />
-        <Field icon={FileText} label="File Type" value={submission.fileType} />
-      </div>
+      <SectionCard title="Profile & Social Handles" icon={Link2}>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Detail icon={UserRound} label="Name" value={submission.participant} />
+          <Detail icon={IdCard} label="ID Tag" value={submission.idTag} />
+        </div>
+        <div className="pt-3 border-t border-neutral-gray-light">
+          <p className="text-[10px] font-medium text-neutral-gray-medium mb-2">Social Handles</p>
+          <SocialLinks handles={submission.socialHandles} />
+        </div>
+      </SectionCard>
 
-      <div className="rounded-xl border border-neutral-gray-light bg-neutral-bg-light/60 p-4">
-        <p className="text-xs font-bold text-neutral-black mb-1.5 flex items-center gap-1.5">
-          <MessageSquare className="h-4 w-4 text-neutral-gray-medium" /> Message from Participant
-        </p>
-        <p className="text-xs text-neutral-gray-dark whitespace-pre-wrap">{submission.message}</p>
-      </div>
+      <SectionCard title="Identification" icon={IdCard}>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Detail icon={IdCard} label="ID Card Type" value={submission.idCardType} />
+        </div>
+        <DocumentPreview title="Contestant ID Document" type={submission.idCardType} src={submission.idCardImage} />
+      </SectionCard>
+
+      {isPresentation && (
+        <>
+          <SectionCard title="School / Institution" icon={School}>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Detail icon={School} label="Name of School / Institute" value={submission.schoolName} />
+              <Detail icon={MapPin} label="School Address" value={submission.schoolAddress} />
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Parent / Guardian" icon={Users}>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Detail icon={UserRound} label="Name of Parent / Guardian" value={submission.guardianName} />
+              <Detail icon={IdCard} label="Parent / Guardian ID Type" value={submission.guardianIdCardType} />
+            </div>
+            <div className="pt-3 border-t border-neutral-gray-light">
+              <p className="text-[10px] font-medium text-neutral-gray-medium mb-2">Parent / Guardian Social Handles</p>
+              <SocialLinks handles={submission.guardianSocialHandles} />
+            </div>
+            <DocumentPreview
+              title="Parent / Guardian ID Document"
+              type={submission.guardianIdCardType}
+              src={submission.guardianIdCardImage}
+            />
+          </SectionCard>
+        </>
+      )}
     </div>
   );
 }

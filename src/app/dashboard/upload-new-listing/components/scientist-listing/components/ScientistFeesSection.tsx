@@ -4,7 +4,8 @@ import { Plus, X, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
 import CollapsibleSection from '../../CollapsibleSection';
-import { CURRENCIES } from '../../../data';
+import CurrencySelect from '../../CurrencySelect';
+import { countWords, limitWords, DESCRIPTION_WORD_LIMIT } from '../../wordLimit';
 import type { OtherCharge, ScientistFees, ServiceCharge } from '../types';
 
 interface ScientistFeesSectionProps {
@@ -13,8 +14,8 @@ interface ScientistFeesSectionProps {
   onChange: (patch: Partial<ScientistFees>) => void;
 }
 
-const EMPTY_CHARGE: OtherCharge = { name: '', description: '', cost: '', currency: 'USD' };
-const DEFAULT_CHARGE: ServiceCharge = { description: '', costRange: '', currency: 'USD' };
+const EMPTY_CHARGE: OtherCharge = { name: '', description: '', minCost: '', maxCost: '', currency: 'USD' };
+const DEFAULT_CHARGE: ServiceCharge = { description: '', minCost: '', maxCost: '', currency: 'USD' };
 
 export default function ScientistFeesSection({ services, fees, onChange }: ScientistFeesSectionProps) {
   const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-3 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
@@ -57,25 +58,33 @@ export default function ScientistFeesSection({ services, fees, onChange }: Scien
                       <input
                         type="text"
                         value={cost.description}
-                        onChange={(e) => updateServiceCost(service, { description: e.target.value })}
+                        onChange={(e) => updateServiceCost(service, { description: limitWords(e.target.value) })}
                         className={inputClass}
                         placeholder="Service description"
                       />
-                      <div className="grid grid-cols-3 gap-2">
+                      <p className={`text-right text-[11px] ${countWords(cost.description) >= DESCRIPTION_WORD_LIMIT ? 'text-amber-600' : 'text-neutral-gray-medium'}`}>
+                        {countWords(cost.description)}/{DESCRIPTION_WORD_LIMIT} words
+                      </p>
+                      <div className="grid gap-2 sm:grid-cols-3">
                         <input
                           type="text"
-                          value={cost.costRange}
-                          onChange={(e) => updateServiceCost(service, { costRange: e.target.value })}
-                          className={`${inputClass} col-span-2`}
-                          placeholder="Cost range e.g. 5,000 - 20,000"
+                          value={cost.minCost}
+                          onChange={(e) => updateServiceCost(service, { minCost: e.target.value })}
+                          className={inputClass}
+                          placeholder="Minimum cost"
                         />
-                        <select
+                        <input
+                          type="text"
+                          value={cost.maxCost}
+                          onChange={(e) => updateServiceCost(service, { maxCost: e.target.value })}
+                          className={inputClass}
+                          placeholder="Maximum cost"
+                        />
+                        <CurrencySelect
                           value={cost.currency}
-                          onChange={(e) => updateServiceCost(service, { currency: e.target.value })}
+                          onChange={(currency) => updateServiceCost(service, { currency })}
                           className={`${inputClass} cursor-pointer`}
-                        >
-                          {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
+                        />
                       </div>
                     </div>
                   </div>
@@ -110,12 +119,36 @@ export default function ScientistFeesSection({ services, fees, onChange }: Scien
                 </div>
                 <div className="space-y-2">
                   <input type="text" value={charge.name} onChange={(e) => updateCharge(idx, { name: e.target.value })} className={inputClass} placeholder="Charge name" />
-                  <input type="text" value={charge.description} onChange={(e) => updateCharge(idx, { description: e.target.value })} className={inputClass} placeholder="Charge description" />
-                  <div className="grid grid-cols-3 gap-2">
-                    <input type="text" value={charge.cost} onChange={(e) => updateCharge(idx, { cost: e.target.value })} className={`${inputClass} col-span-2`} placeholder="Cost" />
-                    <select value={charge.currency} onChange={(e) => updateCharge(idx, { currency: e.target.value })} className={`${inputClass} cursor-pointer`}>
-                      {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                  <input
+                    type="text"
+                    value={charge.description}
+                    onChange={(e) => updateCharge(idx, { description: limitWords(e.target.value) })}
+                    className={inputClass}
+                    placeholder="Charge description"
+                  />
+                  <p className={`text-right text-[11px] ${countWords(charge.description) >= DESCRIPTION_WORD_LIMIT ? 'text-amber-600' : 'text-neutral-gray-medium'}`}>
+                    {countWords(charge.description)}/{DESCRIPTION_WORD_LIMIT} words
+                  </p>
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    <input
+                      type="text"
+                      value={charge.minCost}
+                      onChange={(e) => updateCharge(idx, { minCost: e.target.value })}
+                      className={inputClass}
+                      placeholder="Minimum cost"
+                    />
+                    <input
+                      type="text"
+                      value={charge.maxCost}
+                      onChange={(e) => updateCharge(idx, { maxCost: e.target.value })}
+                      className={inputClass}
+                      placeholder="Maximum cost"
+                    />
+                    <CurrencySelect
+                      value={charge.currency}
+                      onChange={(currency) => updateCharge(idx, { currency })}
+                      className={`${inputClass} cursor-pointer`}
+                    />
                   </div>
                 </div>
               </div>
