@@ -3,22 +3,14 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  fetchFullProfile, fetchProfileCompletion, submitProfileCompletion,
-  createPersonalInfo, updatePersonalInfo,
-  createSkill, updateSkill,
-  createEducation, updateEducation,
-  createExperience, updateExperience,
-  createLanguage, updateLanguage,
-  createPortfolio, updatePortfolio,
-  createCert, updateCert,
-} from '@/store/profileSlice';
+import { fetchFullProfile, fetchProfileCompletion, saveProfile } from '@/store/profileSlice';
 import { fetchWalletBalance } from '@/store/walletSlice';
 import { toast } from 'sonner';
 import { isNoGraduationClassLevel } from './educationLevels';
 import { uploadFile } from '@/lib/upload';
 import { normalizeFileSrc } from '@/lib/files';
 import { fetchCurrentUser, setUser } from '@/store/authSlice';
+import type { ProfileTab } from './profileCompletion';
 
 function uid() { return crypto.randomUUID(); }
 
@@ -56,15 +48,23 @@ const ID_CARD_REV: Record<string, string> = {
   OTHER: 'Other',
 };
 
+export interface SaveResult {
+  ok: boolean;
+  submitted: boolean;
+  status: string | null;
+}
+
 export function useProfileForm() {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
   const profile = useAppSelector(s => s.profile);
   const fetchedRef = useRef({ full: false });
-  const existingIdsRef = useRef({ skills: new Set<string>(), languages: new Set<string>(), portfolio: new Set<string>(), experience: new Set<string>(), certs: new Set<string>() });
   // Certificate already persisted on the server, kept so a save without a new
   // pick (or a clear) doesn't wipe it from the payload.
   const savedDegreeCertRef = useRef('');
+  // Existing stored file values. PUT /profile replaces whole sections, so the
+  // current key/URL must be sent back when the user has not picked a new file.
+  const savedFileRef = useRef({ idCard: '', avatar: '', cv: '' });
 
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState(''); const [gender, setGender] = useState(''); const [dateOfBirth, setDateOfBirth] = useState('');
@@ -106,8 +106,7 @@ export function useProfileForm() {
   const [personalLoaded, setPersonalLoaded] = useState(false);
 
   // Single fetch on mount: GET /profile hydrates every tab, plus
-  // GET /profile/completion for the header percentage. Per-section
-  // POST/PATCH thunks fire only on save (see save* below).
+  // GET /profile/completion for the header percentage.
   useEffect(() => {
     if (fetchedRef.current.full) return;
     fetchedRef.current.full = true;
@@ -115,7 +114,7 @@ export function useProfileForm() {
     dispatch(fetchProfileCompletion());
   }, [dispatch]);
 
-  // Sync personal info from Redux into local state
+  // Sync personal info from Redux into local state.
   useEffect(() => {
     const p = profile.personal; if (!p) return;
     setFullName(p.fullName || [p.firstname, p.middlename, p.surname].filter(Boolean).join(' ') || user?.name || '');
@@ -127,7 +126,7 @@ export function useProfileForm() {
     const avatarSrc = normalizeFileSrc(rawAvatar);
     // Keep an unsaved local preview (data: URL) so a refetch doesn't wipe the pick.
     setAvatarUrl(prev => (prev.startsWith('data:') ? prev : avatarSrc || prev));
-    setPhone(p.phone || ''); setAddress(p.address || ''); setCity(p.city || '');
+    setPhone(p.phone || ''); setAltPhone(p.alternativePhone || ''); setAddress(p.address || ''); setCity(p.city || '');
     // Stored docs: prefer the API's signed URL, else the upload-time one. A bare
     // storage key never renders — it 403s against the private bucket.
     const idCardSrc = normalizeFileSrc(p.idCardUrl) || normalizeFileSrc(p.idCardFile);
@@ -139,22 +138,36 @@ export function useProfileForm() {
     if (cvRaw) setCvFileName(prev => prev || fileNameOf(cvRaw));
     setStateOfResidence(p.state || ''); setLocalGovt(p.lga || ''); setCountry(p.country || '');
     setZipCode(p.postalCode || ''); setEmploymentStatus(EMP_REV[p.employmentStatus] || p.employmentStatus || ''); setWebsite(p.website || '');
+
+    savedFileRef.current = {
+      idCard: p.idCardFile || '',
+      avatar: p.displayPhoto || p.avatar || '',
+      cv: p.cvFile || p.cv || '',
+    };
   }, [profile.personal, user?.name]);
 
-  useEffect(() => { if (profile.skills.length) { setSkills(profile.skills.map(s => ({ id: s.id, name: s.name }))); existingIdsRef.current.skills = new Set(profile.skills.map(s => s.id)); } }, [profile.skills]);
+  useEffect(() => { setSkills(profile.skills.map(s => ({ id: s.id, name: s.name }))); }, [profile.skills]);
   useEffect(() => {
-    if (!profile.education.length) return;
     const e = profile.education[0];
-    setEducationLevel(e.educationLevel || ''); setGraduationClass(e.graduationClass || ''); setCourseOfStudy(e.courseOfStudy || ''); setInstitution(e.institution || ''); setYearOfGraduation(e.yearOfGraduation ? String(e.yearOfGraduation) : '');
-    savedDegreeCertRef.current = e.degreeCertificate || '';
-    setDegreeCertUrl(e.degreeCertificate || '');
-    setDegreeCertFileName(fileNameOf(e.degreeCertificate));
+    setEducationLevel(e?.educationLevel || ''); setGraduationClass(e?.graduationClass || '');
+    setCourseOfStudy(e?.courseOfStudy || ''); setInstitution(e?.institution || '');
+    setYearOfGraduation(e?.yearOfGraduation ? String(e.yearOfGraduation) : '');
+    savedDegreeCertRef.current = e?.degreeCertificate || '';
+    setDegreeCertUrl(e?.degreeCertificate || '');
+    setDegreeCertFileName(fileNameOf(e?.degreeCertificate));
   }, [profile.education]);
-  useEffect(() => { if (profile.experience.length) { const c = profile.experience.find(e => e.isCurrent); if (c) { setRole(c.role || ''); setIndustry(c.industry || ''); setCompany(c.organization || ''); setWorkCountry(c.country || ''); setResumptionDate(c.startDate || ''); setRoleDescription(c.roleDescription || ''); } setPastJobs(profile.experience.filter(e => !e.isCurrent).map(e => ({ id: e.id, organization: e.organization || '', role: e.role || '', industry: e.industry || '', country: e.country || '', startDate: e.startDate || '', roleDescription: e.roleDescription || '' }))); existingIdsRef.current.experience = new Set(profile.experience.map(e => e.id)); } }, [profile.experience]);
-  useEffect(() => { if (profile.languages.length) { setLanguages(profile.languages.map(l => ({ id: l.id, name: l.language, proficiency: PROF_REV[l.proficiency] || l.proficiency }))); existingIdsRef.current.languages = new Set(profile.languages.map(l => l.id)); } }, [profile.languages]);
-  useEffect(() => { if (profile.portfolio.length) { setPortfolioLinks(profile.portfolio.map(p => ({ id: p.id, url: p.link, label: p.label }))); existingIdsRef.current.portfolio = new Set(profile.portfolio.map(p => p.id)); } }, [profile.portfolio]);
   useEffect(() => {
-    if (!profile.certs.length) return;
+    const c = profile.experience.find(e => e.isCurrent);
+    setRole(c?.role || ''); setIndustry(c?.industry || ''); setCompany(c?.organization || '');
+    setWorkCountry(c?.country || ''); setResumptionDate(c?.startDate || ''); setRoleDescription(c?.roleDescription || '');
+    setPastJobs(profile.experience.filter(e => !e.isCurrent).map(e => ({
+      id: e.id, organization: e.organization || '', role: e.role || '',
+      industry: e.industry || '', country: e.country || '', startDate: e.startDate || '', roleDescription: e.roleDescription || '',
+    })));
+  }, [profile.experience]);
+  useEffect(() => { setLanguages(profile.languages.map(l => ({ id: l.id, name: l.language, proficiency: PROF_REV[l.proficiency] || l.proficiency }))); }, [profile.languages]);
+  useEffect(() => { setPortfolioLinks(profile.portfolio.map(p => ({ id: p.id, url: p.link, label: p.label }))); }, [profile.portfolio]);
+  useEffect(() => {
     setOtherCerts(profile.certs.map(c => ({
       id: c.id,
       title: c.title || '',
@@ -164,7 +177,6 @@ export function useProfileForm() {
       fileName: fileNameOf(c.file),
       fileKey: c.file || '',
     })));
-    existingIdsRef.current.certs = new Set(profile.certs.map(c => c.id));
   }, [profile.certs]);
 
   /**
@@ -206,6 +218,7 @@ export function useProfileForm() {
     setCvUrl(normalizeFileSrc(p?.cvUrl) || normalizeFileSrc(p?.cvFile) || normalizeFileSrc(p?.cv) || '');
     const cvRaw = p?.cvUrl || p?.cvFile || p?.cv;
     setCvFileName(cvRaw ? fileNameOf(cvRaw) : '');
+    savedFileRef.current = { idCard: p?.idCardFile || '', avatar: p?.displayPhoto || p?.avatar || '', cv: p?.cvFile || p?.cv || '' };
 
     // Education & certifications
     const e = profile.education[0];
@@ -251,13 +264,6 @@ export function useProfileForm() {
     setSkills(profile.skills.map(s => ({ id: s.id, name: s.name })));
     setLanguages(profile.languages.map(l => ({ id: l.id, name: l.language, proficiency: PROF_REV[l.proficiency] || l.proficiency })));
     setPortfolioLinks(profile.portfolio.map(link => ({ id: link.id, url: link.link, label: link.label })));
-
-    // Reset the ids that decide between POST (create) and PATCH (update).
-    existingIdsRef.current.skills = new Set(profile.skills.map(s => s.id));
-    existingIdsRef.current.experience = new Set(profile.experience.map(exp => exp.id));
-    existingIdsRef.current.languages = new Set(profile.languages.map(l => l.id));
-    existingIdsRef.current.portfolio = new Set(profile.portfolio.map(link => link.id));
-    existingIdsRef.current.certs = new Set(profile.certs.map(c => c.id));
   }, [profile, user?.name, user?.email]);
 
   const hasPersonalInfo = !!profile.personal;
@@ -267,6 +273,8 @@ export function useProfileForm() {
     if (f) {
       setIdCardFile(f);
       setIdCardFileName(f.name);
+      // A fresh pick invalidates the previous upload key so save re-uploads it.
+      setIdCardKey('');
       toast.success('ID card selected');
     }
     e.target.value = '';
@@ -310,15 +318,15 @@ export function useProfileForm() {
       toast.error('Could not preview the selected image');
     }
   };
-  const clearIdCard = () => { setIdCardFile(null); setIdCardFileName(''); setIdCardUrl(''); setIdCardKey(''); };
+  const clearIdCard = () => { setIdCardFile(null); setIdCardFileName(''); setIdCardUrl(''); setIdCardKey(''); savedFileRef.current.idCard = ''; };
   const clearDegreeCert = () => { setDegreeCertFile(null); setDegreeCertFileName(fileNameOf(savedDegreeCertRef.current)); setDegreeCertUrl(savedDegreeCertRef.current); setDegreeCertKey(''); };
-  const clearCv = () => { setCvFile(null); setCvFileName(''); setCvUrl(''); setCvKey(''); };
-  const clearAvatar = () => { setAvatarFile(null); setAvatarFileName(''); setAvatarUrl(''); setAvatarKey(''); };
+  const clearCv = () => { setCvFile(null); setCvFileName(''); setCvUrl(''); setCvKey(''); savedFileRef.current.cv = ''; };
+  const clearAvatar = () => { setAvatarFile(null); setAvatarFileName(''); setAvatarUrl(''); setAvatarKey(''); savedFileRef.current.avatar = ''; };
 
   const addOtherCert = () => setOtherCerts(p => [...p, { id: uid(), title: '', issuer: '', year: '', file: null, fileName: '', fileKey: '' }]);
   const removeOtherCert = (id: string) => setOtherCerts(p => p.filter(c => c.id !== id));
   const updateOtherCert = (id: string, field: string, value: string | File | null) => setOtherCerts(p => p.map(c => c.id !== id ? c : field === 'file'
-    ? { ...c, file: value as File | null, fileName: (value as File)?.name || (value ? '' : c.fileName), fileKey: value ? '' : c.fileKey }
+    ? { ...c, file: value as File | null, fileName: (value as File)?.name || (value ? '' : c.fileName), fileKey: '' }
     : { ...c, [field]: value as string }));
   const addPastJob = () => setPastJobs(p => [...p, { id: uid(), organization: '', role: '', industry: '', country: '', startDate: '', roleDescription: '' }]);
   const removePastJob = (id: string) => setPastJobs(p => p.filter(j => j.id !== id));
@@ -330,165 +338,237 @@ export function useProfileForm() {
   const addPortfolioLink = () => setPortfolioLinks(p => [...p, { id: uid(), url: '', label: '' }]); const removePortfolioLink = (id: string) => setPortfolioLinks(p => p.filter(x => x.id !== id));
   const updatePortfolioLink = (id: string, field: string, value: string) => setPortfolioLinks(p => p.map(x => x.id === id ? { ...x, [field]: value } : x));
 
-  const refreshCompletion = useCallback(() => { dispatch(fetchProfileCompletion({ force: true })); }, [dispatch]);
-
-  /**
-   * POST /profile/completion - the backend checks whether the required profile
-   * details are present and creates the user's wallet when they are. This has
-   * to be a POST (not the GET used by refreshCompletion) or the wallet is
-   * never created.
-   */
-  const submitCompletion = useCallback(async () => {
-    try {
-      await dispatch(submitProfileCompletion()).unwrap();
-      // The wallet may have just been created - pick it up straight away.
-      dispatch(fetchWalletBalance());
-      refreshCompletion();
-      return true;
-    } catch {
-      // Not every detail is filled in yet, so the wallet is not created.
-      // That is expected, not an error worth surfacing to the user.
-      return false;
-    }
-  }, [dispatch, refreshCompletion]);
-
-  const fail = (e: unknown, fallback: string) => {
-    const msg = typeof e === 'string' ? e : e instanceof Error ? e.message : '';
-    toast.error(msg || fallback);
-    return false;
-  };
-
-  const savePersonalInfo = useCallback(async () => {
-    // Upload files first if they exist
-    let idCardKeyToSend = idCardKey;
-    let avatarKeyToSend = avatarKey;
+  const uploadPersonalFiles = useCallback(async () => {
+    let idCard = savedFileRef.current.idCard;
+    let avatar = savedFileRef.current.avatar;
+    let cv = savedFileRef.current.cv;
     let avatarDisplayUrl = avatarUrl;
-    let degreeCertKeyToSend = degreeCertKey;
-    let cvKeyToSend = cvKey;
 
-    try {
-      if (idCardFile && !idCardKey) {
-        const uploaded = await uploadFile(idCardFile);
-        idCardKeyToSend = uploaded.key;
-        setIdCardKey(uploaded.key);
-        setIdCardUrl(uploaded.url);
-      }
-      if (avatarFile && !avatarKey) {
-        setAvatarUploading(true);
-        try {
-          const uploaded = await uploadFile(avatarFile);
-          avatarKeyToSend = uploaded.key;
-          avatarDisplayUrl = uploaded.url;
-          setAvatarKey(uploaded.key);
-          setAvatarUrl(uploaded.url);
-        } finally {
-          setAvatarUploading(false);
-        }
-      }
-      if (degreeCertFile && !degreeCertKey) {
-        const uploaded = await uploadFile(degreeCertFile);
-        degreeCertKeyToSend = uploaded.key;
-        setDegreeCertKey(uploaded.key);
-        setDegreeCertUrl(uploaded.url);
-      }
-      if (cvFile && !cvKey) {
-        const uploaded = await uploadFile(cvFile);
-        cvKeyToSend = uploaded.key;
-        setCvKey(uploaded.key);
-        setCvUrl(uploaded.url);
-      }
-    } catch (e) {
-      return fail(e, 'Failed to upload files. Please try again.');
+    if (idCardFile && !idCardKey) {
+      const uploaded = await uploadFile(idCardFile);
+      idCard = uploaded.key || uploaded.url;
+      setIdCardKey(uploaded.key);
+      setIdCardUrl(uploaded.url);
+      savedFileRef.current.idCard = idCard;
     }
-
-    const payload: Record<string, any> = { username, gender: GENDER_MAP[gender] || gender, dateOfBirth, bio, phone, address, city, state: stateOfResidence, lga: localGovt, country, postalCode: zipCode, idCardType: ID_CARD_MAP[idCardType] || 'OTHER', idCardNumber, employmentStatus: EMP_MAP[employmentStatus] || employmentStatus, website: website.trim() || null, idCardFile: idCardKeyToSend || undefined, displayPhoto: avatarKeyToSend || undefined, cvFile: cvKeyToSend || undefined };
-    try {
-      await dispatch(hasPersonalInfo ? updatePersonalInfo(payload) : createPersonalInfo(payload)).unwrap();
-      toast.success('Personal info saved!');
-      // Reflect the freshly uploaded avatar everywhere (header, sidebars, settings).
-      const newAvatar = normalizeFileSrc(avatarDisplayUrl);
-      if (newAvatar) {
-        const base = user ?? { name: fullName, email: '', phone: '' };
-        dispatch(setUser({ ...base, avatar: newAvatar }));
-      }
-      dispatch(fetchCurrentUser());
-      refreshCompletion();
-      // The personal details are what the backend checks before creating the
-      // user's wallet, so ask it to re-evaluate now.
-      await submitCompletion();
-      return true;
-    } catch (e) { return fail(e, 'Failed to save personal info'); }
-  }, [username, gender, dateOfBirth, bio, phone, address, city, stateOfResidence, localGovt, country, zipCode, idCardType, idCardNumber, employmentStatus, website, idCardKey, avatarKey, degreeCertKey, cvKey, idCardFile, avatarFile, degreeCertFile, cvFile, hasPersonalInfo, dispatch, refreshCompletion, submitCompletion, fail, avatarUrl, user, fullName]);
-
-  const saveSkills = useCallback(async () => { for (const s of skills) { if (!s.name.trim()) continue; const existing = existingIdsRef.current.skills.has(s.id); try { if (existing) { await dispatch(updateSkill({ id: s.id, name: s.name })).unwrap(); } else { const created = await dispatch(createSkill({ name: s.name })).unwrap(); existingIdsRef.current.skills.add(created.id); } } catch (e) { fail(e, 'Failed to save skill'); } } refreshCompletion(); }, [skills, dispatch, refreshCompletion, fail]);
-  const saveEducation = useCallback(async () => {
-    // The endpoint expects the certificate's storage key, so upload a freshly
-    // picked file before building the payload (mirrors savePersonalInfo).
-    let certKey = degreeCertKey || degreeCertUrl || '';
-    if (degreeCertFile && !degreeCertKey) {
+    if (avatarFile && !avatarKey) {
+      setAvatarUploading(true);
       try {
-        const uploaded = await uploadFile(degreeCertFile);
-        certKey = uploaded.key || uploaded.url;
-        setDegreeCertKey(certKey);
-        setDegreeCertUrl(uploaded.url || certKey);
-      } catch (e) { return fail(e, 'Failed to upload degree certificate'); }
+        const uploaded = await uploadFile(avatarFile);
+        avatar = uploaded.key || uploaded.url;
+        avatarDisplayUrl = uploaded.url;
+        setAvatarKey(uploaded.key);
+        setAvatarUrl(uploaded.url);
+        savedFileRef.current.avatar = avatar;
+      } finally {
+        setAvatarUploading(false);
+      }
     }
+    if (cvFile && !cvKey) {
+      const uploaded = await uploadFile(cvFile);
+      cv = uploaded.key || uploaded.url;
+      setCvKey(uploaded.key);
+      setCvUrl(uploaded.url);
+      savedFileRef.current.cv = cv;
+    }
+
+    return { idCard, avatar, cv, avatarDisplayUrl };
+  }, [idCardFile, idCardKey, avatarFile, avatarKey, cvFile, cvKey, avatarUrl]);
+
+  const buildPersonalPayload = useCallback((keys: { idCard: string; avatar: string; cv: string }) => ({
+    personal: {
+      fullName,
+      email,
+      username,
+      gender: GENDER_MAP[gender] || gender || null,
+      dateOfBirth: dateOfBirth || null,
+      bio: bio || null,
+      phone: phone || null,
+      alternativePhone: altPhone || null,
+      address: address || null,
+      city: city || null,
+      state: stateOfResidence || null,
+      lga: localGovt || null,
+      country: country || null,
+      postalCode: zipCode || null,
+      idCardType: idCardType ? (ID_CARD_MAP[idCardType] || 'OTHER') : null,
+      idCardNumber: idCardNumber || null,
+      employmentStatus: EMP_MAP[employmentStatus] || employmentStatus || null,
+      website: website.trim() || null,
+      idCardFile: keys.idCard || null,
+      displayPhoto: keys.avatar || null,
+      cvFile: keys.cv || null,
+    },
+  }), [fullName, email, username, gender, dateOfBirth, bio, phone, altPhone, address, city, stateOfResidence, localGovt, country, zipCode, idCardType, idCardNumber, employmentStatus, website]);
+
+  const buildEducationPayload = useCallback(async () => {
+    let certKey = degreeCertKey || savedDegreeCertRef.current || '';
+    if (degreeCertFile && !degreeCertKey) {
+      const uploaded = await uploadFile(degreeCertFile);
+      certKey = uploaded.key || uploaded.url;
+      setDegreeCertKey(uploaded.key);
+      setDegreeCertUrl(uploaded.url || certKey);
+      savedDegreeCertRef.current = certKey;
+    }
+
     const noGrad = isNoGraduationClassLevel(educationLevel);
-    const p = { educationLevel, graduationClass: noGrad ? null : graduationClass, courseOfStudy: noGrad ? null : courseOfStudy, institution, yearOfGraduation: Number(yearOfGraduation) || 0, degreeCertificate: certKey };
-    try {
-      await dispatch(profile.education[0]?.id ? updateEducation({ id: profile.education[0].id, data: p }) : createEducation(p)).unwrap();
-    } catch (e) { return fail(e, 'Failed to save education'); }
+    const education = {
+      educationLevel: educationLevel || null,
+      educationLevelOther: educationLevel === 'Other' ? (educationLevelOther || null) : null,
+      graduationClass: noGrad ? null : (graduationClass === 'Other' ? graduationClassOther : graduationClass) || null,
+      courseOfStudy: noGrad ? null : (courseOfStudy || null),
+      institution: institution || null,
+      yearOfGraduation: Number(yearOfGraduation) || 0,
+      degreeCertificate: certKey || null,
+    };
 
-    // Other certifications go to POST/PATCH /profile/certs (not the education payload).
-    try {
-      for (const cert of otherCerts) {
-        if (!cert.title.trim()) continue;
-        let fileKey = cert.fileKey || '';
-        if (cert.file && !fileKey) {
-          const uploaded = await uploadFile(cert.file);
-          fileKey = uploaded.key;
-          setOtherCerts(prev => prev.map(c => c.id === cert.id ? { ...c, fileKey, fileName: c.fileName || uploaded.originalName } : c));
-        }
-        const data = { title: cert.title.trim(), issuer: cert.issuer.trim(), year: Number(cert.year) || 0, file: fileKey };
-        if (existingIdsRef.current.certs.has(cert.id)) {
-          await dispatch(updateCert({ id: cert.id, data })).unwrap();
-        } else {
-          const created: any = await dispatch(createCert(data)).unwrap();
-          const newId = created?.id || created?.data?.id;
-          if (newId) existingIdsRef.current.certs.add(newId);
-        }
+    const certificates: Record<string, unknown>[] = [];
+    for (const cert of otherCerts) {
+      if (!cert.title.trim() && !cert.issuer.trim() && !cert.year.trim() && !cert.file && !cert.fileKey) continue;
+      let fileKey = cert.fileKey || '';
+      if (cert.file && !fileKey) {
+        const uploaded = await uploadFile(cert.file);
+        fileKey = uploaded.key || uploaded.url;
+        setOtherCerts(prev => prev.map(c => c.id === cert.id ? { ...c, fileKey, fileName: c.fileName || uploaded.originalName } : c));
       }
-    } catch (e) { return fail(e, 'Failed to save certificate'); }
+      certificates.push({
+        title: cert.title.trim(),
+        issuer: cert.issuer.trim(),
+        year: Number(cert.year) || 0,
+        file: fileKey || null,
+      });
+    }
 
-    toast.success('Education saved!');
-    refreshCompletion();
-    // Education details are also required before the wallet is created.
-    await submitCompletion();
-    return true;
-  }, [educationLevel, graduationClass, courseOfStudy, institution, yearOfGraduation, degreeCertUrl, degreeCertKey, degreeCertFile, otherCerts, profile.education, dispatch, refreshCompletion, submitCompletion, fail]);
-  const saveExperience = useCallback(async () => {
-    const current = { organization: company, role, industry, country: workCountry, startDate: resumptionDate, roleDescription, isCurrent: true };
+    const hasEducation = !!(educationLevel || educationLevelOther || institution || courseOfStudy || yearOfGraduation || certKey);
+    // The UI edits only the first education record. Preserve any additional
+    // server records so a section replacement does not delete them.
+    const additionalEducation = profile.education.slice(1).map(e => ({
+      educationLevel: e.educationLevel || null,
+      graduationClass: e.graduationClass || null,
+      courseOfStudy: e.courseOfStudy || null,
+      institution: e.institution || null,
+      yearOfGraduation: e.yearOfGraduation || 0,
+      degreeCertificate: e.degreeCertificate || null,
+    }));
+    return { education: [...(hasEducation ? [education] : []), ...additionalEducation], certificates };
+  }, [profile.education, educationLevel, educationLevelOther, graduationClass, graduationClassOther, courseOfStudy, institution, yearOfGraduation, degreeCertUrl, degreeCertKey, degreeCertFile, otherCerts]);
+
+  const buildExperiencePayload = useCallback(() => {
+    const experiences: Record<string, unknown>[] = [];
+    const hasCurrent = !!(company || role || industry || workCountry || resumptionDate || roleDescription);
+    if (hasCurrent) {
+      experiences.push({
+        organization: company,
+        role,
+        industry: industry === 'Other' ? (industryOther || industry) : industry,
+        country: workCountry,
+        startDate: resumptionDate,
+        roleDescription,
+        isCurrent: true,
+      });
+    }
+    for (const job of pastJobs) {
+      if (!job.organization.trim() && !job.role.trim()) continue;
+      experiences.push({
+        organization: job.organization,
+        role: job.role,
+        industry: job.industry,
+        country: job.country,
+        startDate: job.startDate,
+        roleDescription: job.roleDescription,
+        isCurrent: false,
+      });
+    }
+
+    return {
+      experiences,
+      skills: skills.filter(s => s.name.trim()).map(s => ({ name: s.name.trim() })),
+      languages: languages.filter(l => l.name.trim()).map(l => ({
+        language: l.name.trim(),
+        proficiency: PROF_MAP[l.proficiency] || l.proficiency.toUpperCase(),
+      })),
+      portfolio: portfolioLinks.filter(p => p.url.trim()).map(p => ({ label: p.label, link: p.url.trim() })),
+    };
+  }, [company, role, industry, industryOther, workCountry, resumptionDate, roleDescription, pastJobs, skills, languages, portfolioLinks]);
+
+  const failSave = useCallback((e: unknown) => {
+    const error: any = e;
+    const message = typeof e === 'string' ? e : error?.message || 'Failed to save profile';
+    if (error?.status === 409) {
+      toast.error('This profile was changed elsewhere. Reload the page before saving again.');
+    } else {
+      toast.error(message);
+    }
+    return { ok: false, submitted: false, status: null } as SaveResult;
+  }, []);
+
+  const runSave = useCallback(async (payload: Record<string, unknown>): Promise<SaveResult> => {
     try {
-      const currentId = profile.experience.find(e => e.isCurrent)?.id;
-      await dispatch(currentId ? updateExperience({ id: currentId, data: current }) : createExperience(current)).unwrap();
-      for (const job of pastJobs) {
-        if (!job.organization.trim() && !job.role.trim()) continue;
-        const data = { organization: job.organization, role: job.role, industry: job.industry, country: job.country, startDate: job.startDate, roleDescription: job.roleDescription, isCurrent: false };
-        if (existingIdsRef.current.experience.has(job.id)) {
-          await dispatch(updateExperience({ id: job.id, data })).unwrap();
-        } else {
-          const created = await dispatch(createExperience(data)).unwrap();
-          if (created?.id) existingIdsRef.current.experience.add(created.id);
-        }
+      const result = await dispatch(saveProfile({ payload, updatedAt: profile.updatedAt })).unwrap();
+      if (result.submitted || result.walletId || result.walletCreated) dispatch(fetchWalletBalance());
+      return { ok: true, submitted: result.submitted, status: result.status ?? null };
+    } catch (e) {
+      return failSave(e);
+    }
+  }, [dispatch, profile.updatedAt, failSave]);
+
+  const saveDraft = useCallback(async (tab: ProfileTab): Promise<SaveResult> => {
+    try {
+      let payload: Record<string, unknown>;
+      let avatarDisplayUrl = '';
+      if (tab === 'personal') {
+        const keys = await uploadPersonalFiles();
+        payload = buildPersonalPayload(keys);
+        avatarDisplayUrl = keys.avatarDisplayUrl;
+      } else if (tab === 'education') {
+        payload = await buildEducationPayload();
+      } else {
+        payload = buildExperiencePayload();
       }
-      toast.success('Experience saved!');
-      refreshCompletion();
-      return true;
-    } catch (e) { return fail(e, 'Failed to save experience'); }
-  }, [company, role, industry, workCountry, resumptionDate, roleDescription, pastJobs, profile.experience, dispatch, refreshCompletion, fail]);
-  const saveLanguages = useCallback(async () => { for (const l of languages) { if (!l.name.trim()) continue; const existing = existingIdsRef.current.languages.has(l.id); try { if (existing) { await dispatch(updateLanguage({ id: l.id, data: { language: l.name, proficiency: PROF_MAP[l.proficiency] || l.proficiency.toUpperCase() } })).unwrap(); } else { const created = await dispatch(createLanguage({ language: l.name, proficiency: PROF_MAP[l.proficiency] || l.proficiency.toUpperCase() })).unwrap(); existingIdsRef.current.languages.add(created.id); } } catch (e) { fail(e, 'Failed to save language'); } } refreshCompletion(); }, [languages, dispatch, refreshCompletion, fail]);
-  const savePortfolio = useCallback(async () => { for (const p of portfolioLinks.filter(x => x.url.trim())) { const existing = existingIdsRef.current.portfolio.has(p.id); try { if (existing) { await dispatch(updatePortfolio({ id: p.id, data: { label: p.label, link: p.url } })).unwrap(); } else { const created = await dispatch(createPortfolio({ label: p.label, link: p.url })).unwrap(); existingIdsRef.current.portfolio.add(created.id); } } catch (e) { fail(e, 'Failed to save portfolio link'); } } refreshCompletion(); }, [portfolioLinks, dispatch, refreshCompletion, fail]);
-  const saveAll = useCallback(async () => { const ok = await savePersonalInfo(); if (!ok) return false; await Promise.all([saveSkills(), saveEducation(), saveExperience(), saveLanguages(), savePortfolio()]); return true; }, [savePersonalInfo, saveSkills, saveEducation, saveExperience, saveLanguages, savePortfolio]);
+
+      const result = await runSave(payload);
+      if (result.ok) {
+        if (tab === 'personal') {
+          const newAvatar = normalizeFileSrc(avatarDisplayUrl);
+          if (newAvatar) {
+            const base = user ?? { name: fullName, email: '', phone: '' };
+            dispatch(setUser({ ...base, avatar: newAvatar }));
+          }
+          dispatch(fetchCurrentUser());
+        }
+        toast.success(result.submitted ? 'Profile completed and submitted!' : 'Draft saved');
+      }
+      return result;
+    } catch (e) {
+      return failSave(e);
+    }
+  }, [uploadPersonalFiles, buildPersonalPayload, buildEducationPayload, buildExperiencePayload, runSave, user, fullName, dispatch, failSave]);
+
+  const submitProfile = useCallback(async (): Promise<SaveResult> => {
+    try {
+      const keys = await uploadPersonalFiles();
+      const education = await buildEducationPayload();
+      const payload = {
+        ...buildPersonalPayload(keys),
+        ...education,
+        ...buildExperiencePayload(),
+      };
+
+      const result = await runSave(payload);
+      if (result.ok) {
+        const newAvatar = normalizeFileSrc(keys.avatarDisplayUrl);
+        if (newAvatar) {
+          const base = user ?? { name: fullName, email: '', phone: '' };
+          dispatch(setUser({ ...base, avatar: newAvatar }));
+        }
+        dispatch(fetchCurrentUser());
+        toast.success(result.submitted ? 'Profile submitted successfully!' : 'Profile saved as draft. Complete all required sections to submit.');
+      }
+      return result;
+    } catch (e) {
+      return failSave(e);
+    }
+  }, [uploadPersonalFiles, buildPersonalPayload, buildEducationPayload, buildExperiencePayload, runSave, user, fullName, dispatch, failSave]);
 
   const displayName = fullName || user?.name || '';
   const localPct = (() => { const fields = [fullName, username, gender, dateOfBirth, idCardType, idCardNumber, bio, email, phone, address, city, stateOfResidence, country, educationLevel, institution, courseOfStudy, yearOfGraduation, employmentStatus]; return Math.round((fields.filter(f => f?.trim()).length / fields.length) * 100); })();
@@ -517,7 +597,6 @@ export function useProfileForm() {
     oldPassword, setOldPassword, newPassword, setNewPassword,
     showOldPassword, setShowOldPassword, showNewPassword, setShowNewPassword,
     securityQuestion, setSecurityQuestion, securityAnswer, setSecurityAnswer,
-    savePersonalInfo, saveSkills, saveEducation, saveExperience, saveLanguages, savePortfolio, saveAll,
-    submitCompletion, resetUnsavedChanges,
+    saveDraft, submitProfile, resetUnsavedChanges,
   };
 }

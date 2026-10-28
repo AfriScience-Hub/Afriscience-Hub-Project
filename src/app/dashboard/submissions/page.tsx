@@ -121,8 +121,11 @@ export default function DashboardSubmissions() {
         status: listing.status,
         image: listing.image,
         submittedAt: listing.submittedAt,
+        payingUser: listing.payingUser,
         onPreview: () => router.push(`/dashboard/my-listings/${listing.id}`),
         onEdit: () => router.push(`/dashboard/upload-new-listing?id=${listing.id}`),
+        onUpgrade: () =>
+          router.push(`/dashboard/upload-new-listing?id=${listing.id}&upgrade=pro`),
       })),
     [pending, router]
   );

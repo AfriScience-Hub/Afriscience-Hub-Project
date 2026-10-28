@@ -9,6 +9,8 @@ interface ListingSuccessModalProps {
   title?: string;
   /** A short confirmation line tailored to the listing category. */
   message?: string;
+  /** Button label; defaults to "Go to Submissions". */
+  actionLabel?: string;
   onGoToSubmissions: () => void;
   onClose?: () => void;
 }
@@ -18,7 +20,7 @@ interface ListingSuccessModalProps {
  * automatic redirect. The user decides when to go to their submissions.
  */
 export default function ListingSuccessModal({
-  open, title = 'Listing submitted', message, onGoToSubmissions, onClose,
+  open, title = 'Listing submitted', message, actionLabel = 'Go to Submissions', onGoToSubmissions, onClose,
 }: ListingSuccessModalProps) {
   if (!open) return null;
 
@@ -63,7 +65,7 @@ export default function ListingSuccessModal({
             onClick={onGoToSubmissions}
             className="mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-green-700"
           >
-            Go to Submissions
+            {actionLabel}
           </button>
         </div>
       </div>

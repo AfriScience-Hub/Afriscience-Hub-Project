@@ -17,6 +17,8 @@ export interface UserInnovation {
   submittedAt: string | null;
   /** ISO date the listing was approved - only set for approved records. */
   approvedAt: string | null;
+  /** true = Paid Plan, false = Free Plan. */
+  payingUser: boolean;
 }
 
 /**
@@ -43,6 +45,7 @@ export async function fetchUserInnovations(): Promise<UserInnovation[]> {
         statusKind(status) === 'approved'
           ? l.approvedAt || l.approvalDate || l.reviewedAt || l.updatedAt || l.createdAt || null
           : null,
+      payingUser: l.payingUser === true,
     };
   });
 }

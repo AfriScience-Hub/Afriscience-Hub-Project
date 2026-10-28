@@ -4,7 +4,7 @@ import { api } from '@/lib/api';
 export interface PersonalInfo {
   id?: string; fullName?: string; firstname?: string; middlename?: string; surname?: string;
   email?: string; username: string; gender: string; dateOfBirth: string; bio: string;
-  phone: string; address: string; city: string; state: string;
+  phone: string; alternativePhone?: string; address: string; city: string; state: string;
   lga: string; country: string; postalCode: string;
   idCardType: string; idCardNumber: string; employmentStatus: string;
   website: string; avatar?: string; displayPhoto?: string; displayPhotoUrl?: string; avatarUrl?: string; photo?: string;
@@ -22,7 +22,21 @@ export interface CompletionSection {
   required?: boolean;
   completed?: boolean;
   missingFields?: string[];
+  completedFields?: number;
+  totalFields?: number;
   records?: number;
+  requiredRecords?: number;
+  incompleteRecords?: unknown[];
+  warning?: string;
+}
+
+export interface CompletionResult {
+  percentage: number;
+  completed: boolean;
+  sections: Record<string, CompletionSection> | null;
+  status: string | null;
+  missing: Record<string, unknown> | null;
+  nextStep: string | null;
 }
 
 export interface ProfileState {
@@ -36,10 +50,34 @@ export interface ProfileState {
   completion: number; completionCompleted: boolean;
   completionSections: Record<string, CompletionSection> | null;
   completionLoading: boolean; completionLoaded: boolean;
-  /** True while the POST /profile/completion (wallet creation) is in flight. */
-  completionSubmitting: boolean;
+  /** Backend profile status: DRAFT or COMPLETED. */
+  status: string | null;
+  /** Optimistic-concurrency timestamp from the last profile read/save. */
+  updatedAt: string | null;
   profileLoading: boolean; profileLoaded: boolean; profileError: string | null;
   saveLoading: boolean; saveError: string | null;
+}
+
+export interface SaveProfileArg {
+  payload: Record<string, unknown>;
+  updatedAt?: string | null;
+}
+
+interface NormalizedProfile {
+  personal: PersonalInfo | null;
+  skills: SkillEntry[];
+  education: EducationEntry[];
+  experience: ExperienceEntry[];
+  languages: LanguageEntry[];
+  portfolio: PortfolioEntry[];
+  certs: CertEntry[];
+  status: string | null;
+  updatedAt: string | null;
+  completion: CompletionResult;
+  submitted: boolean;
+  demoted: boolean;
+  walletCreated: boolean;
+  walletId: string | null;
 }
 
 /** Unwrap common API envelopes: {data: ...} or raw payload. */
@@ -61,7 +99,7 @@ function pickFirst<T>(...vals: unknown[]): T[] {
   return [];
 }
 
-function extractCompletion(v: any): { percentage: number; completed: boolean; sections: Record<string, CompletionSection> | null } {
+function extractCompletion(v: any): CompletionResult {
   const root = v?.data ?? v;
   const candidates = [
     root?.completion, root?.completionRate, root?.completionPercentage,
@@ -82,118 +120,61 @@ function extractCompletion(v: any): { percentage: number; completed: boolean; se
     percentage,
     completed: root?.completed === true || percentage === 100,
     sections,
+    status: typeof root?.status === 'string' ? root.status : null,
+    missing: root?.missing && typeof root.missing === 'object' ? root.missing : null,
+    nextStep: typeof root?.nextStep === 'string' ? root.nextStep : null,
   };
 }
 
-// Personal
-export const fetchPersonalInfo = createAsyncThunk('profile/fetchPersonal', async (_, { rejectWithValue }) => {
-  try { const r: any = await api.get('/profile/personal'); return r?.data || r || null; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const createPersonalInfo = createAsyncThunk('profile/createPersonal', async (p: Record<string, any>, { rejectWithValue }) => {
-  try { const r: any = await api.post('/profile/personal', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const updatePersonalInfo = createAsyncThunk('profile/updatePersonal', async (p: Record<string, any>, { rejectWithValue }) => {
-  try { const r: any = await api.patch('/profile/personal', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-
-// Skills
-export const fetchSkills = createAsyncThunk('profile/fetchSkills', async (_, { rejectWithValue }) => {
-  try { const r: any = await api.get('/profile/skills'); return (r?.data || r || []) as SkillEntry[]; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const createSkill = createAsyncThunk('profile/createSkill', async (p: { name: string }, { rejectWithValue }) => {
-  try { const r: any = await api.post('/profile/skills', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const updateSkill = createAsyncThunk('profile/updateSkill', async (p: { id: string; name: string }, { rejectWithValue }) => {
-  try { const r: any = await api.patch(`/profile/skills/${p.id}`, { name: p.name }); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-
-// Education
-export const fetchEducation = createAsyncThunk('profile/fetchEducation', async (_, { rejectWithValue }) => {
-  try { const r: any = await api.get('/profile/education'); return (r?.data || r || []) as EducationEntry[]; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const createEducation = createAsyncThunk('profile/createEducation', async (p: Record<string, any>, { rejectWithValue }) => {
-  try { const r: any = await api.post('/profile/education', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const updateEducation = createAsyncThunk('profile/updateEducation', async (p: { id: string; data: Record<string, any> }, { rejectWithValue }) => {
-  try { const r: any = await api.patch(`/profile/education/${p.id}`, p.data); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-
-// Experience
-export const fetchExperience = createAsyncThunk('profile/fetchExperience', async (_, { rejectWithValue }) => {
-  try { const r: any = await api.get('/profile/exp'); return (r?.data || r || []) as ExperienceEntry[]; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const createExperience = createAsyncThunk('profile/createExperience', async (p: Record<string, any>, { rejectWithValue }) => {
-  try { const r: any = await api.post('/profile/exp', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const updateExperience = createAsyncThunk('profile/updateExperience', async (p: { id: string; data: Record<string, any> }, { rejectWithValue }) => {
-  try { const r: any = await api.patch(`/profile/exp/${p.id}`, p.data); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const deleteExperience = createAsyncThunk('profile/deleteExperience', async (id: string, { rejectWithValue }) => {
-  try { await api.delete(`/profile/${id}`); return id; } catch (e: any) { return rejectWithValue(e.message); }
-});
-
-// Languages
-export const fetchLanguages = createAsyncThunk('profile/fetchLanguages', async (_, { rejectWithValue }) => {
-  try { const r: any = await api.get('/profile/languages'); return (r?.data || r || []) as LanguageEntry[]; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const createLanguage = createAsyncThunk('profile/createLanguage', async (p: { language: string; proficiency: string }, { rejectWithValue }) => {
-  try { const r: any = await api.post('/profile/languages', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const updateLanguage = createAsyncThunk('profile/updateLanguage', async (p: { id: string; data: { language: string; proficiency: string } }, { rejectWithValue }) => {
-  try { const r: any = await api.patch(`/profile/languages/${p.id}`, p.data); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-
-// Portfolio
-export const fetchPortfolio = createAsyncThunk('profile/fetchPortfolio', async (_, { rejectWithValue }) => {
-  try { const r: any = await api.get('/profile/portfolio'); return (r?.data || r || []) as PortfolioEntry[]; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const createPortfolio = createAsyncThunk('profile/createPortfolio', async (p: { label: string; link: string }, { rejectWithValue }) => {
-  try { const r: any = await api.post('/profile/portfolio', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const updatePortfolio = createAsyncThunk('profile/updatePortfolio', async (p: { id: string; data: { label: string; link: string } }, { rejectWithValue }) => {
-  try { const r: any = await api.patch(`/profile/portfolio/${p.id}`, p.data); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const deletePortfolio = createAsyncThunk('profile/deletePortfolio', async (id: string, { rejectWithValue }) => {
-  try { await api.delete(`/profile/portfolio/${id}`); return id; } catch (e: any) { return rejectWithValue(e.message); }
-});
-
-// Certs
-export const fetchCerts = createAsyncThunk('profile/fetchCerts', async (_, { rejectWithValue }) => {
-  try { const r: any = await api.get('/profile/certs'); return (r?.data || r || []) as CertEntry[]; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const createCert = createAsyncThunk('profile/createCert', async (p: Record<string, any>, { rejectWithValue }) => {
-  try { const r: any = await api.post('/profile/certs', p); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-export const updateCert = createAsyncThunk('profile/updateCert', async (p: { id: string; data: Record<string, any> }, { rejectWithValue }) => {
-  try { const r: any = await api.patch(`/profile/certs/${p.id}`, p.data); return r?.data || r; } catch (e: any) { return rejectWithValue(e.message); }
-});
-
-// Full profile — SINGLE request hydrating every tab (GET /api/v1/profile).
-// Per-section POST/PATCH thunks below stay as the write path on edit/save.
 function looksLikePersonal(v: unknown): v is Record<string, any> {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
   const o = v as Record<string, any>;
-  return typeof o.fullName === 'string' || typeof o.firstname === 'string' || typeof o.surname === 'string' || typeof o.phone === 'string' || typeof o.email === 'string';
+  return (
+    typeof o.fullName === 'string' ||
+    typeof o.firstname === 'string' ||
+    typeof o.surname === 'string' ||
+    typeof o.username === 'string' ||
+    typeof o.gender === 'string' ||
+    typeof o.phone === 'string' ||
+    typeof o.email === 'string' ||
+    typeof o.city === 'string' ||
+    typeof o.country === 'string'
+  );
 }
 
+/**
+ * Normalise both GET /profile and PUT /profile responses. The PUT response
+ * returns the full canonical profile plus completion/submit flags.
+ */
+function normalizeProfile(r: any): NormalizedProfile {
+  const d = unwrap<any>(r) || {};
+  const nested = d.personal ?? d.personalInfo ?? d.user ?? d.bio;
+  const personal = looksLikePersonal(nested) ? (nested as Record<string, any>) : looksLikePersonal(d) ? d : null;
+  const completionSource = r?.completion ?? d?.completion ?? r ?? d;
+
+  return {
+    personal: personal as PersonalInfo | null,
+    skills: pickFirst<SkillEntry>(d.skills),
+    education: pickFirst<EducationEntry>(d.education, d.educations),
+    experience: pickFirst<ExperienceEntry>(d.experience, d.experiences, d.employment, d.workExperience),
+    languages: pickFirst<LanguageEntry>(d.languages),
+    portfolio: pickFirst<PortfolioEntry>(d.portfolio, d.portfolios),
+    certs: pickFirst<CertEntry>(d.certs, d.certifications, d.certificates),
+    status: typeof d.status === 'string' ? d.status : null,
+    updatedAt: typeof d.updatedAt === 'string' ? d.updatedAt : null,
+    completion: extractCompletion(completionSource),
+    submitted: r?.submitted === true || d?.submitted === true,
+    demoted: r?.demoted === true || d?.demoted === true,
+    walletCreated: r?.walletCreated === true || d?.walletCreated === true,
+    walletId: typeof r?.walletId === 'string' ? r.walletId : typeof d?.walletId === 'string' ? d.walletId : null,
+  };
+}
+
+// Full profile — single request hydrates every tab (GET /api/v1/profile).
 export const fetchFullProfile = createAsyncThunk('profile/fetchFull', async (_arg: { force?: boolean } | undefined, { rejectWithValue }) => {
   try {
     const r: any = await api.get('/profile');
-    const d = unwrap<any>(r) || {};
-    // The backend returns personal fields either nested (personal/personalInfo/user/bio)
-    // or directly at the top level of /profile. Guard against a top-level bio string
-    // being mistaken for the record — it must be an object with name/phone fields.
-    const nested = d.personal ?? d.personalInfo ?? d.user ?? d.bio;
-    const personal = looksLikePersonal(nested) ? (nested as Record<string, any>) : looksLikePersonal(d) ? d : null;
-    return {
-      personal,
-      skills: pickFirst<SkillEntry>(d.skills),
-      education: pickFirst<EducationEntry>(d.education, d.educations),
-      experience: pickFirst<ExperienceEntry>(d.experience, d.experiences, d.employment, d.workExperience),
-      languages: pickFirst<LanguageEntry>(d.languages),
-      portfolio: pickFirst<PortfolioEntry>(d.portfolio, d.portfolios),
-      certs: pickFirst<CertEntry>(d.certs, d.certifications, d.certificates),
-    };
+    return normalizeProfile(r);
   } catch (e: any) { return rejectWithValue(e.message); }
 }, {
   // Only ever one request: skip while in-flight, and skip once already loaded.
@@ -204,24 +185,44 @@ export const fetchFullProfile = createAsyncThunk('profile/fetchFull', async (_ar
   },
 });
 
-// Profile + Completion
-export const fetchProfile = createAsyncThunk('profile/fetchProfile', async (_, { rejectWithValue }) => {
-  try { const r: any = await api.get('/profile'); return r?.data || r || null; } catch (e: any) { return rejectWithValue(e.message); }
-});
 export const fetchProfileCompletion = createAsyncThunk('profile/fetchCompletion', async (_arg: { force?: boolean } | undefined, { rejectWithValue }) => {
-  try { const r: any = await api.get('/profile/completion'); return extractCompletion(r); } catch (e: any) { return rejectWithValue(e.message); }
+  try {
+    const r: any = await api.get('/profile/completion');
+    return extractCompletion(r);
+  } catch (e: any) { return rejectWithValue(e.message); }
 }, {
-  // Skip while a request is in-flight, and skip once loaded unless forced
-  // (used after a save to refresh the percentage).
+  // Skip while a request is in-flight, and skip once loaded unless forced.
   condition: (arg, { getState }) => {
     const s = (getState() as any).profile;
     if (s.completionLoading) return false;
     return arg?.force ? true : !s.completionLoaded;
   },
 });
-export const submitProfileCompletion = createAsyncThunk('profile/submitCompletion', async (_, { rejectWithValue }) => {
-  try { const r: any = await api.post('/profile/completion'); return r?.data ?? r; } catch (e: any) { return rejectWithValue(e.message); }
-});
+
+/**
+ * PUT /profile
+ *
+ * Sends only the sections supplied in `payload`. Present sections replace
+ * their whole collection; absent sections are left untouched. A complete
+ * payload is auto-submitted by the backend. The updatedAt value is used for
+ * optimistic concurrency and is refreshed on every successful save.
+ */
+export const saveProfile = createAsyncThunk(
+  'profile/save',
+  async (arg: SaveProfileArg, { rejectWithValue }) => {
+    try {
+      const headers: Record<string, string> = {};
+      if (arg.updatedAt) headers['If-Unmodified-Since'] = arg.updatedAt;
+      const r: any = await api.put('/profile', arg.payload, { auth: 'required', headers });
+      return normalizeProfile(r);
+    } catch (e: any) {
+      return rejectWithValue({
+        message: e?.message || 'Failed to save profile',
+        status: typeof e?.status === 'number' ? e.status : null,
+      });
+    }
+  },
+);
 
 const initialState: ProfileState = {
   personal: null, personalLoading: false, personalError: null,
@@ -232,7 +233,8 @@ const initialState: ProfileState = {
   portfolio: [], portfolioLoading: false, portfolioError: null,
   certs: [], certsLoading: false, certsError: null,
   completion: 0, completionCompleted: false, completionSections: null,
-  completionLoading: false, completionLoaded: false, completionSubmitting: false,
+  completionLoading: false, completionLoaded: false,
+  status: null, updatedAt: null,
   profileLoading: false, profileLoaded: false, profileError: null,
   saveLoading: false, saveError: null,
 };
@@ -241,67 +243,33 @@ const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
-    clearProfileErrors(s) { s.personalError = null; s.skillsError = null; s.educationError = null; s.experienceError = null; s.languagesError = null; s.portfolioError = null; s.certsError = null; s.saveError = null; },
+    clearProfileErrors(s) {
+      s.personalError = null; s.skillsError = null; s.educationError = null;
+      s.experienceError = null; s.languagesError = null; s.portfolioError = null;
+      s.certsError = null; s.saveError = null;
+    },
     resetProfile() { return initialState; },
   },
   extraReducers: (b) => {
     b
-      .addCase(fetchPersonalInfo.pending, (s) => { s.personalLoading = true; })
-      .addCase(fetchPersonalInfo.fulfilled, (s, a) => { s.personalLoading = false; s.personal = a.payload; })
-      .addCase(fetchPersonalInfo.rejected, (s, a) => { s.personalLoading = false; s.personalError = a.payload as string; })
-      .addCase(createPersonalInfo.pending, (s) => { s.saveLoading = true; })
-      .addCase(createPersonalInfo.fulfilled, (s, a) => { s.saveLoading = false; s.personal = a.payload; })
-      .addCase(createPersonalInfo.rejected, (s, a) => { s.saveLoading = false; s.saveError = a.payload as string; })
-      .addCase(updatePersonalInfo.pending, (s) => { s.saveLoading = true; })
-      .addCase(updatePersonalInfo.fulfilled, (s, a) => { s.saveLoading = false; s.personal = a.payload; })
-      .addCase(updatePersonalInfo.rejected, (s, a) => { s.saveLoading = false; s.saveError = a.payload as string; })
-      .addCase(fetchSkills.pending, (s) => { s.skillsLoading = true; })
-      .addCase(fetchSkills.fulfilled, (s, a) => { s.skillsLoading = false; s.skills = a.payload; })
-      .addCase(fetchSkills.rejected, (s, a) => { s.skillsLoading = false; s.skillsError = a.payload as string; })
-      .addCase(createSkill.fulfilled, (s, a) => { s.skills.push(a.payload); })
-      .addCase(updateSkill.fulfilled, (s, a) => { const i = s.skills.findIndex(sk => sk.id === a.payload.id); if (i >= 0) s.skills[i] = a.payload; })
-      .addCase(fetchEducation.pending, (s) => { s.educationLoading = true; })
-      .addCase(fetchEducation.fulfilled, (s, a) => { s.educationLoading = false; s.education = a.payload; })
-      .addCase(fetchEducation.rejected, (s, a) => { s.educationLoading = false; s.educationError = a.payload as string; })
-      .addCase(createEducation.fulfilled, (s, a) => { s.education.push(a.payload); })
-      .addCase(updateEducation.fulfilled, (s, a) => { const i = s.education.findIndex(e => e.id === a.payload.id); if (i >= 0) s.education[i] = a.payload; })
-      .addCase(fetchExperience.pending, (s) => { s.experienceLoading = true; })
-      .addCase(fetchExperience.fulfilled, (s, a) => { s.experienceLoading = false; s.experience = a.payload; })
-      .addCase(fetchExperience.rejected, (s, a) => { s.experienceLoading = false; s.experienceError = a.payload as string; })
-      .addCase(createExperience.fulfilled, (s, a) => { s.experience.push(a.payload); })
-      .addCase(updateExperience.fulfilled, (s, a) => { const i = s.experience.findIndex(e => e.id === a.payload.id); if (i >= 0) s.experience[i] = a.payload; })
-      .addCase(deleteExperience.fulfilled, (s, a) => { s.experience = s.experience.filter(e => e.id !== a.payload); })
-      .addCase(fetchLanguages.pending, (s) => { s.languagesLoading = true; })
-      .addCase(fetchLanguages.fulfilled, (s, a) => { s.languagesLoading = false; s.languages = a.payload; })
-      .addCase(fetchLanguages.rejected, (s, a) => { s.languagesLoading = false; s.languagesError = a.payload as string; })
-      .addCase(createLanguage.fulfilled, (s, a) => { s.languages.push(a.payload); })
-      .addCase(updateLanguage.fulfilled, (s, a) => { const i = s.languages.findIndex(l => l.id === a.payload.id); if (i >= 0) s.languages[i] = a.payload; })
-      .addCase(fetchPortfolio.pending, (s) => { s.portfolioLoading = true; })
-      .addCase(fetchPortfolio.fulfilled, (s, a) => { s.portfolioLoading = false; s.portfolio = a.payload; })
-      .addCase(fetchPortfolio.rejected, (s, a) => { s.portfolioLoading = false; s.portfolioError = a.payload as string; })
-      .addCase(createPortfolio.fulfilled, (s, a) => { s.portfolio.push(a.payload); })
-      .addCase(updatePortfolio.fulfilled, (s, a) => { const i = s.portfolio.findIndex(p => p.id === a.payload.id); if (i >= 0) s.portfolio[i] = a.payload; })
-      .addCase(deletePortfolio.fulfilled, (s, a) => { s.portfolio = s.portfolio.filter(p => p.id !== a.payload); })
-      .addCase(fetchCerts.pending, (s) => { s.certsLoading = true; })
-      .addCase(fetchCerts.fulfilled, (s, a) => { s.certsLoading = false; s.certs = a.payload; })
-      .addCase(fetchCerts.rejected, (s, a) => { s.certsLoading = false; s.certsError = a.payload as string; })
-      .addCase(createCert.fulfilled, (s, a) => { s.certs.push(a.payload); })
-      .addCase(updateCert.fulfilled, (s, a) => { const i = s.certs.findIndex(c => c.id === a.payload.id); if (i >= 0) s.certs[i] = a.payload; })
       .addCase(fetchFullProfile.pending, (s) => { s.profileLoading = true; s.profileError = null; })
       .addCase(fetchFullProfile.fulfilled, (s, a) => {
         s.profileLoading = false; s.profileLoaded = true;
-        if (a.payload.personal) s.personal = a.payload.personal as PersonalInfo;
+        if (a.payload.personal) s.personal = a.payload.personal;
         s.skills = asArray<SkillEntry>(a.payload.skills);
         s.education = asArray<EducationEntry>(a.payload.education);
         s.experience = asArray<ExperienceEntry>(a.payload.experience);
         s.languages = asArray<LanguageEntry>(a.payload.languages);
         s.portfolio = asArray<PortfolioEntry>(a.payload.portfolio);
         s.certs = asArray<CertEntry>(a.payload.certs);
+        s.status = a.payload.status;
+        s.updatedAt = a.payload.updatedAt;
+        s.completion = a.payload.completion.percentage;
+        s.completionCompleted = a.payload.completion.completed;
+        s.completionSections = a.payload.completion.sections;
+        s.completionLoaded = true;
       })
       .addCase(fetchFullProfile.rejected, (s, a) => { s.profileLoading = false; s.profileError = a.payload as string; })
-      .addCase(fetchProfile.pending, (s) => { s.completionLoading = true; })
-      .addCase(fetchProfile.fulfilled, (s, a) => { s.completionLoading = false; if (a.payload?.personal) s.personal = a.payload.personal; })
-      .addCase(fetchProfile.rejected, (s) => { s.completionLoading = false; })
       .addCase(fetchProfileCompletion.pending, (s) => { s.completionLoading = true; })
       .addCase(fetchProfileCompletion.fulfilled, (s, a) => {
         s.completionLoading = false;
@@ -309,11 +277,32 @@ const profileSlice = createSlice({
         s.completion = a.payload.percentage;
         s.completionCompleted = a.payload.completed;
         s.completionSections = a.payload.sections;
+        if (a.payload.status) s.status = a.payload.status;
       })
       .addCase(fetchProfileCompletion.rejected, (s) => { s.completionLoading = false; })
-      .addCase(submitProfileCompletion.pending, (s) => { s.completionSubmitting = true; })
-      .addCase(submitProfileCompletion.fulfilled, (s) => { s.completionSubmitting = false; s.saveLoading = false; })
-      .addCase(submitProfileCompletion.rejected, (s) => { s.completionSubmitting = false; });
+      .addCase(saveProfile.pending, (s) => { s.saveLoading = true; s.saveError = null; })
+      .addCase(saveProfile.fulfilled, (s, a) => {
+        s.saveLoading = false;
+        const p = a.payload;
+        if (p.personal) s.personal = p.personal;
+        s.skills = asArray<SkillEntry>(p.skills);
+        s.education = asArray<EducationEntry>(p.education);
+        s.experience = asArray<ExperienceEntry>(p.experience);
+        s.languages = asArray<LanguageEntry>(p.languages);
+        s.portfolio = asArray<PortfolioEntry>(p.portfolio);
+        s.certs = asArray<CertEntry>(p.certs);
+        s.status = p.status ?? p.completion.status;
+        s.updatedAt = p.updatedAt;
+        s.completion = p.completion.percentage;
+        s.completionCompleted = p.completion.completed;
+        s.completionSections = p.completion.sections;
+        s.completionLoaded = true;
+      })
+      .addCase(saveProfile.rejected, (s, a) => {
+        s.saveLoading = false;
+        const e: any = a.payload;
+        s.saveError = typeof e === 'string' ? e : e?.message || 'Failed to save profile';
+      });
   },
 });
 

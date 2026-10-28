@@ -79,8 +79,11 @@ export default function MyListings() {
         image: listing.image,
         submittedAt: listing.submittedAt,
         approvedAt: listing.approvedAt,
+        payingUser: listing.payingUser,
         onPreview: () => router.push(`/dashboard/my-listings/${listing.id}`),
         onEdit: () => router.push(`/dashboard/upload-new-listing?id=${listing.id}`),
+        onUpgrade: () =>
+          router.push(`/dashboard/upload-new-listing?id=${listing.id}&upgrade=pro`),
       })),
     [visibleListings, router]
   );
@@ -128,6 +131,7 @@ export default function MyListings() {
           rows={rows}
           loading={loading}
           showApprovedDate
+          showSubscription
           emptyTitle="No listings yet"
           emptyDescription={emptyDescription}
         />

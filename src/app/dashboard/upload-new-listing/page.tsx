@@ -86,11 +86,21 @@ export default function UploadNewListing() {
   const [saving, setSaving] = useState(false);
   const [draftSavingOpen, setDraftSavingOpen] = useState(false);
   const [showPriceConfirm, setShowPriceConfirm] = useState(false);
-  const [successInfo, setSuccessInfo] = useState<{ title: string; message: string } | null>(null);
+  const [upgradeMode, setUpgradeMode] = useState(false);
+  const [successInfo, setSuccessInfo] = useState<{
+    title: string;
+    message: string;
+    actionLabel?: string;
+    actionPath?: string;
+  } | null>(null);
   const [payingUser, setPayingUser] = useState(false);
   const [selectedType, setSelectedType] = useState<ListingType | null>(null);
   const [instituteSubType, setInstituteSubType] = useState<InstituteSubType | null>(null);
   const [step, setStep] = useState<'select' | 'drafts' | 'form'>('select');
+  // Deep links (edit/draft) must open their form directly. Keeping the type
+  // selector hidden until the URL parameters have been read prevents the
+  // upload page from flashing before the requested record is opened.
+  const [initialisingRoute, setInitialisingRoute] = useState(true);
   const [showInstituteTypeModal, setShowInstituteTypeModal] = useState(false);
 
   const [name, setName] = useState('');
@@ -244,8 +254,9 @@ export default function UploadNewListing() {
   };
 
   /** Loads a draft/listing record and opens the Afro-Innovation form. */
-  const openInnovationRecord = async (id: string, asDraft: boolean) => {
-    const item = await fetchInnovation(id);
+  const openInnovationRecord = async (id: string, asDraft: boolean, upgrade = false) => {
+    // Switch to the form before fetching so an edit/draft deep link never
+    // renders the listing-type selector first.
     resetInnovationForm();
     setDraftId(asDraft ? id : null);
     setEditId(asDraft ? null : id);
@@ -253,8 +264,20 @@ export default function UploadNewListing() {
     setPrefilled(false);
     setSelectedType('innovation');
     setStep('form');
-    applyInnovationToForm(item);
-    setPrefilled(true);
+    setUpgradeMode(upgrade);
+
+    try {
+      const item = await fetchInnovation(id);
+      applyInnovationToForm(item);
+      setPrefilled(true);
+      if (upgrade) setShowPriceConfirm(true);
+    } catch (error) {
+      // Put the user back where they came from when the record cannot load.
+      setDraftId(null);
+      setEditId(null);
+      setStep(asDraft ? 'drafts' : 'select');
+      throw error;
+    }
   };
 
   const handleContinueDraft = async (id: string) => {
@@ -264,13 +287,21 @@ export default function UploadNewListing() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const draftParam = params.get('draftId') || params.get('draft');
+    const id = params.get('id');
+    const upgrade = params.get('upgrade') === 'pro' || params.get('upgrade') === 'paid';
+
+    if (!draftParam && !id) {
+      setInitialisingRoute(false);
+      return;
+    }
+
+    setInitialisingRoute(false);
     if (draftParam) {
       openInnovationRecord(draftParam, true).catch((e: any) => toast.error(e?.message || 'Failed to load draft'));
       return;
     }
-    const id = params.get('id');
     if (!id) return;
-    openInnovationRecord(id, false).catch((e: any) => toast.error(e?.message || 'Failed to load innovation'));
+    openInnovationRecord(id, false, upgrade).catch((e: any) => toast.error(e?.message || 'Failed to load innovation'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -489,13 +520,24 @@ export default function UploadNewListing() {
     setInnovLicenses([]); setInnovAwards([]); setInnovGallery([]);
     setSocialHandles([{ name: '', link: '' }]);
     setPayingUser(false);
+    setUpgradeMode(false);
+    setShowPriceConfirm(false);
+  };
+
+  /** Sends an under-funded upgrade to the wallet without creating a draft. */
+  const sendUpgradeToWallet = () => {
+    setShowPriceConfirm(false);
+    setSaving(false);
+    toast.error('Your wallet balance is too low to upgrade this listing. Please top up and try again.');
+    router.push('/dashboard/my-profile?tab=wallet');
   };
 
   const performSubmit = async (plan?: ListingPlan) => {
     setSaving(true);
 
     // Paid plans are paid from the wallet. If the balance is too low, the
-    // submission is saved as a draft and the user is sent to top up.
+    // submission is saved as a draft and the user is sent to top up. An
+    // upgrade keeps the existing listing, so it goes straight to the wallet.
     const isPaid = plan === 'paid' ? true : plan === 'free' ? false : payingUser;
     if (plan === 'paid' && stagePrice) {
       const priceMajor = Number(stagePrice) / 100;
@@ -503,6 +545,10 @@ export default function UploadNewListing() {
         try {
           const wallet = await dispatch(fetchWalletBalance()).unwrap();
           if (!wallet || wallet.balance < priceMajor) {
+            if (upgradeMode) {
+              sendUpgradeToWallet();
+              return;
+            }
             await saveDraftForTopUp(isPaid);
             return;
           }
@@ -510,6 +556,10 @@ export default function UploadNewListing() {
           // A balance endpoint that reports an insufficient balance also saves
           // a draft; other failures are left to the server to decide.
           if (isInsufficientBalanceError(e)) {
+            if (upgradeMode) {
+              sendUpgradeToWallet();
+              return;
+            }
             await saveDraftForTopUp(isPaid);
             return;
           }
@@ -540,20 +590,29 @@ export default function UploadNewListing() {
       setShowPriceConfirm(false);
       setPayingUser(isPaid);
       setSuccessInfo({
-        title: draftId
-          ? 'Draft submitted successfully'
-          : editId
-            ? 'Innovation updated successfully'
-            : 'Innovation submitted successfully',
-        message: draftId
-          ? 'Your draft has been submitted as a listing and is now waiting for review.'
-          : editId
-            ? 'Your innovation listing has been updated. Any changes will be reviewed by the AfriScience Hub Team.'
-            : 'Your innovation listing has been submitted and is now waiting for review.',
+        title: upgradeMode
+          ? 'Listing upgraded to Pro'
+          : draftId
+            ? 'Draft submitted successfully'
+            : editId
+              ? 'Innovation updated successfully'
+              : 'Innovation submitted successfully',
+        message: upgradeMode
+          ? 'Your innovation listing is now on the Paid Plan with full visibility and multiple entries.'
+          : draftId
+            ? 'Your draft has been submitted as a listing and is now waiting for review.'
+            : editId
+              ? 'Your innovation listing has been updated. Any changes will be reviewed by the AfriScience Hub Team.'
+              : 'Your innovation listing has been submitted and is now waiting for review.',
+        ...(upgradeMode ? { actionLabel: 'Go to My Listings', actionPath: '/dashboard/my-listings' } : {}),
       });
     } catch (e: any) {
       setShowPriceConfirm(false);
       if (isInsufficientBalanceError(e?.message || e)) {
+        if (upgradeMode) {
+          sendUpgradeToWallet();
+          return;
+        }
         await saveDraftForTopUp(isPaid, payload);
         return;
       }
@@ -612,6 +671,14 @@ export default function UploadNewListing() {
     setSelectedType('institute');
     setStep('form');
   };
+
+  if (initialisingRoute) {
+    return (
+      <div className="flex items-center justify-center rounded-xl border border-neutral-gray-light bg-white py-20 shadow-sm">
+        <p className="text-sm text-neutral-gray-medium">Opening listing...</p>
+      </div>
+    );
+  }
 
   if (step === 'drafts') {
     return <DraftListView onBack={() => setStep('select')} onContinue={handleContinueDraft} />;
@@ -811,8 +878,9 @@ export default function UploadNewListing() {
         price={stagePrice}
         stage={innovStage}
         saving={saving}
+        upgrade={upgradeMode}
         onConfirm={(plan) => { void performSubmit(plan); }}
-        onCancel={() => setShowPriceConfirm(false)}
+        onCancel={() => { setShowPriceConfirm(false); setUpgradeMode(false); }}
       />
 
       {/* Institute type selector modal */}
@@ -827,10 +895,12 @@ export default function UploadNewListing() {
         open={!!successInfo}
         title={successInfo?.title}
         message={successInfo?.message}
+        actionLabel={successInfo?.actionLabel}
         onClose={() => setSuccessInfo(null)}
         onGoToSubmissions={() => {
+          const path = successInfo?.actionPath || '/dashboard/submissions';
           setSuccessInfo(null);
-          router.push('/dashboard/submissions');
+          router.push(path);
         }}
       />
 

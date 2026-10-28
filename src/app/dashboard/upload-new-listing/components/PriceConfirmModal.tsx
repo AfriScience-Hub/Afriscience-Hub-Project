@@ -13,6 +13,8 @@ interface PriceConfirmModalProps {
   /** The stage the listing was submitted under. */
   stage?: string;
   saving?: boolean;
+  /** Hide the Free Plan option when an existing free listing is upgrading. */
+  upgrade?: boolean;
   onConfirm: (plan: ListingPlan) => void;
   onCancel: () => void;
 }
@@ -37,7 +39,7 @@ const SINGLE_ENTRY_CATEGORIES = [
  * (multiple entries, annual subscription) listing plans before submitting.
  */
 export default function PriceConfirmModal({
-  open, price, stage, saving = false, onConfirm, onCancel,
+  open, price, stage, saving = false, upgrade = false, onConfirm, onCancel,
 }: PriceConfirmModalProps) {
   const [pending, setPending] = useState<ListingPlan | null>(null);
 
@@ -71,10 +73,16 @@ export default function PriceConfirmModal({
           >
             <X className="h-5 w-5" />
           </button>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-red-600">Choose your plan</p>
-          <h3 className="mt-1 text-xl font-bold text-neutral-black sm:text-2xl">Publish your innovation</h3>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-red-600">
+            {upgrade ? 'Upgrade your plan' : 'Choose your plan'}
+          </p>
+          <h3 className="mt-1 text-xl font-bold text-neutral-black sm:text-2xl">
+            {upgrade ? 'Upgrade to Paid Plan' : 'Publish your innovation'}
+          </h3>
           <p className="mt-1 max-w-2xl text-sm text-neutral">
-            Select how much of your listing you want visible. You can upgrade to the Paid Plan at any time.
+            {upgrade
+              ? 'Your listing is currently on the Free Plan. Upgrade to unlock full visibility and multiple entries.'
+              : 'Select how much of your listing you want visible. You can upgrade to the Paid Plan at any time.'}
             {stage && (
               <span className="ml-1">
                 Selected stage: <span className="font-semibold text-neutral-black">{stage}</span>.
@@ -83,8 +91,9 @@ export default function PriceConfirmModal({
           </p>
         </div>
 
-        <div className="grid gap-4 p-5 sm:p-6 md:grid-cols-2">
+        <div className={upgrade ? 'grid gap-4 p-5 sm:p-6' : 'grid gap-4 p-5 sm:p-6 md:grid-cols-2'}>
           {/* Free plan */}
+          {!upgrade && (
           <div className="flex flex-col rounded-2xl border-2 border-brand-red-100 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-2">
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-red-100 text-brand-red-600">
@@ -123,6 +132,7 @@ export default function PriceConfirmModal({
               {pending === 'free' ? 'Processing…' : 'Proceed with Free Plan'}
             </button>
           </div>
+          )}
 
           {/* Paid plan */}
           <div className="relative flex flex-col rounded-2xl border-2 border-brand-navy-900 bg-brand-navy-900 p-5 text-white shadow-xl">
@@ -176,13 +186,15 @@ export default function PriceConfirmModal({
               className="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-red-700 disabled:opacity-50"
             >
               {pending === 'paid' && <Loader2 className="h-4 w-4 animate-spin" />}
-              {pending === 'paid' ? 'Processing…' : 'Continue with Paid Plan'}
+              {pending === 'paid' ? 'Processing…' : upgrade ? 'Upgrade to Pro' : 'Continue with Paid Plan'}
             </button>
           </div>
         </div>
 
         <div className="border-t border-neutral-gray-light px-6 py-3 text-center text-[11px] text-neutral-gray-medium">
-          Your listing is submitted for review after you choose a plan. You can change plans later from your submissions.
+          {upgrade
+            ? 'Your existing listing keeps its details and is upgraded after the plan is paid for.'
+            : 'Your listing is submitted for review after you choose a plan. You can change plans later from your submissions.'}
         </div>
       </div>
     </div>

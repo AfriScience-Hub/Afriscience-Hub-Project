@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { User, GraduationCap, Briefcase, Wallet, Shield, Save, X, Send, FileDown, Lock } from 'lucide-react';
+import { User, GraduationCap, Briefcase, Wallet, Shield, X, Send, FileDown, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -17,8 +17,12 @@ import { SystemSecurityTab } from './components/SystemSecurityTab';
 import { useProfileForm } from './useProfileForm';
 import { fetchFullProfile } from '@/store/profileSlice';
 import { ProfileSkeleton } from './components/ProfileSkeleton';
+import { isProfileTabComplete, type ProfileTab } from './profileCompletion';
 
 type TabKey = 'personal' | 'education' | 'experience' | 'wallet' | 'system';
+
+const PROFILE_TABS: ProfileTab[] = ['personal', 'education', 'experience'];
+const isProfileTab = (tab: TabKey): tab is ProfileTab => PROFILE_TABS.includes(tab as ProfileTab);
 
 const TABS = [
   { key: 'personal' as const, label: 'Personal Information', icon: User },
@@ -119,7 +123,14 @@ export function ProfileContent() {
     // loaded" guard) so the form also picks up changes made elsewhere.
     void dispatch(fetchFullProfile({ force: true }));
   };
-  const [saving, setSaving] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const allCompleted = profile.completionCompleted || profile.status === 'COMPLETED';
+  const personalComplete = isProfileTabComplete('personal', profile.completionSections, allCompleted);
+  const educationComplete = isProfileTabComplete('education', profile.completionSections, allCompleted);
+  const experienceComplete = isProfileTabComplete('experience', profile.completionSections, allCompleted);
+  const activeTabComplete = activeTab === 'personal' ? personalComplete : activeTab === 'education' ? educationComplete : activeTab === 'experience' ? experienceComplete : false;
+  const showProfileActions = isProfileTab(activeTab);
 
   const handleTabChange = (key: string) => {
     if (isEditing) { toast.info('Save or discard your changes first'); return; }
@@ -137,38 +148,27 @@ export function ProfileContent() {
   }
 
   const handleSaveDraft = async () => {
-    setSaving(true);
+    if (!isProfileTab(activeTab)) return;
+    setSavingDraft(true);
     try {
-      if (activeTab === 'personal') {
-        await f.savePersonalInfo();
-      } else if (activeTab === 'education') {
-        await f.saveEducation();
-      } else if (activeTab === 'experience') {
-        await f.saveSkills();
-        await f.saveExperience();
-        await f.saveLanguages();
-        await f.savePortfolio();
-      } else {
-        toast.success('Draft saved');
-      }
-    } finally { setSaving(false); }
+      const result = await f.saveDraft(activeTab);
+      if (result.ok && result.submitted) setEditingTab(null);
+    } finally { setSavingDraft(false); }
   };
 
   const handleSubmit = async () => {
-    setSaving(true);
+    setSubmitting(true);
     try {
-      let ok = false;
-      if (activeTab === 'personal') ok = await f.savePersonalInfo();
-      else if (activeTab === 'education') ok = await f.saveEducation();
-      else if (activeTab === 'experience') {
-        await f.saveSkills();
-        ok = await f.saveExperience();
-        await f.saveLanguages();
-        await f.savePortfolio();
-      }
-      if (ok) setEditingTab(null);
-    } finally { setSaving(false); }
+      const result = await f.submitProfile();
+      if (result.ok && result.submitted) setEditingTab(null);
+    } finally { setSubmitting(false); }
   };
+
+  // Saved draft values stay in form state for Edit, but are not shown in the
+  // read-only view until the tab is completed/submitted.
+  const hidePersonalDraft = editingTab !== 'personal' && !personalComplete;
+  const hideEducationDraft = editingTab !== 'education' && !educationComplete;
+  const hideExperienceDraft = editingTab !== 'experience' && !experienceComplete;
 
   const personalProps = {
     isEditing: editingTab === 'personal',
@@ -195,6 +195,13 @@ export function ProfileContent() {
     // CV
     cvFile: f.cvFile, cvFileName: f.cvFileName, cvKey: f.cvKey, cvUrl: f.cvUrl,
     handleCvUpload: f.handleCvUpload, clearCv: f.clearCv,
+    ...(hidePersonalDraft ? {
+      fullName: '', username: '', gender: '', dateOfBirth: '', idCardType: '', idCardNumber: '', employmentStatus: '',
+      idCardFile: null, idCardFileName: '', idCardKey: '', idCardUrl: '',
+      bio: '', email: '', phone: '', altPhone: '', address: '', city: '', stateOfResidence: '',
+      localGovt: '', country: '', zipCode: '', website: '',
+      cvFile: null, cvFileName: '', cvKey: '', cvUrl: '',
+    } : {}),
   };
 
   const educationProps = {
@@ -212,6 +219,12 @@ export function ProfileContent() {
     otherCerts: f.otherCerts,
     onAddOtherCert: f.addOtherCert, onRemoveOtherCert: f.removeOtherCert,
     onOtherCertChange: f.updateOtherCert,
+    ...(hideEducationDraft ? {
+      educationLevel: '', educationLevelOther: '', graduationClass: '', graduationClassOther: '',
+      courseOfStudy: '', institution: '', yearOfGraduation: '',
+      degreeCertFile: null, degreeCertFileName: '', degreeCertUrl: '', degreeCertKey: '',
+      otherCerts: [],
+    } : {}),
   };
 
   const experienceProps = {
@@ -232,6 +245,10 @@ export function ProfileContent() {
     onRemoveLanguage: f.removeLanguage, onLanguageChange: f.updateLanguage,
     portfolioLinks: f.portfolioLinks, onAddPortfolioLink: f.addPortfolioLink,
     onRemovePortfolioLink: f.removePortfolioLink, onPortfolioLinkChange: f.updatePortfolioLink,
+    ...(hideExperienceDraft ? {
+      employmentStatus: '', role: '', industry: '', industryOther: '', company: '', workCountry: '',
+      resumptionDate: '', roleDescription: '', pastJobs: [], skills: [], languages: [], portfolioLinks: [],
+    } : {}),
   };
 
   return (
@@ -267,24 +284,31 @@ export function ProfileContent() {
           )}
         </div>
 
-        {activeTab !== 'wallet' && (
+        {showProfileActions && (
           <div className="px-6 py-4 border-t border-neutral-gray-light bg-neutral-bg-light/50">
             <div className="flex items-center justify-end gap-3">
               {isEditing ? (
                 <>
-                  <Button type="button" variant="outline" onClick={handleCancel} disabled={saving} className="gap-2">
+                  <Button type="button" variant="outline" onClick={handleCancel} disabled={savingDraft || submitting} className="gap-2">
                     <X className="h-4 w-4" /> Cancel
                   </Button>
-                  <Button type="button" onClick={handleSaveDraft} loading={saving} className="gap-2 bg-white border border-neutral-gray-light text-neutral-black hover:bg-neutral-bg-light">
+                  <Button
+                    type="button"
+                    onClick={handleSaveDraft}
+                    loading={savingDraft}
+                    disabled={savingDraft || submitting || activeTabComplete}
+                    title={activeTabComplete ? 'This tab is already completed' : undefined}
+                    className="gap-2 bg-white border border-neutral-gray-light text-neutral-black hover:bg-neutral-bg-light disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     <FileDown className="h-4 w-4" /> Save as Draft
                   </Button>
-                  <Button type="button" onClick={handleSubmit} loading={saving} className="gap-2 bg-green-600 hover:bg-green-700">
+                  <Button type="button" onClick={handleSubmit} loading={submitting} disabled={savingDraft || submitting} className="gap-2 bg-green-600 hover:bg-green-700">
                     <Send className="h-4 w-4" /> Submit
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button type="button" onClick={handleStartEdit} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700">
+                  <Button type="button" onClick={handleStartEdit} disabled={savingDraft || submitting} className="gap-2 bg-green-600 hover:bg-green-700">
                     <EditIcon className="h-4 w-4" /> Edit
                   </Button>
                 </>

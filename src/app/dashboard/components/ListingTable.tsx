@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import { Eye, Pencil, SearchX } from 'lucide-react';
+import { Crown, Eye, Pencil, SearchX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { statusKind, statusLabel, STATUS_CHIP } from '../my-listings/statusUtils';
 import RowActionMenu from './RowActionMenu';
@@ -15,8 +15,12 @@ export interface ListingTableRow {
   image?: string;
   submittedAt?: string | null;
   approvedAt?: string | null;
+  /** true = Paid Plan, false = Free Plan. */
+  payingUser?: boolean;
   onPreview: () => void;
   onEdit: () => void;
+  /** Shown only for free-plan innovation listings. */
+  onUpgrade?: () => void;
 }
 
 interface ListingTableProps {
@@ -24,6 +28,8 @@ interface ListingTableProps {
   loading?: boolean;
   /** Adds the Date Approved column - only used on My Listings. */
   showApprovedDate?: boolean;
+  /** Adds the Subscription column for listings that return `payingUser`. */
+  showSubscription?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
   pageSize?: number;
@@ -56,6 +62,21 @@ function statusChip(status: string): string {
   return STATUS_CHIP[statusKind(status)];
 }
 
+/** Shows whether a listing was submitted on the paid or free plan. */
+function SubscriptionBadge({ payingUser }: { payingUser?: boolean }) {
+  const paid = payingUser === true;
+  return (
+    <span
+      className={cn(
+        'inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-bold',
+        paid ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-bg-light text-neutral-gray-dark'
+      )}
+    >
+      {paid ? 'Paid Plan' : 'Free Plan'}
+    </span>
+  );
+}
+
 /**
  * User-side listings/submissions table. Mirrors the admin submission tables
  * but uses the red brand palette, and always offers Preview + Edit actions.
@@ -64,6 +85,7 @@ export default function ListingTable({
   rows,
   loading = false,
   showApprovedDate = false,
+  showSubscription = false,
   emptyTitle = 'Nothing here yet',
   emptyDescription = 'Items will appear here once they are available.',
   pageSize = 8,
@@ -120,7 +142,7 @@ export default function ListingTable({
   return (
     <div>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-xs">
+        <table className={cn('w-full text-xs', showSubscription ? 'min-w-[900px]' : 'min-w-[760px]')}>
           <thead>
             <tr className="border-y border-brand-red-100 bg-brand-red-50/60">
               <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-brand-red-700">
@@ -129,6 +151,11 @@ export default function ListingTable({
               <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-brand-red-700">
                 Status
               </th>
+              {showSubscription && (
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-brand-red-700">
+                  Subscription
+                </th>
+              )}
               <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-brand-red-700">
                 Date Submitted
               </th>
@@ -182,6 +209,11 @@ export default function ListingTable({
                     {displayStatus(row.status)}
                   </span>
                 </td>
+                {showSubscription && (
+                  <td className="px-4 py-3">
+                    <SubscriptionBadge payingUser={row.payingUser} />
+                  </td>
+                )}
                 <td className="whitespace-nowrap px-4 py-3 text-xs text-neutral-gray-dark">
                   {formatDate(row.submittedAt)}
                 </td>
@@ -204,6 +236,13 @@ export default function ListingTable({
                         icon: <Pencil className="h-3.5 w-3.5" />,
                         onClick: row.onEdit,
                       },
+                      ...(row.payingUser === false && row.onUpgrade
+                        ? [{
+                            label: 'Upgrade to Pro',
+                            icon: <Crown className="h-3.5 w-3.5 text-amber-500" />,
+                            onClick: row.onUpgrade,
+                          }]
+                        : []),
                     ]}
                   />
                 </td>

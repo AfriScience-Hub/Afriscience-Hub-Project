@@ -167,8 +167,13 @@ function handleAuthFailure(scope: AuthScope, options: ApiRequestOptions) {
 
 function requestError(data: ApiResponse<unknown>, status: number): Error {
   const details = (data as any)?.errors || (data as any)?.error;
-  if (Array.isArray(details)) return new Error(details.join('\n'));
-  return new Error(data.message || data.error || `Request failed (${status})`);
+  const error = new Error(
+    Array.isArray(details)
+      ? details.join('\n')
+      : data.message || data.error || `Request failed (${status})`,
+  ) as Error & { status?: number };
+  error.status = status;
+  return error;
 }
 
 async function request<T>(
