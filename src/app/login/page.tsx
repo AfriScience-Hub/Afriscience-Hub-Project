@@ -18,6 +18,9 @@ function LoginContent() {
   const [usePhone, setUsePhone] = useState(false);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(false);
+  const rememberRef = useRef(false);
+  rememberRef.current = remember;
   const [googleClientId, setGoogleClientId] = useState<string | null>(null);
   const [gsiReady, setGsiReady] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -125,7 +128,7 @@ function LoginContent() {
   const handleGoogleResponse = async (token: string) => {
     setLoading(true);
     try {
-      await googleLogin(token);
+      await googleLogin(token, rememberRef.current);
       toast.success('Signed in with Google!');
       router.push(redirectTo);
     } catch (err) {
@@ -161,7 +164,7 @@ function LoginContent() {
 
     setLoading(true);
     try {
-      await login(identifier, password);
+      await login(identifier, password, remember);
       toast.success('Welcome back! You are now logged in.');
       router.push(redirectTo);
     } catch (err) {
@@ -282,6 +285,8 @@ function LoginContent() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
                   className="h-4 w-4 rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-xs lg:text-sm text-neutral-gray-dark">

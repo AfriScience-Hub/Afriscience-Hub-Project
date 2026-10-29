@@ -84,6 +84,7 @@ export default function UploadNewListing() {
   const [editBaseline, setEditBaseline] = useState<string | null>(null);
   const [prefilled, setPrefilled] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [draftSaving, setDraftSaving] = useState(false);
   const [draftSavingOpen, setDraftSavingOpen] = useState(false);
   const [showPriceConfirm, setShowPriceConfirm] = useState(false);
   const [upgradeMode, setUpgradeMode] = useState(false);
@@ -380,8 +381,9 @@ export default function UploadNewListing() {
       toast.error(requiredError);
       return;
     }
-    // A brand-new listing is confirmed with the amount it will cost first.
-    if (!editId) {
+    // New listings — and upgrades started from My Listings — are confirmed
+    // with the plan/amount first. Editing a free listing still saves directly.
+    if (!editId || upgradeMode) {
       setShowPriceConfirm(true);
       return;
     }
@@ -486,6 +488,7 @@ export default function UploadNewListing() {
   const handleSaveDraft = async () => {
     if (saving) return;
     setSaving(true);
+    setDraftSaving(true);
     const wasUpdate = !!draftId;
     try {
       const payload = await prepareUploadedPayload(payingUser);
@@ -499,6 +502,7 @@ export default function UploadNewListing() {
       toast.error(e?.message || 'Failed to save draft');
     } finally {
       setSaving(false);
+      setDraftSaving(false);
     }
   };
 
@@ -598,7 +602,7 @@ export default function UploadNewListing() {
               ? 'Innovation updated successfully'
               : 'Innovation submitted successfully',
         message: upgradeMode
-          ? 'Your innovation listing is now on the Paid Plan with full visibility and multiple entries.'
+          ? 'Your innovation listing is now on the Pro Plan with full visibility and multiple entries.'
           : draftId
             ? 'Your draft has been submitted as a listing and is now waiting for review.'
             : editId
@@ -642,7 +646,7 @@ export default function UploadNewListing() {
   const editDirty = !!editId && editBaseline !== null && listingSnapshot !== editBaseline;
   const innovationComplete = selectedType === 'innovation' && innovationRequiredError() === null;
   const isFormValid = selectedType === 'innovation'
-    ? innovationComplete && (!editId || editDirty)
+    ? innovationComplete && (!editId || editDirty || upgradeMode)
     : editId
       ? editDirty && !!name.trim() && !!country && agreed
       : agreed && hasAnySocial;
@@ -867,8 +871,10 @@ export default function UploadNewListing() {
           showDraft={!editId}
           draftLabel={draftId ? 'Update Draft' : 'Save as Draft'}
           draftDisabled={saving}
-          submitLabel={editId ? 'Save changes' : 'Submit for Review'}
+          submitLabel={upgradeMode ? 'Submit for Review' : editId ? 'Save changes' : 'Submit for Review'}
           disabled={saving || !isFormValid}
+          loading={saving && !draftSaving}
+          draftLoading={draftSaving}
         />
       )}
 
@@ -880,6 +886,7 @@ export default function UploadNewListing() {
         saving={saving}
         upgrade={upgradeMode}
         onConfirm={(plan) => { void performSubmit(plan); }}
+        onEditEntries={upgradeMode ? () => setShowPriceConfirm(false) : undefined}
         onCancel={() => { setShowPriceConfirm(false); setUpgradeMode(false); }}
       />
 

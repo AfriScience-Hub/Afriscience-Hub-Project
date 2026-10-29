@@ -15,6 +15,7 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -39,7 +40,7 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      const res: any = await dispatch(loginAdmin({ email: email.trim(), password }));
+      const res: any = await dispatch(loginAdmin({ email: email.trim(), password, remember }));
       if (loginAdmin.rejected.match(res)) throw new Error((res.payload as string) || 'Login failed');
       toast.success('Admin login successful!');
       router.push('/admin/dashboard');
@@ -123,6 +124,8 @@ export default function AdminLoginPage() {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
                 className="h-4 w-4 rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-neutral-gray-dark">

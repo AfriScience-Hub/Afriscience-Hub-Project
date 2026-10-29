@@ -1,5 +1,5 @@
 interface SubscriptionBadgeProps {
-  /** The API's `payingUser` flag: true = paid plan, false = free plan. */
+  /** The API's `payingUser` flag: true = Pro Plan, false = Free Plan. */
   payingUser?: boolean;
 }
 
@@ -12,7 +12,7 @@ export default function SubscriptionBadge({ payingUser }: SubscriptionBadgeProps
         paid ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-bg-light text-neutral-gray-dark'
       }`}
     >
-      {paid ? 'Paid Plan' : 'Free Plan'}
+      {paid ? 'Pro Plan' : 'Free Plan'}
     </span>
   );
 }

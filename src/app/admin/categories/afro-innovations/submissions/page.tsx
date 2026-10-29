@@ -32,6 +32,8 @@ export default function SubmissionsPage() {
   const [countryFilter, setCountryFilter] = useState<string>('All Countries');
   const [subscriptionFilter, setSubscriptionFilter] = useState<string>('All Subscriptions');
   const [selected, setSelected] = useState<SubmissionRecord | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [rejectSaving, setRejectSaving] = useState(false);
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -47,7 +49,7 @@ export default function SubmissionsPage() {
       if (countryFilter !== 'All Countries' && r.innovation.country !== countryFilter) return false;
       if (subscriptionFilter !== 'All Subscriptions') {
         const paid = r.payingUser === true;
-        if (subscriptionFilter === 'Paid Plan' && !paid) return false;
+        if (subscriptionFilter === 'Pro Plan' && !paid) return false;
         if (subscriptionFilter === 'Free Plan' && paid) return false;
       }
       return true;
@@ -73,12 +75,16 @@ export default function SubmissionsPage() {
   }, []);
 
   const handleApprove = async (id: string) => {
+    if (approvingId) return;
+    setApprovingId(id);
     try {
       await approveInnovation(id);
       setRecords(prev => prev.map(r => r.id === id ? { ...r, status: 'Published', publishedBy: { name: 'Admin', date: new Date().toLocaleDateString(), avatar: '' } } : r));
       toast.success('Innovation approved');
     } catch (e: any) {
       toast.error(e?.message || 'Failed to approve innovation');
+    } finally {
+      setApprovingId(null);
     }
   };
 
@@ -91,16 +97,18 @@ export default function SubmissionsPage() {
   };
 
   const handleRejectConfirm = async () => {
-    if (!rejectingId || !rejectReason.trim()) return;
+    if (!rejectingId || !rejectReason.trim() || rejectSaving) return;
+    setRejectSaving(true);
     try {
       await rejectInnovation(rejectingId, rejectReason.trim());
       setRecords(prev => prev.map(r => r.id === rejectingId ? { ...r, status: 'Rejected', reasonForRejection: rejectReason.trim() } : r));
       toast.success('Innovation rejected');
+      setRejectingId(null);
+      setRejectReason('');
     } catch (e: any) {
       toast.error(e?.message || 'Failed to reject innovation');
     } finally {
-      setRejectingId(null);
-      setRejectReason('');
+      setRejectSaving(false);
     }
   };
 
@@ -189,7 +197,7 @@ export default function SubmissionsPage() {
         </select>
         <select value={subscriptionFilter} onChange={(e) => setSubscriptionFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Subscriptions</option>
-          <option>Paid Plan</option>
+          <option>Pro Plan</option>
           <option>Free Plan</option>
         </select>
       </div>
@@ -254,11 +262,19 @@ export default function SubmissionsPage() {
                   <td className="px-3 py-2.5"><span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${r.status === 'Pending Review' ? 'bg-amber-50 text-amber-700' : r.status === 'Published' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{r.status}</span></td>
                   <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                     <TableActionMenu
-                      triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
+                      triggerIcon={approvingId === r.id
+                        ? <Loader2 className="h-4 w-4 animate-spin text-neutral-gray-dark" />
+                        : <MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                       items={[
                         { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
                         ...(r.status === 'Pending Review' ? [
-                          { label: 'Approve', icon: <CheckCircle className="h-3.5 w-3.5" />, onClick: () => handleApprove(r.id) },
+                          {
+                            label: approvingId === r.id ? 'Approving...' : 'Approve',
+                            icon: approvingId === r.id
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <CheckCircle className="h-3.5 w-3.5" />,
+                            onClick: () => { if (!approvingId) void handleApprove(r.id); },
+                          },
                           { label: 'Reject', icon: <XCircle className="h-3.5 w-3.5" />, onClick: () => setRejectingId(r.id), danger: true },
                         ] : []),
                       ]}
@@ -310,10 +326,11 @@ export default function SubmissionsPage() {
                 <button onClick={() => { setRejectingId(null); setRejectReason(''); }} className="px-4 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer">Cancel</button>
                 <button
                   onClick={handleRejectConfirm}
-                  disabled={!rejectReason.trim()}
-                  className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 cursor-pointer disabled:opacity-50"
+                  disabled={!rejectReason.trim() || rejectSaving}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Confirm Rejection
+                  {rejectSaving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  {rejectSaving ? 'Rejecting...' : 'Confirm Rejection'}
                 </button>
               </div>
             </div>

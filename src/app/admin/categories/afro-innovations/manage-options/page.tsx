@@ -40,6 +40,7 @@ export default function ManageOptionsPage() {
   const [deleting, setDeleting] = useState<{ id: string; name: string } | null>(null);
   const [deleteSaving, setDeleteSaving] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const tabType = tabTypeFor(activeTab);
   const showPrice = TABS_WITH_PRICE.includes(activeTab);
@@ -135,15 +136,19 @@ export default function ManageOptionsPage() {
   };
 
   const handleToggleStatus = async (id: string, currentStatus: string) => {
+    if (togglingId) return;
     // `currentStatus` is the status BEFORE the toggle, so the new state is the
     // opposite: deactivating an active option must send isActive: false.
     const isActive = currentStatus !== 'Active';
+    setTogglingId(id);
     try {
       await api.patch(`/listings/innovations/options/${id}/status`, { isActive });
       toast.success(`Option ${isActive ? 'activated' : 'deactivated'}`);
       fetchOptions();
     } catch (e: any) {
       toast.error(e?.message || 'Failed to update status');
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -248,6 +253,7 @@ export default function ManageOptionsPage() {
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   onToggleStatus={(id, currentStatus) => handleToggleStatus(id, currentStatus)}
+                  togglingId={togglingId}
                 />
                 <div className="px-4 py-2.5 border-t border-neutral-gray-light bg-neutral-bg-light/30">
                   <p className="text-[11px] text-neutral-black">

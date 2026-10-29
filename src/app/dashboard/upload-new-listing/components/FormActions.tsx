@@ -1,6 +1,6 @@
 'use client';
 
-import { Info, Upload, FileDown } from 'lucide-react';
+import { Info, Upload, FileDown, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
 
@@ -19,11 +19,16 @@ interface FormActionsProps {
   disabled?: boolean;
   draftDisabled?: boolean;
   submitLabel?: string;
+  /** Shows a spinner and progress label while the submit request is in flight. */
+  loading?: boolean;
+  /** Shows a spinner and progress label while the draft request is in flight. */
+  draftLoading?: boolean;
 }
 
 export default function FormActions({
   onCancel, onSubmit, onSaveDraft, showDraft = true, draftLabel = 'Save as Draft',
-  disabled, draftDisabled, submitLabel = 'Submit for Review',
+  disabled, draftDisabled, submitLabel = 'Submit for Review', loading = false,
+  draftLoading = false,
 }: FormActionsProps) {
   const submitClass = 'bg-brand-navy-900 hover:bg-brand-navy-800 disabled:opacity-40 disabled:cursor-not-allowed';
   const draftClass = 'gap-2 bg-white border border-neutral-gray-light text-neutral-black hover:bg-neutral-bg-light disabled:opacity-40 disabled:cursor-not-allowed';
@@ -43,11 +48,13 @@ export default function FormActions({
         <div className="flex items-center gap-3">
           {showDraft && (
             <Button onClick={handleSaveDraft} disabled={draftDisabled} className={draftClass}>
-              <FileDown className="h-4 w-4" /> {draftLabel}
+              {draftLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
+              {draftLoading ? 'Saving Draft…' : draftLabel}
             </Button>
           )}
           <Button onClick={onSubmit} disabled={disabled} className={`gap-2 ${submitClass}`}>
-            <Upload className="h-4 w-4" /> {submitLabel}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {loading ? (submitLabel === 'Submit for Review' ? 'Submitting…' : 'Saving…') : submitLabel}
           </Button>
         </div>
       </div>
@@ -59,11 +66,13 @@ export default function FormActions({
         </Button>
         {showDraft && (
           <Button onClick={handleSaveDraft} disabled={draftDisabled} className={`w-full justify-center ${draftClass}`}>
-            <FileDown className="h-4 w-4" /> {draftLabel}
+            {draftLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
+            {draftLoading ? 'Saving Draft…' : draftLabel}
           </Button>
         )}
         <Button onClick={onSubmit} disabled={disabled} className={`w-full justify-center gap-2 ${submitClass}`}>
-          <Upload className="h-4 w-4" /> {submitLabel}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+          {loading ? (submitLabel === 'Submit for Review' ? 'Submitting…' : 'Saving…') : submitLabel}
         </Button>
       </div>
 

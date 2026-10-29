@@ -1,4 +1,5 @@
 import { isAdminPath, isProtectedPath } from './authRoutes';
+import { clearStoredAuth, getStoredToken, setStoredToken } from './authStorage';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -46,24 +47,20 @@ function scopeFor(endpoint?: string): AuthScope {
 function getAccessToken(endpoint?: string, override?: string): string | null {
   if (typeof window === 'undefined') return null;
   if (override !== undefined) return override || null;
-  const admin = isAdminContext(endpoint);
-  return localStorage.getItem(admin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token');
+  const scope: AuthScope = isAdminContext(endpoint) ? 'admin' : 'user';
+  return getStoredToken(scope);
 }
 
-function setAccessToken(access: string | null, isAdmin = false) {
+function setAccessToken(access: string | null, scope: AuthScope) {
   if (typeof window === 'undefined') return;
-  if (access) localStorage.setItem(isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token', access);
+  setStoredToken(scope, access);
 }
 
 function clearAuthStorage() {
   if (typeof window === 'undefined') return;
-  localStorage.removeItem('afrisciencehub_token');
-  localStorage.removeItem('afrisciencehub_admin_token');
+  clearStoredAuth();
   // NOTE: refresh token lives in an HttpOnly cookie — never readable/writable here.
   // It is sent automatically via `credentials: 'include'` and cleared server-side on logout.
-  localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
-  localStorage.removeItem('afrisciencehub_user');
-  localStorage.removeItem('afrisciencehub_admin');
   // Let Redux clear the in-memory session as well. This is important on public
   // pages where we continue as a guest instead of doing a hard redirect.
   window.dispatchEvent(new Event('auth:session-expired'));
@@ -120,7 +117,7 @@ async function performRefresh(scope: AuthScope): Promise<string | null> {
       null;
 
     if (refreshRes.ok && newAccess) {
-      setAccessToken(newAccess, isAdmin);
+      setAccessToken(newAccess, scope);
       return newAccess;
     }
   } catch {

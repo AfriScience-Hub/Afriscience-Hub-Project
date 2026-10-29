@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import {
   X, Lightbulb, User, IdCard, CheckCircle, XCircle, MapPin, Wrench, Camera,
-  Award, Users, FileText, Info, AlertTriangle, ScrollText, BadgeCheck, Pencil,
+  Award, Users, FileText, Info, AlertTriangle, ScrollText, BadgeCheck, Pencil, Loader2,
 } from 'lucide-react';
 import type { SubmissionRecord } from '../data';
 import CollapsibleSection from '@/app/dashboard/upload-new-listing/components/CollapsibleSection';
@@ -56,15 +56,16 @@ export default function SubmissionDetailModal({
   submission: SubmissionRecord | null;
   open: boolean;
   onClose: () => void;
-  onApprove: (id: string) => void;
+  onApprove: (id: string) => void | Promise<void>;
   onReject: (id: string) => void;
   onSave?: (updated: SubmissionRecord) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<SubmissionRecord | null>(null);
+  const [approving, setApproving] = useState(false);
 
   useEffect(() => {
-    if (open && submission) { setDraft(submission); setEditing(false); }
+    if (open && submission) { setDraft(submission); setEditing(false); setApproving(false); }
   }, [open, submission]);
 
   if (!open || !submission) return null;
@@ -130,7 +131,7 @@ export default function SubmissionDetailModal({
                       <Field label="Published By" value={submission.publishedBy?.name || '—'} />
                       <Field
                         label="Subscription"
-                        value={submission.payingUser === true ? 'Paid Plan' : 'Free Plan'}
+                        value={submission.payingUser === true ? 'Pro Plan' : 'Free Plan'}
                       />
                     </div>
                   </div>
@@ -310,8 +311,22 @@ export default function SubmissionDetailModal({
                 <button onClick={() => { onReject(submission.id); onClose(); }} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-50 text-red-600 border border-red-200 text-xs font-semibold hover:bg-red-100 cursor-pointer">
                   <XCircle className="h-4 w-4" /> Reject
                 </button>
-                <button onClick={() => { onApprove(submission.id); onClose(); }} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 cursor-pointer">
-                  <CheckCircle className="h-4 w-4" /> Approve
+                <button
+                  onClick={async () => {
+                    if (approving) return;
+                    setApproving(true);
+                    try {
+                      await onApprove(submission.id);
+                      onClose();
+                    } finally {
+                      setApproving(false);
+                    }
+                  }}
+                  disabled={approving}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                  {approving ? 'Approving…' : 'Approve'}
                 </button>
               </>
             ) : (

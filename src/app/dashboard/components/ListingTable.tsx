@@ -15,7 +15,7 @@ export interface ListingTableRow {
   image?: string;
   submittedAt?: string | null;
   approvedAt?: string | null;
-  /** true = Paid Plan, false = Free Plan. */
+  /** true = Pro Plan, false = Free Plan. */
   payingUser?: boolean;
   onPreview: () => void;
   onEdit: () => void;
@@ -72,7 +72,7 @@ function SubscriptionBadge({ payingUser }: { payingUser?: boolean }) {
         paid ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-bg-light text-neutral-gray-dark'
       )}
     >
-      {paid ? 'Paid Plan' : 'Free Plan'}
+      {paid ? 'Pro Plan' : 'Free Plan'}
     </span>
   );
 }

@@ -17,7 +17,7 @@ export interface UserInnovation {
   submittedAt: string | null;
   /** ISO date the listing was approved - only set for approved records. */
   approvedAt: string | null;
-  /** true = Paid Plan, false = Free Plan. */
+  /** true = Pro Plan, false = Free Plan. */
   payingUser: boolean;
 }
 

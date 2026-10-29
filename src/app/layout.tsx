@@ -11,7 +11,11 @@ import '../styles/index.css'
 export const metadata: Metadata = {
   title: 'AFRISCIENCE HUB',
   description: 'Afriscience Hub is a platform dedicated to showcasing and promoting scientific research, innovation, and collaboration across Africa. Our mission is to connect researchers, institutions, and industry partners to foster a vibrant scientific community that drives progress and development on the continent.',
-  icons: "/littleLogo.png",
+  icons: {
+    icon: [{ url: "/littleLogo.png", type: "image/png" }],
+    shortcut: "/littleLogo.png",
+    apple: "/littleLogo.png",
+  },
 }
 
 export default function RootLayout({

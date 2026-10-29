@@ -4,7 +4,7 @@ import { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
 export interface InnovationPayload {
   image: string;
   innovationName: string;
-  /** false = Free Plan (single entry per category), true = annual Paid Plan. */
+  /** false = Free Plan (single entry per category), true = annual Pro Plan. */
   payingUser: boolean;
   country: string;
   shortDescription: string;

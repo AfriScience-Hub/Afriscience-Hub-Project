@@ -35,7 +35,7 @@ export interface AdminInnovation {
   status: string;
   isVerified?: boolean;
   verified?: boolean;
-  /** True when the submission was made on the annual paid plan. */
+  /** True when the submission was made on the annual Pro Plan. */
   payingUser?: boolean;
   reviewedBy: string | null;
   reasonForRejection: string | null;
@@ -114,6 +114,16 @@ export async function rejectInnovation(id: string, reason: string) {
 /** Verifies or unverifies a published innovation. */
 export async function setInnovationVerification(id: string, isVerified: boolean) {
   const r = await api.post(`/listings/innovations/admin/verify/${id}`, { isVerified });
+  return unwrapData(r);
+}
+
+/**
+ * Takes a live innovation off the platform by returning it to the review
+ * queue. The backend exposes the listing update endpoint; setting the status
+ * back to PENDING removes it from the public APPROVED feed.
+ */
+export async function unpublishInnovation(id: string) {
+  const r = await api.patch(`/listings/innovations/${id}`, { status: 'PENDING' });
   return unwrapData(r);
 }
 

@@ -118,7 +118,7 @@ export default function SignUp() {
   const handleGoogleResponse = async (token: string) => {
     setLoading(true);
     try {
-      await googleLogin(token);
+      await googleLogin(token, true);
       toast.success('Signed in with Google!');
       router.push('/dashboard');
     } catch (err) {

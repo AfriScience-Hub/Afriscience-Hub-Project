@@ -1,6 +1,6 @@
 'use client';
 
-import { MoreVertical, Pencil, Power, Trash2 } from 'lucide-react';
+import { MoreVertical, Pencil, Power, Trash2, Loader2 } from 'lucide-react';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
 import { formatPrice } from '@/lib/utils';
 import type { ManagedOption } from '../data';
@@ -12,9 +12,13 @@ interface Props {
   onEdit: (opt: ManagedOption) => void;
   onDelete: (id: string, name: string) => void;
   onToggleStatus: (id: string, currentStatus: string) => void;
+  /** Option currently waiting for its activate/deactivate request. */
+  togglingId?: string | null;
 }
 
-export default function OptionsTable({ options, showPrice = false, onEdit, onDelete, onToggleStatus }: Props) {
+export default function OptionsTable({
+  options, showPrice = false, onEdit, onDelete, onToggleStatus, togglingId = null,
+}: Props) {
   if (options.length === 0) {
     return <p className="text-sm text-neutral-gray-medium py-8 text-center">No options yet.</p>;
   }
@@ -64,10 +68,20 @@ export default function OptionsTable({ options, showPrice = false, onEdit, onDel
               <td className="px-4 py-3 text-right">
                 <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
                   <TableActionMenu
-                    triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
+                    triggerIcon={togglingId === opt.id
+                      ? <Loader2 className="h-4 w-4 animate-spin text-neutral-gray-dark" />
+                      : <MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                     items={[
                       { label: 'Edit', icon: <Pencil className="h-3.5 w-3.5 text-[#453DD8]" />, onClick: () => onEdit(opt) },
-                      { label: opt.status === 'Active' ? 'Deactivate' : 'Activate', icon: <Power className="h-3.5 w-3.5" />, onClick: () => onToggleStatus(opt.id, opt.status) },
+                      {
+                        label: togglingId === opt.id
+                          ? (opt.status === 'Active' ? 'Deactivating...' : 'Activating...')
+                          : (opt.status === 'Active' ? 'Deactivate' : 'Activate'),
+                        icon: togglingId === opt.id
+                          ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          : <Power className="h-3.5 w-3.5" />,
+                        onClick: () => { if (!togglingId) onToggleStatus(opt.id, opt.status); },
+                      },
                       { label: 'Delete', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => onDelete(opt.id, opt.name), danger: true },
                     ]}
                   />

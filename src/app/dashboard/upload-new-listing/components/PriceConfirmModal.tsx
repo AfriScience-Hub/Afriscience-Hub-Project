@@ -16,6 +16,8 @@ interface PriceConfirmModalProps {
   /** Hide the Free Plan option when an existing free listing is upgrading. */
   upgrade?: boolean;
   onConfirm: (plan: ListingPlan) => void;
+  /** Closes the upgrade prompt without cancelling the upgrade intent. */
+  onEditEntries?: () => void;
   onCancel: () => void;
 }
 
@@ -39,7 +41,7 @@ const SINGLE_ENTRY_CATEGORIES = [
  * (multiple entries, annual subscription) listing plans before submitting.
  */
 export default function PriceConfirmModal({
-  open, price, stage, saving = false, upgrade = false, onConfirm, onCancel,
+  open, price, stage, saving = false, upgrade = false, onConfirm, onEditEntries, onCancel,
 }: PriceConfirmModalProps) {
   const [pending, setPending] = useState<ListingPlan | null>(null);
 
@@ -77,12 +79,12 @@ export default function PriceConfirmModal({
             {upgrade ? 'Upgrade your plan' : 'Choose your plan'}
           </p>
           <h3 className="mt-1 text-xl font-bold text-neutral-black sm:text-2xl">
-            {upgrade ? 'Upgrade to Paid Plan' : 'Publish your innovation'}
+            {upgrade ? 'Upgrade to Pro Plan' : 'Publish your innovation'}
           </h3>
           <p className="mt-1 max-w-2xl text-sm text-neutral">
             {upgrade
-              ? 'Your listing is currently on the Free Plan. Upgrade to unlock full visibility and multiple entries.'
-              : 'Select how much of your listing you want visible. You can upgrade to the Paid Plan at any time.'}
+              ? 'Your listing is currently on the Free Plan. Upgrade to the Pro Plan to unlock full visibility and multiple entries.'
+              : 'Select how much of your listing you want visible. You can upgrade to the Pro Plan at any time.'}
             {stage && (
               <span className="ml-1">
                 Selected stage: <span className="font-semibold text-neutral-black">{stage}</span>.
@@ -119,7 +121,7 @@ export default function PriceConfirmModal({
 
             <div className="mt-4 rounded-lg border border-brand-red-100 bg-brand-red-100/60 p-3 text-[11px] leading-5 text-brand-red-700">
               Choosing &quot;Free Plan&quot; limits the visibility of your listing and its features. You can always upgrade to the
-              &quot;Paid Plan&quot; anytime to enjoy a full coverage of your listing.
+              &quot;Pro Plan&quot; anytime to enjoy a full coverage of your listing.
             </div>
 
             <button
@@ -144,7 +146,7 @@ export default function PriceConfirmModal({
                 <Crown className="h-4 w-4" />
               </span>
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-white/70">Paid Plan</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-white/70">Pro Plan</p>
                 <p className="text-2xl font-bold">
                   {price !== undefined && price !== null && price !== '' ? formatPrice(price) : '—'}
                   <span className="ml-1 text-xs font-normal text-white/60">/ year</span>
@@ -174,20 +176,32 @@ export default function PriceConfirmModal({
             </ul>
 
             <div className="mt-4 rounded-lg border border-white/15 bg-white/10 p-3 text-[11px] leading-5 text-white/85">
-              Continue with &quot;Paid Plan&quot; to enjoy maximum visibility for your listing and its features. Subscription to
-              this plan is annual and will expire one year after approval. When the paid plan expires, your listing is
+              Continue with &quot;Pro Plan&quot; to enjoy maximum visibility for your listing and its features. Subscription to
+              this plan is annual and will expire one year after approval. When the Pro Plan expires, your listing is
               automatically downgraded to the Free Plan.
             </div>
 
-            <button
-              type="button"
-              onClick={() => choose('paid')}
-              disabled={saving}
-              className="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-red-700 disabled:opacity-50"
-            >
-              {pending === 'paid' && <Loader2 className="h-4 w-4 animate-spin" />}
-              {pending === 'paid' ? 'Processing…' : upgrade ? 'Upgrade to Pro' : 'Continue with Paid Plan'}
-            </button>
+            <div className={`mt-4 ${upgrade ? 'grid gap-2 sm:grid-cols-2' : ''}`}>
+              {upgrade && (
+                <button
+                  type="button"
+                  onClick={() => onEditEntries?.()}
+                  disabled={saving}
+                  className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 disabled:opacity-50"
+                >
+                  Edit Entries
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => choose('paid')}
+                disabled={saving}
+                className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-red-700 disabled:opacity-50"
+              >
+                {pending === 'paid' && <Loader2 className="h-4 w-4 animate-spin" />}
+                {pending === 'paid' ? 'Processing…' : upgrade ? 'Upgrade to Pro' : 'Continue with Pro Plan'}
+              </button>
+            </div>
           </div>
         </div>
 

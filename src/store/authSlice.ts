@@ -1,6 +1,15 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { api } from '@/lib/api';
 import { resolveAvatarSrc } from '@/lib/files';
+import {
+  clearStoredAuth,
+  clearStoredUser,
+  getStoredToken,
+  getStoredUser,
+  setStoredToken,
+  setStoredUser,
+  type AuthScope,
+} from '@/lib/authStorage';
 
 export interface AuthUser {
   name: string;
@@ -57,11 +66,17 @@ interface AuthState {
 // clears it). It is sent automatically via `credentials: 'include'` and is
 // NEVER visible to JS (document.cookie won't show it — that's expected).
 // So we only persist the short-lived access/session token here.
-function persistTokens(data: any, isAdmin = false) {
+function persistTokens(data: any, isAdmin = false, remember?: boolean) {
   if (typeof window === 'undefined') return;
   const access = data?.accessToken || data?.token || data?.data?.accessToken || data?.data?.token;
-  if (access) localStorage.setItem(isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token', access);
+  if (access) setStoredToken(isAdmin ? 'admin' : 'user', access, remember);
   localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
+}
+
+/** Writes the cached identity to the same storage that owns the token. */
+function persistUser(user: AuthUser | null, scope: AuthScope, remember?: boolean) {
+  if (typeof window === 'undefined') return;
+  setStoredUser(scope, user ? JSON.stringify(user) : null, remember);
 }
 
 /**
@@ -113,8 +128,8 @@ function extractUser(data: any, fallbackIdentifier?: string): AuthUser {
 /** The access token stored for the section currently being viewed. */
 function storedToken(): string | null {
   if (typeof window === 'undefined') return null;
-  const isAdmin = window.location.pathname.startsWith('/admin');
-  return localStorage.getItem(isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token');
+  const scope: AuthScope = window.location.pathname.startsWith('/admin') ? 'admin' : 'user';
+  return getStoredToken(scope);
 }
 
 /** Base64url-decodes a JWT's payload, or null when it can't be parsed. */
@@ -171,15 +186,16 @@ export const signupUser = createAsyncThunk(
 
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
-  async (payload: { identifier: string; password: string }, { rejectWithValue }) => {
+  async (payload: { identifier: string; password: string; remember?: boolean }, { rejectWithValue }) => {
     try {
       const isEmail = payload.identifier.includes('@');
       const body: Record<string, string> = { password: payload.password };
       if (isEmail) body.email = payload.identifier;
       else body.phone = payload.identifier;
       const data = await api.post('/auth/login', body);
-      persistTokens(data as any);
-      return { data, identifier: payload.identifier };
+      const remember = payload.remember === true;
+      persistTokens(data as any, false, remember);
+      return { data, identifier: payload.identifier, remember };
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
@@ -217,11 +233,16 @@ export const fetchGoogleClientId = createAsyncThunk(
 /** POST /api/v1/auth/google — exchanges a Google ID token for a session. */
 export const googleAuth = createAsyncThunk(
   'auth/googleAuth',
-  async (payload: { token: string }, { rejectWithValue }) => {
+  async (payload: { token: string; remember?: boolean }, { rejectWithValue }) => {
     try {
-      const data = await api.post('/auth/google', payload);
-      persistTokens(data as any);
-      return { data, identifier: (data as any)?.details?.email || (data as any)?.user?.email || '' };
+      const data = await api.post('/auth/google', { token: payload.token });
+      const remember = payload.remember === true;
+      persistTokens(data as any, false, remember);
+      return {
+        data,
+        identifier: (data as any)?.details?.email || (data as any)?.user?.email || '',
+        remember,
+      };
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
@@ -244,11 +265,15 @@ export const signupAdmin = createAsyncThunk(
 
 export const loginAdmin = createAsyncThunk(
   'auth/loginAdmin',
-  async (payload: { email: string; password: string }, { rejectWithValue }) => {
+  async (payload: { email: string; password: string; remember?: boolean }, { rejectWithValue }) => {
     try {
-      const data = await api.post('/admin/auth/login', payload);
-      persistTokens(data as any, true);
-      return { data, identifier: payload.email };
+      const data = await api.post('/admin/auth/login', {
+        email: payload.email,
+        password: payload.password,
+      });
+      const remember = payload.remember === true;
+      persistTokens(data as any, true, remember);
+      return { data, identifier: payload.email, remember };
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
@@ -409,7 +434,7 @@ export const logoutThunk = createAsyncThunk('auth/logout', async (_, { getState,
   const isAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
   const token =
     (typeof window !== 'undefined'
-      ? localStorage.getItem(isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token')
+      ? getStoredToken(isAdmin ? 'admin' : 'user')
       : null) || state.auth.accessToken;
 
   // Clear the UI and storage synchronously, before any network call. Logging
@@ -445,19 +470,18 @@ const authSlice = createSlice({
       state.user = payload;
       state.isAuthenticated = !!payload;
       if (typeof window !== 'undefined') {
-        if (payload) localStorage.setItem('afrisciencehub_user', JSON.stringify(payload));
-        else localStorage.removeItem('afrisciencehub_user');
+        const scope: AuthScope = window.location.pathname.startsWith('/admin') ? 'admin' : 'user';
+        if (payload) persistUser(payload, scope);
+        else clearStoredUser(scope);
       }
     },
     hydrateFromStorage(state) {
       state.hydrated = true;
       if (typeof window === 'undefined') return;
       try {
-        const isAdmin = window.location.pathname.startsWith('/admin');
-        const userKey = isAdmin ? 'afrisciencehub_admin' : 'afrisciencehub_user';
-        const tokenKey = isAdmin ? 'afrisciencehub_admin_token' : 'afrisciencehub_token';
-        const token = localStorage.getItem(tokenKey);
-        const stored = localStorage.getItem(userKey);
+        const scope: AuthScope = window.location.pathname.startsWith('/admin') ? 'admin' : 'user';
+        const token = getStoredToken(scope);
+        const stored = getStoredUser(scope);
 
         state.accessToken = token;
         state.refreshToken = null;
@@ -468,7 +492,7 @@ const authSlice = createSlice({
         if (!token) {
           state.user = null;
           state.isAuthenticated = false;
-          localStorage.removeItem(userKey);
+          clearStoredUser(scope);
           return;
         }
 
@@ -505,11 +529,7 @@ const authSlice = createSlice({
       state.sessionsError = null;
 
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('afrisciencehub_token');
-        localStorage.removeItem('afrisciencehub_admin_token');
-        localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
-        localStorage.removeItem('afrisciencehub_user');
-        localStorage.removeItem('afrisciencehub_admin');
+        clearStoredAuth();
       }
     },
     clearError(state) {
@@ -530,7 +550,7 @@ const authSlice = createSlice({
         s.isAuthenticated = true;
         s.accessToken = token;
         s.refreshToken = resp?.refreshToken || null;
-        if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
+        persistUser(s.user, 'user', a.payload.remember);
       })
       .addCase(loginUser.rejected, (s, a) => { s.loading = false; s.error = a.payload as string; })
       // verifyUser
@@ -544,7 +564,7 @@ const authSlice = createSlice({
         if (resp?.token || resp?.accessToken || resp?.user) {
           s.user = maybeUser;
           s.isAuthenticated = true;
-          if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
+          persistUser(s.user, 'user');
         }
       })
       .addCase(verifyUserEmail.rejected, (s, a) => { s.loading = false; s.error = a.payload as string; })
@@ -558,7 +578,7 @@ const authSlice = createSlice({
         s.isAuthenticated = true;
         s.accessToken = token;
         s.refreshToken = resp?.refreshToken || null;
-        if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
+        persistUser(s.user, 'user', a.payload.remember);
       })
       .addCase(googleAuth.rejected, (s, a) => { s.loading = false; s.error = a.payload as string; })
       // signupUser
@@ -577,7 +597,7 @@ const authSlice = createSlice({
         s.isAuthenticated = true;
         s.accessToken = token;
         s.refreshToken = resp?.refreshToken || null;
-        if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_admin', JSON.stringify(s.user));
+        persistUser(s.user, 'admin', a.payload.remember);
       })
       .addCase(loginAdmin.rejected, (s, a) => { s.loading = false; s.error = a.payload as string; })
       .addCase(signupAdmin.pending, (s) => { s.loading = true; s.error = null; })
@@ -607,7 +627,7 @@ const authSlice = createSlice({
           avatar: normalizedAvatar ?? existingAvatar,
         };
         s.isAuthenticated = true;
-        if (typeof window !== 'undefined') localStorage.setItem('afrisciencehub_user', JSON.stringify(s.user));
+        persistUser(s.user!, 'user');
       })
       .addCase(fetchSessions.pending, (s) => { s.sessionsLoading = true; s.sessionsError = null; })
       .addCase(fetchSessions.fulfilled, (s, a) => {

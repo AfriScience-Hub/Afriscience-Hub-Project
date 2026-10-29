@@ -4,6 +4,7 @@ import { store } from './index';
 import { useEffect, useRef } from 'react';
 import { hydrateFromStorage, fetchCurrentUser } from './authSlice';
 import { useAppSelector } from './hooks';
+import { getStoredToken } from '@/lib/authStorage';
 
 function Hydrator({ children }: { children: React.ReactNode }) {
   const hydrated = useAppSelector((s) => s.auth.hydrated);
@@ -26,7 +27,7 @@ function Hydrator({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const hasToken = !!localStorage.getItem('afrisciencehub_token');
+    const hasToken = !!getStoredToken('user');
     if (!isAuthenticated || !hasToken) {
       loadedForSession.current = false;
       return;

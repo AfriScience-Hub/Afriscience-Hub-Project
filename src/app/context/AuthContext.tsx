@@ -11,10 +11,10 @@ export type User = AuthUser;
 interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  login: (identifier: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string, remember?: boolean) => Promise<void>;
   signup: (name: string, email: string, phone: string, password: string) => Promise<void>;
   verifyEmail: (email: string, otp: string) => Promise<void>;
-  googleLogin: (token: string) => Promise<void>;
+  googleLogin: (token: string, remember?: boolean) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<AuthUser>) => void;
 }
@@ -47,13 +47,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (res.error || verifyUserEmail.rejected.match(res)) throw new Error((res.payload as string) || res.error?.message || 'Verification failed');
   };
 
-  const login = async (identifier: string, password: string) => {
-    const res: any = await dispatch(loginUser({ identifier, password }));
+  const login = async (identifier: string, password: string, remember = false) => {
+    const res: any = await dispatch(loginUser({ identifier, password, remember }));
     if (res.error || loginUser.rejected.match(res)) throw new Error((res.payload as string) || res.error?.message || 'Login failed');
   };
 
-  const googleLogin = async (token: string) => {
-    const res: any = await dispatch(googleAuth({ token }));
+  const googleLogin = async (token: string, remember = false) => {
+    const res: any = await dispatch(googleAuth({ token, remember }));
     if (res.error || googleAuth.rejected.match(res)) throw new Error((res.payload as string) || res.error?.message || 'Google sign-in failed');
   };
 

@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, CheckCircle, MapPin, LayoutGrid, BadgeCheck, Layers, ShieldCheck, Loader2 } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, EyeOff, CheckCircle, MapPin, LayoutGrid, BadgeCheck, Layers, ShieldCheck, Loader2 } from 'lucide-react';
 
 const darkShimmerStyle = {
   background: 'linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%)',
@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import type { SubmissionRecord } from '../submissions/data';
 import SubmissionDetailModal from '../submissions/components/SubmissionDetailModal';
 import { INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS, AFRICAN_COUNTRIES } from '@/app/data/mockData';
-import { fetchAdminInnovations, mapAdminInnovation, setInnovationVerification } from '../api';
+import { fetchAdminInnovations, mapAdminInnovation, setInnovationVerification, unpublishInnovation } from '../api';
 import { StatSkeleton, ChartSkeleton, ListSkeleton } from '../components/OverviewWidgets';
 import SubscriptionBadge from '../components/SubscriptionBadge';
 
@@ -33,6 +33,7 @@ export default function AllInnovationsPage() {
   const [subscriptionFilter, setSubscriptionFilter] = useState('All Subscriptions');
   const [selected, setSelected] = useState<SubmissionRecord | null>(null);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [unpublishingId, setUnpublishingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -63,7 +64,7 @@ export default function AllInnovationsPage() {
     if (verifiedFilter === 'Unverified' && r.verified) return false;
     if (subscriptionFilter !== 'All Subscriptions') {
       const paid = r.payingUser === true;
-      if (subscriptionFilter === 'Paid Plan' && !paid) return false;
+      if (subscriptionFilter === 'Pro Plan' && !paid) return false;
       if (subscriptionFilter === 'Free Plan' && paid) return false;
     }
     return true;
@@ -87,6 +88,23 @@ export default function AllInnovationsPage() {
       setVerifyingId(null);
     }
   };
+
+  const unpublish = async (record: SubmissionRecord) => {
+    if (unpublishingId) return;
+    setUnpublishingId(record.id);
+    try {
+      await unpublishInnovation(record.id);
+      // Unpublished records leave the live table immediately; the backend now
+      // returns them in the review queue instead.
+      setRecords((prev) => prev.filter((r) => r.id !== record.id));
+      toast.success('Innovation unpublished');
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to unpublish innovation');
+    } finally {
+      setUnpublishingId(null);
+    }
+  };
+
   const saveRecord = (updated: SubmissionRecord) => setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
 
   const stats = {
@@ -166,7 +184,7 @@ export default function AllInnovationsPage() {
         </select>
         <select value={subscriptionFilter} onChange={(e) => setSubscriptionFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Subscriptions</option>
-          <option>Paid Plan</option>
+          <option>Pro Plan</option>
           <option>Free Plan</option>
         </select>
       </div>
@@ -249,7 +267,9 @@ export default function AllInnovationsPage() {
                   </td>
                   <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                     <TableActionMenu
-                      triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
+                      triggerIcon={verifyingId === r.id || unpublishingId === r.id
+                        ? <Loader2 className="h-4 w-4 animate-spin text-neutral-gray-dark" />
+                        : <MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                       items={[
                         { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
                         {
@@ -258,6 +278,14 @@ export default function AllInnovationsPage() {
                             ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             : <BadgeCheck className="h-3.5 w-3.5" />,
                           onClick: () => { if (verifyingId !== r.id) toggleVerify(r); },
+                        },
+                        {
+                          label: unpublishingId === r.id ? 'Unpublishing...' : 'Unpublish',
+                          icon: unpublishingId === r.id
+                            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            : <EyeOff className="h-3.5 w-3.5" />,
+                          onClick: () => { if (!unpublishingId) unpublish(r); },
+                          danger: true,
                         },
                       ]}
                     />
