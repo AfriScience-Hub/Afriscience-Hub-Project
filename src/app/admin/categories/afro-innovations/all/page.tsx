@@ -18,6 +18,8 @@ import { INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS, AFRICAN_COU
 import { fetchAdminInnovations, mapAdminInnovation, setInnovationVerification, unpublishInnovation } from '../api';
 import { StatSkeleton, ChartSkeleton, ListSkeleton } from '../components/OverviewWidgets';
 import SubscriptionBadge from '../components/SubscriptionBadge';
+import UnpublishInnovationModal from '../components/UnpublishInnovationModal';
+import StatCard from '../components/StatCard';
 
 const distinct = (items: string[]) => new Set(items).size;
 
@@ -34,6 +36,8 @@ export default function AllInnovationsPage() {
   const [selected, setSelected] = useState<SubmissionRecord | null>(null);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [unpublishingId, setUnpublishingId] = useState<string | null>(null);
+  const [unpublishTarget, setUnpublishTarget] = useState<SubmissionRecord | null>(null);
+  const [unpublishReason, setUnpublishReason] = useState('');
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -89,14 +93,28 @@ export default function AllInnovationsPage() {
     }
   };
 
-  const unpublish = async (record: SubmissionRecord) => {
+  const openUnpublishModal = (record: SubmissionRecord) => {
+    setUnpublishReason('');
+    setUnpublishTarget(record);
+  };
+
+  const closeUnpublishModal = () => {
     if (unpublishingId) return;
+    setUnpublishTarget(null);
+    setUnpublishReason('');
+  };
+
+  const unpublish = async () => {
+    if (!unpublishTarget || !unpublishReason.trim() || unpublishingId) return;
+    const record = unpublishTarget;
     setUnpublishingId(record.id);
     try {
-      await unpublishInnovation(record.id);
+      await unpublishInnovation(record.id, unpublishReason);
       // Unpublished records leave the live table immediately; the backend now
       // returns them in the review queue instead.
       setRecords((prev) => prev.filter((r) => r.id !== record.id));
+      setUnpublishTarget(null);
+      setUnpublishReason('');
       toast.success('Innovation unpublished');
     } catch (e: any) {
       toast.error(e?.message || 'Failed to unpublish innovation');
@@ -284,7 +302,7 @@ export default function AllInnovationsPage() {
                           icon: unpublishingId === r.id
                             ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             : <EyeOff className="h-3.5 w-3.5" />,
-                          onClick: () => { if (!unpublishingId) unpublish(r); },
+                          onClick: () => { if (!unpublishingId) openUnpublishModal(r); },
                           danger: true,
                         },
                       ]}
@@ -310,17 +328,18 @@ export default function AllInnovationsPage() {
         </div>
       </div>
 
-      <SubmissionDetailModal submission={selected} open={!!selected} onClose={() => setSelected(null)} onApprove={() => {}} onReject={() => {}} onSave={saveRecord} />
-    </div>
-  );
-}
+      {unpublishTarget && (
+        <UnpublishInnovationModal
+          record={unpublishTarget}
+          reason={unpublishReason}
+          busy={unpublishingId === unpublishTarget.id}
+          onReasonChange={setUnpublishReason}
+          onClose={closeUnpublishModal}
+          onConfirm={unpublish}
+        />
+      )}
 
-function StatCard({ label, value, icon, iconBg }: { label: string; value: number; icon: React.ReactNode; iconBg: string }) {
-  return (
-    <div className="bg-white rounded-xl border border-neutral-gray-light p-4 flex flex-col">
-      <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${iconBg} text-xs shrink-0`}>{icon}</div>
-      <p className="text-2xl font-bold text-neutral-black mt-2">{value}</p>
-      <p className="text-[11px] text-neutral-gray-medium">{label}</p>
+      <SubmissionDetailModal submission={selected} open={!!selected} onClose={() => setSelected(null)} onApprove={() => {}} onReject={() => {}} onSave={saveRecord} />
     </div>
   );
 }

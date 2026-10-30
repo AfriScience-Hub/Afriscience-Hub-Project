@@ -187,7 +187,7 @@ export default function PriceConfirmModal({
                   type="button"
                   onClick={() => onEditEntries?.()}
                   disabled={saving}
-                  className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 disabled:opacity-50"
+                  className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-white bg-white px-4 py-2.5 text-sm font-bold text-brand-red-600 shadow-sm transition-colors hover:border-red-100 hover:bg-red-50 disabled:opacity-50"
                 >
                   Edit Entries
                 </button>

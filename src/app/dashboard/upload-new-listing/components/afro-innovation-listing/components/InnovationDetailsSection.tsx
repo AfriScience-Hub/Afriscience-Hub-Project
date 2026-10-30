@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, Plus, Upload, ImagePlus, Film, Info } from 'lucide-react';
+import { toast } from 'sonner';
 import { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
 import {
   useInnovationOptionsMap, optionNames, type InnovationOptionType,
@@ -315,8 +316,24 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
                   onChange={e => {
                     // Staged locally — uploaded only when the form is submitted.
                     const file = e.target.files?.[0];
-                    if (file && props.innovGallery.length < 9) {
-                      props.setInnovGallery(p => [...p, { category: cat, type: file.type.startsWith('video') ? 'video' : 'image', name: file.name, file }]);
+                    if (file) {
+                      const isImage = file.type.startsWith('image/');
+                      const isVideo = file.type.startsWith('video/');
+                      const videoExtension = /\.(mp4|mov|webm|m4v|avi|mkv)$/i.test(file.name);
+                      const imageExtension = /\.(jpe?g|png|gif|webp|avif|bmp|svg)$/i.test(file.name);
+
+                      // Browsers treat `accept` as a hint only, so reject audio
+                      // and other file types explicitly before staging the file.
+                      if (!isImage && !isVideo && !(file.type === '' && (videoExtension || imageExtension))) {
+                        toast.error('Only image and video files can be uploaded to the media gallery.');
+                        e.target.value = '';
+                        return;
+                      }
+
+                      if (props.innovGallery.length < 9) {
+                        const type = isVideo || (!isImage && videoExtension) ? 'video' : 'image';
+                        props.setInnovGallery(p => [...p, { category: cat, type, name: file.name, file }]);
+                      }
                     }
                     e.target.value = '';
                   }} />

@@ -223,6 +223,12 @@ export async function updateInnovation(id: string, body: InnovationPayload) {
   return unwrapData(r);
 }
 
+/** Switches a free innovation listing to the Pro Plan via the dedicated endpoint. */
+export async function upgradeInnovationToPro(id: string) {
+  const r = await api.post(`/listings/innovations/${id}/upgrade`);
+  return unwrapData(r);
+}
+
 export async function fetchInnovations() {
   const r: any = await api.get('/listings/innovations');
   const data = unwrapData(r);

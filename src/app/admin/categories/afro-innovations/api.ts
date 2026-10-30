@@ -122,8 +122,11 @@ export async function setInnovationVerification(id: string, isVerified: boolean)
  * queue. The backend exposes the listing update endpoint; setting the status
  * back to PENDING removes it from the public APPROVED feed.
  */
-export async function unpublishInnovation(id: string) {
-  const r = await api.patch(`/listings/innovations/${id}`, { status: 'PENDING' });
+export async function unpublishInnovation(id: string, reason: string) {
+  const r = await api.patch(`/listings/innovations/${id}`, {
+    status: 'PENDING',
+    reason: reason.trim(),
+  });
   return unwrapData(r);
 }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X, Building2 } from 'lucide-react';
+import { X, Building2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/context/AuthContext';
@@ -26,7 +26,7 @@ import FormActions from './components/FormActions';
 import { uploadFile } from '@/lib/upload';
 import {
   buildInnovationPayload, createInnovation, createInnovationDraft,
-  fetchInnovation, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, submitInnovationDraft,
+  fetchInnovation, upgradeInnovationToPro, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, submitInnovationDraft,
   toStorageKey, updateInnovation, updateInnovationDraft, type InnovationPayload,
 } from './innovationApi';
 import { useInnovationOptions } from '@/app/data/innovationOptions';
@@ -102,6 +102,7 @@ export default function UploadNewListing() {
   // selector hidden until the URL parameters have been read prevents the
   // upload page from flashing before the requested record is opened.
   const [initialisingRoute, setInitialisingRoute] = useState(true);
+  const [recordLoading, setRecordLoading] = useState(false);
   const [showInstituteTypeModal, setShowInstituteTypeModal] = useState(false);
 
   const [name, setName] = useState('');
@@ -266,6 +267,7 @@ export default function UploadNewListing() {
     setSelectedType('innovation');
     setStep('form');
     setUpgradeMode(upgrade);
+    setRecordLoading(true);
 
     try {
       const item = await fetchInnovation(id);
@@ -278,6 +280,8 @@ export default function UploadNewListing() {
       setEditId(null);
       setStep(asDraft ? 'drafts' : 'select');
       throw error;
+    } finally {
+      setRecordLoading(false);
     }
   };
 
@@ -586,6 +590,11 @@ export default function UploadNewListing() {
         // The submit endpoint accepts the full listing payload; PATCHing the
         // draft first would validate it as a draft and can reject media fields.
         await submitInnovationDraft(draftId, payload);
+      } else if (upgradeMode && editId) {
+        // Use the dedicated switch-to-Pro endpoint, then persist any entries
+        // the user changed through Edit Entries.
+        await upgradeInnovationToPro(editId);
+        if (editDirty) await updateInnovation(editId, payload);
       } else if (editId) {
         await updateInnovation(editId, payload);
       } else {
@@ -711,6 +720,17 @@ export default function UploadNewListing() {
           }}
         />
       </>
+    );
+  }
+
+  if (recordLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-neutral-gray-light bg-white py-20 shadow-sm">
+        <Loader2 className="h-7 w-7 animate-spin text-brand-red-600" />
+        <p className="text-sm text-neutral-gray-medium">
+          {upgradeMode ? 'Loading your listing for upgrade...' : 'Loading listing details...'}
+        </p>
+      </div>
     );
   }
 

@@ -218,7 +218,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-2">
-            <NavigationMenu>
+            <NavigationMenu viewport={false}>
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
@@ -247,7 +247,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                                       className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600"
                                     >
                                       <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                                        <item.icon className="h-4 w-4" />
+                                        <item.icon className="h-4 w-4 text-brand-red-600" />
                                         {item.name}
                                       </div>
                                       <p className="line-clamp-2 text-xs leading-snug text-neutral-gray-dark mt-1">
@@ -291,7 +291,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
 
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>Support</NavigationMenuTrigger>
-                  <NavigationMenuContent>
+                  <NavigationMenuContent style={{ left: 'auto', right: 0 }}>
                     <ul className="grid w-[350px] gap-3 p-4">
                       <li>
                         <NavigationMenuLink asChild>
@@ -300,7 +300,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                           >
                             <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                              <Sparkles className="h-4 w-4" />
+                              <Sparkles className="h-4 w-4 text-brand-red-600" />
                               Sponsor AfriScienceHub
                             </div>
                             <p className="line-clamp-2 text-xs leading-snug text-neutral-gray-dark mt-1">
@@ -316,7 +316,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                           >
                             <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                              <HandCoins className="h-4 w-4" />
+                              <HandCoins className="h-4 w-4 text-brand-red-600" />
                               Donate to Projects
                             </div>
                             <p className="line-clamp-2 text-xs leading-snug text-neutral-gray-dark mt-1">
@@ -332,7 +332,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-neutral-bg-light hover:text-brand-red-600 focus:bg-neutral-bg-light focus:text-brand-red-600 [&_svg]:transition-colors [&_svg]:hover:text-brand-red-600"
                           >
                             <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                              <UsersIcon className="h-4 w-4" />
+                              <UsersIcon className="h-4 w-4 text-brand-red-600" />
                               Become a Volunteer
                             </div>
                             <p className="line-clamp-2 text-xs leading-snug text-neutral-gray-dark mt-1">
@@ -465,7 +465,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                           onClick={() => setIsMenuOpen(false)}
                         >
                           <div className="flex items-center gap-2">
-                            <item.icon className="h-4 w-4" />
+                            <item.icon className="h-4 w-4 text-brand-red-600" />
                             {item.name}
                           </div>
                         </SafeLink>
@@ -520,7 +520,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4" />
+                      <Sparkles className="h-4 w-4 text-brand-red-600" />
                       Sponsor AfriScienceHub
                     </div>
                   </SafeLink>
@@ -530,7 +530,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2">
-                      <HandCoins className="h-4 w-4" />
+                      <HandCoins className="h-4 w-4 text-brand-red-600" />
                       Donate to Projects
                     </div>
                   </SafeLink>
@@ -540,7 +540,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <div className="flex items-center gap-2">
-                      <UsersIcon className="h-4 w-4" />
+                      <UsersIcon className="h-4 w-4 text-brand-red-600" />
                       Become a Volunteer
                     </div>
                   </SafeLink>

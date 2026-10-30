@@ -34,6 +34,13 @@ export interface AdminUser {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  /** Set by the API when an account is suspended. Older responses may use one of the other keys. */
+  suspensionReason?: string | null;
+  suspendReason?: string | null;
+  deletedReason?: string | null;
+  deletionReason?: string | null;
+  reason?: string | null;
+  metadata?: { reason?: string | null } | null;
   profile: AdminUserProfile | null;
 }
 
@@ -156,6 +163,19 @@ export function displayUserId(user: AdminUser): string {
   return user.id ? `USR-${user.id.slice(0, 8).toUpperCase()}` : '\u2014';
 }
 
+/** Reads the suspension reason regardless of which field the API version returns. */
+export function userSuspensionReason(user: AdminUser): string {
+  return (
+    user.suspensionReason ||
+    user.suspendReason ||
+    user.reason ||
+    user.deletedReason ||
+    user.deletionReason ||
+    user.metadata?.reason ||
+    '\u2014'
+  );
+}
+
 export const DEFAULT_PAGE_SIZE = 10;
 
 export async function fetchAllUsers(
@@ -183,8 +203,8 @@ export async function fetchAdminUser(id: string): Promise<AdminUser | null> {
   return b?.id ? b as AdminUser : (b?.details?.id ? b?.details as AdminUser : null);
 }
 
-export async function suspendUser(id: string): Promise<string> {
-  const res: any = await api.post(`/admin/users/suspend/${id}`);
+export async function suspendUser(id: string, reason: string): Promise<string> {
+  const res: any = await api.post(`/admin/users/suspend/${id}`, { reason: reason.trim() });
   invalidateUserCache();
   const b = res?.data && !Array.isArray(res.data) ? res.data : res;
   return b?.message || 'User suspended successfully';

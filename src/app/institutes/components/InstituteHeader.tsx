@@ -24,7 +24,7 @@ export default function InstituteHeader({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold text-neutral-black">Institutes Directory</h1>
-            <p className="text-sm text-slate-500">Discover top educational centers across Africa</p>
+            <p className="text-sm text-slate-500">Discover different levels of academic and research institutes that major in science and technology globally.</p>
           </div>
 
           <div className="relative w-full md:max-w-md">

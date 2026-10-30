@@ -10,6 +10,7 @@ import {
   userDisplayName,
   displayUserId,
   formatISODate,
+  userSuspensionReason,
   DEFAULT_PAGE_SIZE,
   type AdminUser,
   type UsersPagination,
@@ -122,27 +123,28 @@ export default function SuspendedUsersPage() {
                 <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">Email</th>
                 <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">Phone</th>
                 <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">Suspended On</th>
+                <th className="text-left px-3 py-2 font-medium text-neutral-gray-dark">Reason for Suspension</th>
                 <th className="text-right px-3 py-2 font-medium text-neutral-gray-dark">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
+                  <td colSpan={6} className="px-6 py-12 text-center">
                     <Loader2 className="h-5 w-5 animate-spin text-[#453DD8] mx-auto mb-2" />
                     <p className="text-xs text-neutral-gray-medium">Loading suspended users...</p>
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
+                  <td colSpan={6} className="px-6 py-12 text-center">
                     <p className="text-sm font-medium text-red-600">{error}</p>
                     <button onClick={() => void load(true)} className="mt-2 text-xs text-[#453DD8] font-medium hover:underline cursor-pointer">Try again</button>
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
+                  <td colSpan={6} className="px-6 py-12 text-center">
                     <p className="text-sm font-medium text-neutral-black">No suspended users found</p>
                     <p className="text-xs text-neutral-gray-medium mt-1">No users match your search criteria.</p>
                   </td>
@@ -170,6 +172,9 @@ export default function SuspendedUsersPage() {
                     <td className="px-3 py-2.5 text-[10px] text-neutral-gray-dark">{user.email}</td>
                     <td className="px-3 py-2.5 text-[10px] text-neutral-gray-dark whitespace-nowrap">{user.phone || '—'}</td>
                     <td className="px-3 py-2.5 text-[10px] text-neutral-gray-dark whitespace-nowrap">{formatISODate(user.deletedAt)}</td>
+                    <td className="px-3 py-2.5 text-[10px] text-neutral-gray-dark max-w-[260px]">
+                      <span className="line-clamp-2 break-words">{userSuspensionReason(user)}</span>
+                    </td>
                     <td className="px-3 py-2.5 text-right">
                       {busyId === user.id ? (
                         <Loader2 className="h-4 w-4 animate-spin text-neutral-gray-medium inline" />

@@ -19,6 +19,8 @@ export interface UserInnovation {
   approvedAt: string | null;
   /** true = Pro Plan, false = Free Plan. */
   payingUser: boolean;
+  /** True when the platform has verified the innovation. */
+  isVerified: boolean;
 }
 
 /**
@@ -46,6 +48,7 @@ export async function fetchUserInnovations(): Promise<UserInnovation[]> {
           ? l.approvedAt || l.approvalDate || l.reviewedAt || l.updatedAt || l.createdAt || null
           : null,
       payingUser: l.payingUser === true,
+      isVerified: l.isVerified === true,
     };
   });
 }

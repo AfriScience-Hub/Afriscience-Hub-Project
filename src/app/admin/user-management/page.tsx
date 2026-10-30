@@ -6,6 +6,7 @@ import { Search, ChevronDown, ChevronLeft, ChevronRight, LayoutDashboard, Ban, L
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
+import SuspendUserModal from './components/SuspendUserModal';
 import {
   fetchAllUsers,
   fetchSuspendedUsers,
@@ -38,6 +39,7 @@ export default function AllUsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [pendingSuspend, setPendingSuspend] = useState<AdminUser | null>(null);
+  const [suspendReason, setSuspendReason] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = useCallback(async (force = false) => {
@@ -80,14 +82,26 @@ export default function AllUsersPage() {
     });
   }, [users, search, statusFilter]);
 
+  const openSuspendModal = (user: AdminUser) => {
+    setSuspendReason('');
+    setPendingSuspend(user);
+  };
+
+  const closeSuspendModal = () => {
+    if (busyId) return;
+    setPendingSuspend(null);
+    setSuspendReason('');
+  };
+
   const handleSuspend = async () => {
-    if (!pendingSuspend) return;
+    if (!pendingSuspend || !suspendReason.trim()) return;
     const user = pendingSuspend;
     setBusyId(user.id);
     try {
-      const message = await suspendUser(user.id);
+      const message = await suspendUser(user.id, suspendReason);
       toast.success(message || 'User suspended');
       setPendingSuspend(null);
+      setSuspendReason('');
       await load(true);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Failed to suspend user');
@@ -255,7 +269,7 @@ export default function AllUsersPage() {
                               { label: 'View Dashboard', icon: <LayoutDashboard className="h-3.5 w-3.5 text-neutral-gray-dark" />, onClick: () => router.push(`/admin/user-management/dashboard?userId=${user.id}`) },
                               ...(user.deletedAt
                                 ? []
-                                : [{ label: 'Suspend User', icon: <Ban className="h-3.5 w-3.5 text-red-500" />, onClick: () => setPendingSuspend(user), danger: true }]),
+                                : [{ label: 'Suspend User', icon: <Ban className="h-3.5 w-3.5 text-red-500" />, onClick: () => openSuspendModal(user), danger: true }]),
                             ]}
                           />
                         )}
@@ -316,27 +330,14 @@ export default function AllUsersPage() {
       </div>
 
       {pendingSuspend && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setPendingSuspend(null)}>
-          <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-sm font-bold text-neutral-black mb-1">Suspend this user?</h3>
-            <p className="text-xs text-neutral-gray-medium mb-4">
-              {userDisplayName(pendingSuspend)} ({pendingSuspend.email}) will lose access to the platform until restored.
-            </p>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setPendingSuspend(null)} className="px-3 py-1.5 text-xs font-medium text-neutral-gray-dark border border-neutral-gray-light rounded-lg hover:bg-neutral-bg-light cursor-pointer">
-                Cancel
-              </button>
-              <button
-                onClick={handleSuspend}
-                disabled={busyId === pendingSuspend.id}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 cursor-pointer"
-              >
-                {busyId === pendingSuspend.id && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                Suspend User
-              </button>
-            </div>
-          </div>
-        </div>
+        <SuspendUserModal
+          user={pendingSuspend}
+          reason={suspendReason}
+          busy={busyId === pendingSuspend.id}
+          onReasonChange={setSuspendReason}
+          onClose={closeSuspendModal}
+          onConfirm={handleSuspend}
+        />
       )}
     </div>
   );
