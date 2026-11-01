@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type CurrencyMode = 'local' | 'usd';
-
 /** Accordion wrapper used by the university programme levels. */
 export function CollapsibleSection({ title, icon, children, defaultOpen = false, badge }: {
   title: string;
@@ -50,38 +48,7 @@ export function BulletList({ items }: { items: string[] }) {
   );
 }
 
-/**
- * Formats a fee amount either in the school's local currency or converted to
- * USD using the listing's local-units-per-dollar rate.
- */
-export function formatMoney(amount: number, institute: Record<string, any>, mode: CurrencyMode) {
-  if (mode === 'usd' && institute.usdRate) {
-    return '$' + Math.round(amount / institute.usdRate).toLocaleString();
-  }
+/** Formats a fee amount in the school's local currency. */
+export function formatMoney(amount: number, institute: Record<string, any>) {
   return (institute.currencySymbol || '') + amount.toLocaleString();
-}
-
-/** Switches a fee section between the local currency and USD. */
-export function CurrencyToggle({ mode, onChange, symbol }: {
-  mode: CurrencyMode;
-  onChange: (mode: CurrencyMode) => void;
-  symbol: string;
-}) {
-  return (
-    <div className="flex p-0.5 bg-slate-100 rounded-lg">
-      {([['local', symbol], ['usd', 'USD']] as [CurrencyMode, string][]).map(([key, label]) => (
-        <button
-          key={key}
-          type="button"
-          onClick={() => onChange(key)}
-          className={cn(
-            "px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer",
-            mode === key ? "bg-white text-neutral-black shadow-sm" : "text-slate-500 hover:text-slate-700"
-          )}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
-  );
 }

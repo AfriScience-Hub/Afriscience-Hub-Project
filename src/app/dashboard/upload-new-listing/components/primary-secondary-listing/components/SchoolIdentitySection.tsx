@@ -141,17 +141,17 @@ export default function SchoolIdentitySection({ identity, onChange }: SchoolIden
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">Phone number <span className="text-red-500">*</span></label>
-          <input type="tel" value={identity.phone} onChange={(e) => onChange({ phone: e.target.value })} className={inputClass} placeholder="+234 800 000 0000" />
+          <input type="tel" value={identity.phone} onChange={(e) => onChange({ phone: e.target.value })} className={inputClass} placeholder="Enter the school’s phone number" />
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">E-mail <span className="text-red-500">*</span></label>
-          <input type="email" value={identity.email} onChange={(e) => onChange({ email: e.target.value })} className={inputClass} placeholder="info@example.com" />
+          <input type="email" value={identity.email} onChange={(e) => onChange({ email: e.target.value })} className={inputClass} placeholder="Enter the school’s E-mail address" />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">Website</label>
-        <input type="url" value={identity.website} onChange={(e) => onChange({ website: e.target.value })} className={inputClass} placeholder="https://www.example.com" />
+        <label className="block text-sm font-medium text-neutral-black mb-1">Website <span className="text-[10px] font-normal text-neutral-gray-medium">(Optional)</span></label>
+        <input type="url" value={identity.website} onChange={(e) => onChange({ website: e.target.value })} className={inputClass} placeholder="Enter the school’s website (if any)" />
       </div>
 
       <div>

@@ -106,7 +106,7 @@ export default function Sidebar({ institute, onRegister }: { institute: Institut
           <div className="space-y-4">
             <Row label="Status">
               <span className={cn(
-                "px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide border inline-block",
+                "px-2 py-0.5 rounded text-xs font-bold capitalize tracking-wide border inline-block",
                 institute.status === 'Online'
                   ? "bg-green-100 text-green-700 border-green-200"
                   : "bg-neutral-bg-light text-neutral-gray-dark border-neutral-gray-light"

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { IdCard, Building2, DollarSign, Flag, ShieldCheck, ImagePlus, GraduationCap, Download, ClipboardCheck } from 'lucide-react';
+import { IdCard, Building2, DollarSign, Flag, ShieldCheck, ImagePlus, GraduationCap, Download, ClipboardCheck, Images } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/app/context/AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -18,6 +18,7 @@ import AcademicInformationSection from './components/AcademicInformationSection'
 import LicensesAchievementsSection from './components/LicensesAchievementsSection';
 import DownloadableResourcesSection from './components/DownloadableResourcesSection';
 import SchoolHighlightSection from './components/SchoolHighlightSection';
+import MediaGallerySection from './components/MediaGallerySection';
 import type { YourInformation } from './types';
 import type { SchoolIdentity, SchoolInformation, AcademicInformation, LicensesAchievements, DownloadableResources, SchoolHighlight } from './types';
 import { EMPTY_IDENTITY, EMPTY_INFORMATION, EMPTY_ACADEMIC, EMPTY_LICENSES, EMPTY_RESOURCES, EMPTY_HIGHLIGHT } from './types';
@@ -89,7 +90,6 @@ export default function PrimarySecondaryListing({ onCancel }: PrimarySecondaryLi
     identity.phone.trim() && identity.email.trim() && identity.description.trim() &&
     descriptionWords <= 1000 && hasAnySocial &&
     information.class && information.program && information.gender && information.ownership &&
-    (information.ownership !== 'Other' || information.ownershipOther.trim()) &&
     information.services.length > 0 &&
     academic.academicCalendar.every(t => t.startDate && t.midtermBreakDate && t.closureDate) &&
     agreed &&
@@ -102,7 +102,6 @@ export default function PrimarySecondaryListing({ onCancel }: PrimarySecondaryLi
     if (!information.program) return toast.error('Please select a Program');
     if (!information.gender) return toast.error('Please select a Gender');
     if (!information.ownership) return toast.error('Please select an Ownership type');
-    if (information.ownership === 'Other' && !information.ownershipOther.trim()) return toast.error('Please specify the Ownership type');
     if (information.services.length === 0) return toast.error('Please select at least one Service');
     if (!academic.academicCalendar.every(t => t.startDate && t.midtermBreakDate && t.closureDate)) return toast.error('Please fill in all Academic Calendar dates for all three terms');
     if (!agreed) return toast.error('Please accept the undertaking remark before submitting');
@@ -138,6 +137,13 @@ export default function PrimarySecondaryListing({ onCancel }: PrimarySecondaryLi
 
       <CollapsibleSection title="7. School highlight" icon={<ImagePlus className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
         <SchoolHighlightSection highlight={highlight} onChange={patchHighlight} />
+      </CollapsibleSection>
+
+      <CollapsibleSection title="8. Media gallery" icon={<Images className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+        <MediaGallerySection
+          mediaGallery={highlight.mediaGallery}
+          onChange={(mediaGallery) => patchHighlight({ mediaGallery })}
+        />
       </CollapsibleSection>
 
       <UndertakingSection agreed={agreed} setAgreed={setAgreed} />

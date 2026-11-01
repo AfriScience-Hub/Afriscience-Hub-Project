@@ -84,7 +84,6 @@ export default function AcademicInformationSection({ info, onChange, schoolClass
       <div>
         <label className="block text-sm font-medium text-neutral-black mb-1">Admission requirements <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple "Requirement" entries are allowed)</span></label>
         <p className="text-xs text-neutral-gray-medium mb-2">State the requirements necessary to gain admission into the school</p>
-        <p className="text-xs text-neutral-gray-medium mb-4">Automatically display "Levels" depending on what user selected in "Class"</p>
         
         {(schoolClass === 'Primary' || schoolClass === 'Primary & Secondary') && (
           <div>
@@ -95,6 +94,7 @@ export default function AcademicInformationSection({ info, onChange, schoolClass
               placeholder="e.g. Completed Kindergarten, Birth certificate"
               entries={info.admissionRequirements.primary}
               onChange={(entries) => onChange({ admissionRequirements: { ...info.admissionRequirements, primary: entries } })}
+              listAbove
             />
           </div>
         )}
@@ -108,6 +108,7 @@ export default function AcademicInformationSection({ info, onChange, schoolClass
               placeholder="e.g. 5 credit passes including English & Math, Entrance exam"
               entries={info.admissionRequirements.secondary}
               onChange={(entries) => onChange({ admissionRequirements: { ...info.admissionRequirements, secondary: entries } })}
+              listAbove
             />
           </div>
         )}
@@ -122,7 +123,7 @@ export default function AcademicInformationSection({ info, onChange, schoolClass
   }
 }
 
-function EntryList({ label, hint, placeholder, entries, onChange }: { label: string; hint: string; placeholder: string; entries: string[]; onChange: (entries: string[]) => void }) {
+function EntryList({ label, hint, placeholder, entries, onChange, listAbove = false }: { label: string; hint: string; placeholder: string; entries: string[]; onChange: (entries: string[]) => void; listAbove?: boolean }) {
   const [draft, setDraft] = useState('');
   const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
 
@@ -134,9 +135,30 @@ function EntryList({ label, hint, placeholder, entries, onChange }: { label: str
     setDraft('');
   };
 
+  const list = entries.length > 0 && (
+    <ul className="mt-0 space-y-2">
+      {entries.map((entry, idx) => (
+        <li key={`${entry}-${idx}`} className="flex items-center justify-between gap-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light px-3 py-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-navy-900 text-[10px] font-bold text-white">{idx + 1}</span>
+            <span className="truncate text-sm text-neutral-black">{entry}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange(entries.filter((_, i) => i !== idx))}
+            className="flex-shrink-0 cursor-pointer text-red-400 hover:text-red-600"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+
   return (
     <div>
       {label && <label className="block text-sm font-medium text-neutral-black mb-1">{label} <span className="text-[10px] font-normal text-neutral-gray-medium">({hint})</span></label>}
+      {listAbove && list && <div className="mb-2">{list}</div>}
       <div className="flex gap-2">
         <input
           type="text"
@@ -150,25 +172,7 @@ function EntryList({ label, hint, placeholder, entries, onChange }: { label: str
           <Plus className="mr-1 h-4 w-4" /> Add
         </Button>
       </div>
-      {entries.length > 0 && (
-        <ul className="mt-3 space-y-2">
-          {entries.map((entry, idx) => (
-            <li key={`${entry}-${idx}`} className="flex items-center justify-between gap-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light px-3 py-2">
-              <div className="flex min-w-0 items-center gap-2">
-                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-navy-900 text-[10px] font-bold text-white">{idx + 1}</span>
-                <span className="truncate text-sm text-neutral-black">{entry}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => onChange(entries.filter((_, i) => i !== idx))}
-                className="flex-shrink-0 cursor-pointer text-red-400 hover:text-red-600"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      {!listAbove && list && <div className="mt-3">{list}</div>}
     </div>
   );
 }
@@ -193,7 +197,7 @@ function GradingList({ entries, onChange }: { entries: GradingEntry[]; onChange:
         <div key={idx} className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light/50 p-4">
           <div className="mb-2 flex items-center justify-between">
             <span className="flex items-center gap-2 text-xs font-medium text-neutral-gray-medium">
-              Grade {idx + 1}
+              Grade Entry {idx + 1}
             </span>
             <button type="button" onClick={() => onChange(entries.filter((_, i) => i !== idx))} className="cursor-pointer text-red-400 hover:text-red-600">
               <X className="h-4 w-4" />
@@ -209,15 +213,15 @@ function GradingList({ entries, onChange }: { entries: GradingEntry[]; onChange:
         </div>
       ))}
       <div className="rounded-lg border border-dashed border-neutral-gray-light p-4 space-y-2">
-        <p className="text-xs font-medium text-neutral-gray-medium">Add grade</p>
-        <div className="grid grid-cols-3 gap-2">
+        <p className="text-xs font-medium text-neutral-gray-medium">Grade Entry {entries.length + 1}</p>
+        <div className="grid gap-2 sm:grid-cols-[1fr_1fr_1.4fr_auto] sm:items-center">
           <input type="text" value={draft.scoreRange} onChange={(e) => setDraft(prev => ({ ...prev, scoreRange: e.target.value }))} className={inputClass} placeholder="Score range (e.g. 80-100)" />
           <input type="text" value={draft.symbol} onChange={(e) => setDraft(prev => ({ ...prev, symbol: e.target.value }))} className={inputClass} placeholder="Symbol (e.g. A1)" />
           <input type="text" value={draft.interpretation} onChange={(e) => setDraft(prev => ({ ...prev, interpretation: e.target.value }))} className={inputClass} placeholder="Interpretation (e.g. Excellent)" />
+          <Button type="button" size="sm" className="bg-brand-red-600 hover:bg-brand-red-700 flex-shrink-0" onClick={add}>
+            <Plus className="mr-1 h-4 w-4" /> Add
+          </Button>
         </div>
-        <Button type="button" size="sm" className="bg-brand-red-600 hover:bg-brand-red-700 flex-shrink-0" onClick={add}>
-          <Plus className="mr-1 h-4 w-4" /> Add
-        </Button>
       </div>
     </div>
   );
@@ -258,14 +262,14 @@ function DegreeList({ entries, onChange }: { entries: DegreeEntry[]; onChange: (
         </div>
       ))}
       <div className="rounded-lg border border-dashed border-neutral-gray-light p-4 space-y-2">
-        <p className="text-xs font-medium text-neutral-gray-medium">Add degree</p>
-        <div className="grid grid-cols-2 gap-2">
+        <p className="text-xs font-medium text-neutral-gray-medium">Degree {entries.length + 1}</p>
+        <div className="grid gap-2 sm:grid-cols-[1fr_1.5fr_auto] sm:items-center">
           <input type="text" value={draft.abbreviation} onChange={(e) => setDraft(prev => ({ ...prev, abbreviation: e.target.value }))} className={inputClass} placeholder="Abbreviation (e.g. B.Sc.)" />
           <input type="text" value={draft.fullName} onChange={(e) => setDraft(prev => ({ ...prev, fullName: e.target.value }))} className={inputClass} placeholder="Full name (e.g. Bachelor of Science)" />
+          <Button type="button" size="sm" className="bg-brand-red-600 hover:bg-brand-red-700 flex-shrink-0" onClick={add}>
+            <Plus className="mr-1 h-4 w-4" /> Add
+          </Button>
         </div>
-        <Button type="button" size="sm" className="bg-brand-red-600 hover:bg-brand-red-700 flex-shrink-0" onClick={add}>
-          <Plus className="mr-1 h-4 w-4" /> Add
-        </Button>
       </div>
     </div>
   );

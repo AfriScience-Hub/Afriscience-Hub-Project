@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Send, Loader2, Building2, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, Building2, GraduationCap, Images } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { useAuth } from '@/app/context/AuthContext';
@@ -17,6 +17,7 @@ import AcademicInformationSection from '@/app/dashboard/upload-new-listing/compo
 import LicensesAchievementsSection from '@/app/dashboard/upload-new-listing/components/primary-secondary-listing/components/LicensesAchievementsSection';
 import DownloadableResourcesSection from '@/app/dashboard/upload-new-listing/components/primary-secondary-listing/components/DownloadableResourcesSection';
 import SchoolHighlightSection from '@/app/dashboard/upload-new-listing/components/primary-secondary-listing/components/SchoolHighlightSection';
+import MediaGallerySection from '@/app/dashboard/upload-new-listing/components/primary-secondary-listing/components/MediaGallerySection';
 import type { SchoolIdentity, SchoolInformation, AcademicInformation, LicensesAchievements, DownloadableResources, SchoolHighlight } from '@/app/dashboard/upload-new-listing/components/primary-secondary-listing/types';
 import { EMPTY_IDENTITY, EMPTY_INFORMATION, EMPTY_ACADEMIC, EMPTY_LICENSES, EMPTY_RESOURCES, EMPTY_HIGHLIGHT } from '@/app/dashboard/upload-new-listing/components/primary-secondary-listing/types';
 
@@ -169,6 +170,13 @@ function CreateInstituteContent() {
 
           <CollapsibleSection title="School highlight" icon={<Building2 className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
             <SchoolHighlightSection highlight={highlight} onChange={patchHighlight} />
+          </CollapsibleSection>
+
+          <CollapsibleSection title="Media gallery" icon={<Images className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+            <MediaGallerySection
+              mediaGallery={highlight.mediaGallery}
+              onChange={(mediaGallery) => patchHighlight({ mediaGallery })}
+            />
           </CollapsibleSection>
 
           <UndertakingSection agreed={agreed} setAgreed={setAgreed} />

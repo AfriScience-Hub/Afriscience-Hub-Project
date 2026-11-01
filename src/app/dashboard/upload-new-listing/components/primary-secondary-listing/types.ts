@@ -32,7 +32,6 @@ export interface SchoolInformation {
   program: string;
   gender: string;
   ownership: string;
-  ownershipOther: string;
   services: string[];
   scopes: string[];
   tuitionFees: TuitionFee[];
@@ -152,7 +151,6 @@ export const EMPTY_INFORMATION: SchoolInformation = {
   program: '',
   gender: '',
   ownership: '',
-  ownershipOther: '',
   services: ['Teaching & Learning'],
   scopes: [],
   tuitionFees: [],
@@ -173,19 +171,19 @@ export const EMPTY_ACADEMIC: AcademicInformation = {
 };
 
 export const EMPTY_LICENSES: LicensesAchievements = {
-  licenses: [],
-  achievements: [],
-  notableAlumni: [],
+  licenses: [{ name: '', issuer: '', year: '', file: null, previewUrl: null }],
+  achievements: [{ name: '', issuer: '', year: '', file: null, previewUrl: null }],
+  notableAlumni: [{ fullName: '', impact: '', displayPicture: null, previewUrl: null }],
 };
 
 export const EMPTY_RESOURCES: DownloadableResources = {
-  brochures: [],
-  curricula: [],
-  timetables: [],
-  feeStructures: [],
-  policies: [],
-  admissionForms: [],
-  others: [],
+  brochures: [{ title: '', file: null, previewUrl: null }],
+  curricula: [{ title: '', file: null, previewUrl: null }],
+  timetables: [{ title: '', file: null, previewUrl: null }],
+  feeStructures: [{ title: '', file: null, previewUrl: null }],
+  policies: [{ title: '', file: null, previewUrl: null }],
+  admissionForms: [{ title: '', file: null, previewUrl: null }],
+  others: [{ title: '', file: null, previewUrl: null }],
 };
 
 export const EMPTY_HIGHLIGHT: SchoolHighlight = {

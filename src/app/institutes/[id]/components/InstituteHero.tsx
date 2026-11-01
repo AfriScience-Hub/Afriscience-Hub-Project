@@ -89,7 +89,7 @@ export default function InstituteHero({
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <span className={cn(
-                    "px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide border",
+                    "px-2 py-0.5 rounded text-xs font-bold capitalize tracking-wide border",
                     institute.status === 'Online'
                       ? "bg-green-100 text-green-700 border-green-200"
                       : "bg-neutral-bg-light text-neutral-gray-dark border-neutral-gray-light"

@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Plus, X, FileText, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
-import { cn } from '@/lib/utils';
 import { uploadFile } from '@/lib/upload';
 import { YEARS } from '../data';
 import type { LicensesAchievements, DocEntry, AlumniEntry } from '../types';
@@ -20,11 +19,13 @@ export default function LicensesAchievementsSection({ data, onChange }: Licenses
       {/* LICENSES & CERTIFICATIONS */}
       <div className="flex items-center gap-2">
         <FileText className="h-4 w-4 text-brand-navy-900" />
-        <h4 className="text-sm font-medium text-neutral-black">Licenses & certifications</h4>
+        <h4 className="text-sm font-medium text-neutral-black">
+          Licenses & Certifications <span className="text-red-500">*</span>{' '}
+          <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple entries allowed)</span>
+        </h4>
       </div>
       <p className="text-xs text-neutral-gray-medium mb-4">Upload valid licenses or certifications of the school to further authenticate it. Uploaded documents are securely stored and protected from unauthorized access.</p>
       <DocList
-        label="File"
         addLabel="Add License / Certification"
         entries={data.licenses}
         onChange={(entries) => onChange({ licenses: entries })}
@@ -34,11 +35,13 @@ export default function LicensesAchievementsSection({ data, onChange }: Licenses
       {/* ACHIEVEMENTS & HONORARY AWARDS */}
       <div className="flex items-center gap-2 border-t border-neutral-gray-light pt-6">
         <FileText className="h-4 w-4 text-amber-500" />
-        <h4 className="text-sm font-medium text-neutral-black">Achievements & honorary awards</h4>
+        <h4 className="text-sm font-medium text-neutral-black">
+          Achievements & Honorary Awards <span className="text-red-500">*</span>{' '}
+          <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple entries allowed)</span>
+        </h4>
       </div>
       <p className="text-xs text-neutral-gray-medium mb-4">Upload a copy of the achievements/honorary awards obtained by the school (if any). Uploaded documents are securely stored and protected from unauthorized access.</p>
       <DocList
-        label="Achievement"
         addLabel="Add Achievement / Award"
         entries={data.achievements}
         onChange={(entries) => onChange({ achievements: entries })}
@@ -48,7 +51,10 @@ export default function LicensesAchievementsSection({ data, onChange }: Licenses
       {/* NOTABLE ALUMNI */}
       <div className="flex items-center gap-2 border-t border-neutral-gray-light pt-6">
         <FileText className="h-4 w-4 text-brand-red-600" />
-        <h4 className="text-sm font-medium text-neutral-black">Notable alumni</h4>
+        <h4 className="text-sm font-medium text-neutral-black">
+          Notable Alumni <span className="text-red-500">*</span>{' '}
+          <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple entries allowed)</span>
+        </h4>
       </div>
       <p className="text-xs text-neutral-gray-medium mb-4">Provide information of notable alumni of the school with positive societal impact</p>
       <AlumniList
@@ -59,7 +65,7 @@ export default function LicensesAchievementsSection({ data, onChange }: Licenses
   );
 }
 
-function DocList({ label, addLabel, entries, onChange, namePlaceholder }: { label: string; addLabel: string; entries: DocEntry[]; onChange: (entries: DocEntry[]) => void; namePlaceholder?: string }) {
+function DocList({ addLabel, entries, onChange, namePlaceholder }: { addLabel: string; entries: DocEntry[]; onChange: (entries: DocEntry[]) => void; namePlaceholder?: string }) {
   const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-3 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
 
   const update = (idx: number, patch: Partial<DocEntry>) => {
@@ -99,20 +105,16 @@ function DocList({ label, addLabel, entries, onChange, namePlaceholder }: { labe
 
   return (
     <div>
-      <label className="block text-sm font-medium text-neutral-black mb-1">{label} <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple entries allowed)</span></label>
       <div className="space-y-3">
         {entries.map((entry, idx) => (
           <div key={idx} className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light/50 p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="flex items-center gap-2 text-xs font-medium text-neutral-gray-medium">
-                <FileText className="h-3.5 w-3.5" /> {label} {idx + 1}
-              </span>
+            <div className="mb-2 flex justify-end">
               <button type="button" onClick={() => onChange(entries.filter((_, i) => i !== idx))} className="cursor-pointer text-red-400 hover:text-red-600">
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="space-y-2">
-              <input type="text" value={entry.name} onChange={(e) => update(idx, { name: e.target.value })} className={inputClass} placeholder={namePlaceholder || `${label} name`} />
+              <input type="text" value={entry.name} onChange={(e) => update(idx, { name: e.target.value })} className={inputClass} placeholder={namePlaceholder || 'Name'} />
               <div className="grid grid-cols-2 gap-2">
                 <input type="text" value={entry.issuer} onChange={(e) => update(idx, { issuer: e.target.value })} className={inputClass} placeholder="Issued by" />
                 <select value={entry.year} onChange={(e) => update(idx, { year: e.target.value })} className={`${inputClass} cursor-pointer`}>
@@ -136,8 +138,7 @@ function DocList({ label, addLabel, entries, onChange, namePlaceholder }: { labe
       <Button
         type="button"
         size="sm"
-        variant="outline"
-        className={cn("mt-3 border")}
+        className="mt-3 bg-brand-red-600 hover:bg-brand-red-700 text-white"
         onClick={() => {
           if (entries.length >= 20) return toast.error('Maximum number of entries reached');
           onChange([...entries, { name: '', issuer: '', year: '', file: null, previewUrl: null }]);
@@ -191,15 +192,10 @@ function AlumniList({ entries, onChange }: { entries: AlumniEntry[]; onChange: (
 
   return (
     <div>
-      <label className="block text-sm font-medium text-neutral-black mb-1">Alumni <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple entries allowed)</span></label>
-      <p className="text-xs text-neutral-gray-medium mb-3">10 words max. for impact</p>
       <div className="space-y-3">
         {entries.map((entry, idx) => (
           <div key={idx} className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light/50 p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="flex items-center gap-2 text-xs font-medium text-neutral-gray-medium">
-                Alumni {idx + 1}
-              </span>
+            <div className="mb-2 flex justify-end">
               <button type="button" onClick={() => onChange(entries.filter((_, i) => i !== idx))} className="cursor-pointer text-red-400 hover:text-red-600">
                 <X className="h-4 w-4" />
               </button>
@@ -223,8 +219,7 @@ function AlumniList({ entries, onChange }: { entries: AlumniEntry[]; onChange: (
       <Button
         type="button"
         size="sm"
-        variant="outline"
-        className="mt-3 border"
+        className="mt-3 bg-brand-red-600 hover:bg-brand-red-700 text-white"
         onClick={() => {
           if (entries.length >= 20) return toast.error('Maximum number of entries reached');
           onChange([...entries, { fullName: '', impact: '', displayPicture: null, previewUrl: null }]);

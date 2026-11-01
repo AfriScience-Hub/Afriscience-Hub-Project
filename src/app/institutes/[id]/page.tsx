@@ -81,9 +81,9 @@ function InstituteDetailsContent() {
                 <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')}>Profile & Services</TabButton>
                 <TabButton active={activeTab === 'academics'} onClick={() => setActiveTab('academics')}>Certifications & Policies</TabButton>
                 <TabButton active={activeTab === 'achievements'} onClick={() => setActiveTab('achievements')}>Achievements</TabButton>
+                <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')}>Reviews</TabButton>
                 <TabButton active={activeTab === 'gallery'} onClick={() => { setActiveTab('gallery'); setOpenAlbum(null); }}>Media Gallery</TabButton>
                 <TabButton active={activeTab === 'news'} onClick={() => setActiveTab('news')}>News & Updates</TabButton>
-                <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')}>Reviews</TabButton>
                 <TabButton active={activeTab === 'contact'} onClick={() => setActiveTab('contact')}>Contact Info</TabButton>
               </>
             ) : (
@@ -91,9 +91,9 @@ function InstituteDetailsContent() {
                 <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')}>Overview</TabButton>
                 <TabButton active={activeTab === 'academics'} onClick={() => setActiveTab('academics')}>Academics & Fees</TabButton>
                 <TabButton active={activeTab === 'achievements'} onClick={() => setActiveTab('achievements')}>Licenses & Achievements</TabButton>
+                <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')}>Reviews</TabButton>
                 <TabButton active={activeTab === 'gallery'} onClick={() => { setActiveTab('gallery'); setOpenAlbum(null); }}>Media Gallery</TabButton>
                 <TabButton active={activeTab === 'downloads'} onClick={() => setActiveTab('downloads')}>Downloadable Resources</TabButton>
-                <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')}>Reviews</TabButton>
                 <TabButton active={activeTab === 'contact'} onClick={() => setActiveTab('contact')}>Contact</TabButton>
               </>
             )}

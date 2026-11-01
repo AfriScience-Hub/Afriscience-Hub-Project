@@ -58,6 +58,32 @@ export default function ContactTab({ institute }: { institute: Institute }) {
         </div>
       </section>
 
+      <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
+        <h3 className="text-lg font-bold text-neutral-black mb-2">Send a Message</h3>
+        <p className="text-xs text-neutral-gray-medium mb-6">Your message will be sent to the institute&apos;s registered email address. They typically respond within 1-3 business days.</p>
+        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); toast.success('Message sent successfully! The institute will respond to your email.'); }}>
+          <div>
+            <label className="block text-xs font-bold text-neutral-gray-medium uppercase mb-1">Name</label>
+            <input type="text" defaultValue={user?.name || ''} className="w-full px-4 py-3 rounded-lg border border-neutral-gray-light focus:outline-none focus:ring-2 focus:ring-brand-red-100 focus:border-brand-red-600 transition-all text-sm" placeholder="Your name" required />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-neutral-gray-medium uppercase mb-1">Email</label>
+            <input type="email" defaultValue={user?.email || ''} className="w-full px-4 py-3 rounded-lg border border-neutral-gray-light focus:outline-none focus:ring-2 focus:ring-brand-red-100 focus:border-brand-red-600 transition-all text-sm" placeholder="Your email" required />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-neutral-gray-medium uppercase mb-1">Subject</label>
+            <input type="text" className="w-full px-4 py-3 rounded-lg border border-neutral-gray-light focus:outline-none focus:ring-2 focus:ring-brand-red-100 focus:border-brand-red-600 transition-all text-sm" placeholder="Enter the subject" required />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-neutral-gray-medium uppercase mb-1">Message</label>
+            <textarea className="w-full px-4 py-3 rounded-lg border border-neutral-gray-light focus:outline-none focus:ring-2 focus:ring-brand-red-100 focus:border-brand-red-600 transition-all text-sm h-32" placeholder="How can we help you?" required></textarea>
+          </div>
+          <Button type="submit" className="w-full bg-brand-red-600 hover:bg-brand-red-700 text-white font-bold py-3">
+            Send Message
+          </Button>
+        </form>
+      </section>
+
       <section className="bg-white rounded-xl p-4 shadow-sm border border-neutral-gray-light">
         <h3 className="text-lg font-bold text-neutral-black mb-4 px-2 flex items-center gap-2">
           <MapPin className="h-5 w-5 text-brand-red-600" /> Location Map
@@ -75,36 +101,6 @@ export default function ContactTab({ institute }: { institute: Institute }) {
           </div>
           <Image src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1200" alt="Map Placeholder" fill sizes="100vw" className="object-cover opacity-20" />
         </div>
-      </section>
-
-      <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-        <h3 className="text-lg font-bold text-neutral-black mb-2">Send a Message</h3>
-        <p className="text-xs text-neutral-gray-medium mb-6">Your message will be sent to the institute&apos;s registered email address. They typically respond within 1-3 business days.</p>
-        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); toast.success('Message sent successfully! The institute will respond to your email.'); }}>
-          <div>
-            <label className="block text-xs font-bold text-neutral-gray-medium uppercase mb-1">Name</label>
-            <input type="text" defaultValue={user?.name || ''} className="w-full px-4 py-3 rounded-lg border border-neutral-gray-light focus:outline-none focus:ring-2 focus:ring-brand-red-100 focus:border-brand-red-600 transition-all text-sm" placeholder="Your name" required />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-neutral-gray-medium uppercase mb-1">Email</label>
-            <input type="email" defaultValue={user?.email || ''} className="w-full px-4 py-3 rounded-lg border border-neutral-gray-light focus:outline-none focus:ring-2 focus:ring-brand-red-100 focus:border-brand-red-600 transition-all text-sm" placeholder="Your email" required />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-neutral-gray-medium uppercase mb-1">Subject</label>
-            <select className="w-full px-4 py-3 rounded-lg border border-neutral-gray-light focus:outline-none focus:ring-2 focus:ring-brand-red-100 focus:border-brand-red-600 transition-all text-sm cursor-pointer">
-              <option>Admissions Inquiry</option>
-              <option>Partnership</option>
-              <option>General Support</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-neutral-gray-medium uppercase mb-1">Message</label>
-            <textarea className="w-full px-4 py-3 rounded-lg border border-neutral-gray-light focus:outline-none focus:ring-2 focus:ring-brand-red-100 focus:border-brand-red-600 transition-all text-sm h-32" placeholder="How can we help you?" required></textarea>
-          </div>
-          <Button type="submit" className="w-full bg-brand-red-600 hover:bg-brand-red-700 text-white font-bold py-3">
-            Send Message
-          </Button>
-        </form>
       </section>
 
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">

@@ -5,7 +5,8 @@ import { Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
 import { cn } from '@/lib/utils';
-import { SCHOOL_CLASSES, SCHOOL_PROGRAMS, SCHOOL_GENDERS, SCHOOL_OWNERSHIP, SCHOOL_SERVICES, ALL_CURRENCIES } from '../data';
+import { SCHOOL_CLASSES, SCHOOL_PROGRAMS, SCHOOL_GENDERS, SCHOOL_OWNERSHIP, SCHOOL_SERVICES } from '../data';
+import { TuitionFeeList, OtherFeeList } from './FeeLists';
 import type { SchoolInformation } from '../types';
 
 interface SchoolInformationSectionProps {
@@ -14,8 +15,6 @@ interface SchoolInformationSectionProps {
 }
 
 export default function SchoolInformationSection({ info, onChange }: SchoolInformationSectionProps) {
-  const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
-
   const toggleService = (svc: string) => {
     onChange({
       services: info.services.includes(svc)
@@ -98,7 +97,7 @@ export default function SchoolInformationSection({ info, onChange }: SchoolInfor
       {/* OWNERSHIP */}
       <div>
         <label className="block text-sm font-medium text-neutral-black mb-1">Ownership <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(1 selections max.)</span></label>
-        <p className="mb-1 text-xs text-neutral-gray-medium">What is the ownership identity of the school? When "Other" is selected, user should specify</p>
+        <p className="mb-1 text-xs text-neutral-gray-medium">What is the ownership identity of the school?</p>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {SCHOOL_OWNERSHIP.map(own => (
             <label key={own} className={cn(
@@ -109,27 +108,19 @@ export default function SchoolInformationSection({ info, onChange }: SchoolInfor
                 type="radio"
                 name="school-ownership"
                 checked={info.ownership === own}
-                onChange={() => onChange({ ownership: own, ownershipOther: own === 'Other' ? info.ownershipOther : '' })}
+                onChange={() => onChange({ ownership: own })}
                 className="border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5"
               />
               {own}
             </label>
           ))}
         </div>
-        {info.ownership === 'Other' && (
-          <input
-            type="text"
-            value={info.ownershipOther}
-            onChange={(e) => onChange({ ownershipOther: e.target.value })}
-            className={`${inputClass} mt-2`}
-            placeholder="Specify the ownership type"
-          />
-        )}
       </div>
 
       {/* SERVICES */}
       <div>
         <label className="block text-sm font-medium text-neutral-black mb-1">Services <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple selections allowed)</span></label>
+        <p className="mb-1 text-xs text-neutral-gray-medium">What services does the school render?</p>
         <p className="mb-1.5 text-[11px] text-neutral-gray-medium">{info.services.length} selected</p>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {SCHOOL_SERVICES.map(svc => (
@@ -251,119 +242,3 @@ function EntryList({ label, hint, placeholder, entries, onChange }: { label: str
   );
 }
 
-function TuitionFeeList({ entries, onChange }: { entries: { level: string; fee: string; currency: string }[]; onChange: (entries: { level: string; fee: string; currency: string }[]) => void }) {
-  const [draft, setDraft] = useState({ level: '', fee: '', currency: 'USD' });
-  const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-3 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
-
-  const add = () => {
-    if (!draft.level.trim() || !draft.fee.trim()) return toast.error('Please fill in all fields');
-    onChange([...entries, { ...draft }]);
-    setDraft({ level: '', fee: '', currency: 'USD' });
-  };
-
-  const update = (idx: number, patch: Partial<{ level: string; fee: string; currency: string }>) => {
-    onChange(entries.map((entry, i) => (i === idx ? { ...entry, ...patch } : entry)));
-  };
-
-  return (
-    <div className="space-y-3">
-      {entries.map((entry, idx) => (
-        <div key={idx} className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light/50 p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-neutral-gray-medium">
-              Tuition {idx + 1}
-            </span>
-            <button type="button" onClick={() => onChange(entries.filter((_, i) => i !== idx))} className="cursor-pointer text-red-400 hover:text-red-600">
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="space-y-2">
-            <div className="grid grid-cols-3 gap-2">
-              <input type="text" value={entry.level} onChange={(e) => update(idx, { level: e.target.value })} className={inputClass} placeholder="Level" />
-              <input type="text" value={entry.fee} onChange={(e) => update(idx, { fee: e.target.value })} className={`${inputClass} col-span-2`} placeholder="Tuition Fee" />
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <span className="self-center text-sm text-neutral-gray-medium">Currency</span>
-              <select value={entry.currency} onChange={(e) => update(idx, { currency: e.target.value })} className={`${inputClass} col-span-2 cursor-pointer`}>
-                {ALL_CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-          </div>
-        </div>
-      ))}
-      <div className="rounded-lg border border-dashed border-neutral-gray-light p-4 space-y-2">
-        <p className="text-xs font-bold text-neutral-gray-medium uppercase tracking-wider">Add Tuition Fee</p>
-        <div className="grid grid-cols-3 gap-2">
-          <input type="text" value={draft.level} onChange={(e) => setDraft(prev => ({ ...prev, level: e.target.value }))} className={inputClass} placeholder="Level" />
-          <input type="text" value={draft.fee} onChange={(e) => setDraft(prev => ({ ...prev, fee: e.target.value }))} className={`${inputClass} col-span-2`} placeholder="Tuition Fee" />
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <span className="self-center text-sm text-neutral-gray-medium">Currency</span>
-          <select value={draft.currency} onChange={(e) => setDraft(prev => ({ ...prev, currency: e.target.value }))} className={`${inputClass} col-span-2 cursor-pointer`}>
-            {ALL_CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
-        </div>
-        <Button type="button" size="sm" className="bg-brand-red-600 hover:bg-brand-red-700 flex-shrink-0" onClick={add}>
-          <Plus className="mr-1 h-4 w-4" /> Add
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function OtherFeeList({ entries, onChange }: { entries: { name: string; description: string; cost: string; currency: string }[]; onChange: (entries: { name: string; description: string; cost: string; currency: string }[]) => void }) {
-  const [draft, setDraft] = useState({ name: '', description: '', cost: '', currency: 'USD' });
-  const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-3 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
-
-  const add = () => {
-    if (!draft.name.trim() || !draft.cost.trim()) return toast.error('Please fill in Fee Name and Cost');
-    if (draft.description.split(/\s+/).filter(Boolean).length > 20) return toast.error('Description must be 20 words max.');
-    onChange([...entries, { ...draft }]);
-    setDraft({ name: '', description: '', cost: '', currency: 'USD' });
-  };
-
-  const update = (idx: number, patch: Partial<{ name: string; description: string; cost: string; currency: string }>) => {
-    onChange(entries.map((entry, i) => (i === idx ? { ...entry, ...patch } : entry)));
-  };
-
-  return (
-    <div className="space-y-3">
-      {entries.map((entry, idx) => (
-        <div key={idx} className="rounded-lg border border-neutral-gray-light p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-neutral-gray-medium">
-              Fee {idx + 1}
-            </span>
-            <button type="button" onClick={() => onChange(entries.filter((_, i) => i !== idx))} className="cursor-pointer text-red-400 hover:text-red-600">
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="space-y-2">
-            <input type="text" value={entry.name} onChange={(e) => update(idx, { name: e.target.value })} className={inputClass} placeholder="Fee Name" />
-            <input type="text" value={entry.description} onChange={(e) => update(idx, { description: e.target.value })} className={inputClass} placeholder="Description (20 words max.)" />
-            <div className="grid grid-cols-3 gap-2">
-              <input type="text" value={entry.cost} onChange={(e) => update(idx, { cost: e.target.value })} className={`${inputClass} col-span-2`} placeholder="Cost" />
-              <select value={entry.currency} onChange={(e) => update(idx, { currency: e.target.value })} className={`${inputClass} cursor-pointer`}>
-                {ALL_CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-          </div>
-        </div>
-      ))}
-      <div className="rounded-lg border border-dashed border-neutral-gray-light p-4 space-y-2">
-        <p className="text-xs font-bold text-neutral-gray-medium uppercase tracking-wider">Add Fee</p>
-        <input type="text" value={draft.name} onChange={(e) => setDraft(prev => ({ ...prev, name: e.target.value }))} className={inputClass} placeholder="Fee Name" />
-        <input type="text" value={draft.description} onChange={(e) => setDraft(prev => ({ ...prev, description: e.target.value }))} className={inputClass} placeholder="Description (20 words max.)" />
-        <div className="grid grid-cols-3 gap-2">
-          <input type="text" value={draft.cost} onChange={(e) => setDraft(prev => ({ ...prev, cost: e.target.value }))} className={`${inputClass} col-span-2`} placeholder="Cost" />
-          <select value={draft.currency} onChange={(e) => setDraft(prev => ({ ...prev, currency: e.target.value }))} className={`${inputClass} cursor-pointer`}>
-            {ALL_CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
-        </div>
-        <Button type="button" size="sm" className="bg-brand-red-600 hover:bg-brand-red-700 flex-shrink-0" onClick={add}>
-          <Plus className="mr-1 h-4 w-4" /> Add
-        </Button>
-      </div>
-    </div>
-  );
-}

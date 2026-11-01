@@ -187,9 +187,9 @@ export default function UniversityAcademicsTab({ institute }: { institute: Insti
                   {level.degreeTitles && level.degreeTitles.length > 0 && (
                     <div>
                       <h5 className="text-sm font-bold text-neutral-black mb-2">Degree Titles Awarded</h5>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="space-y-2">
                         {level.degreeTitles.map((t: string, i: number) => (
-                          <span key={i} className="text-xs px-2.5 py-1 rounded bg-brand-navy-50 text-brand-navy-900 border border-brand-navy-100">{t}</span>
+                          <span key={i} className="inline-flex text-xs px-2.5 py-1 rounded bg-brand-navy-50 text-brand-navy-900 border border-brand-navy-100">{t}</span>
                         ))}
                       </div>
                     </div>

@@ -26,7 +26,6 @@ export const SCHOOL_OWNERSHIP = [
   'Corporate',
   'Inter - Government',
   'NGO | Charity',
-  'Other',
 ] as const;
 
 export const SCHOOL_SERVICES = [

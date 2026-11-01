@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Clock3, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
@@ -8,6 +8,8 @@ import { Button } from '@/app/components/ui/Button';
 interface WorkHoursSelectorProps {
   entries: string[];
   onChange: (entries: string[]) => void;
+  /** When true only one opening → closing range is allowed and there is no Add button. */
+  single?: boolean;
 }
 
 const inputClass =
@@ -22,13 +24,45 @@ function formatTime(value: string): string {
   return `${displayHour}:${minute} ${suffix}`;
 }
 
+/** Reads the opening/closing 24-hour values from an existing readable range. */
+function parseRange(value?: string): { opening: string; closing: string } {
+  if (!value) return { opening: '', closing: '' };
+  const matches = [...value.matchAll(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi)];
+  if (matches.length < 2) return { opening: '', closing: '' };
+  const to24 = (match: RegExpMatchArray) => {
+    let hour = Number(match[1]) % 12;
+    if (match[3].toUpperCase() === 'PM') hour += 12;
+    return `${String(hour).padStart(2, '0')}:${match[2]}`;
+  };
+  return { opening: to24(matches[0]), closing: to24(matches[1]) };
+}
+
 /**
- * Collects a work interval using separate opening and closing time inputs,
- * so users cannot type malformed or reversed time ranges.
+ * Collects work hours. In default mode users can add multiple ranges; in
+ * `single` mode the opening/closing pair is the only selection.
  */
-export default function WorkHoursSelector({ entries, onChange }: WorkHoursSelectorProps) {
-  const [opening, setOpening] = useState('');
-  const [closing, setClosing] = useState('');
+export default function WorkHoursSelector({ entries, onChange, single = false }: WorkHoursSelectorProps) {
+  const initial = single ? parseRange(entries[0]) : { opening: '', closing: '' };
+  const [opening, setOpening] = useState(initial.opening);
+  const [closing, setClosing] = useState(initial.closing);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!single) return;
+    if (!opening || !closing) {
+      setError('');
+      if (entries.length > 0) onChange([]);
+      return;
+    }
+    if (closing <= opening) {
+      setError('Closing time must be after opening time');
+      if (entries.length > 0) onChange([]);
+      return;
+    }
+    setError('');
+    onChange([`${formatTime(opening)} – ${formatTime(closing)}`]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opening, closing, single]);
 
   const add = () => {
     if (!opening) return toast.error('Please select an opening time');
@@ -45,7 +79,7 @@ export default function WorkHoursSelector({ entries, onChange }: WorkHoursSelect
 
   return (
     <div>
-      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] sm:items-end">
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-end">
         <div>
           <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-neutral-gray-medium">
             Opening time
@@ -74,12 +108,16 @@ export default function WorkHoursSelector({ entries, onChange }: WorkHoursSelect
           />
         </div>
 
-        <Button type="button" size="sm" className="h-[42px] flex-shrink-0 bg-brand-red-600 hover:bg-brand-red-700" onClick={add}>
-          <Plus className="mr-1 h-4 w-4" /> Add
-        </Button>
+        {!single && (
+          <Button type="button" size="sm" className="h-[42px] flex-shrink-0 bg-brand-red-600 hover:bg-brand-red-700" onClick={add}>
+            <Plus className="mr-1 h-4 w-4" /> Add
+          </Button>
+        )}
       </div>
 
-      {entries.length > 0 && (
+      {single && error && <p className="mt-1.5 text-[11px] text-red-500">{error}</p>}
+
+      {!single && entries.length > 0 && (
         <ul className="mt-4 space-y-2">
           {entries.map((entry, idx) => (
             <li key={`${entry}-${idx}`} className="flex items-center justify-between gap-2 rounded-lg border border-neutral-gray-light bg-neutral-bg-light px-3 py-2">

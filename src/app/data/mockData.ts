@@ -313,8 +313,14 @@ export const INSTITUTES = [
     ],
     academicCalendar: {
       firstTerm: 'September – December',
+      firstTermMidterm: 'October 17, 2026',
+      firstTermClosure: 'December 12, 2026',
       secondTerm: 'January – April',
-      thirdTerm: 'April – July'
+      secondTermMidterm: 'February 13, 2027',
+      secondTermClosure: 'March 27, 2027',
+      thirdTerm: 'April – July',
+      thirdTermMidterm: 'May 21, 2027',
+      thirdTermClosure: 'July 9, 2027'
     },
     gradingSystem: 'A1 (Excellent) 80–100 | B2 (Very Good) 70–79 | B3 (Good) 60–69 | C4 (Credit) 50–59 | C5 (Credit) 40–49 | C6 (Pass) 35–39 | D7 (Pass) 30–34 | E8 (Marginal) 25–29 | F9 (Fail) Below 25',
     degreesAwarded: [
@@ -447,8 +453,14 @@ export const INSTITUTES = [
     ],
     academicCalendar: {
       firstTerm: 'January – March',
+      firstTermMidterm: 'February 12, 2027',
+      firstTermClosure: 'March 27, 2027',
       secondTerm: 'April – June',
-      thirdTerm: 'September – December'
+      secondTermMidterm: 'May 20, 2027',
+      secondTermClosure: 'June 30, 2027',
+      thirdTerm: 'September – December',
+      thirdTermMidterm: 'October 20, 2027',
+      thirdTermClosure: 'December 15, 2027'
     },
     gradingSystem: 'A (70–100) Outstanding | B (60–69) Meritful | C (50–59) Satisfactory | D (40–49) Developing | E (30–39) Beginning Support Required | F (Below 30) Not Achieved',
     degreesAwarded: [
@@ -568,8 +580,14 @@ export const INSTITUTES = [
     ],
     academicCalendar: {
       firstTerm: 'September – December',
+      firstTermMidterm: 'October 17, 2026',
+      firstTermClosure: 'December 12, 2026',
       secondTerm: 'January – April',
-      thirdTerm: 'April – July'
+      secondTermMidterm: 'February 13, 2027',
+      secondTermClosure: 'March 27, 2027',
+      thirdTerm: 'April – July',
+      thirdTermMidterm: 'May 21, 2027',
+      thirdTermClosure: 'July 9, 2027'
     },
     gradingSystem: 'A1 (Excellent) 80–100 | B2 (Very Good) 70–79 | B3 (Good) 60–69 | C4 (Credit) 50–59 | C5 (Credit) 40–49 | C6 (Pass) 35–39 | D7 (Pass) 30–34 | E8 (Marginal) 25–29 | F9 (Fail) Below 25',
     degreesAwarded: [
@@ -697,8 +715,14 @@ export const INSTITUTES = [
     ],
     academicCalendar: {
       firstTerm: 'September – December',
+      firstTermMidterm: 'October 15, 2026',
+      firstTermClosure: 'December 10, 2026',
       secondTerm: 'January – March',
-      thirdTerm: 'April – June'
+      secondTermMidterm: 'February 12, 2027',
+      secondTermClosure: 'March 25, 2027',
+      thirdTerm: 'April – June',
+      thirdTermMidterm: 'May 15, 2027',
+      thirdTermClosure: 'June 28, 2027'
     },
     gradingSystem: 'IB 7 (Excellent) | IB 6 (Very Good) | IB 5 (Good) | IB 4 (Satisfactory) | IB 3 (Marginal) | IB 2 (Weak) | IB 1 (Very Weak) — IGCSE: A* A B C D E F',
     degreesAwarded: [
@@ -828,8 +852,14 @@ export const INSTITUTES = [
     ],
     academicCalendar: {
       firstTerm: 'February – May',
+      firstTermMidterm: 'March 20, 2027',
+      firstTermClosure: 'May 30, 2027',
       secondTerm: 'June – August',
-      thirdTerm: 'September – November'
+      secondTermMidterm: 'July 15, 2027',
+      secondTermClosure: 'August 28, 2027',
+      thirdTerm: 'September – November',
+      thirdTermMidterm: 'October 20, 2027',
+      thirdTermClosure: 'November 25, 2027'
     },
     gradingSystem: 'A (80–100) Excellent | B (70–79) Very Good | C (60–69) Good | D (50–59) Satisfactory | E (40–49) Pass | F (Below 40) Fail',
     degreesAwarded: [
@@ -2548,7 +2578,7 @@ export const CENTER_CATEGORIES_BY_FIELD: Record<string, string[]> = {
 };
 
 export const CENTER_OWNERSHIP_OPTIONS = [
-  'Private', 'Government | Public', 'Academic', 'Mission', 'Corporate', 'Inter-Government', 'NGO | Charity', 'Other'
+  'Private', 'Government | Public', 'Academic', 'Mission', 'Corporate', 'Inter-Government', 'NGO | Charity'
 ];
 
 export const CENTER_SERVICES = [

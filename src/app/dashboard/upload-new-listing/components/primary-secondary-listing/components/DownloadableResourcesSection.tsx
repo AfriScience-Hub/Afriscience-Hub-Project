@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Plus, X, FileText, Upload, Download } from 'lucide-react';
+import { useState } from 'react';
+import { Plus, X, FileText, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
-import { cn } from '@/lib/utils';
 import { uploadFile } from '@/lib/upload';
 import type { DownloadableResources, ResourceEntry } from '../types';
 
@@ -30,11 +29,13 @@ export default function DownloadableResourcesSection({ data, onChange }: Downloa
         <div key={section.key} className={sectionIdx > 0 ? 'border-t border-neutral-gray-light pt-6' : ''}>
           <div className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-brand-red-600" />
-            <h4 className="text-sm font-medium text-neutral-black">{section.label}</h4>
+            <h4 className="text-sm font-medium text-neutral-black">
+              {section.label} <span className="text-red-500">*</span>{' '}
+              <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple entries allowed)</span>
+            </h4>
           </div>
           <p className="text-xs text-neutral-gray-medium mb-4">{section.hint}</p>
           <ResourceList
-            label="Document"
             addLabel={`Add ${section.label}`}
             entries={data[section.key]}
             onChange={(entries) => onChange({ [section.key]: entries })}
@@ -45,7 +46,7 @@ export default function DownloadableResourcesSection({ data, onChange }: Downloa
   );
 }
 
-function ResourceList({ label, addLabel, entries, onChange }: { label: string; addLabel: string; entries: ResourceEntry[]; onChange: (entries: ResourceEntry[]) => void }) {
+function ResourceList({ addLabel, entries, onChange }: { addLabel: string; entries: ResourceEntry[]; onChange: (entries: ResourceEntry[]) => void }) {
   const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-3 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
 
   const update = (idx: number, patch: Partial<ResourceEntry>) => {
@@ -75,15 +76,10 @@ function ResourceList({ label, addLabel, entries, onChange }: { label: string; a
 
   return (
     <div>
-      <label className="block text-sm font-medium text-neutral-black mb-1">{label} <span className="text-red-500">*</span> <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple entries allowed)</span></label>
-      <p className="text-xs text-neutral-gray-medium mb-3">Uploads should be made downloadable</p>
       <div className="space-y-3">
         {entries.map((entry, idx) => (
           <div key={idx} className="rounded-lg border border-neutral-gray-light bg-neutral-bg-light/50 p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="flex items-center gap-2 text-xs font-medium text-neutral-gray-medium">
-                <FileText className="h-3.5 w-3.5" /> {label} {idx + 1}
-              </span>
+            <div className="mb-2 flex justify-end">
               <button type="button" onClick={() => onChange(entries.filter((_, i) => i !== idx))} className="cursor-pointer text-red-400 hover:text-red-600">
                 <X className="h-4 w-4" />
               </button>
@@ -106,8 +102,7 @@ function ResourceList({ label, addLabel, entries, onChange }: { label: string; a
       <Button
         type="button"
         size="sm"
-        variant="outline"
-        className={cn("mt-3 border")}
+        className="mt-3 bg-brand-red-600 hover:bg-brand-red-700 text-white"
         onClick={() => {
           if (entries.length >= 20) return toast.error('Maximum number of entries reached');
           onChange([...entries, { title: '', file: null, previewUrl: null }]);
