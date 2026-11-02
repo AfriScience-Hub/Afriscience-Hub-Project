@@ -47,8 +47,9 @@ export function priceToInput(value?: string | number | null): string {
 }
 
 /**
- * Converts a price typed into a form back into the unit the API stores
- * (the smallest unit), so editing does not change the amount.
+ * Converts a price typed into a form into the exact value sent to the API.
+ * No division happens here: /100 conversion is only for values fetched from
+ * the endpoint and shown back to the admin (see priceToInput/formatPrice).
  */
 export function priceToStorage(value?: string | number | null): string {
   if (value === null || value === undefined || value === '') return '';

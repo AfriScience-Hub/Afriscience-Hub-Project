@@ -35,18 +35,18 @@ function PriceCell({ opt, mode, categoryPrice, priceGroup = 'africa' }: { opt: M
   }
 
   const pair = (label: string, one?: string, twoPlus?: string) => (
-    <span className="inline-flex flex-col leading-tight">
-      <span className="text-[10px] text-neutral-gray-medium">{label}</span>
+    <span className="inline-flex items-center gap-1 whitespace-nowrap">
+      <span className="text-[9px] font-medium uppercase text-neutral-gray-medium">{label}</span>
       <span className="font-semibold text-neutral-black">{formatPrice(one)}</span>
-      {twoPlus && <span className="text-[10px] text-neutral-gray-medium">2+ at {formatPrice(twoPlus)}</span>}
+      {twoPlus && <span className="text-[10px] text-neutral-gray-medium">/ 2+ {formatPrice(twoPlus)}</span>}
     </span>
   );
 
   if (priceGroup === 'both') {
     return (
-      <span className="inline-flex flex-col gap-1.5 whitespace-nowrap">
-        {pair('African', categoryPrice?.africaOne, categoryPrice?.africaTwoOrMore)}
-        {pair('Non-African', categoryPrice?.nonAfricaOne, categoryPrice?.nonAfricaTwoOrMore)}
+      <span className="inline-flex items-center gap-3 whitespace-nowrap">
+        {pair('AF', categoryPrice?.africaOne, categoryPrice?.africaTwoOrMore)}
+        {pair('Non-AF', categoryPrice?.nonAfricaOne, categoryPrice?.nonAfricaTwoOrMore)}
       </span>
     );
   }
@@ -70,9 +70,9 @@ export default function OptionsTable({
     <div className="overflow-x-auto">
       <table className="w-full text-sm min-w-[520px] table-fixed">
         <colgroup>
-          <col className={showPrice ? 'w-[44%]' : 'w-[64%]'} />
-          {showPrice && <col className="w-[24%]" />}
-          <col className="w-[18%]" />
+          <col className={showPrice ? 'w-[40%]' : 'w-[64%]'} />
+          {showPrice && <col className="w-[30%]" />}
+          <col className="w-[16%]" />
           <col className={showPrice ? 'w-[14%]' : 'w-[18%]'} />
         </colgroup>
         <thead>
