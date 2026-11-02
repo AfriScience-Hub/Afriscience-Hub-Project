@@ -93,14 +93,14 @@ export default function CategoryPriceDialog({ open, onClose, initial, onSave, ti
         </div>
 
         <div className="p-5 space-y-4 overflow-y-auto">
-          {group('African countries', (
+          {group('African countries (no country fee)', (
             <>
               {field(`Price for one ${title}`, africaOne, setAfricaOne, 'e.g. 50')}
               {field(`Price for two or more ${title}s`, africaTwoOrMore, setAfricaTwoOrMore, 'e.g. 80')}
             </>
           ))}
 
-          {group('Non-African countries', (
+          {group('Non-African countries (plus the country fee)', (
             <>
               {field(`Price for one ${title}`, nonAfricaOne, setNonAfricaOne, 'e.g. 120')}
               {field(`Price for two or more ${title}s`, nonAfricaTwoOrMore, setNonAfricaTwoOrMore, 'e.g. 160')}

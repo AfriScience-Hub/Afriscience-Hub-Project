@@ -131,10 +131,13 @@ export async function unpublishInnovation(id: string, reason: string) {
 }
 
 /** Maps the API status enum to the UI status label. */
-export function mapApiStatus(apiStatus: string): 'Pending Review' | 'Published' | 'Rejected' {
-  switch (apiStatus) {
+export function mapApiStatus(apiStatus: string): 'Pending Review' | 'Published' | 'Updated' | 'Rejected' {
+  switch (String(apiStatus || '').toUpperCase()) {
     case 'APPROVED':
       return 'Published';
+    case 'UPDATED':
+    case 'PENDING_UPDATE':
+      return 'Updated';
     case 'REJECTED':
       return 'Rejected';
     case 'PENDING':

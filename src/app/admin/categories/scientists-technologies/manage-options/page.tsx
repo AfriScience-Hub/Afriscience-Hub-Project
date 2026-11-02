@@ -31,7 +31,7 @@ const hasPriceValues = (p: CategoryPrice) =>
   Boolean(p.africaOne || p.africaTwoOrMore || p.nonAfricaOne || p.nonAfricaTwoOrMore);
 
 /** Tabs whose options are grouped under collapsible Field sections. */
-const FIELD_SCOPED: ManageTab[] = ['Profession', 'Services'];
+const FIELD_SCOPED: ManageTab[] = ['Profession'];
 
 const TAB_ICONS: Record<ManageTab, React.ComponentType<{ className?: string }>> = {
   Fields: LayoutGrid,
@@ -49,7 +49,6 @@ export default function ScientistManageOptionsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ManagedOption | null>(null);
   const [priceDialogOpen, setPriceDialogOpen] = useState(false);
-  const [deleting, setDeleting] = useState<{ id: string; name: string } | null>(null);
   /** Field pre-selected when "Add" is pressed inside a field section. */
   const [pendingField, setPendingField] = useState<string | null>(null);
 
@@ -100,16 +99,9 @@ export default function ScientistManageOptionsPage() {
   const handleAddUnder = (field: string) => { setEditing(null); setPendingField(field); setDialogOpen(true); };
   const handleEdit = (opt: ManagedOption) => { setEditing(opt); setPendingField(null); setDialogOpen(true); };
 
-  /** Saving the profession price also refreshes the per-group Country prices. */
+  /** Saving the profession price updates the shared profession pricing display. */
   const handleProfessionPriceSave = (price: CategoryPrice) => {
     setProfessionPrice(price);
-    setOptions((prev) => ({
-      ...prev,
-      Country: prev.Country.map((row) => ({
-        ...row,
-        price: row.id === 'k-1' ? price.africaOne : row.id === 'k-2' ? price.nonAfricaOne : row.price,
-      })),
-    }));
   };
 
   return (
@@ -170,12 +162,28 @@ export default function ScientistManageOptionsPage() {
           <div className="rounded-xl border border-neutral-gray-light bg-white overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3 py-3 border-b border-neutral-gray-light bg-neutral-bg-light/40">
               <div className="flex items-center gap-2">
-                <button
-                  onClick={handleAdd}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer shrink-0"
-                >
-                  <Plus className="h-3.5 w-3.5" /> Add {TAB_SINGULAR[activeTab]}
-                </button>
+                {activeTab !== 'Country' ? (
+                  <button
+                    onClick={handleAdd}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer shrink-0"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add {TAB_SINGULAR[activeTab]}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      const row = options.Country[0];
+                      if (row) {
+                        setEditing(row);
+                        setPendingField(null);
+                        setDialogOpen(true);
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer shrink-0"
+                  >
+                    <Tag className="h-3.5 w-3.5" /> Set price
+                  </button>
+                )}
                 {showCreatePrice && (
                   <button
                     onClick={() => setPriceDialogOpen(true)}
@@ -209,12 +217,21 @@ export default function ScientistManageOptionsPage() {
                   <span className="text-neutral-gray-medium"> · 2+ </span>
                   <span className="font-semibold text-neutral-black">{formatPrice(professionPrice.nonAfricaTwoOrMore)}</span>
                 </span>
+                <span className="text-[11px] text-emerald-700">Non-African listings also add the Country fee.</span>
                 <button
                   onClick={() => setPriceDialogOpen(true)}
                   className="text-[11px] font-semibold text-[#453DD8] hover:underline cursor-pointer ml-auto"
                 >
-                  {hasPriceValues(professionPrice) ? 'Edit price' : 'Create price'}
+                  {hasPriceValues(professionPrice) ? 'Edit price' : 'Set price'}
                 </button>
+              </div>
+            )}
+
+            {activeTab === 'Country' && (
+              <div className="px-3.5 py-2.5 border-b border-neutral-gray-light bg-amber-50/60">
+                <p className="text-[11px] text-amber-800">
+                  This fee is added on top of the profession price for non-African countries. African countries do not add a country fee.
+                </p>
               </div>
             )}
 
@@ -225,11 +242,11 @@ export default function ScientistManageOptionsPage() {
                   options={filtered}
                   showPrice={showTablePrice}
                   categoryPrice={professionPrice}
+                  priceGroup="both"
                   showNote={showNote}
                   singular={TAB_SINGULAR[activeTab]}
                   emptyHint={`No ${activeTab.toLowerCase()} added under this field yet.`}
                   onEdit={handleEdit}
-                  onDelete={(id, name) => setDeleting({ id, name })}
                   onToggleStatus={handleToggleStatus}
                   onAddUnder={handleAddUnder}
                 />
@@ -241,7 +258,6 @@ export default function ScientistManageOptionsPage() {
                 priceMode="row"
                 showNote={showNote}
                 onEdit={handleEdit}
-                onDelete={(id, name) => setDeleting({ id, name })}
                 onToggleStatus={handleToggleStatus}
               />
             )}
@@ -265,6 +281,7 @@ export default function ScientistManageOptionsPage() {
         fieldOptions={isFieldScoped ? SCIENTIST_FIELD_LIST : undefined}
         showPrice={showDialogPrice}
         showNote={showNote}
+        lockName={activeTab === 'Country'}
       />
 
       <CategoryPriceDialog
@@ -274,37 +291,6 @@ export default function ScientistManageOptionsPage() {
         onSave={handleProfessionPriceSave}
         title="profession"
       />
-
-      {deleting && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setDeleting(null)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <div className="px-5 py-4 border-b border-neutral-gray-light">
-              <h3 className="text-sm font-bold text-neutral-black">Delete option</h3>
-            </div>
-            <div className="p-5 space-y-4">
-              <p className="text-sm text-neutral-gray-dark">
-                Are you sure you want to delete{' '}
-                <span className="font-semibold text-neutral-black">{deleting.name}</span>?
-                This option will be removed from the list and can no longer be selected by users.
-              </p>
-            </div>
-            <div className="flex gap-2 justify-end px-5 py-4 border-t border-neutral-gray-light">
-              <button
-                onClick={() => setDeleting(null)}
-                className="px-4 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => { patchRows(rows.filter((o) => o.id !== deleting.id)); setDeleting(null); }}
-                className="px-5 py-2 rounded-xl bg-brand-red-600 text-white text-xs font-semibold hover:bg-brand-red-700 cursor-pointer"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

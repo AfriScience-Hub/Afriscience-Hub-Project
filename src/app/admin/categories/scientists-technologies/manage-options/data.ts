@@ -59,10 +59,10 @@ export const TAB_SINGULAR: Record<ManageTab, string> = {
 
 export const TAB_DESCRIPTIONS: Record<ManageTab, string> = {
   Fields: 'Fields describe the scientific or technical discipline a listing belongs to.',
-  Profession: 'Professions list the roles a scientist can hold. Every profession shares one price per country group, and carries an info note.',
+  Profession: 'Professions share one price per country group. Non-African listings also add the Country fee, while African listings add no country fee.',
   Degree: 'Degrees set the academic qualification levels a scientist can declare.',
-  Services: 'Services are the individual offerings a scientist provides to clients.',
-  Country: 'Countries set the listing price for African and non-African scientists.',
+  Services: 'Services are shared across every field and are not tied to a specific scientific discipline.',
+  Country: 'Sets the extra fee added to non-African listings. African countries do not add a country fee.',
 };
 
 /** Only Professions carry the info icon, so only they get a note field. */
@@ -113,7 +113,6 @@ export const SEED_OPTIONS: Record<ManageTab, ManagedOption[]> = {
     { id: 's-6', field: 'Agriculture', name: 'Fieldwork', status: 'Inactive', isActive: false, count: 8 },
   ],
   Country: [
-    { id: 'k-1', name: 'African countries', status: 'Active', isActive: true, price: '6000', count: 84 },
     { id: 'k-2', name: 'Non-African countries', status: 'Active', isActive: true, price: '15000', count: 28 },
   ],
 };

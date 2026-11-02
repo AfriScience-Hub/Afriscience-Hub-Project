@@ -1,4 +1,4 @@
-export type SubmissionStatus = 'Pending Review' | 'Published' | 'Rejected';
+export type SubmissionStatus = 'Pending Review' | 'Published' | 'Updated' | 'Rejected';
 
 export interface InnovationDoc {
   title: string;

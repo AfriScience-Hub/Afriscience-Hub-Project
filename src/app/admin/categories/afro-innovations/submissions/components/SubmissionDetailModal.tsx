@@ -330,7 +330,7 @@ export default function SubmissionDetailModal({
                 </button>
               </>
             ) : (
-              <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${submission.status === 'Published' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{submission.status}</span>
+              <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${submission.status === 'Published' ? 'bg-emerald-50 text-emerald-700' : submission.status === 'Updated' ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'}`}>{submission.status}</span>
             )}
           </div>
         </div>

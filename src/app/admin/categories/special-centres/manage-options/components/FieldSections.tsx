@@ -12,12 +12,13 @@ interface Props {
   /** Show the price column (Categories only). */
   showPrice?: boolean;
   categoryPrice?: CategoryPrice;
+  priceGroup?: 'africa' | 'nonAfrica' | 'both';
   /** Only Categories carry the info icon. */
   showNote?: boolean;
   singular: string;
   emptyHint: string;
   onEdit: (opt: ManagedOption) => void;
-  onDelete: (id: string, name: string) => void;
+  onDelete?: (id: string, name: string) => void;
   onToggleStatus: (id: string, currentStatus: string) => void;
   onAddUnder: (field: string) => void;
 }
@@ -28,7 +29,7 @@ interface Props {
  * an empty table.
  */
 export default function FieldSections({
-  fields, options, showPrice = false, categoryPrice, showNote = false,
+  fields, options, showPrice = false, categoryPrice, priceGroup = 'africa', showNote = false,
   singular, emptyHint, onEdit, onDelete, onToggleStatus, onAddUnder,
 }: Props) {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -78,6 +79,7 @@ export default function FieldSections({
                       showPrice={showPrice}
                       priceMode="scheme"
                       categoryPrice={categoryPrice}
+                      priceGroup={priceGroup}
                       showNote={showNote}
                       onEdit={onEdit}
                       onDelete={onDelete}

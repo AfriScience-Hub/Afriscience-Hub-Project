@@ -25,6 +25,8 @@ interface Props {
   showPrice?: boolean;
   /** Show the note field (Categories only). */
   showNote?: boolean;
+  /** Keep the name field static (Country names are fixed). */
+  lockName?: boolean;
   /** True while the save request is in flight. */
   saving?: boolean;
   /** Error from the last save attempt, shown inside the modal. */
@@ -33,7 +35,7 @@ interface Props {
 
 export default function OptionDialog({
   open, onClose, onSave, initial, tabLabel, singular, fieldOptions,
-  showPrice = false, showNote = false, saving = false, error = null,
+  showPrice = false, showNote = false, lockName = false, saving = false, error = null,
 }: Props) {
   const [name, setName] = useState('');
   const [field, setField] = useState('');
@@ -91,10 +93,12 @@ export default function OptionDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={`e.g. ${tabLabel} name`}
-              className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
-              autoFocus
-              disabled={saving}
+              className={`w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none ${lockName ? 'bg-neutral-bg-light text-neutral-gray-dark cursor-not-allowed' : ''}`}
+              autoFocus={!lockName}
+              disabled={saving || lockName}
+              readOnly={lockName}
             />
+            {lockName && <span className="text-[11px] text-neutral-gray-medium">Country names are fixed and cannot be edited.</span>}
           </label>
 
           {fieldOptions?.length ? (

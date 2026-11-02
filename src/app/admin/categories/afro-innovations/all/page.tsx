@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import type { SubmissionRecord } from '../submissions/data';
 import SubmissionDetailModal from '../submissions/components/SubmissionDetailModal';
 import { INNOVATION_FIELDS, INNOVATION_STAGES, INNOVATION_INTERESTS, AFRICAN_COUNTRIES } from '@/app/data/mockData';
-import { fetchAdminInnovations, mapAdminInnovation, setInnovationVerification, unpublishInnovation } from '../api';
+import { fetchAdminInnovations, mapAdminInnovation, setInnovationVerification, unpublishInnovation, approveInnovation } from '../api';
 import { StatSkeleton, ChartSkeleton, ListSkeleton } from '../components/OverviewWidgets';
 import SubscriptionBadge from '../components/SubscriptionBadge';
 import UnpublishInnovationModal from '../components/UnpublishInnovationModal';
@@ -26,6 +26,7 @@ const distinct = (items: string[]) => new Set(items).size;
 export default function AllInnovationsPage() {
   const [records, setRecords] = useState<SubmissionRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<'Live' | 'Updated'>('Live');
   const [search, setSearch] = useState('');
   const [fieldFilter, setFieldFilter] = useState('All Fields');
   const [interestFilter, setInterestFilter] = useState('All Interests');
@@ -35,6 +36,7 @@ export default function AllInnovationsPage() {
   const [subscriptionFilter, setSubscriptionFilter] = useState('All Subscriptions');
   const [selected, setSelected] = useState<SubmissionRecord | null>(null);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
   const [unpublishingId, setUnpublishingId] = useState<string | null>(null);
   const [unpublishTarget, setUnpublishTarget] = useState<SubmissionRecord | null>(null);
   const [unpublishReason, setUnpublishReason] = useState('');
@@ -57,8 +59,10 @@ export default function AllInnovationsPage() {
   }, []);
 
   const live = useMemo(() => records.filter((r) => r.status === 'Published'), [records]);
+  const updated = useMemo(() => records.filter((r) => r.status === 'Updated' && r.verified), [records]);
+  const viewRows = view === 'Live' ? live : updated;
 
-  const filtered = useMemo(() => live.filter((r) => {
+  const filtered = useMemo(() => viewRows.filter((r) => {
     if (search && !`${r.innovation.name} ${r.user?.fullName || ''} ${r.submitter.name}`.toLowerCase().includes(search.toLowerCase())) return false;
     if (fieldFilter !== 'All Fields' && r.innovation.field !== fieldFilter) return false;
     if (interestFilter !== 'All Interests' && !r.innovation.interests.includes(interestFilter)) return false;
@@ -72,7 +76,7 @@ export default function AllInnovationsPage() {
       if (subscriptionFilter === 'Free Plan' && paid) return false;
     }
     return true;
-  }), [live, search, fieldFilter, interestFilter, stageFilter, countryFilter, verifiedFilter, subscriptionFilter]);
+  }), [viewRows, search, fieldFilter, interestFilter, stageFilter, countryFilter, verifiedFilter, subscriptionFilter]);
 
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
@@ -96,6 +100,24 @@ export default function AllInnovationsPage() {
   const openUnpublishModal = (record: SubmissionRecord) => {
     setUnpublishReason('');
     setUnpublishTarget(record);
+  };
+
+  const publishUpdated = async (record: SubmissionRecord) => {
+    if (approvingId) return;
+    setApprovingId(record.id);
+    try {
+      await approveInnovation(record.id);
+      setRecords((prev) => prev.map((r) => (
+        r.id === record.id
+          ? { ...r, status: 'Published', publishedBy: { name: 'Admin', date: new Date().toLocaleDateString(), avatar: '' } }
+          : r
+      )));
+      toast.success('Updated innovation published');
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to publish updated innovation');
+    } finally {
+      setApprovingId(null);
+    }
   };
 
   const closeUnpublishModal = () => {
@@ -178,6 +200,20 @@ export default function AllInnovationsPage() {
         )}
       </div>
 
+      <div className="flex items-center gap-2 border-b border-neutral-gray-light">
+        {(['Live', 'Updated'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => { setView(tab); setPage(1); }}
+            className={`px-4 py-2.5 text-xs font-semibold border-b-2 cursor-pointer transition-colors ${
+              view === tab ? 'border-[#453DD8] text-[#453DD8]' : 'border-transparent text-neutral-gray-medium hover:text-neutral-black'
+            }`}
+          >
+            {tab} ({tab === 'Live' ? live.length : updated.length})
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
         <div className="relative col-span-2 sm:flex-1 sm:min-w-[200px] sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-gray-medium" />
@@ -243,20 +279,24 @@ export default function AllInnovationsPage() {
                   </td>
                 </tr>
               )}
-              {!loading && live.length === 0 && (
+              {!loading && viewRows.length === 0 && (
                 <tr>
                   <td colSpan={10} className="p-8 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-16 w-16 rounded-full bg-neutral-bg-light border border-neutral-gray-light flex items-center justify-center">
                         <Lightbulb className="h-8 w-8 text-neutral-gray-medium" />
                       </div>
-                      <p className="text-sm font-medium text-neutral-black">No live innovations yet</p>
-                      <p className="text-xs text-neutral-gray-medium">Approved innovations will appear here once published.</p>
+                      <p className="text-sm font-medium text-neutral-black">{view === 'Live' ? 'No live innovations yet' : 'No updated innovations yet'}</p>
+                      <p className="text-xs text-neutral-gray-medium">
+                        {view === 'Live'
+                          ? 'Approved innovations will appear here once published.'
+                          : 'Verified innovations edited by users will appear here until re-published.'}
+                      </p>
                     </div>
                   </td>
                 </tr>
               )}
-              {!loading && live.length > 0 && paginated.map((r) => (
+              {!loading && viewRows.length > 0 && paginated.map((r) => (
                 <tr key={r.id} onClick={() => setSelected(r)} className="border-b border-neutral-gray-light/60 last:border-0 hover:bg-neutral-bg-light/40 cursor-pointer">
                   <td className="px-3 py-2.5">
                     <div className="flex gap-2.5 items-start max-w-[220px]">
@@ -280,12 +320,14 @@ export default function AllInnovationsPage() {
                   <td className="px-3 py-2.5"><SubscriptionBadge payingUser={r.payingUser} /></td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.publishedBy?.name || '—'}</td>
                   <td className="px-3 py-2.5">
-                    <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-emerald-50 text-emerald-700">Live</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${
+                      view === 'Updated' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'
+                    }`}>{view === 'Updated' ? 'Updated' : 'Live'}</span>
                     {r.verified && <span className="ml-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-blue-50 text-blue-700">Verified</span>}
                   </td>
                   <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                     <TableActionMenu
-                      triggerIcon={verifyingId === r.id || unpublishingId === r.id
+                      triggerIcon={verifyingId === r.id || unpublishingId === r.id || approvingId === r.id
                         ? <Loader2 className="h-4 w-4 animate-spin text-neutral-gray-dark" />
                         : <MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                       items={[
@@ -297,14 +339,22 @@ export default function AllInnovationsPage() {
                             : <BadgeCheck className="h-3.5 w-3.5" />,
                           onClick: () => { if (verifyingId !== r.id) toggleVerify(r); },
                         },
-                        {
-                          label: unpublishingId === r.id ? 'Unpublishing...' : 'Unpublish',
-                          icon: unpublishingId === r.id
-                            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            : <EyeOff className="h-3.5 w-3.5" />,
-                          onClick: () => { if (!unpublishingId) openUnpublishModal(r); },
-                          danger: true,
-                        },
+                        ...(view === 'Updated'
+                          ? [{
+                            label: approvingId === r.id ? 'Publishing...' : 'Publish Update',
+                            icon: approvingId === r.id
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <CheckCircle className="h-3.5 w-3.5" />,
+                            onClick: () => { if (!approvingId) publishUpdated(r); },
+                          }]
+                          : [{
+                            label: unpublishingId === r.id ? 'Unpublishing...' : 'Unpublish',
+                            icon: unpublishingId === r.id
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <EyeOff className="h-3.5 w-3.5" />,
+                            onClick: () => { if (!unpublishingId) openUnpublishModal(r); },
+                            danger: true,
+                          }]),
                       ]}
                     />
                   </td>

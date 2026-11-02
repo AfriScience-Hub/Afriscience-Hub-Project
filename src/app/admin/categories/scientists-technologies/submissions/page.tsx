@@ -13,7 +13,8 @@ import StatCard from '../../special-centres/components/StatCard';
 import PagePagination from '../../special-centres/components/PagePagination';
 import ScientistDetailModal from '../components/ScientistDetailModal';
 import { ADMIN_SCIENTISTS, SCIENTIST_STATS, SCIENTIST_TRENDS, type AdminScientist } from '../data';
-import { SCIENTIST_FIELDS } from '@/app/data/mockData';
+import SubscriptionBadge from '../../afro-innovations/components/SubscriptionBadge';
+import { SCIENTIST_FIELDS, SCIENTIST_DEGREES, SCIENTIST_SERVICES } from '@/app/data/mockData';
 
 type TabId = 'all' | 'pending' | 'approved' | 'rejected';
 
@@ -23,6 +24,9 @@ export default function ScientistSubmissionsPage() {
   const [search, setSearch] = useState('');
   const [fieldFilter, setFieldFilter] = useState('All Fields');
   const [countryFilter, setCountryFilter] = useState('All Countries');
+  const [degreeFilter, setDegreeFilter] = useState('All Degrees');
+  const [serviceFilter, setServiceFilter] = useState('All Services');
+  const [subscriptionFilter, setSubscriptionFilter] = useState('All Subscriptions');
   const [sort, setSort] = useState('Newest First');
   const [selected, setSelected] = useState<AdminScientist | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
@@ -40,10 +44,13 @@ export default function ScientistSubmissionsPage() {
       if (search && !`${r.name} ${r.title} ${r.submitterEmail} ${r.country}`.toLowerCase().includes(search.toLowerCase())) return false;
       if (fieldFilter !== 'All Fields' && r.field !== fieldFilter) return false;
       if (countryFilter !== 'All Countries' && r.country !== countryFilter) return false;
+      if (degreeFilter !== 'All Degrees' && !r.degrees.includes(degreeFilter)) return false;
+      if (serviceFilter !== 'All Services' && !r.services.includes(serviceFilter)) return false;
+      if (subscriptionFilter !== 'All Subscriptions' && r.subscription !== subscriptionFilter) return false;
       return true;
     });
     return sort === 'Oldest First' ? [...rows].reverse() : rows;
-  }, [records, tab, search, fieldFilter, countryFilter, sort]);
+  }, [records, tab, search, fieldFilter, countryFilter, degreeFilter, serviceFilter, subscriptionFilter, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
@@ -132,6 +139,15 @@ export default function ScientistSubmissionsPage() {
         <select value={countryFilter} onChange={(e) => { setCountryFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Countries</option>{countries.map((c) => <option key={c}>{c}</option>)}
         </select>
+        <select value={degreeFilter} onChange={(e) => { setDegreeFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
+          <option>All Degrees</option>{SCIENTIST_DEGREES.map((d) => <option key={d}>{d}</option>)}
+        </select>
+        <select value={serviceFilter} onChange={(e) => { setServiceFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
+          <option>All Services</option>{SCIENTIST_SERVICES.map((s) => <option key={s}>{s}</option>)}
+        </select>
+        <select value={subscriptionFilter} onChange={(e) => { setSubscriptionFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
+          <option>All Subscriptions</option><option>Pro Plan</option><option>Free Plan</option>
+        </select>
         <select value={sort} onChange={(e) => setSort(e.target.value)} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>Newest First</option>
           <option>Oldest First</option>
@@ -140,11 +156,14 @@ export default function ScientistSubmissionsPage() {
 
       <div className="rounded-xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[1020px]">
+          <table className="w-full text-sm min-w-[1420px]">
             <thead>
               <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Scientist</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Field</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Degree</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Services</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Subscription</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Profession</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Location</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Submitted By</th>
@@ -168,6 +187,12 @@ export default function ScientistSubmissionsPage() {
                     </div>
                   </td>
                   <td className="px-3 py-3"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.field}</span></td>
+                  <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{r.degrees.join(', ') || '—'}</td>
+                  <td className="px-3 py-3 text-xs text-neutral-gray-dark max-w-[180px]">
+                    <p className="truncate">{r.services.slice(0, 2).join(', ') || '—'}</p>
+                    {r.services.length > 2 && <p className="text-[11px] text-neutral-gray-medium">+{r.services.length - 2} more</p>}
+                  </td>
+                  <td className="px-3 py-3"><SubscriptionBadge payingUser={r.subscription === 'Pro Plan'} /></td>
                   <td className="px-3 py-3 text-xs text-neutral-gray-dark max-w-[180px]">
                     <p className="truncate">{r.professions[0]}</p>
                     {r.professions.length > 1 && <p className="text-[11px] text-neutral-gray-medium">+{r.professions.length - 1} more</p>}
@@ -203,7 +228,7 @@ export default function ScientistSubmissionsPage() {
                 </tr>
               ))}
               {paginated.length === 0 && (
-                <tr><td colSpan={8} className="px-3 py-10 text-center text-xs text-neutral-gray-medium">No submissions match these filters.</td></tr>
+                <tr><td colSpan={11} className="px-3 py-10 text-center text-xs text-neutral-gray-medium">No submissions match these filters.</td></tr>
               )}
             </tbody>
           </table>

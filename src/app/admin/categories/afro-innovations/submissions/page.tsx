@@ -259,7 +259,7 @@ export default function SubmissionsPage() {
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.ownership}</td>
                   <td className="px-3 py-2.5 text-xs text-neutral-gray-dark whitespace-nowrap">{r.innovation.country}</td>
                   <td className="px-3 py-2.5"><SubscriptionBadge payingUser={r.payingUser} /></td>
-                  <td className="px-3 py-2.5"><span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${r.status === 'Pending Review' ? 'bg-amber-50 text-amber-700' : r.status === 'Published' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{r.status}</span></td>
+                  <td className="px-3 py-2.5"><span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${r.status === 'Pending Review' ? 'bg-amber-50 text-amber-700' : r.status === 'Published' ? 'bg-emerald-50 text-emerald-700' : r.status === 'Updated' ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'}`}>{r.status}</span></td>
                   <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                     <TableActionMenu
                       triggerIcon={approvingId === r.id

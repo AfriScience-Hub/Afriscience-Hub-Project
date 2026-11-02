@@ -73,6 +73,7 @@ export default function ScientistDetailModal({ scientist, open, onClose, onEdit,
 
   const isPending = scientist.status === 'Pending Review';
   const isPublished = scientist.listingStatus === 'Published';
+  const canReject = isPending && !isPublished;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
@@ -84,9 +85,17 @@ export default function ScientistDetailModal({ scientist, open, onClose, onEdit,
               {scientist.title} &middot; Submitted on {scientist.submittedOn} {scientist.submittedTime}
             </p>
           </div>
-          <button onClick={onClose} className="h-9 w-9 rounded-full bg-neutral-bg-light hover:bg-neutral-gray-light flex items-center justify-center cursor-pointer shrink-0">
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => onEdit(scientist)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer"
+            >
+              <Pencil className="h-3.5 w-3.5" /> Edit
+            </button>
+            <button onClick={onClose} className="h-9 w-9 rounded-full bg-neutral-bg-light hover:bg-neutral-gray-light flex items-center justify-center cursor-pointer shrink-0">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
@@ -119,7 +128,7 @@ export default function ScientistDetailModal({ scientist, open, onClose, onEdit,
                 <Field label="Country" value={scientist.country} />
                 <Field label="City" value={scientist.city} />
                 <Field label="Submitted On" value={`${scientist.submittedOn} ${scientist.submittedTime}`} />
-                <Field label="Listing Status" value={isPublished ? 'Published' : scientist.listingStatus} />
+                <Field label="Listing Status" value={isPublished ? 'Live' : scientist.listingStatus} />
                 <Field label="Verification" value={scientist.verification} />
                 <Field label="Workflow Status" value={scientist.status} />
                 {scientist.reason && (
@@ -200,13 +209,7 @@ export default function ScientistDetailModal({ scientist, open, onClose, onEdit,
         <div className="px-6 py-4 bg-white rounded-b-2xl border-t border-neutral-gray-light flex items-center justify-between shrink-0 gap-3">
           <button onClick={onClose} className="px-4 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer">Close</button>
           <div className="flex gap-2">
-            <button
-              onClick={() => onEdit(scientist)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer"
-            >
-              <Pencil className="h-3.5 w-3.5" /> Edit
-            </button>
-            {isPending ? (
+            {canReject ? (
               <>
                 <button
                   onClick={() => { onReject(scientist); onClose(); }}
@@ -218,7 +221,7 @@ export default function ScientistDetailModal({ scientist, open, onClose, onEdit,
                   onClick={() => { onApprove(scientist); onClose(); }}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 cursor-pointer"
                 >
-                  <CheckCircle className="h-4 w-4" /> Approve
+                  <CheckCircle className="h-4 w-4" /> Published
                 </button>
               </>
             ) : (

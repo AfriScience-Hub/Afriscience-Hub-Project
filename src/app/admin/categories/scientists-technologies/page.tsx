@@ -1,14 +1,20 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   Users, MoreHorizontal, LayoutGrid, Settings2, Inbox, Plus,
   Clock, CheckCircle, XCircle,
 } from 'lucide-react';
 import { DonutCard, type Slice } from '../afro-innovations/components/OverviewWidgets';
-import { ADMIN_SCIENTISTS, SCIENTIST_STATS, SCIENTIST_TRENDS, FIELD_COUNTS } from './data';
+import {
+  ADMIN_SCIENTISTS, SCIENTIST_STATS, SCIENTIST_TRENDS,
+  FIELD_COUNTS, DEGREE_COUNTS, COUNTRY_COUNTS, SCIENTIST_REGISTRATION_TREND,
+} from './data';
+import ScientistRegistrationTrend from './components/ScientistRegistrationTrend';
+import ScientistListCard from './components/ScientistListCard';
+
+const SLICE_COLORS = ['#453DD8', '#3B82F6', '#22C55E', '#F59E0B', '#EC4899', '#06B6D4', '#8B5CF6', '#94A3B8'];
 
 const STATUS_COLORS: Record<string, string> = {
   Published: '#3B82F6',
@@ -24,6 +30,15 @@ const STATUS_SLICES: Slice[] = (['Published', 'Pending Review', 'Rejected'] as c
   return { name, count, percent: percentOf(count, SCIENTIST_STATS.total), color: STATUS_COLORS[name] };
 });
 
+function countSlices(counts: Record<string, number>, total: number): Slice[] {
+  return Object.entries(counts).map(([name, count], idx) => ({
+    name,
+    count,
+    percent: percentOf(count, total),
+    color: SLICE_COLORS[idx % SLICE_COLORS.length],
+  }));
+}
+
 export default function ScientistsAdminPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -34,9 +49,38 @@ export default function ScientistsAdminPage() {
     return () => document.removeEventListener('mousedown', h);
   }, []);
 
-  // The overview only ever previews the five most recent listings.
-  const recent = ADMIN_SCIENTISTS.slice(0, 5);
-  const fieldMax = Math.max(...Object.values(FIELD_COUNTS));
+  const fieldSlices = countSlices(FIELD_COUNTS, SCIENTIST_STATS.total);
+  const degreeSlices = countSlices(DEGREE_COUNTS, SCIENTIST_STATS.total);
+  const countrySlices = countSlices(COUNTRY_COUNTS, SCIENTIST_STATS.total);
+
+  const recent = ADMIN_SCIENTISTS.slice(0, 5).map((s) => ({
+    name: s.name,
+    meta: `${s.field} · ${s.country}`,
+    value: s.submittedOn,
+  }));
+  const topRated = [...ADMIN_SCIENTISTS]
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0, 5)
+    .map((s) => ({ name: s.name, meta: `${s.field} · ${s.country}`, value: `${s.rating.toFixed(1)} ★` }));
+  const topBooked = [...ADMIN_SCIENTISTS]
+    .sort((a, b) => b.bookings - a.bookings)
+    .slice(0, 5)
+    .map((s) => ({ name: s.name, meta: `${s.field} · ${s.country}`, value: s.bookings.toLocaleString() }));
+
+  const newSubmissions = [...ADMIN_SCIENTISTS]
+    .sort((a, b) => b.submittedOn.localeCompare(a.submittedOn))
+    .slice(0, 5)
+    .map((s) => ({ name: s.name, meta: `${s.field} · ${s.country}`, value: s.submittedOn }));
+  const pending = ADMIN_SCIENTISTS.filter((s) => s.status === 'Pending Review').map((s) => ({
+    name: s.name,
+    meta: `${s.field} · ${s.country}`,
+    value: s.submittedOn,
+  }));
+  const rejected = ADMIN_SCIENTISTS.filter((s) => s.status === 'Rejected').map((s) => ({
+    name: s.name,
+    meta: `${s.field} · ${s.country}`,
+    value: s.submittedOn,
+  }));
 
   const stats = [
     { label: 'Total Scientists', value: SCIENTIST_STATS.total, ...SCIENTIST_TRENDS.total, iconBg: 'bg-purple-100 text-purple-600', icon: <Users className="h-4 w-4" /> },
@@ -108,82 +152,22 @@ export default function ScientistsAdminPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <DonutCard title="Listings by Status" total={SCIENTIST_STATS.total} slices={STATUS_SLICES} />
+      <ScientistRegistrationTrend data={SCIENTIST_REGISTRATION_TREND} />
 
-        <div className="bg-white rounded-lg border border-neutral-gray-light p-6">
-          <h3 className="text-xs font-semibold text-neutral-black mb-5">Scientists by Field</h3>
-          <div className="space-y-5">
-            {Object.entries(FIELD_COUNTS).map(([field, count]) => (
-              <div key={field} className="flex items-center gap-4">
-                <span className="w-36 shrink-0 text-[11px] text-neutral-gray-dark">{field}</span>
-                <div className="flex-1 h-3 rounded-full bg-neutral-bg-light overflow-hidden">
-                  <div className="h-3 rounded-full bg-[#453DD8]" style={{ width: `${(count / fieldMax) * 100}%` }} />
-                </div>
-                <span className="w-8 text-right text-[11px] font-semibold text-neutral-black">{count}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <DonutCard title="Listings by Status" total={SCIENTIST_STATS.total} slices={STATUS_SLICES} />
+        <DonutCard title="Scientists by Field" total={SCIENTIST_STATS.total} slices={fieldSlices} />
+        <DonutCard title="Scientists by Degree" total={SCIENTIST_STATS.total} slices={degreeSlices} />
+        <DonutCard title="Scientists by Country" total={SCIENTIST_STATS.total} slices={countrySlices} />
       </div>
 
-      <div className="bg-white rounded-xl border border-neutral-gray-light p-6">
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <h3 className="text-sm font-bold text-neutral-black">Recent Scientist Listings</h3>
-          <Link
-            href="/admin/categories/scientists-technologies/submissions"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer shrink-0"
-          >
-            View submissions
-          </Link>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[640px]">
-            <thead>
-              <tr className="border-b border-neutral-gray-light">
-                <th className="text-left px-3 py-3 text-xs font-semibold text-neutral-gray-medium">Scientist</th>
-                <th className="text-left px-3 py-3 text-xs font-semibold text-neutral-gray-medium">Field</th>
-                <th className="text-left px-3 py-3 text-xs font-semibold text-neutral-gray-medium">Country</th>
-                <th className="text-left px-3 py-3 text-xs font-semibold text-neutral-gray-medium">Submitted</th>
-                <th className="text-left px-3 py-3 text-xs font-semibold text-neutral-gray-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recent.map((s) => (
-                <tr key={s.id} className="border-b border-neutral-gray-light/60 last:border-0">
-                  <td className="px-3 py-3.5">
-                    <div className="flex gap-3 items-start max-w-[280px]">
-                      <div className="relative h-9 w-9 rounded-lg overflow-hidden shrink-0 bg-brand-navy-900">
-                        <Image src={s.image} alt={s.name} fill sizes="36px" className="object-cover" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-neutral-black truncate">{s.name}</p>
-                        <p className="text-[11px] text-neutral-gray-medium line-clamp-2">{s.title}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-3 py-3.5">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{s.field}</span>
-                  </td>
-                  <td className="px-3 py-3.5 text-xs text-neutral-gray-dark whitespace-nowrap">{s.country}</td>
-                  <td className="px-3 py-3.5 text-xs text-neutral-gray-dark whitespace-nowrap">{s.submittedOn}</td>
-                  <td className="px-3 py-3.5">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${
-                        s.status === 'Pending Review' ? 'bg-amber-50 text-amber-700'
-                          : s.status === 'Rejected' ? 'bg-red-50 text-red-700'
-                            : 'bg-emerald-50 text-emerald-700'
-                      }`}
-                    >
-                      {s.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <ScientistListCard title="Recently Added Scientists" viewHref="/admin/categories/scientists-technologies/all" rows={recent} valueLabel="Submitted" />
+        <ScientistListCard title="Top Rated Scientists" viewHref="/admin/categories/scientists-technologies/all" rows={topRated} valueLabel="Rating" />
+        <ScientistListCard title="Top Booked Scientists" viewHref="/admin/categories/scientists-technologies/all" rows={topBooked} valueLabel="Bookings" />
+        <ScientistListCard title="New Submissions" viewHref="/admin/categories/scientists-technologies/submissions" rows={newSubmissions} valueLabel="Submitted" />
+        <ScientistListCard title="Pending Approvals" viewHref="/admin/categories/scientists-technologies/submissions" rows={pending} valueLabel="Submitted" />
+        <ScientistListCard title="Rejected Submissions" viewHref="/admin/categories/scientists-technologies/submissions" rows={rejected} valueLabel="Submitted" />
       </div>
     </div>
   );

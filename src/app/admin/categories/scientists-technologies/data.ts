@@ -45,6 +45,12 @@ export interface AdminScientist {
   /** Status shown on the "All Scientists" listing table. */
   listingStatus: ListingStatus;
   verification: Verification;
+  /** Public rating summary and booking volume. */
+  rating: number;
+  bookings: number;
+  subscription: 'Free Plan' | 'Pro Plan';
+  /** True when a verified live listing was edited and needs re-publishing. */
+  pendingUpdate?: boolean;
   views: number;
   image: string;
 
@@ -83,7 +89,7 @@ export const SCIENTIST_TRENDS = {
   unpublished: { change: '−4%', positive: false },
 };
 
-/** Platform-wide totals per field, used by the overview bar chart. */
+/** Platform-wide totals per field, used by the overview pie chart. */
 export const FIELD_COUNTS: Record<string, number> = {
   Medical: 24,
   Engineering: 19,
@@ -91,7 +97,40 @@ export const FIELD_COUNTS: Record<string, number> = {
   Agriculture: 13,
   Pharmaceutical: 11,
   Environmental: 9,
+  Others: 20,
 };
+
+/** Platform-wide totals per degree, used by the overview pie chart. */
+export const DEGREE_COUNTS: Record<string, number> = {
+  Doctoral: 34,
+  Masters: 28,
+  Bachelors: 21,
+  Diplomas: 12,
+  Associate: 9,
+  'Field Expert | No Degree': 8,
+};
+
+/** Platform-wide totals per country, used by the overview pie chart. */
+export const COUNTRY_COUNTS: Record<string, number> = {
+  Nigeria: 24,
+  Kenya: 18,
+  Ghana: 14,
+  'South Africa': 12,
+  Egypt: 10,
+  Others: 34,
+};
+
+/** New registrations over the last eight periods. */
+export const SCIENTIST_REGISTRATION_TREND = [
+  { label: 'Sep 8', value: 5 },
+  { label: 'Sep 15', value: 8 },
+  { label: 'Sep 22', value: 7 },
+  { label: 'Sep 29', value: 11 },
+  { label: 'Oct 6', value: 10 },
+  { label: 'Oct 13', value: 14 },
+  { label: 'Oct 20', value: 17 },
+  { label: 'Oct 27', value: 20 },
+];
 
 const IMG = (id: string) =>
   `https://images.unsplash.com/photo-${id}?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400`;
@@ -112,9 +151,13 @@ export const ADMIN_SCIENTISTS: AdminScientist[] = [
     publishedBy: 'A. Diallo',
     submittedOn: 'Oct 12, 2026',
     submittedTime: '09:41 AM',
-    status: 'Pending Review',
+    status: 'Approved',
     listingStatus: 'Published',
     verification: 'Verified',
+    rating: 4.9,
+    bookings: 340,
+    subscription: 'Pro Plan',
+    pendingUpdate: false,
     views: 5200,
     image: IMG('1573496359142-b8d87734a5a2'),
     bio: 'Dedicated Clinical Pharmacologist with over 12 years of experience in drug discovery and toxicology. Passionate about developing affordable medicines for tropical diseases and mentoring the next generation of African scientists.',
@@ -162,8 +205,12 @@ export const ADMIN_SCIENTISTS: AdminScientist[] = [
     submittedOn: 'Oct 9, 2026',
     submittedTime: '02:07 PM',
     status: 'Approved',
-    listingStatus: 'Published',
+    listingStatus: 'Unpublished',
     verification: 'Verified',
+    rating: 4.7,
+    bookings: 210,
+    subscription: 'Pro Plan',
+    pendingUpdate: true,
     views: 3100,
     image: IMG('1560250097-0b93528c311a'),
     bio: 'Structural engineer with 14 years delivering bridges, commercial towers and low-cost housing across West Africa. Specialist in seismic resilience and sustainable concrete mixes.',
@@ -202,8 +249,12 @@ export const ADMIN_SCIENTISTS: AdminScientist[] = [
     submittedOn: 'Oct 7, 2026',
     submittedTime: '11:23 AM',
     status: 'Approved',
-    listingStatus: 'Pending Review',
-    verification: 'Pending',
+    listingStatus: 'Unpublished',
+    verification: 'Verified',
+    rating: 4.8,
+    bookings: 180,
+    subscription: 'Pro Plan',
+    pendingUpdate: true,
     views: 2400,
     image: IMG('1580489944761-15a19d654956'),
     bio: 'Machine learning engineer building Arabic-language NLP systems and demand forecasting models for African supply chains.',
@@ -244,6 +295,10 @@ export const ADMIN_SCIENTISTS: AdminScientist[] = [
     status: 'Rejected',
     listingStatus: 'Pending Review',
     verification: 'Verified',
+    rating: 4.6,
+    bookings: 95,
+    subscription: 'Free Plan',
+    pendingUpdate: false,
     views: 1800,
     image: IMG('1594744803329-e58b31de8bf5'),
     bio: 'Soil scientist working on fertility restoration for smallholder farms, with a focus on microbiome-informed amendments.',
@@ -284,6 +339,10 @@ export const ADMIN_SCIENTISTS: AdminScientist[] = [
     status: 'Published',
     listingStatus: 'Unpublished',
     verification: 'Unverified',
+    rating: 4.5,
+    bookings: 120,
+    subscription: 'Free Plan',
+    pendingUpdate: false,
     views: 2900,
     image: IMG('1519085360753-af0119f7cbe7'),
     bio: 'Solar installer and power systems engineer delivering microgrids to off-grid communities in northern Nigeria.',
@@ -318,6 +377,10 @@ export const ADMIN_SCIENTISTS: AdminScientist[] = [
     status: 'Pending Review',
     listingStatus: 'Pending Review',
     verification: 'Verified',
+    rating: 4.8,
+    bookings: 75,
+    subscription: 'Pro Plan',
+    pendingUpdate: false,
     views: 1500,
     image: IMG('1544005313-94ddf0286df2'),
     bio: 'Climate researcher modelling coastal erosion and water stress across the Maghreb, advising ministries on adaptation policy.',
@@ -350,6 +413,10 @@ export const ADMIN_SCIENTISTS: AdminScientist[] = [
     status: 'Approved',
     listingStatus: 'Published',
     verification: 'Pending',
+    rating: 4.7,
+    bookings: 160,
+    subscription: 'Pro Plan',
+    pendingUpdate: false,
     views: 2100,
     image: IMG('1537368910025-700350fe46c7'),
     bio: 'Veterinary epidemiologist tracking zoonotic disease spillover between wildlife reserves and pastoral communities.',
@@ -382,6 +449,10 @@ export const ADMIN_SCIENTISTS: AdminScientist[] = [
     status: 'Rejected',
     listingStatus: 'Published',
     verification: 'Verified',
+    rating: 4.4,
+    bookings: 60,
+    subscription: 'Free Plan',
+    pendingUpdate: false,
     views: 980,
     image: IMG('1573497019940-1c28c88b4f3e'),
     bio: 'Food scientist specialising in post-harvest loss reduction and shelf-life extension for shea, maize and horticultural produce.',

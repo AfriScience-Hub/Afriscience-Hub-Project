@@ -16,14 +16,16 @@ interface Props {
   priceMode?: 'row' | 'scheme';
   /** Shared category price used when `priceMode` is `scheme`. */
   categoryPrice?: CategoryPrice;
+  /** Which country group the scheme price column should show. */
+  priceGroup?: 'africa' | 'nonAfrica' | 'both';
   /** Show the info icon (Categories only). */
   showNote?: boolean;
   onEdit: (opt: ManagedOption) => void;
-  onDelete: (id: string, name: string) => void;
+  onDelete?: (id: string, name: string) => void;
   onToggleStatus: (id: string, currentStatus: string) => void;
 }
 
-function PriceCell({ opt, mode, categoryPrice }: { opt: ManagedOption; mode: 'row' | 'scheme'; categoryPrice?: CategoryPrice }) {
+function PriceCell({ opt, mode, categoryPrice, priceGroup = 'africa' }: { opt: ManagedOption; mode: 'row' | 'scheme'; categoryPrice?: CategoryPrice; priceGroup?: 'africa' | 'nonAfrica' | 'both' }) {
   if (mode === 'row') {
     return (
       <span className={opt.price ? 'font-semibold text-neutral-black' : 'text-neutral-gray-medium'}>
@@ -32,24 +34,32 @@ function PriceCell({ opt, mode, categoryPrice }: { opt: ManagedOption; mode: 'ro
     );
   }
 
-  const hasScheme = Boolean(
-    categoryPrice?.africaOne || categoryPrice?.africaTwoOrMore ||
-    categoryPrice?.nonAfricaOne || categoryPrice?.nonAfricaTwoOrMore
-  );
-  if (!hasScheme) return <span className="text-neutral-gray-medium">—</span>;
-
-  return (
-    <span className="inline-flex flex-col leading-tight whitespace-nowrap">
-      <span className="font-semibold text-neutral-black">{formatPrice(categoryPrice?.africaOne)}</span>
-      {categoryPrice?.africaTwoOrMore && (
-        <span className="text-[10px] text-neutral-gray-medium">2+ at {formatPrice(categoryPrice.africaTwoOrMore)}</span>
-      )}
+  const pair = (label: string, one?: string, twoPlus?: string) => (
+    <span className="inline-flex flex-col leading-tight">
+      <span className="text-[10px] text-neutral-gray-medium">{label}</span>
+      <span className="font-semibold text-neutral-black">{formatPrice(one)}</span>
+      {twoPlus && <span className="text-[10px] text-neutral-gray-medium">2+ at {formatPrice(twoPlus)}</span>}
     </span>
   );
+
+  if (priceGroup === 'both') {
+    return (
+      <span className="inline-flex flex-col gap-1.5 whitespace-nowrap">
+        {pair('African', categoryPrice?.africaOne, categoryPrice?.africaTwoOrMore)}
+        {pair('Non-African', categoryPrice?.nonAfricaOne, categoryPrice?.nonAfricaTwoOrMore)}
+      </span>
+    );
+  }
+
+  const one = priceGroup === 'nonAfrica' ? categoryPrice?.nonAfricaOne : categoryPrice?.africaOne;
+  const twoPlus = priceGroup === 'nonAfrica' ? categoryPrice?.nonAfricaTwoOrMore : categoryPrice?.africaTwoOrMore;
+  if (!one && !twoPlus) return <span className="text-neutral-gray-medium">—</span>;
+
+  return pair(priceGroup === 'nonAfrica' ? 'Non-African' : 'African', one, twoPlus);
 }
 
 export default function OptionsTable({
-  options, showPrice = false, priceMode = 'row', categoryPrice, showNote = false,
+  options, showPrice = false, priceMode = 'row', categoryPrice, priceGroup = 'africa', showNote = false,
   onEdit, onDelete, onToggleStatus,
 }: Props) {
   if (options.length === 0) {
@@ -58,7 +68,13 @@ export default function OptionsTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm min-w-[520px]">
+      <table className="w-full text-sm min-w-[520px] table-fixed">
+        <colgroup>
+          <col className={showPrice ? 'w-[44%]' : 'w-[64%]'} />
+          {showPrice && <col className="w-[24%]" />}
+          <col className="w-[18%]" />
+          <col className={showPrice ? 'w-[14%]' : 'w-[18%]'} />
+        </colgroup>
         <thead>
           <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
             <th className="text-left px-4 py-2.5 text-xs font-semibold text-neutral-gray-medium">Name</th>
@@ -82,7 +98,7 @@ export default function OptionsTable({
               </td>
               {showPrice && (
                 <td className="px-4 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">
-                  <PriceCell opt={opt} mode={priceMode} categoryPrice={categoryPrice} />
+                  <PriceCell opt={opt} mode={priceMode} categoryPrice={categoryPrice} priceGroup={priceGroup} />
                 </td>
               )}
               <td className="px-4 py-3">
@@ -101,7 +117,7 @@ export default function OptionsTable({
                     items={[
                       { label: 'Edit', icon: <Pencil className="h-3.5 w-3.5 text-[#453DD8]" />, onClick: () => onEdit(opt) },
                       { label: opt.status === 'Active' ? 'Deactivate' : 'Activate', icon: <Power className="h-3.5 w-3.5" />, onClick: () => onToggleStatus(opt.id, opt.status) },
-                      { label: 'Delete', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => onDelete(opt.id, opt.name), danger: true },
+                      ...(onDelete ? [{ label: 'Delete', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => onDelete(opt.id, opt.name), danger: true }] : []),
                     ]}
                   />
                 </div>
