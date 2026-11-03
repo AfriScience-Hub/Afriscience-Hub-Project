@@ -40,12 +40,18 @@ interface AfroInnovationListingProps {
   setSocialHandles: (v: SocialHandle[] | ((p: SocialHandle[]) => SocialHandle[])) => void;
   agreed: boolean;
   setAgreed: (v: boolean) => void;
+  approvedEditMode?: boolean;
 }
 
 export default function AfroInnovationListing(props: AfroInnovationListingProps) {
   return (
     <>
-      <CollapsibleSection title="Innovation identity" icon={<IdCard className="h-5 w-5 text-brand-red-600" />} badge="Required">
+      <CollapsibleSection
+        title="Innovation identity"
+        icon={<IdCard className="h-5 w-5 text-brand-red-600" />}
+        badge={props.approvedEditMode ? 'Locked' : 'Required'}
+        defaultOpen={!props.approvedEditMode}
+      >
         <InnovationIdentitySection
           name={props.name} setName={props.setName}
           profileImage={props.profileImage} setProfileImage={props.setProfileImage}
@@ -55,10 +61,16 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
           country={props.country} setCountry={props.setCountry}
           bio={props.bio} setBio={props.setBio}
           AFRICAN_COUNTRIES={props.AFRICAN_COUNTRIES}
+          readOnly={props.approvedEditMode}
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Innovation details" icon={<Lightbulb className="h-5 w-5 text-brand-red-600" />} badge="Required" defaultOpen={false}>
+      <CollapsibleSection
+        title="Innovation details"
+        icon={<Lightbulb className="h-5 w-5 text-brand-red-600" />}
+        badge="Required"
+        defaultOpen={!!props.approvedEditMode}
+      >
         <InnovationDetailsSection
           innovFields={props.innovFields} setInnovFields={props.setInnovFields}
           innovInterests={props.innovInterests} setInnovInterests={props.setInnovInterests}
@@ -76,6 +88,7 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
           innovLicenses={props.innovLicenses} setInnovLicenses={props.setInnovLicenses}
           innovAwards={props.innovAwards} setInnovAwards={props.setInnovAwards}
           innovGallery={props.innovGallery} setInnovGallery={props.setInnovGallery}
+          approvedEditMode={props.approvedEditMode}
         />
       </CollapsibleSection>
 
@@ -83,6 +96,7 @@ export default function AfroInnovationListing(props: AfroInnovationListingProps)
         <InnovatorInfoSection
           socialHandles={props.socialHandles} setSocialHandles={props.setSocialHandles}
           agreed={props.agreed} setAgreed={props.setAgreed}
+          approvedEditMode={props.approvedEditMode}
         />
       </CollapsibleSection>
     </>

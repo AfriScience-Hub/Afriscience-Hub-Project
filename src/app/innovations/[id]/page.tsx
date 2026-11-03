@@ -250,8 +250,11 @@ export default function InnovationDetails() {
       <ContactInnovatorModal
         isOpen={isContactModalOpen}
         onClose={() => setIsContactModalOpen(false)}
+        innovationId={innovation.id}
+        innovatorId={innovation.creatorId}
         innovatorName={innovation.creator}
         innovatorImage={innovation.creatorImage}
+        innovationImage={innovation.image}
         innovationName={innovation.name}
       />
     </div>

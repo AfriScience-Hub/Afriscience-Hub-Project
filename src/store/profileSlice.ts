@@ -135,10 +135,20 @@ function looksLikePersonal(v: unknown): v is Record<string, any> {
     typeof o.surname === 'string' ||
     typeof o.username === 'string' ||
     typeof o.gender === 'string' ||
+    typeof o.dateOfBirth === 'string' ||
     typeof o.phone === 'string' ||
     typeof o.email === 'string' ||
+    typeof o.address === 'string' ||
     typeof o.city === 'string' ||
-    typeof o.country === 'string'
+    typeof o.state === 'string' ||
+    typeof o.lga === 'string' ||
+    typeof o.country === 'string' ||
+    typeof o.idCardType === 'string' ||
+    typeof o.idCardNumber === 'string' ||
+    typeof o.employmentStatus === 'string' ||
+    typeof o.displayPhoto === 'string' ||
+    typeof o.idCardFile === 'string' ||
+    typeof o.cvFile === 'string'
   );
 }
 
@@ -147,10 +157,13 @@ function looksLikePersonal(v: unknown): v is Record<string, any> {
  * returns the full canonical profile plus completion/submit flags.
  */
 function normalizeProfile(r: any): NormalizedProfile {
-  const d = unwrap<any>(r) || {};
-  const nested = d.personal ?? d.personalInfo ?? d.user ?? d.bio;
+  const raw = unwrap<any>(r) || {};
+  const d = raw.profile && typeof raw.profile === 'object' && !Array.isArray(raw.profile)
+    ? { ...raw, ...raw.profile }
+    : raw;
+  const nested = d.personal ?? d.personalInfo ?? d.userProfile ?? d.user ?? d.bio;
   const personal = looksLikePersonal(nested) ? (nested as Record<string, any>) : looksLikePersonal(d) ? d : null;
-  const completionSource = r?.completion ?? d?.completion ?? r ?? d;
+  const completionSource = r?.completion ?? d?.completion ?? raw?.completion ?? r ?? d;
 
   return {
     personal: personal as PersonalInfo | null,
@@ -218,6 +231,29 @@ export const saveProfile = createAsyncThunk(
     } catch (e: any) {
       return rejectWithValue({
         message: e?.message || 'Failed to save profile',
+        status: typeof e?.status === 'number' ? e.status : null,
+      });
+    }
+  },
+);
+
+/**
+ * POST /profile/completion
+ *
+ * Evaluates and submits the profile once all required sections are complete,
+ * transitioning the profile to COMPLETED and creating the user's wallet.
+ */
+export const submitProfileCompletion = createAsyncThunk(
+  'profile/submitCompletion',
+  async (arg: { payload?: Record<string, unknown>; updatedAt?: string | null } | undefined, { rejectWithValue }) => {
+    try {
+      const headers: Record<string, string> = {};
+      if (arg?.updatedAt) headers['If-Unmodified-Since'] = arg.updatedAt;
+      const r: any = await api.post('/profile/completion', arg?.payload, { auth: 'required', headers });
+      return r?.data ?? r;
+    } catch (e: any) {
+      return rejectWithValue({
+        message: e?.message || 'Failed to submit profile',
         status: typeof e?.status === 'number' ? e.status : null,
       });
     }
@@ -302,6 +338,33 @@ const profileSlice = createSlice({
         s.saveLoading = false;
         const e: any = a.payload;
         s.saveError = typeof e === 'string' ? e : e?.message || 'Failed to save profile';
+      })
+      .addCase(submitProfileCompletion.pending, (s) => { s.saveLoading = true; s.saveError = null; })
+      .addCase(submitProfileCompletion.fulfilled, (s, a) => {
+        s.saveLoading = false;
+        const raw = a.payload;
+        if (raw && typeof raw === 'object') {
+          const p = normalizeProfile(raw);
+          if (p.personal) s.personal = p.personal;
+          if (p.skills.length) s.skills = asArray<SkillEntry>(p.skills);
+          if (p.education.length) s.education = asArray<EducationEntry>(p.education);
+          if (p.experience.length) s.experience = asArray<ExperienceEntry>(p.experience);
+          if (p.languages.length) s.languages = asArray<LanguageEntry>(p.languages);
+          if (p.portfolio.length) s.portfolio = asArray<PortfolioEntry>(p.portfolio);
+          if (p.certs.length) s.certs = asArray<CertEntry>(p.certs);
+          if (p.status || p.completion.status) s.status = p.status ?? p.completion.status;
+          if (p.updatedAt) s.updatedAt = p.updatedAt;
+          if (p.completion.percentage > 0 || p.completion.completed) {
+            s.completion = p.completion.percentage;
+            s.completionCompleted = p.completion.completed;
+          }
+          if (p.completion.sections) s.completionSections = p.completion.sections;
+        }
+      })
+      .addCase(submitProfileCompletion.rejected, (s, a) => {
+        s.saveLoading = false;
+        const e: any = a.payload;
+        s.saveError = typeof e === 'string' ? e : e?.message || 'Failed to submit profile';
       });
   },
 });

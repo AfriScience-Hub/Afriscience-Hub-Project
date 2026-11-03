@@ -40,13 +40,21 @@ export function rememberFileUrl(key?: string | null, url?: string | null): void 
   if (typeof window === 'undefined') return;
   if (!key || !url || !/^https?:\/\//i.test(url)) return;
   const cache = readCache();
-  cache[key.replace(/^\/+/, '')] = { url, at: Date.now() };
+  const clean = key.replace(/^\/+/, '');
+  const bare = clean.replace(/^(?:uploads\/)+/i, '');
+  const now = Date.now();
+  cache[clean] = { url, at: now };
+  if (bare && bare !== clean) cache[bare] = { url, at: now };
+  if (!clean.startsWith('uploads/') && bare) cache[`uploads/${bare}`] = { url, at: now };
   writeCache(cache);
 }
 
 /** Signed URL captured at upload time for `key`, or undefined if unknown/expired. */
 function cachedUrlFor(key: string): string | undefined {
-  const hit = readCache()[key.replace(/^\/+/, '')];
+  const cache = readCache();
+  const clean = key.replace(/^\/+/, '');
+  const bare = clean.replace(/^(?:uploads\/)+/i, '');
+  const hit = cache[clean] ?? cache[bare] ?? cache[`uploads/${bare}`];
   if (!hit?.url) return undefined;
   return Date.now() - hit.at < URL_TTL_MS ? hit.url : undefined;
 }
@@ -104,9 +112,12 @@ export function normalizeFileSrc(value?: string | null): string | undefined {
     const key = bucketKeyOf(v);
     if (/X-Amz-/i.test(v)) {
       // Signed -> use it, but never hand out an expired one (it would just 403).
-      // If expired, fall back to the raw key so callers can attempt to load it.
-      if (!signedUrlExpired(v)) return v;
-      return key ? `${S3_BASE}/${key}` : v;
+      // If expired, fall back to the cached URL or raw key so callers can attempt to load it.
+      if (!signedUrlExpired(v)) {
+        if (key) rememberFileUrl(key, v);
+        return v;
+      }
+      return key ? (cachedUrlFor(key) ?? `${S3_BASE}/${key}`) : v;
     }
     // Unsigned bucket link is really just the storage key.
     if (key) return cachedUrlFor(key) ?? `${S3_BASE}/${key}`;
@@ -157,7 +168,10 @@ export function resolveAvatarSrc(value?: string | null): string | undefined {
   if (/^https?:\/\//i.test(v)) {
     if (/X-Amz-/i.test(v)) {
       // Signed -> use it unless expired (an expired one would just 403).
-      return signedUrlExpired(v) ? undefined : v;
+      if (signedUrlExpired(v)) return undefined;
+      const key = bucketKeyOf(v);
+      if (key) rememberFileUrl(key, v);
+      return v;
     }
     // Unsigned bucket link -> only usable if we captured its signed URL at upload.
     const key = bucketKeyOf(v);

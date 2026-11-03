@@ -3,7 +3,8 @@
 import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, EyeOff, CheckCircle, MapPin, LayoutGrid, BadgeCheck, Layers, ShieldCheck, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Lightbulb, Search, MoreVertical, Eye, EyeOff, CheckCircle, MapPin, LayoutGrid, BadgeCheck, Layers, ShieldCheck, Loader2, MessageSquare } from 'lucide-react';
 
 const darkShimmerStyle = {
   background: 'linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%)',
@@ -24,6 +25,7 @@ import StatCard from '../components/StatCard';
 const distinct = (items: string[]) => new Set(items).size;
 
 export default function AllInnovationsPage() {
+  const router = useRouter();
   const [records, setRecords] = useState<SubmissionRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'Live' | 'Updated'>('Live');
@@ -332,6 +334,11 @@ export default function AllInnovationsPage() {
                         : <MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                       items={[
                         { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
+                        {
+                          label: 'View Messages',
+                          icon: <MessageSquare className="h-3.5 w-3.5" />,
+                          onClick: () => router.push(`/admin/categories/afro-innovations/messages?innovationId=${encodeURIComponent(r.id)}&innovationName=${encodeURIComponent(r.innovation.name)}`),
+                        },
                         {
                           label: verifyingId === r.id ? 'Updating...' : r.verified ? 'Unverify' : 'Verify',
                           icon: verifyingId === r.id

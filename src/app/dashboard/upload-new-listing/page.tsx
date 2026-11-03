@@ -37,6 +37,7 @@ import InstituteTypeSelectorModal, { type InstituteSubType } from '@/app/dashboa
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
 import { fetchWalletBalance } from '@/store/walletSlice';
+import { statusKind } from '../my-listings/statusUtils';
 import { countWords, limitWords, MAX_BIO_WORDS } from './wordUtils';
 
 /**
@@ -88,6 +89,7 @@ export default function UploadNewListing() {
   const [draftSavingOpen, setDraftSavingOpen] = useState(false);
   const [showPriceConfirm, setShowPriceConfirm] = useState(false);
   const [upgradeMode, setUpgradeMode] = useState(false);
+  const [editStatus, setEditStatus] = useState<string | null>(null);
   const [successInfo, setSuccessInfo] = useState<{
     title: string;
     message: string;
@@ -117,7 +119,7 @@ export default function UploadNewListing() {
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [socialLinks, setSocialLinks] = useState({ x: '', linkedin: '', facebook: '', instagram: '' });
-  const [socialHandles, setSocialHandles] = useState<{ name: string; link: string }[]>([{ name: '', link: '' }]);
+  const [socialHandles, setSocialHandles] = useState<{ name: string; link: string; locked?: boolean }[]>([{ name: '', link: '' }]);
   const [agreed, setAgreed] = useState(false);
 
   const [services, setServices] = useState<ServiceEntry[]>([]);
@@ -237,22 +239,25 @@ export default function UploadNewListing() {
     if (item.email) setEmail(item.email);
     if (item.website) setWebsite(item.website);
     // Socials from the API: new format [{ platform, link }] or legacy object
+    const isRestricted = statusKind(item.status) === 'approved';
     const rawSocials = item.socials ?? item.socialLinks;
     if (Array.isArray(rawSocials)) {
       const rows = rawSocials
         .map((s: any) => ({
           name: String(s?.platform ?? s?.name ?? ''),
           link: String(s?.link ?? s?.url ?? ''),
+          locked: isRestricted,
         }))
         .filter((s: { name: string; link: string }) => s.name.trim() || s.link.trim());
       if (rows.length) setSocialHandles(rows);
     } else if (rawSocials && typeof rawSocials === 'object') {
       const rows = Object.entries(rawSocials)
         .filter(([, v]) => String(v ?? '').trim())
-        .map(([name, link]) => ({ name, link: String(link) }));
+        .map(([name, link]) => ({ name, link: String(link), locked: isRestricted }));
       if (rows.length) setSocialHandles(rows);
     }
     setPayingUser(item.payingUser === true);
+    setEditStatus(item.status || null);
   };
 
   /** Loads a draft/listing record and opens the Afro-Innovation form. */
@@ -515,6 +520,7 @@ export default function UploadNewListing() {
     setEditId(null);
     setDraftId(null);
     setEditBaseline(null);
+    setEditStatus(null);
     setPrefilled(false);
     setName(''); setProfileImage(null); setProfileImageKey(null); setProfileImageFile(null); setProfileImagePreview(null); setCountry(''); setStateRegion('');
     setBio(''); setPhone(''); setEmail(''); setWebsite('');
@@ -602,6 +608,10 @@ export default function UploadNewListing() {
       }
       setShowPriceConfirm(false);
       setPayingUser(isPaid);
+      const isApprovedRecord = statusKind(editStatus) === 'approved';
+      const defaultSuccessAction = isApprovedRecord || upgradeMode
+        ? { actionLabel: 'Go to My Listings', actionPath: '/dashboard/my-listings' }
+        : undefined;
       setSuccessInfo({
         title: upgradeMode
           ? 'Listing upgraded to Pro'
@@ -617,7 +627,7 @@ export default function UploadNewListing() {
             : editId
               ? 'Your innovation listing has been updated. Any changes will be reviewed by the AfriScience Hub Team.'
               : 'Your innovation listing has been submitted and is now waiting for review.',
-        ...(upgradeMode ? { actionLabel: 'Go to My Listings', actionPath: '/dashboard/my-listings' } : {}),
+        ...(defaultSuccessAction ?? {}),
       });
     } catch (e: any) {
       setShowPriceConfirm(false);
@@ -639,6 +649,7 @@ export default function UploadNewListing() {
     setSelectedType(null);
   };
 
+  const approvedEditMode = !!editId && (upgradeMode || statusKind(editStatus) === 'approved');
   // Derived state & effects (must run on every render, before any early returns)
   const listingSnapshot = JSON.stringify({
     name, country, bio, innovFields, innovInterests, innovOwnership, innovStage,
@@ -647,7 +658,8 @@ export default function UploadNewListing() {
     innovLicenses: innovLicenses.map(({ fileObj: _file, ...rest }) => rest),
     innovAwards: innovAwards.map(({ fileObj: _file, ...rest }) => rest),
     innovGallery: innovGallery.map(({ file: _file, ...rest }) => rest),
-    socialHandles, profileImageKey,
+    socialHandles: socialHandles.map(({ locked: _locked, ...rest }) => rest),
+    profileImageKey,
   });
   const hasAnySocial = selectedType === 'innovation'
     ? firstSocialError(socialHandles) === null
@@ -814,6 +826,7 @@ export default function UploadNewListing() {
           innovGallery={innovGallery} setInnovGallery={setInnovGallery}
           socialHandles={socialHandles} setSocialHandles={setSocialHandles}
           agreed={agreed} setAgreed={setAgreed}
+          approvedEditMode={approvedEditMode}
         />
       ) : (
         <>
@@ -879,7 +892,10 @@ export default function UploadNewListing() {
       {selectedType !== 'center' && selectedType !== 'scientist' && selectedType !== 'institute' && (
         <FormActions
           onCancel={() => {
-            if (editId) { router.push('/dashboard/submissions'); return; }
+            if (editId) {
+              router.push(approvedEditMode ? '/dashboard/my-listings' : '/dashboard/submissions');
+              return;
+            }
             if (draftId) { setStep('drafts'); return; }
             setStep('select');
             setSelectedType(null);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Plus, Upload, ImagePlus, Film, Info } from 'lucide-react';
+import { X, Plus, Upload, ImagePlus, Film, Info, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
 import {
@@ -33,17 +33,14 @@ interface InnovationDetailsSectionProps {
   innovLicenses: LicenseDoc[]; setInnovLicenses: (v: LicenseDoc[] | ((p: LicenseDoc[]) => LicenseDoc[])) => void;
   innovAwards: LicenseDoc[]; setInnovAwards: (v: LicenseDoc[] | ((p: LicenseDoc[]) => LicenseDoc[])) => void;
   innovGallery: GalleryFile[]; setInnovGallery: (v: GalleryFile[] | ((p: GalleryFile[]) => GalleryFile[])) => void;
+  approvedEditMode?: boolean;
 }
 
 const DIMENSION_UNITS = ['mm', 'cm', 'in', 'ft', 'm'];
-const DIMENSION_UNIT_PAYLOAD: Record<string, string> = { mm: 'MM', cm: 'CM', in: 'INCH', ft: 'FT', m: 'M' };
 const WEIGHT_UNITS = ['mg', 'g', 'oz', 'lb', 'kg', 'tonnes'];
 const GALLERY_CATEGORIES = ['Working Materials', 'Work-in-Progress', 'Finished Work'];
 const MAX_GALLERY = 3;
-const CURRENT_YEAR = new Date().getFullYear();
-const YEAR_OPTIONS = Array.from({ length: CURRENT_YEAR - 1900 + 11 }, (_, i) => 1900 + i);
 
-/** Fallback descriptions, used when the option has no note from the API. */
 const INTEREST_DESCRIPTIONS: Record<string, string> = {
   'Investment | Partnership': 'Get individuals/brands that can invest into your innovation',
   'Purchase | Trade': 'Get individuals/brands that can directly purchase & sell your innovative product',
@@ -75,28 +72,18 @@ const OWNERSHIP_DESCRIPTIONS: Record<string, string> = {
 export default function InnovationDetailsSection(props: InnovationDetailsSectionProps) {
   const [newMaterial, setNewMaterial] = useState('');
   const [customGroup, setCustomGroup] = useState('');
-
-  // Selectable options come from the backend so the admin can manage them.
-  const { options, loading } = useInnovationOptionsMap([
-    'FIELD', 'INTEREST', 'STAGE', 'OWNERSHIP', 'SDG',
-  ]);
-
+  const { options, loading } = useInnovationOptionsMap(['FIELD', 'INTEREST', 'STAGE', 'OWNERSHIP', 'SDG']);
   const names = (type: InnovationOptionType) => optionNames(options[type]);
-
-  /** Descriptions for a type, preferring the note from the API. */
   const descriptions = (type: InnovationOptionType, fallback: Record<string, string>) => {
     const map: Record<string, string> = { ...fallback };
     (options[type] ?? []).forEach((o) => { if (o.notes) map[o.content] = o.notes; });
     return map;
   };
-
-  /** Price per option, only the STAGE type carries one. */
   const prices = (type: InnovationOptionType) => {
     const map: Record<string, string> = {};
     (options[type] ?? []).forEach((o) => { if (o.price != null && o.price !== '') map[o.content] = o.price; });
     return map;
   };
-
   const addMaterial = () => {
     const t = newMaterial.trim();
     if (t && !props.innovMaterials.includes(t)) {
@@ -104,7 +91,13 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
       setNewMaterial('');
     }
   };
-
+  const addCustomGroup = () => {
+    const val = customGroup.trim();
+    if (val && !props.innovUserGroups.includes(val) && props.innovUserGroups.length < 10) {
+      props.setInnovUserGroups(p => [...p, val]);
+      setCustomGroup('');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -121,31 +114,36 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
         descriptions={descriptions('INTEREST', INTEREST_DESCRIPTIONS)} />
       <SingleSelectField label="Ownership" placeholder="What is the ownership identity of innovation?"
         options={names('OWNERSHIP')} value={props.innovOwnership} onChange={props.setInnovOwnership} required
-        descriptions={descriptions('OWNERSHIP', OWNERSHIP_DESCRIPTIONS)} />
+        disabled={props.approvedEditMode} descriptions={descriptions('OWNERSHIP', OWNERSHIP_DESCRIPTIONS)} />
       <SingleSelectField label="Stage" placeholder="Select innovation stage"
         options={names('STAGE')} value={props.innovStage} onChange={props.setInnovStage} required
-        descriptions={descriptions('STAGE', STAGE_DESCRIPTIONS)} prices={prices('STAGE')} />
+        disabled={props.approvedEditMode} descriptions={descriptions('STAGE', STAGE_DESCRIPTIONS)} prices={prices('STAGE')} />
       <MultiSelectField label="SDGs" placeholder="Select appropriate sustainable development goals your innovation address"
         options={names('SDG')} value={props.innovSdgs} onChange={props.setInnovSdgs} max={5} required />
 
       <hr className="border-neutral-gray-light" />
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-1">Specifications <span className="text-red-500">*</span></label>
+        <label className="block text-sm font-medium text-neutral-black mb-1">
+          Specifications <span className="text-red-500">*</span>
+          {props.approvedEditMode && <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-normal text-amber-700"><Lock className="h-3 w-3" /> Locked on approved listings</span>}
+        </label>
         <div className="space-y-4 pl-2 border-l-2 border-brand-red-200">
           <div className="pl-3">
             <label className="block text-sm font-medium text-neutral-black mb-1">Materials</label>
             <p className="text-xs text-neutral-gray-medium mb-2">State some materials used in innovation</p>
-            <div className="flex gap-2 mb-2">
-              <input type="text" value={newMaterial} onChange={e => setNewMaterial(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addMaterial(); } }}
-                className="flex-1 rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="e.g. plastic, aluminum, rubber" />
-              <button type="button" onClick={addMaterial} disabled={!newMaterial.trim()}
-                className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                <Plus className="h-4 w-4" /> Add
-              </button>
-            </div>
-            {newMaterial.trim() && (
+            {!props.approvedEditMode && (
+              <div className="flex gap-2 mb-2">
+                <input type="text" value={newMaterial} onChange={e => setNewMaterial(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addMaterial(); } }}
+                  className="flex-1 rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="e.g. plastic, aluminum, rubber" />
+                <button type="button" onClick={addMaterial} disabled={!newMaterial.trim()}
+                  className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                  <Plus className="h-4 w-4" /> Add
+                </button>
+              </div>
+            )}
+            {!props.approvedEditMode && newMaterial.trim() && (
               <p className="mb-2 flex items-center gap-1 text-xs text-blue-600">
                 <Info className="h-3.5 w-3.5 flex-shrink-0" /> Press Enter or click Add to save this material
               </p>
@@ -155,7 +153,9 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
                 {props.innovMaterials.map((mat, i) => (
                   <span key={i} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand-red-50 text-brand-red-600 text-xs font-medium">
                     {mat}
-                    <button type="button" onClick={() => props.setInnovMaterials(p => p.filter((_, j) => j !== i))} className="cursor-pointer"><X className="h-3 w-3" /></button>
+                    {!props.approvedEditMode && (
+                      <button type="button" onClick={() => props.setInnovMaterials(p => p.filter((_, j) => j !== i))} className="cursor-pointer"><X className="h-3 w-3" /></button>
+                    )}
                   </span>
                 ))}
               </div>
@@ -169,16 +169,16 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
               {(['length', 'width', 'height'] as const).map(dim => (
                 <div key={dim} className="flex-1">
                   <label className="block text-[11px] font-medium text-neutral-gray-medium mb-1 capitalize">{dim}</label>
-                  <input type="number" step="any" min="0" value={props.innovDimensions[dim] || ''}
+                  <input type="number" step="any" min="0" disabled={props.approvedEditMode} value={props.innovDimensions[dim] || ''}
                     onChange={e => props.setInnovDimensions(p => ({ ...p, [dim]: e.target.value }))}
-                    className="w-full rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="0" />
+                    className="w-full rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-dark" placeholder="0" />
                 </div>
               ))}
               <div className="w-24">
                 <label className="block text-[11px] font-medium text-neutral-gray-medium mb-1">Unit</label>
-                <select value={props.innovDimensions.unit}
+                <select disabled={props.approvedEditMode} value={props.innovDimensions.unit}
                   onChange={e => props.setInnovDimensions(p => ({ ...p, unit: e.target.value }))}
-                  className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+                  className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-dark">
                   {DIMENSION_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                 </select>
               </div>
@@ -190,14 +190,14 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
             <p className="text-xs text-neutral-gray-medium mb-2">State innovation weight</p>
             <div className="flex items-end gap-3 max-w-xs">
               <div className="flex-1">
-                <input type="number" step="any" min="0" value={props.innovWeight.value || ''}
+                <input type="number" step="any" min="0" disabled={props.approvedEditMode} value={props.innovWeight.value || ''}
                   onChange={e => props.setInnovWeight(p => ({ ...p, value: e.target.value }))}
-                  className="w-full rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" placeholder="0" />
+                  className="w-full rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-dark" placeholder="0" />
               </div>
               <div className="w-24">
-                <select value={props.innovWeight.unit}
+                <select disabled={props.approvedEditMode} value={props.innovWeight.unit}
                   onChange={e => props.setInnovWeight(p => ({ ...p, unit: e.target.value }))}
-                  className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+                  className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-dark">
                   {WEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                 </select>
               </div>
@@ -234,26 +234,10 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
           <div className="mt-3 flex gap-2">
             <input type="text" id="custom-user-group" value={customGroup}
               onChange={e => setCustomGroup(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  const val = customGroup.trim();
-                  if (val && !props.innovUserGroups.includes(val) && props.innovUserGroups.length < 10) {
-                    props.setInnovUserGroups(p => [...p, val]);
-                    setCustomGroup('');
-                  }
-                }
-              }}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomGroup(); } }}
               className="flex-1 rounded-lg border border-neutral-gray-light px-4 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
               placeholder="Add a custom user group..." />
-            <button type="button" disabled={!customGroup.trim()}
-              onClick={() => {
-                const val = customGroup.trim();
-                if (val && !props.innovUserGroups.includes(val) && props.innovUserGroups.length < 10) {
-                  props.setInnovUserGroups(p => [...p, val]);
-                  setCustomGroup('');
-                }
-              }}
+            <button type="button" disabled={!customGroup.trim()} onClick={addCustomGroup}
               className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
               <Plus className="h-4 w-4" /> Add
             </button>
@@ -272,13 +256,18 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
       <hr className="border-neutral-gray-light" />
 
       <DocSection title="Licenses & certifications" items={props.innovLicenses} setItems={props.setInnovLicenses}
+        disableRemove={props.approvedEditMode}
         desc="To further authenticate your innovation, upload any licenses or certifications that your innovation has (if any). Uploaded documents are securely stored and protected from unauthorized access." />
 
       <DocSection title="Honorary awards" items={props.innovAwards} setItems={props.setInnovAwards}
+        disableRemove={props.approvedEditMode}
         desc="To further authenticate your innovation, upload any recognition awards that your innovation has received previously (if any). Uploaded documents are securely stored and protected from unauthorized access." />
 
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-2">Media Gallery <span className="text-red-500">*</span></label>
+        <label className="block text-sm font-medium text-neutral-black mb-2">
+          Media Gallery <span className="text-red-500">*</span>
+          {props.approvedEditMode && <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-normal text-amber-700"><Lock className="h-3 w-3" /> Locked on approved listings</span>}
+        </label>
         <p className="text-xs text-neutral-gray-medium mb-3">Upload media files (image and video format allowed).</p>
         <div className="grid gap-4 sm:grid-cols-3">
           {GALLERY_CATEGORIES.map(cat => {
@@ -303,45 +292,48 @@ export default function InnovationDetailsSection(props: InnovationDetailsSection
                           <div className="flex items-start gap-2">
                             {file.type === 'video' ? <Film className="h-8 w-8 text-brand-red-600 flex-shrink-0" /> : <ImagePlus className="h-8 w-8 text-brand-red-600 flex-shrink-0" />}
                             <p className="flex-1 truncate text-xs text-neutral-black pt-1">{file.name}</p>
-                            <button onClick={() => props.setInnovGallery(p => p.filter((_, j) => j !== gi))} className="cursor-pointer text-red-400 hover:text-red-600 flex-shrink-0">
-                              <X className="h-3.5 w-3.5" />
-                            </button>
+                            {!props.approvedEditMode && (
+                              <button type="button" onClick={() => props.setInnovGallery(p => p.filter((_, j) => j !== gi))} className="cursor-pointer text-red-400 hover:text-red-600 flex-shrink-0">
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            )}
                           </div>
                         </div>
                       );
                     })}
                   </div>
                 )}
-                <input type="file" accept="image/*,video/*" className="hidden" id={`gallery-${cat}`}
-                  onChange={e => {
-                    // Staged locally — uploaded only when the form is submitted.
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const isImage = file.type.startsWith('image/');
-                      const isVideo = file.type.startsWith('video/');
-                      const videoExtension = /\.(mp4|mov|webm|m4v|avi|mkv)$/i.test(file.name);
-                      const imageExtension = /\.(jpe?g|png|gif|webp|avif|bmp|svg)$/i.test(file.name);
+                {!props.approvedEditMode && (
+                  <>
+                    <input type="file" accept="image/*,video/*" className="hidden" id={`gallery-${cat}`}
+                      onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const isImage = file.type.startsWith('image/');
+                          const isVideo = file.type.startsWith('video/');
+                          const videoExtension = /\.(mp4|mov|webm|m4v|avi|mkv)$/i.test(file.name);
+                          const imageExtension = /\.(jpe?g|png|gif|webp|avif|bmp|svg)$/i.test(file.name);
 
-                      // Browsers treat `accept` as a hint only, so reject audio
-                      // and other file types explicitly before staging the file.
-                      if (!isImage && !isVideo && !(file.type === '' && (videoExtension || imageExtension))) {
-                        toast.error('Only image and video files can be uploaded to the media gallery.');
+                          if (!isImage && !isVideo && !(file.type === '' && (videoExtension || imageExtension))) {
+                            toast.error('Only image and video files can be uploaded to the media gallery.');
+                            e.target.value = '';
+                            return;
+                          }
+
+                          if (props.innovGallery.length < 9) {
+                            const type = isVideo || (!isImage && videoExtension) ? 'video' : 'image';
+                            props.setInnovGallery(p => [...p, { category: cat, type, name: file.name, file }]);
+                          }
+                        }
                         e.target.value = '';
-                        return;
-                      }
-
-                      if (props.innovGallery.length < 9) {
-                        const type = isVideo || (!isImage && videoExtension) ? 'video' : 'image';
-                        props.setInnovGallery(p => [...p, { category: cat, type, name: file.name, file }]);
-                      }
-                    }
-                    e.target.value = '';
-                  }} />
-                <button type="button" disabled={files.length >= MAX_GALLERY}
-                  onClick={() => document.getElementById(`gallery-${cat}`)?.click()}
-                  className="inline-flex cursor-pointer w-full items-center justify-center gap-1 rounded-lg border border-dashed border-brand-red-300 px-3 py-2 text-xs font-medium text-brand-red-600 hover:bg-brand-red-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                  <Upload className="h-3.5 w-3.5" /> Upload File
-                </button>
+                      }} />
+                    <button type="button" disabled={files.length >= MAX_GALLERY}
+                      onClick={() => document.getElementById(`gallery-${cat}`)?.click()}
+                      className="inline-flex cursor-pointer w-full items-center justify-center gap-1 rounded-lg border border-dashed border-brand-red-300 px-3 py-2 text-xs font-medium text-brand-red-600 hover:bg-brand-red-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                      <Upload className="h-3.5 w-3.5" /> Upload File
+                    </button>
+                  </>
+                )}
               </div>
             );
           })}

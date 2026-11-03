@@ -45,13 +45,16 @@ function checksFromApi(
   sections: Record<string, CompletionSection>,
   allDone: boolean,
 ): CompletionCheck[] {
+  const optionalSections = new Set(['certificates', 'experiences', 'portfolio']);
   const keys = [
     ...SECTION_ORDER.filter(k => k in sections),
     ...Object.keys(sections).filter(k => !SECTION_ORDER.includes(k)),
   ];
   return keys.map(key => ({
     label: SECTION_LABELS[key] || key.replace(/^\w/, c => c.toUpperCase()),
-    done: allDone || !!sections[key]?.completed,
+    done: optionalSections.has(key)
+      ? (sections[key]?.records ?? 0) > 0
+      : allDone || !!sections[key]?.completed,
   }));
 }
 

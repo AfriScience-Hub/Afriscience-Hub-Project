@@ -15,13 +15,13 @@ export async function uploadFile(file: File): Promise<UploadedFile> {
   const formData = new FormData();
   formData.append('file', file);
   const r: any = await api.postFormData('/upload', formData);
-  const f = (r?.data?.file ?? r?.file) as
+  const f = (r?.data?.file ?? r?.file ?? r?.data ?? r) as
     | { key?: string; url?: string; originalName?: string }
     | undefined;
   const uploaded: UploadedFile = {
-    key: f?.key ?? '',
-    url: f?.url ?? '',
-    originalName: f?.originalName ?? file.name,
+    key: f?.key ?? r?.key ?? r?.data?.key ?? '',
+    url: f?.url ?? r?.url ?? r?.data?.url ?? '',
+    originalName: f?.originalName ?? r?.originalName ?? file.name,
   };
   // Keep the signed URL: profile endpoints only store the key, and previews
   // must go through this URL (the raw key 403s against the private bucket).

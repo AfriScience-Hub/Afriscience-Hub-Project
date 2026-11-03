@@ -107,12 +107,21 @@ function extractAvatarFromPayload(data: any): string | undefined {
   );
 }
 
+/** Converts API names like "ULICES ONDRE" to "Ulices Ondre" for display. */
+function toSentenceCaseName(value?: string | null): string {
+  if (!value) return '';
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/(^|[\s'-])([a-z])/g, (_, separator: string, letter: string) => `${separator}${letter.toUpperCase()}`);
+}
+
 function extractUser(data: any, fallbackIdentifier?: string): AuthUser {
   const u = data?.details || data?.user || data?.data?.user || data?.data || {};
   const isEmail = fallbackIdentifier?.includes('@');
   const profile = u?.profile || u?.personalInfo || u?.userProfile || u?.profileInfo || u?.personal || {};
   return {
-    name: u.name || u.fullName || u.firstName || (fallbackIdentifier ? (isEmail ? fallbackIdentifier.split('@')[0] : 'User') : 'User'),
+    name: toSentenceCaseName(u.name || u.fullName || u.firstName || (fallbackIdentifier ? (isEmail ? fallbackIdentifier.split('@')[0] : 'User') : 'User')),
     email: u.email || (isEmail ? fallbackIdentifier || '' : ''),
     phone: u.phone || (!isEmail ? fallbackIdentifier || '' : ''),
     // Only accept values we can actually render: a valid signed/blob URL, or a
@@ -161,7 +170,7 @@ function applyTokenClaims(user: AuthUser, token?: string | null): AuthUser {
   const nameIsPlaceholder = !user.name || user.name === 'User';
   return {
     ...user,
-    name: nameIsPlaceholder ? (claims.name || claims.fullName || user.name) : user.name,
+    name: toSentenceCaseName(nameIsPlaceholder ? (claims.name || claims.fullName || user.name) : user.name),
     email: user.email || claims.email || '',
     phone: user.phone || claims.phone || '',
     avatar: user.avatar ?? resolveAvatarSrc(claims.avatar),

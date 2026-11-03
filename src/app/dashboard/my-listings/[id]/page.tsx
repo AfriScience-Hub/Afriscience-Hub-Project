@@ -52,7 +52,7 @@ export default function ListingDetail() {
             <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/my-listings')}>
               <ArrowLeft className="mr-1 h-4 w-4" /> Back
             </Button>
-            {/* Editable only while still under review — approved/rejected stay preview-only. */}
+            {/* Editable while under review or approved — rejected stays preview-only. */}
             {isEditable(item.status) && (
               <Button
                 size="sm"

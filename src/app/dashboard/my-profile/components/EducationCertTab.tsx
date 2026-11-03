@@ -13,6 +13,7 @@ interface OtherCert {
   file: File | null;
   fileName: string;
   fileKey?: string;
+  fileUrl?: string;
 }
 
 interface EducationCertTabProps {
@@ -46,7 +47,22 @@ function EducationDisplay(props: EducationCertTabProps) {
           <Field label="Course of Study" value={props.courseOfStudy} />
           <Field label="Institution" value={props.institution} />
           <Field label="Year of Graduation" value={props.yearOfGraduation} />
-          <FilePreview label="Degree Certificate" title="Degree Certificate" src={props.degreeCertUrl || props.degreeCertKey || props.degreeCertFileName} localFile={props.degreeCertFile} />
+          {/*
+      Degree certificate preview:
+      - If a local file was picked this session, FilePreview creates an object URL via localFile.
+      - If we have a stored key/URL, normalizeFileSrc resolves it to a signed URL for viewing.
+      - Fall back to the file name as a hint if nothing else is available.
+    */}
+{props.degreeCertFileName || props.degreeCertUrl || props.degreeCertKey ? (
+  <FilePreview
+    label="Degree Certificate"
+    title="Degree Certificate"
+    src={props.degreeCertUrl || props.degreeCertKey || props.degreeCertFileName}
+    localFile={props.degreeCertFile}
+  />
+) : (
+  <span className="text-sm text-neutral-gray-medium">No file chosen</span>
+)}
         </div>
       </SectionCard>
 
@@ -59,7 +75,7 @@ function EducationDisplay(props: EducationCertTabProps) {
                   <Field label="Title" value={cert.title} />
                   <Field label="Issuer" value={cert.issuer} />
                   <Field label="Year" value={cert.year} />
-                  <FilePreview label="File" title={cert.title || 'Certificate'} src={cert.fileKey || cert.fileName} />
+                  <FilePreview label="File" title={cert.title || 'Certificate'} src={cert.fileUrl || cert.fileKey || cert.fileName} />
                 </div>
               </div>
             ))}
@@ -201,8 +217,8 @@ function EducationForm(props: EducationCertTabProps) {
                     <X className="h-3.5 w-3.5" />
                   </button>
                 )}
-                {cert.fileName || cert.fileKey
-                  ? <FilePreview title={cert.title || 'Certificate'} src={cert.fileKey || cert.fileName} localFile={cert.file} />
+                {cert.fileName || cert.fileUrl || cert.fileKey
+                  ? <FilePreview title={cert.title || 'Certificate'} src={cert.fileUrl || cert.fileKey || cert.fileName} localFile={cert.file} />
                   : <span className="text-xs text-neutral-gray-medium">No file chosen</span>}
               </div>
             </div>

@@ -6,6 +6,7 @@ import { Plus, Trash2 } from 'lucide-react';
 export interface SocialHandle {
   name: string;
   link: string;
+  locked?: boolean;
 }
 
 /** Known platforms and the domains their links are allowed to point at. */
@@ -93,18 +94,19 @@ interface InnovatorInfoSectionProps {
   ) => void;
   agreed: boolean;
   setAgreed: (v: boolean) => void;
+  approvedEditMode?: boolean;
 }
 
 export default function InnovatorInfoSection({
-  socialHandles, setSocialHandles, agreed, setAgreed,
+  socialHandles, setSocialHandles, agreed, setAgreed, approvedEditMode = false,
 }: InnovatorInfoSectionProps) {
-  const updateHandle = (index: number, field: keyof SocialHandle, value: string) => {
+  const updateHandle = (index: number, field: 'name' | 'link', value: string) => {
     setSocialHandles(prev => prev.map((h, i) => (i === index ? { ...h, [field]: value } : h)));
   };
 
   const [touchedFields, setTouchedFields] = useState<Record<number, { name: boolean; link: boolean }>>({});
 
-  const handleBlur = (index: number, field: keyof SocialHandle) => {
+  const handleBlur = (index: number, field: 'name' | 'link') => {
     setTouchedFields(prev => ({
       ...prev,
       [index]: { ...(prev[index] || {}), [field]: true },
@@ -121,11 +123,14 @@ export default function InnovatorInfoSection({
       <div>
         <label className="block text-sm font-medium text-neutral-black mb-1">
           Social Media Handles <span className="text-red-500">*</span>{' '}
-          <span className="text-[10px] text-neutral-gray-medium font-normal">(provide at least one)</span>
+          <span className="text-[10px] text-neutral-gray-medium font-normal">
+            {approvedEditMode ? '(you can add new handles, existing handles are locked)' : '(provide at least one)'}
+          </span>
         </label>
 
         <div className="space-y-3">
           {socialHandles.map((handle, index) => {
+            const isLocked = approvedEditMode && !!handle.locked;
             const fieldTouched = touchedFields[index] || { name: false, link: false };
             const showError = fieldTouched.name || fieldTouched.link;
             const error = showError ? validateSocialHandle(handle.name, handle.link) : null;
@@ -135,24 +140,26 @@ export default function InnovatorInfoSection({
                   <input
                     type="text"
                     value={handle.name}
+                    disabled={isLocked}
                     onChange={e => updateHandle(index, 'name', e.target.value)}
                     onBlur={() => handleBlur(index, 'name')}
                     aria-invalid={!!error}
-                    className="w-[40%] rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+                    className="w-[40%] rounded-lg border border-neutral-gray-light px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-dark"
                     placeholder="Social media name (e.g. X)"
                   />
                   <input
                     type="url"
                     value={handle.link}
+                    disabled={isLocked}
                     onChange={e => updateHandle(index, 'link', e.target.value)}
                     onBlur={() => handleBlur(index, 'link')}
                     aria-invalid={!!error}
-                    className={`flex-1 min-w-0 rounded-lg border px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 ${
+                    className={`flex-1 min-w-0 rounded-lg border px-3 py-2 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-dark ${
                       error ? 'border-red-400' : 'border-neutral-gray-light'
                     }`}
                     placeholder="https://... or www.example.com"
                   />
-                  {socialHandles.length > 1 && (
+                  {socialHandles.length > 1 && !isLocked && (
                     <button
                       type="button"
                       onClick={() => removeHandle(index)}

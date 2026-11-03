@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   Lightbulb, MoreHorizontal, ArrowRight,
   LayoutGrid, Settings2, Inbox,
-  Eye, Clock, CheckCircle, XCircle, Share2,
+  Eye, Clock, CheckCircle, XCircle, Share2, MessageSquare,
 } from 'lucide-react';
 import { DonutCard, ListCard, EmptyState, GrowthChart, StatSkeleton, ChartSkeleton, ListSkeleton } from './components/OverviewWidgets';
 import { fetchAdminInnovations, mapAdminInnovation } from './api';
@@ -149,6 +149,14 @@ export default function AfroInnovationsPage() {
               >
                 <span className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0"><Inbox className="h-4 w-4 text-emerald-600" /></span>
                 <span className="text-xs font-semibold text-neutral-black">View Submissions</span>
+              </Link>
+              <Link
+                href="/admin/categories/afro-innovations/messages"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3.5 py-2.5 hover:bg-neutral-bg-light cursor-pointer"
+              >
+                <span className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0"><MessageSquare className="h-4 w-4 text-blue-600" /></span>
+                <span className="text-xs font-semibold text-neutral-black">View Messages</span>
               </Link>
               <Link
                 href="/admin/categories/afro-innovations/create"

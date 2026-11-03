@@ -3,16 +3,79 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchFullProfile, fetchProfileCompletion, saveProfile } from '@/store/profileSlice';
+import { fetchFullProfile, fetchProfileCompletion, saveProfile, submitProfileCompletion } from '@/store/profileSlice';
 import { fetchWalletBalance } from '@/store/walletSlice';
 import { toast } from 'sonner';
 import { isNoGraduationClassLevel } from './educationLevels';
 import { uploadFile } from '@/lib/upload';
 import { normalizeFileSrc } from '@/lib/files';
+/**
+ * Extracts the storage key for the `/profile` endpoints.
+ *
+ * `POST /upload` returns keys in the form `"uploads/<userId>/<fileId>.<ext>"`.
+ * If `value` is a signed or unsigned S3 bucket URL, this extracts the key
+ * portion after the bucket host while preserving the `"uploads/..."` prefix.
+ * If `value` is already a key, it is returned as-is (trimmed, without leading
+ * slashes).
+ */
+function toProfileFileKey(value?: string | null): string | null {
+  if (!value) return null;
+  let v = value.trim();
+  if (!v) return null;
+  if (/^(blob:|data:)/i.test(v)) return null;
+
+  if (!/^https?:\/\//i.test(v) && /^https?%3A%2F%2F/i.test(v)) {
+    try {
+      v = decodeURIComponent(v);
+    } catch {
+      // keep raw
+    }
+  }
+
+  if (!/^https?:\/\//i.test(v)) {
+    return v.replace(/^\/+/, '') || null;
+  }
+
+  const clean = v.split(/[?#]/)[0];
+
+  const legacy = clean.match(/^https?:\/\/uploads\/(.+)$/i);
+  if (legacy) return `uploads/${legacy[1].replace(/^(?:uploads\/)+/i, '')}`;
+
+  const s3Match = clean.match(/^https?:\/\/afriscience-buckset\.s3\.[^/]+\/(.+)$/i);
+  if (s3Match) {
+    try {
+      return decodeURIComponent(s3Match[1]).replace(/^\/+/, '');
+    } catch {
+      return s3Match[1].replace(/^\/+/, '');
+    }
+  }
+
+  const uploadsMatch = clean.match(/\/(uploads\/.+)$/i);
+  if (uploadsMatch) {
+    try {
+      return decodeURIComponent(uploadsMatch[1]);
+    } catch {
+      return uploadsMatch[1];
+    }
+  }
+
+  try {
+    const pathname = new URL(clean).pathname.replace(/^\/+/, '');
+    return pathname ? decodeURIComponent(pathname) : null;
+  } catch {
+    return v.replace(/^\/+/, '') || null;
+  }
+}
 import { fetchCurrentUser, setUser } from '@/store/authSlice';
 import type { ProfileTab } from './profileCompletion';
 
 function uid() { return crypto.randomUUID(); }
+
+/** Trim a text field and return null when nothing was entered. */
+function nullableText(value?: string | null): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
 
 /** Last path segment of a stored file key/URL (e.g. "certificates/degree-certificate.pdf" → "degree-certificate.pdf"). */
 function fileNameOf(v?: string) { if (!v) return ''; const parts = v.split(/[?#]/)[0].split('/'); return parts[parts.length - 1] || ''; }
@@ -89,7 +152,7 @@ export function useProfileForm() {
   const [degreeCertFileName, setDegreeCertFileName] = useState('');
   const [degreeCertUrl, setDegreeCertUrl] = useState('');
   const [degreeCertKey, setDegreeCertKey] = useState('');
-  const [otherCerts, setOtherCerts] = useState<Array<{ id: string; title: string; issuer: string; year: string; file: File | null; fileName: string; fileKey: string }>>([]);
+  const [otherCerts, setOtherCerts] = useState<Array<{ id: string; title: string; issuer: string; year: string; file: File | null; fileName: string; fileKey: string; fileUrl?: string }>>([]);
   const [role, setRole] = useState(''); const [industry, setIndustry] = useState(''); const [industryOther, setIndustryOther] = useState('');
   const [company, setCompany] = useState(''); const [workCountry, setWorkCountry] = useState('');
   const [resumptionDate, setResumptionDate] = useState(''); const [roleDescription, setRoleDescription] = useState('');
@@ -129,9 +192,10 @@ export function useProfileForm() {
     setPhone(p.phone || ''); setAltPhone(p.alternativePhone || ''); setAddress(p.address || ''); setCity(p.city || '');
     // Stored docs: prefer the API's signed URL, else the upload-time one. A bare
     // storage key never renders — it 403s against the private bucket.
+    const idCardRaw = p.idCardUrl || p.idCardFile;
     const idCardSrc = normalizeFileSrc(p.idCardUrl) || normalizeFileSrc(p.idCardFile);
     if (idCardSrc) setIdCardUrl(prev => prev || idCardSrc);
-    if (p.idCardFile) setIdCardFileName(prev => prev || fileNameOf(p.idCardFile));
+    if (idCardRaw) setIdCardFileName(prev => prev || fileNameOf(idCardRaw));
     const cvRaw = p.cvUrl || p.cvFile || p.cv;
     const cvSrc = normalizeFileSrc(p.cvUrl) || normalizeFileSrc(p.cvFile) || normalizeFileSrc(p.cv);
     if (cvSrc) setCvUrl(prev => prev || cvSrc);
@@ -140,21 +204,22 @@ export function useProfileForm() {
     setZipCode(p.postalCode || ''); setEmploymentStatus(EMP_REV[p.employmentStatus] || p.employmentStatus || ''); setWebsite(p.website || '');
 
     savedFileRef.current = {
-      idCard: p.idCardFile || '',
-      avatar: p.displayPhoto || p.avatar || '',
-      cv: p.cvFile || p.cv || '',
+      idCard: toProfileFileKey(p.idCardFile || p.idCardUrl) || '',
+      avatar: toProfileFileKey(p.displayPhoto || p.avatar || p.displayPhotoUrl || p.avatarUrl || p.photo) || '',
+      cv: toProfileFileKey(p.cvFile || p.cv || p.cvUrl) || '',
     };
   }, [profile.personal, user?.name]);
 
   useEffect(() => { setSkills(profile.skills.map(s => ({ id: s.id, name: s.name }))); }, [profile.skills]);
   useEffect(() => {
-    const e = profile.education[0];
+    const e: any = profile.education[0];
+    const degRaw = e?.degreeCertificate || e?.degreeCertificateUrl || '';
     setEducationLevel(e?.educationLevel || ''); setGraduationClass(e?.graduationClass || '');
     setCourseOfStudy(e?.courseOfStudy || ''); setInstitution(e?.institution || '');
     setYearOfGraduation(e?.yearOfGraduation ? String(e.yearOfGraduation) : '');
-    savedDegreeCertRef.current = e?.degreeCertificate || '';
-    setDegreeCertUrl(e?.degreeCertificate || '');
-    setDegreeCertFileName(fileNameOf(e?.degreeCertificate));
+    savedDegreeCertRef.current = toProfileFileKey(degRaw) || '';
+    setDegreeCertUrl(normalizeFileSrc(degRaw) || degRaw);
+    setDegreeCertFileName(fileNameOf(degRaw));
   }, [profile.education]);
   useEffect(() => {
     const c = profile.experience.find(e => e.isCurrent);
@@ -168,15 +233,19 @@ export function useProfileForm() {
   useEffect(() => { setLanguages(profile.languages.map(l => ({ id: l.id, name: l.language, proficiency: PROF_REV[l.proficiency] || l.proficiency }))); }, [profile.languages]);
   useEffect(() => { setPortfolioLinks(profile.portfolio.map(p => ({ id: p.id, url: p.link, label: p.label }))); }, [profile.portfolio]);
   useEffect(() => {
-    setOtherCerts(profile.certs.map(c => ({
-      id: c.id,
-      title: c.title || '',
-      issuer: c.issuer || '',
-      year: c.year ? String(c.year) : '',
-      file: null,
-      fileName: fileNameOf(c.file),
-      fileKey: c.file || '',
-    })));
+    setOtherCerts(profile.certs.map((c: any) => {
+      const fRaw = c.file || c.fileUrl || '';
+      return {
+        id: c.id,
+        title: c.title || '',
+        issuer: c.issuer || '',
+        year: c.year ? String(c.year) : '',
+        file: null,
+        fileName: fileNameOf(fRaw),
+        fileKey: toProfileFileKey(fRaw) || fRaw,
+        fileUrl: normalizeFileSrc(c.fileUrl || fRaw) || '',
+      };
+    }));
   }, [profile.certs]);
 
   /**
@@ -213,15 +282,21 @@ export function useProfileForm() {
     setAvatarUrl(normalizeFileSrc(rawAvatar) || '');
     setIdCardFile(null); setIdCardKey('');
     setIdCardUrl(normalizeFileSrc(p?.idCardUrl) || normalizeFileSrc(p?.idCardFile) || '');
-    setIdCardFileName(p?.idCardFile ? fileNameOf(p.idCardFile) : '');
+    const idCardRaw = p?.idCardUrl || p?.idCardFile;
+    setIdCardFileName(idCardRaw ? fileNameOf(idCardRaw) : '');
     setCvFile(null); setCvKey('');
     setCvUrl(normalizeFileSrc(p?.cvUrl) || normalizeFileSrc(p?.cvFile) || normalizeFileSrc(p?.cv) || '');
     const cvRaw = p?.cvUrl || p?.cvFile || p?.cv;
     setCvFileName(cvRaw ? fileNameOf(cvRaw) : '');
-    savedFileRef.current = { idCard: p?.idCardFile || '', avatar: p?.displayPhoto || p?.avatar || '', cv: p?.cvFile || p?.cv || '' };
+    savedFileRef.current = {
+      idCard: toProfileFileKey(p?.idCardFile || p?.idCardUrl) || '',
+      avatar: toProfileFileKey(p?.displayPhoto || p?.avatar || p?.displayPhotoUrl || p?.avatarUrl || p?.photo) || '',
+      cv: toProfileFileKey(p?.cvFile || p?.cv || p?.cvUrl) || '',
+    };
 
     // Education & certifications
-    const e = profile.education[0];
+    const e: any = profile.education[0];
+    const degRaw = e?.degreeCertificate || e?.degreeCertificateUrl || '';
     setEducationLevel(e?.educationLevel || '');
     setEducationLevelOther('');
     setGraduationClass(e?.graduationClass || '');
@@ -230,18 +305,22 @@ export function useProfileForm() {
     setInstitution(e?.institution || '');
     setYearOfGraduation(e?.yearOfGraduation ? String(e.yearOfGraduation) : '');
     setDegreeCertFile(null); setDegreeCertKey('');
-    savedDegreeCertRef.current = e?.degreeCertificate || '';
-    setDegreeCertUrl(e?.degreeCertificate || '');
-    setDegreeCertFileName(fileNameOf(e?.degreeCertificate));
-    setOtherCerts(profile.certs.map(c => ({
-      id: c.id,
-      title: c.title || '',
-      issuer: c.issuer || '',
-      year: c.year ? String(c.year) : '',
-      file: null,
-      fileName: fileNameOf(c.file),
-      fileKey: c.file || '',
-    })));
+    savedDegreeCertRef.current = toProfileFileKey(degRaw) || '';
+    setDegreeCertUrl(normalizeFileSrc(degRaw) || degRaw);
+    setDegreeCertFileName(fileNameOf(degRaw));
+    setOtherCerts(profile.certs.map((c: any) => {
+      const fRaw = c.file || c.fileUrl || '';
+      return {
+        id: c.id,
+        title: c.title || '',
+        issuer: c.issuer || '',
+        year: c.year ? String(c.year) : '',
+        file: null,
+        fileName: fileNameOf(fRaw),
+        fileKey: toProfileFileKey(fRaw) || fRaw,
+        fileUrl: normalizeFileSrc(c.fileUrl || fRaw) || '',
+      };
+    }));
 
     // Experience, skills, languages & portfolio links
     const current = profile.experience.find(exp => exp.isCurrent);
@@ -286,7 +365,6 @@ export function useProfileForm() {
       setDegreeCertFileName(f.name);
       // A fresh pick invalidates any previously stored key/url so save re-uploads it.
       setDegreeCertKey('');
-      setDegreeCertUrl('');
       toast.success('Degree certificate selected');
     }
     e.target.value = '';
@@ -319,14 +397,14 @@ export function useProfileForm() {
     }
   };
   const clearIdCard = () => { setIdCardFile(null); setIdCardFileName(''); setIdCardUrl(''); setIdCardKey(''); savedFileRef.current.idCard = ''; };
-  const clearDegreeCert = () => { setDegreeCertFile(null); setDegreeCertFileName(fileNameOf(savedDegreeCertRef.current)); setDegreeCertUrl(savedDegreeCertRef.current); setDegreeCertKey(''); };
+  const clearDegreeCert = () => { setDegreeCertFile(null); setDegreeCertFileName(''); setDegreeCertUrl(''); setDegreeCertKey(''); savedDegreeCertRef.current = ''; };
   const clearCv = () => { setCvFile(null); setCvFileName(''); setCvUrl(''); setCvKey(''); savedFileRef.current.cv = ''; };
   const clearAvatar = () => { setAvatarFile(null); setAvatarFileName(''); setAvatarUrl(''); setAvatarKey(''); savedFileRef.current.avatar = ''; };
 
-  const addOtherCert = () => setOtherCerts(p => [...p, { id: uid(), title: '', issuer: '', year: '', file: null, fileName: '', fileKey: '' }]);
+  const addOtherCert = () => setOtherCerts(p => [...p, { id: uid(), title: '', issuer: '', year: '', file: null, fileName: '', fileKey: '', fileUrl: '' }]);
   const removeOtherCert = (id: string) => setOtherCerts(p => p.filter(c => c.id !== id));
   const updateOtherCert = (id: string, field: string, value: string | File | null) => setOtherCerts(p => p.map(c => c.id !== id ? c : field === 'file'
-    ? { ...c, file: value as File | null, fileName: (value as File)?.name || (value ? '' : c.fileName), fileKey: '' }
+    ? { ...c, file: value as File | null, fileName: (value as File)?.name || '', fileKey: '', fileUrl: '' }
     : { ...c, [field]: value as string }));
   const addPastJob = () => setPastJobs(p => [...p, { id: uid(), organization: '', role: '', industry: '', country: '', startDate: '', roleDescription: '' }]);
   const removePastJob = (id: string) => setPastJobs(p => p.filter(j => j.id !== id));
@@ -346,7 +424,8 @@ export function useProfileForm() {
 
     if (idCardFile && !idCardKey) {
       const uploaded = await uploadFile(idCardFile);
-      idCard = uploaded.key || uploaded.url;
+      if (!uploaded.key) throw new Error('Upload did not return a storage key.');
+      idCard = uploaded.key;
       setIdCardKey(uploaded.key);
       setIdCardUrl(uploaded.url);
       savedFileRef.current.idCard = idCard;
@@ -355,7 +434,8 @@ export function useProfileForm() {
       setAvatarUploading(true);
       try {
         const uploaded = await uploadFile(avatarFile);
-        avatar = uploaded.key || uploaded.url;
+        if (!uploaded.key) throw new Error('Upload did not return a storage key.');
+        avatar = uploaded.key;
         avatarDisplayUrl = uploaded.url;
         setAvatarKey(uploaded.key);
         setAvatarUrl(uploaded.url);
@@ -366,7 +446,8 @@ export function useProfileForm() {
     }
     if (cvFile && !cvKey) {
       const uploaded = await uploadFile(cvFile);
-      cv = uploaded.key || uploaded.url;
+      if (!uploaded.key) throw new Error('Upload did not return a storage key.');
+      cv = uploaded.key;
       setCvKey(uploaded.key);
       setCvUrl(uploaded.url);
       savedFileRef.current.cv = cv;
@@ -377,8 +458,6 @@ export function useProfileForm() {
 
   const buildPersonalPayload = useCallback((keys: { idCard: string; avatar: string; cv: string }) => ({
     personal: {
-      fullName,
-      email,
       username,
       gender: GENDER_MAP[gender] || gender || null,
       dateOfBirth: dateOfBirth || null,
@@ -395,46 +474,51 @@ export function useProfileForm() {
       idCardNumber: idCardNumber || null,
       employmentStatus: EMP_MAP[employmentStatus] || employmentStatus || null,
       website: website.trim() || null,
-      idCardFile: keys.idCard || null,
-      displayPhoto: keys.avatar || null,
-      cvFile: keys.cv || null,
+      idCardFile: toProfileFileKey(keys.idCard),
+      displayPhoto: toProfileFileKey(keys.avatar),
+      cvFile: toProfileFileKey(keys.cv),
     },
-  }), [fullName, email, username, gender, dateOfBirth, bio, phone, altPhone, address, city, stateOfResidence, localGovt, country, zipCode, idCardType, idCardNumber, employmentStatus, website]);
+  }), [username, gender, dateOfBirth, bio, phone, altPhone, address, city, stateOfResidence, localGovt, country, zipCode, idCardType, idCardNumber, employmentStatus, website]);
 
   const buildEducationPayload = useCallback(async () => {
-    let certKey = degreeCertKey || savedDegreeCertRef.current || '';
+    let certKey = toProfileFileKey(degreeCertKey || savedDegreeCertRef.current || '') || '';
     if (degreeCertFile && !degreeCertKey) {
       const uploaded = await uploadFile(degreeCertFile);
-      certKey = uploaded.key || uploaded.url;
+      if (!uploaded.key) throw new Error('Upload did not return a storage key.');
+      certKey = uploaded.key;
       setDegreeCertKey(uploaded.key);
       setDegreeCertUrl(uploaded.url || certKey);
       savedDegreeCertRef.current = certKey;
     }
 
     const noGrad = isNoGraduationClassLevel(educationLevel);
+    const graduationYear = Number(yearOfGraduation);
     const education = {
-      educationLevel: educationLevel || null,
-      educationLevelOther: educationLevel === 'Other' ? (educationLevelOther || null) : null,
-      graduationClass: noGrad ? null : (graduationClass === 'Other' ? graduationClassOther : graduationClass) || null,
-      courseOfStudy: noGrad ? null : (courseOfStudy || null),
-      institution: institution || null,
-      yearOfGraduation: Number(yearOfGraduation) || 0,
+      educationLevel: educationLevel === 'Other'
+        ? nullableText(educationLevelOther) || 'Other'
+        : nullableText(educationLevel),
+      graduationClass: noGrad ? null : nullableText(graduationClass === 'Other' ? graduationClassOther : graduationClass),
+      courseOfStudy: noGrad ? null : nullableText(courseOfStudy),
+      institution: nullableText(institution),
+      yearOfGraduation: yearOfGraduation.trim() && Number.isFinite(graduationYear) ? graduationYear : null,
       degreeCertificate: certKey || null,
     };
 
     const certificates: Record<string, unknown>[] = [];
     for (const cert of otherCerts) {
       if (!cert.title.trim() && !cert.issuer.trim() && !cert.year.trim() && !cert.file && !cert.fileKey) continue;
-      let fileKey = cert.fileKey || '';
+      let fileKey = toProfileFileKey(cert.fileKey || '') || '';
       if (cert.file && !fileKey) {
         const uploaded = await uploadFile(cert.file);
-        fileKey = uploaded.key || uploaded.url;
-        setOtherCerts(prev => prev.map(c => c.id === cert.id ? { ...c, fileKey, fileName: c.fileName || uploaded.originalName } : c));
+        if (!uploaded.key) throw new Error('Upload did not return a storage key.');
+        fileKey = uploaded.key;
+        setOtherCerts(prev => prev.map(c => c.id === cert.id ? { ...c, fileKey, fileUrl: uploaded.url, fileName: c.fileName || uploaded.originalName } : c));
       }
+      const certYear = Number(cert.year);
       certificates.push({
-        title: cert.title.trim(),
-        issuer: cert.issuer.trim(),
-        year: Number(cert.year) || 0,
+        title: nullableText(cert.title),
+        issuer: nullableText(cert.issuer),
+        year: cert.year.trim() && Number.isFinite(certYear) ? certYear : null,
         file: fileKey || null,
       });
     }
@@ -443,39 +527,39 @@ export function useProfileForm() {
     // The UI edits only the first education record. Preserve any additional
     // server records so a section replacement does not delete them.
     const additionalEducation = profile.education.slice(1).map(e => ({
-      educationLevel: e.educationLevel || null,
-      graduationClass: e.graduationClass || null,
-      courseOfStudy: e.courseOfStudy || null,
-      institution: e.institution || null,
-      yearOfGraduation: e.yearOfGraduation || 0,
-      degreeCertificate: e.degreeCertificate || null,
+      educationLevel: nullableText(e.educationLevel),
+      graduationClass: nullableText(e.graduationClass),
+      courseOfStudy: nullableText(e.courseOfStudy),
+      institution: nullableText(e.institution),
+      yearOfGraduation: e.yearOfGraduation || null,
+      degreeCertificate: toProfileFileKey(e.degreeCertificate),
     }));
     return { education: [...(hasEducation ? [education] : []), ...additionalEducation], certificates };
-  }, [profile.education, educationLevel, educationLevelOther, graduationClass, graduationClassOther, courseOfStudy, institution, yearOfGraduation, degreeCertUrl, degreeCertKey, degreeCertFile, otherCerts]);
+  }, [profile.education, educationLevel, educationLevelOther, graduationClass, graduationClassOther, courseOfStudy, institution, yearOfGraduation, degreeCertKey, degreeCertFile, otherCerts]);
 
   const buildExperiencePayload = useCallback(() => {
     const experiences: Record<string, unknown>[] = [];
-    const hasCurrent = !!(company || role || industry || workCountry || resumptionDate || roleDescription);
+    const hasCurrent = [company, role, industry, workCountry, resumptionDate, roleDescription].some(v => v.trim());
     if (hasCurrent) {
       experiences.push({
-        organization: company,
-        role,
-        industry: industry === 'Other' ? (industryOther || industry) : industry,
-        country: workCountry,
-        startDate: resumptionDate,
-        roleDescription,
+        organization: nullableText(company),
+        role: nullableText(role),
+        industry: industry === 'Other' ? nullableText(industryOther) : nullableText(industry),
+        country: nullableText(workCountry),
+        startDate: nullableText(resumptionDate),
+        roleDescription: nullableText(roleDescription),
         isCurrent: true,
       });
     }
     for (const job of pastJobs) {
       if (!job.organization.trim() && !job.role.trim()) continue;
       experiences.push({
-        organization: job.organization,
-        role: job.role,
-        industry: job.industry,
-        country: job.country,
-        startDate: job.startDate,
-        roleDescription: job.roleDescription,
+        organization: nullableText(job.organization),
+        role: nullableText(job.role),
+        industry: nullableText(job.industry),
+        country: nullableText(job.country),
+        startDate: nullableText(job.startDate),
+        roleDescription: nullableText(job.roleDescription),
         isCurrent: false,
       });
     }
@@ -485,9 +569,9 @@ export function useProfileForm() {
       skills: skills.filter(s => s.name.trim()).map(s => ({ name: s.name.trim() })),
       languages: languages.filter(l => l.name.trim()).map(l => ({
         language: l.name.trim(),
-        proficiency: PROF_MAP[l.proficiency] || l.proficiency.toUpperCase(),
+        proficiency: l.proficiency ? (PROF_MAP[l.proficiency] || l.proficiency.toUpperCase()) : null,
       })),
-      portfolio: portfolioLinks.filter(p => p.url.trim()).map(p => ({ label: p.label, link: p.url.trim() })),
+      portfolio: portfolioLinks.filter(p => p.url.trim()).map(p => ({ label: nullableText(p.label), link: p.url.trim() })),
     };
   }, [company, role, industry, industryOther, workCountry, resumptionDate, roleDescription, pastJobs, skills, languages, portfolioLinks]);
 
@@ -529,13 +613,16 @@ export function useProfileForm() {
       const result = await runSave(payload);
       if (result.ok) {
         if (tab === 'personal') {
+          setAvatarFile(null);
           const newAvatar = normalizeFileSrc(avatarDisplayUrl);
           if (newAvatar) {
+            setAvatarUrl(newAvatar);
             const base = user ?? { name: fullName, email: '', phone: '' };
             dispatch(setUser({ ...base, avatar: newAvatar }));
           }
           dispatch(fetchCurrentUser());
         }
+        dispatch(fetchProfileCompletion({ force: true }));
         toast.success(result.submitted ? 'Profile completed and submitted!' : 'Draft saved');
       }
       return result;
@@ -544,27 +631,78 @@ export function useProfileForm() {
     }
   }, [uploadPersonalFiles, buildPersonalPayload, buildEducationPayload, buildExperiencePayload, runSave, user, fullName, dispatch, failSave]);
 
-  const submitProfile = useCallback(async (): Promise<SaveResult> => {
+  const submitProfile = useCallback(async (tab?: ProfileTab): Promise<SaveResult> => {
     try {
-      const keys = await uploadPersonalFiles();
-      const education = await buildEducationPayload();
-      const payload = {
-        ...buildPersonalPayload(keys),
-        ...education,
-        ...buildExperiencePayload(),
-      };
+      let payload: Record<string, unknown>;
+      let avatarDisplayUrl = '';
+      if (tab === 'personal') {
+        const keys = await uploadPersonalFiles();
+        payload = buildPersonalPayload(keys);
+        avatarDisplayUrl = keys.avatarDisplayUrl;
+      } else if (tab === 'education') {
+        payload = await buildEducationPayload();
+      } else if (tab === 'experience') {
+        payload = buildExperiencePayload();
+      } else {
+        const keys = await uploadPersonalFiles();
+        const education = await buildEducationPayload();
+        avatarDisplayUrl = keys.avatarDisplayUrl;
+        payload = {
+          ...buildPersonalPayload(keys),
+          ...education,
+          ...buildExperiencePayload(),
+        };
+      }
 
-      const result = await runSave(payload);
-      if (result.ok) {
-        const newAvatar = normalizeFileSrc(keys.avatarDisplayUrl);
+      // First persist any unsaved edits on the active tab (or all tabs) via PUT /profile,
+      // then trigger POST /profile/completion to formally submit the profile & create the wallet.
+      const saved = await runSave(payload);
+      if (!saved.ok) return saved;
+
+      if (!tab || tab === 'personal') {
+        setAvatarFile(null);
+        const newAvatar = normalizeFileSrc(avatarDisplayUrl);
         if (newAvatar) {
+          setAvatarUrl(newAvatar);
           const base = user ?? { name: fullName, email: '', phone: '' };
           dispatch(setUser({ ...base, avatar: newAvatar }));
         }
         dispatch(fetchCurrentUser());
-        toast.success(result.submitted ? 'Profile submitted successfully!' : 'Profile saved as draft. Complete all required sections to submit.');
       }
-      return result;
+
+      try {
+        const completionRes: any = await dispatch(submitProfileCompletion()).unwrap();
+        const isCompleted =
+          completionRes?.completed === true ||
+          completionRes?.submitted === true ||
+          completionRes?.status === 'COMPLETED' ||
+          saved.submitted;
+        dispatch(fetchWalletBalance());
+        dispatch(fetchProfileCompletion({ force: true }));
+        dispatch(fetchFullProfile({ force: true }));
+        toast.success(
+          isCompleted
+            ? 'Profile submitted successfully!'
+            : 'Section submitted! Complete any remaining required sections to finalize your profile.',
+        );
+        return {
+          ok: true,
+          submitted: true,
+          status: completionRes?.status ?? saved.status ?? null,
+        };
+      } catch (postErr: any) {
+        // If POST /profile/completion rejects because other required tabs aren't filled yet,
+        // the current tab's changes are already persisted on the server.
+        dispatch(fetchProfileCompletion({ force: true }));
+        dispatch(fetchFullProfile({ force: true }));
+        if (saved.submitted) {
+          toast.success('Profile submitted successfully!');
+          return { ok: true, submitted: true, status: saved.status };
+        }
+        const msg = typeof postErr === 'string' ? postErr : postErr?.message;
+        toast.info(msg || 'Changes saved. Complete all required sections to finalize profile submission.');
+        return { ok: true, submitted: true, status: saved.status };
+      }
     } catch (e) {
       return failSave(e);
     }

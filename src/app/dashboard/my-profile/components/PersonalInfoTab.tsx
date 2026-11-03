@@ -177,11 +177,6 @@ function PersonalForm(props: PersonalInfoTabProps) {
         <h3 className="text-lg font-bold text-neutral-black">Personal Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Full Name <span className="text-red-600">*</span></label>
-            <input type="text" value={props.fullName} className={`${inputClass} bg-neutral-bg-light cursor-not-allowed`} readOnly />
-            <p className="text-xs text-neutral-gray-medium mt-1">Full name cannot be changed</p>
-          </div>
-          <div>
             <label className="block text-sm font-medium text-neutral-gray-dark mb-2">Username <span className="text-red-600">*</span></label>
             <input type="text" value={props.username} onChange={e => props.onUsernameChange(e.target.value)} className={inputClass} required />
           </div>
@@ -192,7 +187,6 @@ function PersonalForm(props: PersonalInfoTabProps) {
               <option value="Female">Female</option>
               <option value="Male">Male</option>
               <option value="Other">Other</option>
-              <option value="Prefer not to say">Prefer not to say</option>
             </select>
           </div>
           <div>

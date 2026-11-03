@@ -220,6 +220,7 @@ export function mapVisitorInnovation(raw: any): any {
     favorites: Number(raw.favorites || 0),
     shares: Number(raw.shares || 0),
     creator: raw.creator || raw.submitterName || raw.user?.fullName || raw.fullName || '',
+    creatorId: raw.creatorId || raw.userId || raw.user?.id || raw.submitterId || raw.creator?.id || raw.profile?.userId || '',
     creatorUsername: raw.profile?.username || raw.username || '',
     creatorImage: raw.creatorImage || raw.user?.avatar || raw.avatar || '',
     creatorBio: raw.creatorBio || raw.bio || '',

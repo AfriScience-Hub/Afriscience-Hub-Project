@@ -159,8 +159,9 @@ export function ProfileContent() {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const result = await f.submitProfile();
-      if (result.ok && result.submitted) setEditingTab(null);
+      const tabArg = isProfileTab(activeTab) ? activeTab : undefined;
+      const result = await f.submitProfile(tabArg);
+      if (result.ok) setEditingTab(null);
     } finally { setSubmitting(false); }
   };
 
@@ -257,7 +258,7 @@ export function ProfileContent() {
         fullName={f.fullName}
         username={f.username}
         completionPct={f.completionPct}
-        avatar={f.user?.avatar || f.avatarUrl}
+        avatar={f.avatarUrl || f.user?.avatar}
         showAvatarEdit={editingTab === 'personal'}
         onAvatarChange={f.handleAvatarUpload}
         avatarUploading={f.avatarUploading}

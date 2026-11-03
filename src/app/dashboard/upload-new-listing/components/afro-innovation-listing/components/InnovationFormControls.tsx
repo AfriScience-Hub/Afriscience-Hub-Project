@@ -113,11 +113,11 @@ export function MultiSelectField({ label, placeholder, options, value, onChange,
   );
 }
 
-export function SingleSelectField({ label, placeholder, options, value, onChange, required, tooltips, descriptions, prices, hint }: {
+export function SingleSelectField({ label, placeholder, options, value, onChange, required, tooltips, descriptions, prices, hint, disabled }: {
   label: string; placeholder: string; options: string[]; value: string;
   onChange: (v: string) => void; required?: boolean; tooltips?: Record<string, string>; descriptions?: Record<string, string>;
   /** Price per option, shown at the right end of the row (STAGE options). */
-  prices?: Record<string, string>; hint?: string;
+  prices?: Record<string, string>; hint?: string; disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -126,12 +126,12 @@ export function SingleSelectField({ label, placeholder, options, value, onChange
     <div ref={ref}>
       <label className="mb-2 block text-sm font-medium text-neutral-black">{label} {required && <span className="text-red-500">*</span>}</label>
       {hint && <p className="mb-2 text-xs text-neutral-gray-medium">{hint}</p>}
-      <button type="button" onClick={() => setOpen(v => !v)}
-        className="flex min-h-10 w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-neutral-gray-light bg-white px-4 py-2 text-left outline-none focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600">
+      <button type="button" disabled={disabled} onClick={() => { if (!disabled) setOpen(v => !v); }}
+        className="flex min-h-10 w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-neutral-gray-light bg-white px-4 py-2 text-left outline-none focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-dark">
         <span className={`min-w-0 flex-1 truncate text-xs sm:text-sm ${value ? 'text-neutral-black' : 'text-neutral-gray-medium'}`}>{value || placeholder}</span>
         <ChevronDown size={15} className={`shrink-0 text-neutral-gray-medium transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && (
+      {open && !disabled && (
         <div className="mt-2 max-h-60 overflow-y-auto rounded-lg border border-neutral-gray-light bg-white p-2 shadow-sm">
           {options.map(opt => (
             <button key={opt} type="button" onClick={() => { onChange(opt); setOpen(false); }}
@@ -199,8 +199,9 @@ export function BulletInput({ label, items, setItems, placeholder, description, 
   );
 }
 
-export function DocSection({ title, items, setItems, desc }: {
+export function DocSection({ title, items, setItems, desc, disableRemove = false }: {
   title: string; items: LicenseDoc[]; setItems: (v: LicenseDoc[] | ((p: LicenseDoc[]) => LicenseDoc[])) => void; desc: string;
+  disableRemove?: boolean;
 }) {
   const [docTitle, setDocTitle] = useState('');
   const [docIssuer, setDocIssuer] = useState('');
@@ -225,20 +226,25 @@ export function DocSection({ title, items, setItems, desc }: {
       <p className="text-xs text-neutral-gray-medium mb-2">{desc}</p>
       {items.length > 0 && (
         <div className="space-y-2 mb-3">
-          {items.map((item, i) => (
-            <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-neutral-gray-light bg-neutral-bg-light">
-              <div className="flex items-center gap-2 min-w-0">
-                <FileText className="h-4 w-4 text-brand-red-600 flex-shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-neutral-black truncate">{item.title}</p>
-                  <p className="text-[11px] text-neutral-gray-medium truncate">{item.issuer} &middot; {item.date}</p>
+          {items.map((item, i) => {
+            const canDelete = !disableRemove || !!item.fileObj;
+            return (
+              <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-neutral-gray-light bg-neutral-bg-light">
+                <div className="flex items-center gap-2 min-w-0">
+                  <FileText className="h-4 w-4 text-brand-red-600 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-neutral-black truncate">{item.title}</p>
+                    <p className="text-[11px] text-neutral-gray-medium truncate">{item.issuer} &middot; {item.date}</p>
+                  </div>
                 </div>
+                {canDelete && (
+                  <button type="button" onClick={() => setItems(p => p.filter((_, j) => j !== i))} className="cursor-pointer text-red-400 hover:text-red-600 flex-shrink-0 ml-2">
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
               </div>
-              <button onClick={() => setItems(p => p.filter((_, j) => j !== i))} className="cursor-pointer text-red-400 hover:text-red-600 flex-shrink-0 ml-2">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
       <div className="space-y-2 rounded-lg border border-dashed border-neutral-gray-light p-3">

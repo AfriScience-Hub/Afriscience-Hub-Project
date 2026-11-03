@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { X, ImagePlus } from 'lucide-react';
+import { X, ImagePlus, Lock } from 'lucide-react';
 import { normalizeFileSrc } from '@/lib/files';
 import { countWords, limitWords, MAX_BIO_WORDS } from '../../../wordUtils';
 
@@ -22,6 +22,7 @@ interface InnovationIdentitySectionProps {
   bio: string;
   setBio: (v: string) => void;
   AFRICAN_COUNTRIES: string[];
+  readOnly?: boolean;
 }
 
 export default function InnovationIdentitySection({
@@ -30,6 +31,7 @@ export default function InnovationIdentitySection({
   profileImageFile, setProfileImageFile,
   profileImagePreview, setProfileImagePreview,
   country, setCountry, bio, setBio, AFRICAN_COUNTRIES,
+  readOnly = false,
 }: InnovationIdentitySectionProps) {
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -69,6 +71,12 @@ export default function InnovationIdentitySection({
 
   return (
     <div className="space-y-4">
+      {readOnly && (
+        <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <Lock className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+          <span>Identity details are locked because this listing has already been approved.</span>
+        </div>
+      )}
       <div>
         <label className="block text-sm font-medium text-neutral-black mb-2">Profile Image <span className="text-red-500">*</span></label>
         <div className="flex items-center gap-4">
@@ -83,17 +91,20 @@ export default function InnovationIdentitySection({
                   className="rounded-xl object-cover border border-neutral-gray-light h-20 w-20"
                 />
               )}
-              <button onClick={handleRemoveImage} className="absolute -top-2 -right-2 h-5 w-5 cursor-pointer rounded-full bg-red-500 text-white flex items-center justify-center">
-                <X className="h-3 w-3" />
-              </button>
+              {!readOnly && (
+                <button type="button" onClick={handleRemoveImage} className="absolute -top-2 -right-2 h-5 w-5 cursor-pointer rounded-full bg-red-500 text-white flex items-center justify-center">
+                  <X className="h-3 w-3" />
+                </button>
+              )}
             </div>
           ) : (
             <>
-              <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+              <input ref={fileRef} type="file" accept="image/*" disabled={readOnly} onChange={handleImageChange} className="hidden" />
               <button
                 type="button"
+                disabled={readOnly}
                 onClick={() => fileRef.current?.click()}
-                className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-neutral-gray-light hover:border-brand-red-400 transition-colors"
+                className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-neutral-gray-light hover:border-brand-red-400 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ImagePlus className="h-6 w-6 text-neutral-gray-medium" />
               </button>
@@ -111,8 +122,9 @@ export default function InnovationIdentitySection({
         <input
           type="text"
           value={name}
+          disabled={readOnly}
           onChange={e => setName(e.target.value)}
-          className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+          className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-dark"
           placeholder="Enter innovation's name"
         />
       </div>
@@ -121,8 +133,9 @@ export default function InnovationIdentitySection({
         <label className="block text-sm font-medium text-neutral-black mb-1">Country <span className="text-red-500">*</span></label>
         <select
           value={country}
+          disabled={readOnly}
           onChange={e => setCountry(e.target.value)}
-          className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+          className="w-full cursor-pointer rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-dark"
         >
           <option value="">Select Country</option>
           {AFRICAN_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -133,9 +146,10 @@ export default function InnovationIdentitySection({
         <label className="block text-sm font-medium text-neutral-black mb-1">Short Bio / Description <span className="text-red-500">*</span></label>
         <textarea
           value={bio}
+          disabled={readOnly}
           onChange={e => setBio(limitWords(e.target.value, MAX_BIO_WORDS))}
           rows={3}
-          className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 resize-none"
+          className="w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 resize-none disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-dark"
           placeholder="Describe innovation in more details"
         />
         <p className={`text-xs mt-1 ${countWords(bio) >= MAX_BIO_WORDS ? 'text-brand-red-600' : 'text-neutral-gray-medium'}`}>
