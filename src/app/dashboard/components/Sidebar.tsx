@@ -108,9 +108,6 @@ export default function Sidebar({
                 >
                   <item.icon className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{item.label}</span>
-                  {item.key === 'messages' && unreadCount > 0 && (
-                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-red-600 px-1.5 text-[10px] font-bold text-white">2</span>
-                  )}
                   {item.key === 'upload' && (
                     <Plus className="ml-auto h-3.5 w-3.5 text-brand-red-600" />
                   )}

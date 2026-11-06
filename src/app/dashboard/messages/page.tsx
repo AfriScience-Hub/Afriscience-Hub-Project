@@ -188,7 +188,7 @@ export default function MessagesPage() {
               aria-label="Filter by listing type"
               value={listingFilter}
               onChange={(event) => handleFilterChange(event.target.value)}
-              className="w-full min-w-[190px] rounded-lg border border-brand-red-200 bg-white px-3 py-2 text-sm font-medium text-neutral-black outline-none transition focus:border-brand-red-500 focus:ring-2 focus:ring-brand-red-100 sm:w-auto"
+              className="w-full min-w-[190px] rounded-lg border border-brand-navy-900 bg-white px-3 py-2 text-sm font-medium text-neutral-black outline-none transition focus:border-brand-navy-900 focus:ring-2 focus:ring-brand-navy-900/20 sm:w-auto"
             >
               <option value="all">All Listings</option>
               {LISTING_TYPES.map((option) => (

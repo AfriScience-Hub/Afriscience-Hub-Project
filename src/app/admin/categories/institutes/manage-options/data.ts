@@ -1,6 +1,6 @@
 export type OptionStatus = 'Active' | 'Inactive';
 
-export type ManageTab = 'Class' | 'Program' | 'Gender' | 'Ownership' | 'Services' | 'Country' | 'Faculties' | 'Program Levels';
+export type ManageTab = 'Class' | 'Program' | 'Gender' | 'Ownership' | 'Services' | 'Price' | 'Country' | 'Faculties' | 'Program Levels';
 
 /** The two top-level institute groups, each with their own option tabs. */
 export type InstituteGroup = 'primary-secondary' | 'university';
@@ -42,8 +42,8 @@ export const UNIVERSITY_OWNERSHIP_LIST = [
 
 /** Inner tabs per institute group. */
 export const TABS_BY_GROUP: Record<InstituteGroup, ManageTab[]> = {
-  'primary-secondary': ['Class', 'Program', 'Gender', 'Ownership', 'Services', 'Country'],
-  university: ['Ownership', 'Gender', 'Faculties', 'Program Levels', 'Services', 'Country'],
+  'primary-secondary': ['Class', 'Program', 'Gender', 'Ownership', 'Services', 'Price', 'Country'],
+  university: ['Ownership', 'Gender', 'Faculties', 'Program Levels', 'Services', 'Price', 'Country'],
 };
 
 export const TAB_SINGULAR: Record<ManageTab, string> = {
@@ -52,6 +52,7 @@ export const TAB_SINGULAR: Record<ManageTab, string> = {
   Gender: 'Gender',
   Ownership: 'Ownership',
   Services: 'Service',
+  Price: 'Price',
   Country: 'Country',
   Faculties: 'Faculty',
   'Program Levels': 'Program Level',
@@ -61,24 +62,25 @@ export const TAB_DESCRIPTIONS: Record<ManageTab, string> = {
   Class: 'Classes describe the school level an institute covers (primary, secondary or both).',
   Program: 'Programs describe how a school day is structured (day, boarding or both).',
   Gender: 'Gender states whether the institute is for girls, boys or mixed.',
-  Ownership: 'Ownership lists the governing type of an institute. Every ownership shares one price per country group, and carries an info note.',
+  Ownership: 'Ownership lists the governing type of an institute, and carries an info note.',
   Services: 'Services are the individual offerings an institute provides to students and the community.',
+  Price: 'Configure the shared listing prices for African and non-African institutes based on whether they select one ownership or more than one ownership.',
   Country: 'Countries set the listing price for African and non-African institutes.',
   Faculties: 'Faculties group the broad academic divisions a university offers.',
   'Program Levels': 'Program levels describe the study pathways a university runs (undergraduate, postgraduate, etc).',
 };
 
 /** Only Ownership carries the info icon, so only it gets a note field. */
-export const TABS_WITHOUT_NOTE: ManageTab[] = ['Class', 'Program', 'Gender', 'Services', 'Country', 'Faculties', 'Program Levels'];
+export const TABS_WITHOUT_NOTE: ManageTab[] = ['Class', 'Program', 'Gender', 'Services', 'Price', 'Country', 'Faculties', 'Program Levels'];
 
 /** Tabs whose table renders a Price column. */
-export const TABS_TABLE_PRICE: ManageTab[] = ['Ownership', 'Country'];
+export const TABS_TABLE_PRICE: ManageTab[] = ['Country'];
 
 /** Tabs whose Add / Edit dialog accepts a price (Country prices are per-row). */
 export const TABS_DIALOG_PRICE: ManageTab[] = ['Country'];
 
 /** Tabs that expose the "Create price" button beside "Add X". */
-export const TABS_WITH_CREATE_PRICE: ManageTab[] = ['Ownership'];
+export const TABS_WITH_CREATE_PRICE: ManageTab[] = [];
 
 /** Tabs whose options are grouped under collapsible Ownership sections. */
 export const FIELD_SCOPED: ManageTab[] = ['Services'];
@@ -128,6 +130,7 @@ const schoolSeeds: Record<ManageTab, ManagedOption[]> = {
     { id: 'ss-5', field: 'Mission', name: 'Scholarships', status: 'Active', isActive: true, count: 8 },
     { id: 'ss-6', field: 'International', name: 'STEM & STEAM', status: 'Inactive', isActive: false, count: 6 },
   ],
+  Price: [],
   Country: schoolCountry,
   // University-only tabs, unused for schools.
   Faculties: [],
@@ -172,6 +175,7 @@ const universitySeeds: Record<ManageTab, ManagedOption[]> = {
     { id: 'us-5', field: 'Inter-Government', name: 'Conferences', status: 'Active', isActive: true, count: 5 },
     { id: 'us-6', field: 'NGO | Charity', name: 'Scholarships', status: 'Inactive', isActive: false, count: 3 },
   ],
+  Price: [],
   Country: schoolCountry,
 };
 

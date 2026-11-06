@@ -2,44 +2,49 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { cn, formatPrice } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import {
   ArrowLeft, Microscope, Search, Plus, LayoutGrid, Layers, Briefcase,
   Users, Globe, Tag,
 } from 'lucide-react';
 import {
   MANAGE_TABS, TAB_DESCRIPTIONS, TAB_SINGULAR, CENTRE_FIELDS,
-  TABS_WITHOUT_NOTE, TABS_TABLE_PRICE, TABS_DIALOG_PRICE, TABS_WITH_CREATE_PRICE,
+  TABS_WITHOUT_NOTE, TABS_TABLE_PRICE, TABS_DIALOG_PRICE,
   SEED_OPTIONS, SEED_CATEGORY_PRICE,
   type ManageTab, type ManagedOption, type CategoryPrice,
 } from './data';
 import OptionsTable from './components/OptionsTable';
 import FieldSections from './components/FieldSections';
 import OptionDialog from './components/OptionDialog';
-import CategoryPriceDialog from './components/CategoryPriceDialog';
+import PriceSideDialog, { type PriceSide } from './components/PriceSideDialog';
+import SplitPricingTable from './components/SplitPricingTable';
+import { usePersistentTab } from '@/lib/usePersistentTab';
 
 /** Tabs whose options are grouped under collapsible Field sections. */
 const FIELD_SCOPED: ManageTab[] = ['Categories', 'Services'];
-
-const hasPriceValues = (p: CategoryPrice) =>
-  Boolean(p.africaOne || p.africaTwoOrMore || p.nonAfricaOne || p.nonAfricaTwoOrMore);
+const TAB_IDS = MANAGE_TABS.map((tab) => tab.id);
 
 const TAB_ICONS: Record<ManageTab, React.ComponentType<{ className?: string }>> = {
   Fields: LayoutGrid,
   Categories: Layers,
   Services: Briefcase,
   Ownership: Users,
+  Price: Tag,
   Country: Globe,
 };
 
 export default function ManageOptionsPage() {
-  const [activeTab, setActiveTab] = useState<ManageTab>('Fields');
+  const [activeTab, setActiveTab] = usePersistentTab<ManageTab>(
+    'admin:special-centres-manage-options:tab',
+    TAB_IDS,
+    'Fields',
+  );
   const [options, setOptions] = useState<Record<ManageTab, ManagedOption[]>>(SEED_OPTIONS);
   const [categoryPrice, setCategoryPrice] = useState<CategoryPrice>(SEED_CATEGORY_PRICE);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ManagedOption | null>(null);
-  const [priceDialogOpen, setPriceDialogOpen] = useState(false);
+  const [priceSide, setPriceSide] = useState<PriceSide | null>(null);
   const [deleting, setDeleting] = useState<{ id: string; name: string } | null>(null);
   /** Field pre-selected when "Add" is pressed inside a field section. */
   const [pendingField, setPendingField] = useState<string | null>(null);
@@ -47,7 +52,6 @@ export default function ManageOptionsPage() {
   const showTablePrice = TABS_TABLE_PRICE.includes(activeTab);
   const showDialogPrice = TABS_DIALOG_PRICE.includes(activeTab);
   const showNote = !TABS_WITHOUT_NOTE.includes(activeTab);
-  const showCreatePrice = TABS_WITH_CREATE_PRICE.includes(activeTab);
   const isFieldScoped = FIELD_SCOPED.includes(activeTab);
 
   const rows = options[activeTab];
@@ -102,6 +106,21 @@ export default function ManageOptionsPage() {
         price: row.id === 'k-1' ? price.africaOne : row.id === 'k-2' ? price.nonAfricaOne : row.price,
       })),
     }));
+  };
+
+  const handleSidePriceSave = (
+    side: PriceSide,
+    values: { one?: string; twoOrMore?: string },
+  ) => {
+    const next: CategoryPrice = { ...categoryPrice };
+    if (side === 'african') {
+      next.africaOne = values.one;
+      next.africaTwoOrMore = values.twoOrMore;
+    } else {
+      next.nonAfricaOne = values.one;
+      next.nonAfricaTwoOrMore = values.twoOrMore;
+    }
+    handleCategoryPriceSave(next);
   };
 
   return (
@@ -159,92 +178,74 @@ export default function ManageOptionsPage() {
             <span className="font-semibold text-neutral-black">{activeTab}</span> — {TAB_DESCRIPTIONS[activeTab]}
           </p>
 
-          <div className="rounded-xl border border-neutral-gray-light bg-white overflow-hidden">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3 py-3 border-b border-neutral-gray-light bg-neutral-bg-light/40">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleAdd}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer shrink-0"
-                >
-                  <Plus className="h-3.5 w-3.5" /> Add {TAB_SINGULAR[activeTab]}
-                </button>
-                {showCreatePrice && (
+          {activeTab === 'Price' ? (
+            <SplitPricingTable
+              price={categoryPrice}
+              itemNoun="category"
+              itemNounPlural="categories"
+              africanTitle="African Specialist Centres"
+              nonAfricanTitle="Non-African Specialist Centres"
+              footnote="Non-African specialist centre listings also add the Country fee configured under the Country tab."
+              onEditAfrican={() => setPriceSide('african')}
+              onEditNonAfrican={() => setPriceSide('nonAfrican')}
+            />
+          ) : (
+            <div className="rounded-xl border border-neutral-gray-light bg-white overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3 py-3 border-b border-neutral-gray-light bg-neutral-bg-light/40">
+                <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setPriceDialogOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#453DD8]/40 text-[#453DD8] bg-[#453DD8]/[0.06] text-xs font-semibold hover:bg-[#453DD8]/[0.12] cursor-pointer shrink-0"
+                    onClick={handleAdd}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer shrink-0"
                   >
-                    <Tag className="h-3.5 w-3.5" /> Create price
+                    <Plus className="h-3.5 w-3.5" /> Add {TAB_SINGULAR[activeTab]}
                   </button>
-                )}
+                </div>
+                <div className="relative flex-1 sm:max-w-xs">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-gray-medium" />
+                  <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder={`Search ${activeTab.toLowerCase()}...`}
+                    className="w-full pl-9 pr-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
+                  />
+                </div>
               </div>
-              <div className="relative flex-1 sm:max-w-xs">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-gray-medium" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder={`Search ${activeTab.toLowerCase()}...`}
-                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
-                />
-              </div>
-            </div>
 
-            {showTablePrice && activeTab === 'Categories' && (
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5 px-3.5 py-2.5 border-b border-neutral-gray-light bg-[#453DD8]/[0.04]">
-                <span className="text-[11px] font-semibold text-[#453DD8]">Shared category price</span>
-                <span className="text-[11px] text-neutral-gray-dark">
-                  African <span className="font-semibold text-neutral-black">{formatPrice(categoryPrice.africaOne)}</span>
-                  <span className="text-neutral-gray-medium"> · 2+ </span>
-                  <span className="font-semibold text-neutral-black">{formatPrice(categoryPrice.africaTwoOrMore)}</span>
-                </span>
-                <span className="text-[11px] text-neutral-gray-dark">
-                  Non-African <span className="font-semibold text-neutral-black">{formatPrice(categoryPrice.nonAfricaOne)}</span>
-                  <span className="text-neutral-gray-medium"> · 2+ </span>
-                  <span className="font-semibold text-neutral-black">{formatPrice(categoryPrice.nonAfricaTwoOrMore)}</span>
-                </span>
-                <button
-                  onClick={() => setPriceDialogOpen(true)}
-                  className="text-[11px] font-semibold text-[#453DD8] hover:underline cursor-pointer ml-auto"
-                >
-                  {hasPriceValues(categoryPrice) ? 'Edit price' : 'Create price'}
-                </button>
-              </div>
-            )}
-
-            {isFieldScoped ? (
-              <div className="p-3.5">
-                <FieldSections
-                  fields={CENTRE_FIELDS}
+              {isFieldScoped ? (
+                <div className="p-3.5">
+                  <FieldSections
+                    fields={CENTRE_FIELDS}
+                    options={filtered}
+                    showPrice={false}
+                    showNote={showNote}
+                    singular={TAB_SINGULAR[activeTab]}
+                    emptyHint={`No ${activeTab.toLowerCase()} added under this field yet.`}
+                    onEdit={handleEdit}
+                    onDelete={(id, name) => setDeleting({ id, name })}
+                    onToggleStatus={handleToggleStatus}
+                    onAddUnder={handleAddUnder}
+                  />
+                </div>
+              ) : (
+                <OptionsTable
                   options={filtered}
                   showPrice={showTablePrice}
+                  priceMode="row"
                   categoryPrice={categoryPrice}
                   showNote={showNote}
-                  singular={TAB_SINGULAR[activeTab]}
-                  emptyHint={`No ${activeTab.toLowerCase()} added under this field yet.`}
                   onEdit={handleEdit}
                   onDelete={(id, name) => setDeleting({ id, name })}
                   onToggleStatus={handleToggleStatus}
-                  onAddUnder={handleAddUnder}
                 />
-              </div>
-            ) : (
-              <OptionsTable
-                options={filtered}
-                showPrice={showTablePrice}
-                priceMode="row"
-                categoryPrice={categoryPrice}
-                showNote={showNote}
-                onEdit={handleEdit}
-                onDelete={(id, name) => setDeleting({ id, name })}
-                onToggleStatus={handleToggleStatus}
-              />
-            )}
+              )}
 
-            <div className="px-4 py-2.5 border-t border-neutral-gray-light bg-neutral-bg-light/30">
-              <p className="text-[11px] text-neutral-black">
-                Showing {filtered.length} of {rows.length} {activeTab.toLowerCase()}
-              </p>
+              <div className="px-4 py-2.5 border-t border-neutral-gray-light bg-neutral-bg-light/30">
+                <p className="text-[11px] text-neutral-black">
+                  Showing {filtered.length} of {rows.length} {activeTab.toLowerCase()}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -260,11 +261,14 @@ export default function ManageOptionsPage() {
         showNote={showNote}
       />
 
-      <CategoryPriceDialog
-        open={priceDialogOpen}
-        onClose={() => setPriceDialogOpen(false)}
-        initial={categoryPrice}
-        onSave={handleCategoryPriceSave}
+      <PriceSideDialog
+        open={priceSide !== null}
+        side={priceSide}
+        one={priceSide === 'nonAfrican' ? categoryPrice.nonAfricaOne : categoryPrice.africaOne}
+        twoOrMore={priceSide === 'nonAfrican' ? categoryPrice.nonAfricaTwoOrMore : categoryPrice.africaTwoOrMore}
+        itemNoun="category"
+        onClose={() => setPriceSide(null)}
+        onSave={handleSidePriceSave}
       />
 
       {deleting && (

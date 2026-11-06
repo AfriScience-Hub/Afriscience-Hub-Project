@@ -40,13 +40,14 @@ export interface CategoryPrice {
   nonAfricaTwoOrMore?: string;
 }
 
-export type ManageTab = 'Fields' | 'Categories' | 'Services' | 'Ownership' | 'Country';
+export type ManageTab = 'Fields' | 'Categories' | 'Services' | 'Ownership' | 'Price' | 'Country';
 
 export const MANAGE_TABS: { id: ManageTab; label: string }[] = [
   { id: 'Fields', label: 'Fields' },
   { id: 'Categories', label: 'Categories' },
   { id: 'Services', label: 'Services' },
   { id: 'Ownership', label: 'Ownership' },
+  { id: 'Price', label: 'Price' },
   { id: 'Country', label: 'Country' },
 ];
 
@@ -56,28 +57,30 @@ export const TAB_SINGULAR: Record<ManageTab, string> = {
   Categories: 'Category',
   Services: 'Service',
   Ownership: 'Ownership',
+  Price: 'Price',
   Country: 'Country',
 };
 
 export const TAB_DESCRIPTIONS: Record<ManageTab, string> = {
   Fields: 'Fields describe the main area or sector the specialist centre operates in.',
-  Categories: 'Categories list the disciplines a centre covers. Every category shares one price per country group, and carries an info note.',
+  Categories: 'Categories list the disciplines a centre covers under each field, and carry an info note.',
   Services: 'Services are the individual offerings a centre provides to its visitors.',
   Ownership: 'Ownership indicates who owns or leads the specialist centre.',
+  Price: 'Configure the shared listing prices for African and non-African specialist centres based on whether they select one category or more than one category.',
   Country: 'Countries set the listing price for African and non-African centres.',
 };
 
 /** Only Categories carry the info icon, so only they get a note field. */
-export const TABS_WITHOUT_NOTE: ManageTab[] = ['Fields', 'Services', 'Ownership', 'Country'];
+export const TABS_WITHOUT_NOTE: ManageTab[] = ['Fields', 'Services', 'Ownership', 'Price', 'Country'];
 
 /** Tabs whose table renders a Price column. */
-export const TABS_TABLE_PRICE: ManageTab[] = ['Categories', 'Country'];
+export const TABS_TABLE_PRICE: ManageTab[] = ['Country'];
 
 /** Tabs whose Add / Edit dialog accepts a price (per-row, i.e. Country only). */
 export const TABS_DIALOG_PRICE: ManageTab[] = ['Country'];
 
 /** Tabs that expose the "Create price" button beside "Add X". */
-export const TABS_WITH_CREATE_PRICE: ManageTab[] = ['Categories'];
+export const TABS_WITH_CREATE_PRICE: ManageTab[] = [];
 
 /** Starter rows so every tab opens with realistic content. */
 export const SEED_OPTIONS: Record<ManageTab, ManagedOption[]> = {
@@ -112,6 +115,7 @@ export const SEED_OPTIONS: Record<ManageTab, ManagedOption[]> = {
     { id: 'o-4', name: 'Inter-Government', status: 'Active', isActive: true, count: 7 },
     { id: 'o-5', name: 'Academic | Institution', status: 'Active', isActive: true, count: 5 },
   ],
+  Price: [],
   Country: [
     { id: 'k-1', name: 'African countries', status: 'Active', isActive: true, price: '5000', count: 54 },
     { id: 'k-2', name: 'Non-African countries', status: 'Active', isActive: true, price: '12000', count: 32 },

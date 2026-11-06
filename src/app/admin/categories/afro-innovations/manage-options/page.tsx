@@ -18,6 +18,7 @@ import {
 import OptionsTable from './components/OptionsTable';
 import OptionDialog from './components/OptionDialog';
 import { api } from '@/lib/api';
+import { usePersistentTab } from '@/lib/usePersistentTab';
 import { toast } from 'sonner';
 
 const TAB_ICONS: Record<ManageTab, React.ComponentType<{ className?: string }>> = {
@@ -28,8 +29,14 @@ const TAB_ICONS: Record<ManageTab, React.ComponentType<{ className?: string }>> 
   SDGs: Award,
 };
 
+const TAB_IDS = MANAGE_TABS.map((tab) => tab.id);
+
 export default function ManageOptionsPage() {
-  const [activeTab, setActiveTab] = useState<ManageTab>('Fields');
+  const [activeTab, setActiveTab] = usePersistentTab<ManageTab>(
+    'admin:afro-innovations-manage-options:tab',
+    TAB_IDS,
+    'Fields',
+  );
   const [options, setOptions] = useState<ManagedOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');

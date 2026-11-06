@@ -56,7 +56,7 @@ export function ChatComposer({
         rows={1}
         placeholder={placeholder}
         disabled={disabled || sending}
-        className="max-h-28 min-h-11 flex-1 resize-none rounded-xl border border-neutral-gray-light bg-white px-3.5 py-3 text-sm text-neutral-black outline-none transition focus:border-brand-red-500 focus:ring-2 focus:ring-brand-red-100 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-medium"
+        className="max-h-28 min-h-11 flex-1 resize-none rounded-xl border border-neutral-gray-light bg-white px-3.5 py-3 text-sm text-neutral-black outline-none transition focus:border-brand-navy-900 focus:ring-2 focus:ring-brand-navy-900/20 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-medium"
       />
       <Button
         type="submit"

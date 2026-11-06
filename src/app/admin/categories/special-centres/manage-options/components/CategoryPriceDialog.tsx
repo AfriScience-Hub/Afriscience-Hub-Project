@@ -10,7 +10,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   initial: CategoryPrice;
-  onSave: (price: CategoryPrice) => void;
+  onSave: (price: CategoryPrice) => void | Promise<void>;
   /** Noun for the option the price applies to, e.g. "category" or "profession". */
   title?: string;
 }
@@ -28,6 +28,7 @@ export default function CategoryPriceDialog({ open, onClose, initial, onSave, ti
   const [africaTwoOrMore, setAfricaTwoOrMore] = useState('');
   const [nonAfricaOne, setNonAfricaOne] = useState('');
   const [nonAfricaTwoOrMore, setNonAfricaTwoOrMore] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -42,19 +43,26 @@ export default function CategoryPriceDialog({ open, onClose, initial, onSave, ti
 
   const isEdit = hasValue(initial);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (![africaOne, africaTwoOrMore, nonAfricaOne, nonAfricaTwoOrMore].some((v) => v.trim())) {
       toast.error('Enter a price for at least one of the four fields');
       return;
     }
-    onSave({
-      africaOne: africaOne.trim() ? priceToStorage(africaOne) : undefined,
-      africaTwoOrMore: africaTwoOrMore.trim() ? priceToStorage(africaTwoOrMore) : undefined,
-      nonAfricaOne: nonAfricaOne.trim() ? priceToStorage(nonAfricaOne) : undefined,
-      nonAfricaTwoOrMore: nonAfricaTwoOrMore.trim() ? priceToStorage(nonAfricaTwoOrMore) : undefined,
-    });
-    toast.success(`Category price ${isEdit ? 'updated' : 'created'}`);
-    onClose();
+    setSaving(true);
+    try {
+      await onSave({
+        africaOne: africaOne.trim() ? priceToStorage(africaOne) : undefined,
+        africaTwoOrMore: africaTwoOrMore.trim() ? priceToStorage(africaTwoOrMore) : undefined,
+        nonAfricaOne: nonAfricaOne.trim() ? priceToStorage(nonAfricaOne) : undefined,
+        nonAfricaTwoOrMore: nonAfricaTwoOrMore.trim() ? priceToStorage(nonAfricaTwoOrMore) : undefined,
+      });
+      toast.success(`${title} price ${isEdit ? 'updated' : 'created'}`);
+      onClose();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save price');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const field = (label: string, value: string, setter: (v: string) => void, placeholder: string) => (
@@ -96,14 +104,14 @@ export default function CategoryPriceDialog({ open, onClose, initial, onSave, ti
           {group('African countries (no country fee)', (
             <>
               {field(`Price for one ${title}`, africaOne, setAfricaOne, 'e.g. 50')}
-              {field(`Price for two or more ${title}s`, africaTwoOrMore, setAfricaTwoOrMore, 'e.g. 80')}
+              {field(`Price for more than one ${title}`, africaTwoOrMore, setAfricaTwoOrMore, 'e.g. 80')}
             </>
           ))}
 
           {group('Non-African countries (plus the country fee)', (
             <>
               {field(`Price for one ${title}`, nonAfricaOne, setNonAfricaOne, 'e.g. 120')}
-              {field(`Price for two or more ${title}s`, nonAfricaTwoOrMore, setNonAfricaTwoOrMore, 'e.g. 160')}
+              {field(`Price for more than one ${title}`, nonAfricaTwoOrMore, setNonAfricaTwoOrMore, 'e.g. 160')}
             </>
           ))}
         </div>
@@ -111,15 +119,17 @@ export default function CategoryPriceDialog({ open, onClose, initial, onSave, ti
         <div className="flex gap-2 justify-end px-5 py-4 border-t border-neutral-gray-light">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer"
+            disabled={saving}
+            className="px-4 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-5 py-2 rounded-xl bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer"
+            disabled={saving}
+            className="px-5 py-2 rounded-xl bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer disabled:opacity-50"
           >
-            {isEdit ? 'Update price' : 'Save price'}
+            {saving ? 'Saving...' : isEdit ? 'Update price' : 'Save price'}
           </button>
         </div>
       </div>
