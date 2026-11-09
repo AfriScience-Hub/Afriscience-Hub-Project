@@ -1,7 +1,7 @@
 'use client';
 
 import { Check, ThumbsUp, X } from 'lucide-react';
-import { LISTING_REVIEW_NOTICE } from './FormActions';
+import { LISTING_REVIEW_NOTICE } from '../../FormActions';
 
 interface ListingSuccessModalProps {
   open: boolean;

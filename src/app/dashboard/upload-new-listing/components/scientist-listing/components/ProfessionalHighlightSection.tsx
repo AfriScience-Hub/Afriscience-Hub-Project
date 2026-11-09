@@ -19,6 +19,7 @@ export default function ProfessionalHighlightSection({ highlight, onChange }: Pr
         responseHint="How quick can you respond to a client's request on this platform?"
         workDaysHint="Indicate the days you operate in a week"
         workHoursHint="Indicate the time interval for work activities in a day"
+        workHoursSingle
       />
     </CollapsibleSection>
   );

@@ -7,9 +7,13 @@ import CollapsibleSection from '../../CollapsibleSection';
 const MAX_MEDIA_FILES = 10;
 
 export interface MediaItem {
-  file: File;
+  /** Staged file that still needs uploading (new selections). */
+  file?: File | null;
+  /** Blob preview for a staged file or the remote URL for an existing image. */
   previewUrl: string;
   name: string;
+  /** Storage key/URL already saved on the server (edit mode). */
+  url?: string;
 }
 
 interface ScientistGallerySectionProps {
@@ -26,16 +30,35 @@ function truncateName(name: string, max = 30): string {
 
 export default function ScientistGallerySection({ media, onChange }: ScientistGallerySectionProps) {
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (media.length >= MAX_MEDIA_FILES) {
-      toast.error(`Maximum of ${MAX_MEDIA_FILES} media files reached`);
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const images = files.filter((file) => file.type.startsWith('image/'));
+    if (images.length !== files.length) {
+      toast.error('Only image files can be added to the media gallery');
+    }
+    const remaining = MAX_MEDIA_FILES - media.length;
+    if (remaining <= 0) {
+      toast.error(`Maximum of ${MAX_MEDIA_FILES} images reached`);
       e.target.value = '';
       return;
     }
-    const previewUrl = URL.createObjectURL(file);
-    onChange(prev => [...prev, { file, previewUrl, name: file.name }]);
-    toast.success('Media file added');
+    const accepted = images.slice(0, remaining);
+    if (images.length > remaining) {
+      toast.error(`Only ${remaining} more image${remaining === 1 ? '' : 's'} can be added`);
+    }
+    if (!accepted.length) {
+      e.target.value = '';
+      return;
+    }
+
+    const items: MediaItem[] = accepted.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+      name: file.name,
+    }));
+    onChange((prev) => [...prev, ...items]);
+    toast.success(`${items.length} image${items.length === 1 ? '' : 's'} added`);
     e.target.value = '';
   };
 
@@ -50,9 +73,9 @@ export default function ScientistGallerySection({ media, onChange }: ScientistGa
   return (
     <CollapsibleSection title="Media gallery" icon={<ImagePlus className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <p className="flex items-center gap-1.5 text-xs text-neutral-gray-medium">
-            <Images className="h-4 w-4 text-brand-red-600" /> Upload media files of your services/expertise (pictures or videos).
+            <Images className="h-4 w-4 shrink-0 text-brand-red-600" /> Upload up to {MAX_MEDIA_FILES} images of your services or expertise.
           </p>
           <span className={`text-[11px] font-bold ${media.length >= MAX_MEDIA_FILES ? 'text-brand-red-600' : 'text-neutral-gray-medium'}`}>
             {media.length}/{MAX_MEDIA_FILES}
@@ -76,11 +99,11 @@ export default function ScientistGallerySection({ media, onChange }: ScientistGa
           </ul>
         )}
 
-        <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-brand-red-300 px-4 py-3 text-sm font-medium text-brand-red-600 transition-colors hover:bg-brand-red-50 disabled:opacity-40"
+        <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-brand-red-300 px-4 py-3 text-sm font-medium text-brand-red-600 transition-colors hover:bg-brand-red-50"
           style={media.length >= MAX_MEDIA_FILES ? { opacity: 0.4, pointerEvents: 'none' } : undefined}
         >
-          <input type="file" accept="image/*,video/*" onChange={handleUpload} className="hidden" />
-          <Upload className="h-4 w-4" /> Upload Media (max {MAX_MEDIA_FILES} files)
+          <input type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
+          <Upload className="h-4 w-4" /> Upload Images (max {MAX_MEDIA_FILES})
         </label>
       </div>
     </CollapsibleSection>

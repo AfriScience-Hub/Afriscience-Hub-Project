@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { X, Loader2, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import type { ManagedOption } from '../data';
-import { priceToInput, priceToStorage } from '@/lib/utils';
+import { formatAmountInput, parseAmountInput, priceToInput, priceToStorage } from '@/lib/utils';
 
 interface Props {
   open: boolean;
@@ -124,11 +124,10 @@ export default function OptionDialog({
             <label className="block space-y-1">
               <span className="text-xs font-semibold text-neutral-black">Price</span>
               <input
-                type="number"
-                min="0"
-                step="any"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                type="text"
+                inputMode="decimal"
+                value={formatAmountInput(price)}
+                onChange={(e) => setPrice(parseAmountInput(e.target.value))}
                 placeholder="e.g. 50"
                 className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
                 disabled={saving}

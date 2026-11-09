@@ -71,20 +71,23 @@ export default function MyListings() {
 
   const rows: ListingTableRow[] = useMemo(
     () =>
-      visibleListings.map((listing) => ({
-        id: listing.id,
-        name: listing.name,
-        category: listing.category,
-        status: listing.status,
-        image: listing.image,
-        submittedAt: listing.submittedAt,
-        approvedAt: listing.approvedAt,
-        payingUser: listing.payingUser,
-        onPreview: () => router.push(`/dashboard/my-listings/${listing.id}`),
-        onEdit: () => router.push(`/dashboard/upload-new-listing?id=${listing.id}`),
-        onUpgrade: () =>
-          router.push(`/dashboard/upload-new-listing?id=${listing.id}&upgrade=pro`),
-      })),
+      visibleListings.map((listing) => {
+        const typeQuery = listing.categoryId === 'scientist' ? '&type=scientist' : '';
+        return {
+          id: listing.id,
+          name: listing.name,
+          category: listing.category,
+          status: listing.status,
+          image: listing.image,
+          submittedAt: listing.submittedAt,
+          approvedAt: listing.approvedAt,
+          payingUser: listing.payingUser,
+          onPreview: () => router.push(`/dashboard/my-listings/${listing.id}?type=${listing.categoryId}`),
+          onEdit: () => router.push(`/dashboard/upload-new-listing?id=${listing.id}${typeQuery}`),
+          onUpgrade: () =>
+            router.push(`/dashboard/upload-new-listing?id=${listing.id}${typeQuery}&upgrade=pro`),
+        };
+      }),
     [visibleListings, router]
   );
 

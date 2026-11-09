@@ -1,6 +1,10 @@
 export interface ScientistProfile {
   profileImage: string | null;
   backgroundImage: string | null;
+  /** Local file staged until the listing is saved or submitted. */
+  profileImageFile?: File | null;
+  /** Local file staged until the listing is saved or submitted. */
+  backgroundImageFile?: File | null;
   name: string;
   country: string;
   stateRegion: string;
@@ -12,7 +16,11 @@ export interface ProfessionalDetails {
   professions: string[];
   professionOther: string;
   degree: string;
+  /** Preview URL for a staged file or the saved document on an existing listing. */
   degreeCertificate: string;
+  /** Local file staged until the listing is saved or submitted. */
+  degreeCertificateFile?: File | null;
+  degreeCertificateName?: string;
   services: string[];
 }
 

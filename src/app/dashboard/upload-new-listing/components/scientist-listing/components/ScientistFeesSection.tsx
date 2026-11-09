@@ -3,6 +3,7 @@
 import { Plus, X, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
+import { formatAmountInput, parseAmountInput } from '@/lib/utils';
 import CollapsibleSection from '../../CollapsibleSection';
 import CurrencySelect from '../../CurrencySelect';
 import { countWords, limitWords, DESCRIPTION_WORD_LIMIT } from '../../wordLimit';
@@ -68,15 +69,17 @@ export default function ScientistFeesSection({ services, fees, onChange }: Scien
                       <div className="grid gap-2 sm:grid-cols-3">
                         <input
                           type="text"
-                          value={cost.minCost}
-                          onChange={(e) => updateServiceCost(service, { minCost: e.target.value })}
+                          inputMode="decimal"
+                          value={formatAmountInput(cost.minCost)}
+                          onChange={(e) => updateServiceCost(service, { minCost: parseAmountInput(e.target.value) })}
                           className={inputClass}
                           placeholder="Minimum cost"
                         />
                         <input
                           type="text"
-                          value={cost.maxCost}
-                          onChange={(e) => updateServiceCost(service, { maxCost: e.target.value })}
+                          inputMode="decimal"
+                          value={formatAmountInput(cost.maxCost)}
+                          onChange={(e) => updateServiceCost(service, { maxCost: parseAmountInput(e.target.value) })}
                           className={inputClass}
                           placeholder="Maximum cost"
                         />
@@ -132,15 +135,17 @@ export default function ScientistFeesSection({ services, fees, onChange }: Scien
                   <div className="grid gap-2 sm:grid-cols-3">
                     <input
                       type="text"
-                      value={charge.minCost}
-                      onChange={(e) => updateCharge(idx, { minCost: e.target.value })}
+                      inputMode="decimal"
+                      value={formatAmountInput(charge.minCost)}
+                      onChange={(e) => updateCharge(idx, { minCost: parseAmountInput(e.target.value) })}
                       className={inputClass}
                       placeholder="Minimum cost"
                     />
                     <input
                       type="text"
-                      value={charge.maxCost}
-                      onChange={(e) => updateCharge(idx, { maxCost: e.target.value })}
+                      inputMode="decimal"
+                      value={formatAmountInput(charge.maxCost)}
+                      onChange={(e) => updateCharge(idx, { maxCost: parseAmountInput(e.target.value) })}
                       className={inputClass}
                       placeholder="Maximum cost"
                     />

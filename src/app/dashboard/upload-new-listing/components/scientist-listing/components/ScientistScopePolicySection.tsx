@@ -9,9 +9,11 @@ interface ScientistScopePolicySectionProps {
   setScopes: (v: string[]) => void;
   policies: string[];
   setPolicies: (v: string[]) => void;
+  /** Approved listings can add scopes but not remove existing ones. */
+  approvedEditMode?: boolean;
 }
 
-export default function ScientistScopePolicySection({ scopes, setScopes, policies, setPolicies }: ScientistScopePolicySectionProps) {
+export default function ScientistScopePolicySection({ scopes, setScopes, policies, setPolicies, approvedEditMode = false }: ScientistScopePolicySectionProps) {
   return (
     <CollapsibleSection title="Scopes & engagement policies" icon={<Flag className="h-5 w-5 text-brand-navy-900" />} defaultOpen={false}>
       <div className="space-y-6">
@@ -26,6 +28,7 @@ export default function ScientistScopePolicySection({ scopes, setScopes, policie
           placeholder="e.g. AI Model Training"
           entries={scopes}
           onChange={setScopes}
+          disableRemove={approvedEditMode}
         />
 
         <div className="flex items-center gap-2 border-t border-neutral-gray-light pt-6">

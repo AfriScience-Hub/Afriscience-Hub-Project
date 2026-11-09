@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CategoryPrice } from '../data';
-import { priceToInput, priceToStorage } from '@/lib/utils';
+import { formatAmountInput, parseAmountInput, priceToInput, priceToStorage } from '@/lib/utils';
 
 interface Props {
   open: boolean;
@@ -69,11 +69,10 @@ export default function CategoryPriceDialog({ open, onClose, initial, onSave, ti
     <label className="block space-y-1">
       <span className="text-[11px] font-semibold text-neutral-gray-dark">{label}</span>
       <input
-        type="number"
-        min="0"
-        step="any"
-        value={value}
-        onChange={(e) => setter(e.target.value)}
+        type="text"
+        inputMode="decimal"
+        value={formatAmountInput(value)}
+        onChange={(e) => setter(parseAmountInput(e.target.value))}
         placeholder={placeholder}
         className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
       />

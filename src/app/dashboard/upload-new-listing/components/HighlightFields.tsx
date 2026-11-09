@@ -16,11 +16,13 @@ interface HighlightFieldsProps {
   responseHint: string;
   workDaysHint: string;
   workHoursHint: string;
+  /** Only one opening → closing range is allowed and the Add button is hidden. */
+  workHoursSingle?: boolean;
 }
 
 /** Response time, work days and work hours fields, styled like the school highlight. */
 export default function HighlightFields({
-  highlight, onChange, responseHint, workDaysHint, workHoursHint,
+  highlight, onChange, responseHint, workDaysHint, workHoursHint, workHoursSingle = false,
 }: HighlightFieldsProps) {
   const radioName = useId();
 
@@ -95,11 +97,14 @@ export default function HighlightFields({
       {/* Work hours */}
       <div>
         <label className="block text-sm font-medium text-neutral-black mb-2">
-          Work hours <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple selections allowed)</span>
+          Work hours <span className="text-[10px] font-normal text-neutral-gray-medium">
+            ({workHoursSingle ? '1 selection only' : 'multiple selections allowed'})
+          </span>
         </label>
         <p className="text-xs text-neutral-gray-medium mb-2">{workHoursHint}</p>
         <WorkHoursSelector
           entries={highlight.workHours}
+          single={workHoursSingle}
           onChange={(workHours) => onChange({ workHours })}
         />
       </div>

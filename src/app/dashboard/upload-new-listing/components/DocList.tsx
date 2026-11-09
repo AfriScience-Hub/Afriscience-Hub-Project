@@ -12,6 +12,8 @@ export interface DocEntry {
   year: string;
   file: File | null;
   previewUrl: string | null;
+  /** Storage key/URL already saved on the server (edit mode). */
+  key?: string;
 }
 
 interface DocListProps {
@@ -23,9 +25,11 @@ interface DocListProps {
   namePlaceholder?: string;
   /** Explanatory text shown directly below the section label. */
   hint?: string;
+  /** Prevent removing entries that were loaded from the server (approved edits). */
+  disableRemove?: boolean;
 }
 
-export const EMPTY_DOC: DocEntry = { name: '', issuer: '', year: '', file: null, previewUrl: null };
+export const EMPTY_DOC: DocEntry = { name: '', issuer: '', year: '', file: null, previewUrl: null, key: undefined };
 
 function truncateName(name: string, max = 30): string {
   if (name.length <= max) return name;
@@ -34,7 +38,7 @@ function truncateName(name: string, max = 30): string {
   return `${base.slice(0, max - ext.length - 3)}...${ext}`;
 }
 
-export default function DocList({ label, addLabel, entries, onChange, addButtonClassName, namePlaceholder, hint }: DocListProps) {
+export default function DocList({ label, addLabel, entries, onChange, addButtonClassName, namePlaceholder, hint, disableRemove = false }: DocListProps) {
   const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-3 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
 
   const update = (idx: number, patch: Partial<DocEntry>) => {
@@ -72,7 +76,7 @@ export default function DocList({ label, addLabel, entries, onChange, addButtonC
               <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-neutral-gray-medium">
                 <FileText className="h-3.5 w-3.5" /> {label} {idx + 1}
               </span>
-              <button type="button" onClick={() => onChange(entries.filter((_, i) => i !== idx))} className="cursor-pointer text-red-400 hover:text-red-600">
+              <button type="button" onClick={() => onChange(entries.filter((_, i) => i !== idx))} className="cursor-pointer text-red-400 hover:text-red-600 disabled:cursor-not-allowed disabled:text-neutral-gray-light" disabled={disableRemove && Boolean(entry.name.trim() || entry.previewUrl)}>
                 <X className="h-4 w-4" />
               </button>
             </div>

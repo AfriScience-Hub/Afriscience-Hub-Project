@@ -3,6 +3,7 @@
 import { Plus, X, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
+import { formatAmountInput, parseAmountInput } from '@/lib/utils';
 import CurrencySelect from '../../CurrencySelect';
 import { countWords, limitWords, DESCRIPTION_WORD_LIMIT } from '../../wordLimit';
 import type { CenterFees, OtherFee, ServiceFee } from '../types';
@@ -66,15 +67,17 @@ export default function CenterFeesSection({ services, fees, onChange }: CenterFe
                     <div className="grid gap-2 sm:grid-cols-3">
                       <input
                         type="text"
-                        value={fee.minCost}
-                        onChange={(e) => updateServiceFee(service, { minCost: e.target.value })}
+                        inputMode="decimal"
+                        value={formatAmountInput(fee.minCost)}
+                        onChange={(e) => updateServiceFee(service, { minCost: parseAmountInput(e.target.value) })}
                         className={inputClass}
                         placeholder="Minimum cost"
                       />
                       <input
                         type="text"
-                        value={fee.maxCost}
-                        onChange={(e) => updateServiceFee(service, { maxCost: e.target.value })}
+                        inputMode="decimal"
+                        value={formatAmountInput(fee.maxCost)}
+                        onChange={(e) => updateServiceFee(service, { maxCost: parseAmountInput(e.target.value) })}
                         className={inputClass}
                         placeholder="Maximum cost"
                       />
@@ -132,15 +135,17 @@ export default function CenterFeesSection({ services, fees, onChange }: CenterFe
                 <div className="grid gap-2 sm:grid-cols-3">
                   <input
                     type="text"
-                    value={fee.minCost}
-                    onChange={(e) => updateOtherFee(idx, { minCost: e.target.value })}
+                    inputMode="decimal"
+                    value={formatAmountInput(fee.minCost)}
+                    onChange={(e) => updateOtherFee(idx, { minCost: parseAmountInput(e.target.value) })}
                     className={inputClass}
                     placeholder="Minimum cost"
                   />
                   <input
                     type="text"
-                    value={fee.maxCost}
-                    onChange={(e) => updateOtherFee(idx, { maxCost: e.target.value })}
+                    inputMode="decimal"
+                    value={formatAmountInput(fee.maxCost)}
+                    onChange={(e) => updateOtherFee(idx, { maxCost: parseAmountInput(e.target.value) })}
                     className={inputClass}
                     placeholder="Maximum cost"
                   />

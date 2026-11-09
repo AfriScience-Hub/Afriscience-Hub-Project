@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, X } from 'lucide-react';
+import { Info, Plus, X } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import { toast } from 'sonner';
 
@@ -11,10 +11,13 @@ interface EntryListProps {
   placeholder: string;
   entries: string[];
   onChange: (entries: string[]) => void;
+  /** Hide the remove control on existing entries (approved-listing edits). */
+  disableRemove?: boolean;
 }
 
-export default function EntryList({ label, hint, placeholder, entries, onChange }: EntryListProps) {
+export default function EntryList({ label, hint, placeholder, entries, onChange, disableRemove = false }: EntryListProps) {
   const [draft, setDraft] = useState('');
+  const hasUnsaved = draft.trim().length > 0;
   const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
 
   const add = () => {
@@ -41,6 +44,11 @@ export default function EntryList({ label, hint, placeholder, entries, onChange 
           <Plus className="mr-1 h-4 w-4" /> Add
         </Button>
       </div>
+      {hasUnsaved && (
+        <p className="mt-1.5 flex items-center gap-1 text-xs text-blue-600">
+          <Info className="h-3.5 w-3.5 flex-shrink-0" /> Press Enter or click Add to save this entry
+        </p>
+      )}
       {entries.length > 0 && (
         <ul className="mt-3 space-y-2">
           {entries.map((entry, idx) => (
@@ -49,13 +57,15 @@ export default function EntryList({ label, hint, placeholder, entries, onChange 
                 <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-navy-900 text-[10px] font-bold text-white">{idx + 1}</span>
                 <span className="truncate text-sm text-neutral-black">{entry}</span>
               </div>
-              <button
-                type="button"
-                onClick={() => onChange(entries.filter((_, i) => i !== idx))}
-                className="flex-shrink-0 cursor-pointer text-red-400 hover:text-red-600"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              {!disableRemove && (
+                <button
+                  type="button"
+                  onClick={() => onChange(entries.filter((_, i) => i !== idx))}
+                  className="flex-shrink-0 cursor-pointer text-red-400 hover:text-red-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </li>
           ))}
         </ul>

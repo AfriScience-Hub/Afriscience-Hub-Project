@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
 import CollapsibleSection from '../CollapsibleSection';
 import FormActions from '../FormActions';
-import ListingSuccessModal from '../ListingSuccessModal';
+import ListingSuccessModal from '../afro-innovation-listing/components/ListingSuccessModal';
 import { useRouter } from 'next/navigation';
 import YourInformationSection, { type YourInformation } from './components/YourInformationSection';
 import CenterIdentitySection from './components/CenterIdentitySection';

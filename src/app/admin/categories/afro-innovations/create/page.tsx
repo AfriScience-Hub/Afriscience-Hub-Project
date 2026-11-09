@@ -9,7 +9,7 @@ import { AFRICAN_COUNTRIES } from '@/app/data/mockData';
 import {
   buildInnovationPayload,
   createInnovation,
-} from '@/app/dashboard/upload-new-listing/innovationApi';
+} from '@/app/dashboard/upload-new-listing/components/afro-innovation-listing/innovationApi';
 import type { LicenseDoc } from '@/app/dashboard/upload-new-listing/components/afro-innovation-listing/components/InnovationFormControls';
 import AfroInnovationListing from '@/app/dashboard/upload-new-listing/components/afro-innovation-listing/afro-innovation-listing';
 import { uploadFile } from '@/lib/upload';

@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { LISTING_TYPES, AFRICAN_COUNTRIES, GALLERY_CATEGORIES, type ListingType, type ServiceEntry } from './data';
 import ListingTypeSelector from './components/ListingTypeSelector';
 import DraftListView from './components/DraftListView';
-import DraftSavingModal from './components/DraftSavingModal';
+import DraftSavingModal from './components/afro-innovation-listing/components/DraftSavingModal';
 import BasicProfileSection from './components/BasicProfileSection';
 import CategorySpecificSection from './components/CategorySpecificSection';
 import AfroInnovationListing from './components/afro-innovation-listing/afro-innovation-listing';
@@ -28,11 +28,11 @@ import {
   buildInnovationPayload, createInnovation, createInnovationDraft,
   fetchInnovation, upgradeInnovationToPro, MEDIA_REV, OWNERSHIP_REV, SDG_REV, STAGE_REV, submitInnovationDraft,
   toStorageKey, updateInnovation, updateInnovationDraft, type InnovationPayload,
-} from './innovationApi';
+} from './components/afro-innovation-listing/innovationApi';
 import { useInnovationOptions } from '@/app/data/innovationOptions';
 import { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
-import PriceConfirmModal, { type ListingPlan } from './components/PriceConfirmModal';
-import ListingSuccessModal from './components/ListingSuccessModal';
+import PriceConfirmModal, { type ListingPlan } from './components/afro-innovation-listing/components/PriceConfirmModal';
+import ListingSuccessModal from './components/afro-innovation-listing/components/ListingSuccessModal';
 import InstituteTypeSelectorModal, { type InstituteSubType } from '@/app/dashboard/components/InstituteTypeSelectorModal';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
@@ -82,6 +82,9 @@ export default function UploadNewListing() {
   const personal = useAppSelector((s) => s.profile.personal);
   const [editId, setEditId] = useState<string | null>(null);
   const [draftId, setDraftId] = useState<string | null>(null);
+  const [scientistListingId, setScientistListingId] = useState<string | null>(null);
+  const [scientistDraftId, setScientistDraftId] = useState<string | null>(null);
+  const [scientistUpgrade, setScientistUpgrade] = useState(false);
   const [editBaseline, setEditBaseline] = useState<string | null>(null);
   const [prefilled, setPrefilled] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -290,7 +293,15 @@ export default function UploadNewListing() {
     }
   };
 
-  const handleContinueDraft = async (id: string) => {
+  const handleContinueDraft = async (id: string, category: 'innovation' | 'scientist' = 'innovation') => {
+    if (category === 'scientist') {
+      setScientistDraftId(id);
+      setScientistListingId(null);
+      setScientistUpgrade(false);
+      setSelectedType('scientist');
+      setStep('form');
+      return;
+    }
     await openInnovationRecord(id, true);
   };
 
@@ -298,6 +309,7 @@ export default function UploadNewListing() {
     const params = new URLSearchParams(window.location.search);
     const draftParam = params.get('draftId') || params.get('draft');
     const id = params.get('id');
+    const typeParam = params.get('type');
     const upgrade = params.get('upgrade') === 'pro' || params.get('upgrade') === 'paid';
 
     if (!draftParam && !id) {
@@ -306,6 +318,15 @@ export default function UploadNewListing() {
     }
 
     setInitialisingRoute(false);
+    // Scientist listings use their own form and API; open them directly.
+    if (typeParam === 'scientist') {
+      setScientistListingId(draftParam ? null : id);
+      setScientistDraftId(draftParam || null);
+      setScientistUpgrade(upgrade);
+      setSelectedType('scientist');
+      setStep('form');
+      return;
+    }
     if (draftParam) {
       openInnovationRecord(draftParam, true).catch((e: any) => toast.error(e?.message || 'Failed to load draft'));
       return;
@@ -685,6 +706,9 @@ export default function UploadNewListing() {
       // whichever listing they open next.
       setShowInstituteTypeModal(false);
       resetInnovationForm();
+      setScientistListingId(null);
+      setScientistDraftId(null);
+      setScientistUpgrade(false);
       setSelectedType(typeId as ListingType);
       setInstituteSubType(null);
       setStep('form');
@@ -750,7 +774,7 @@ export default function UploadNewListing() {
 
   return (
     <div className="space-y-5">
-      {!editId && (
+      {!editId && !scientistListingId && !scientistDraftId && (
         <div className="rounded-xl border border-neutral-gray-light bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -782,7 +806,21 @@ export default function UploadNewListing() {
       {selectedType === 'center' ? (
         <SpecialistCenterListing onCancel={() => { setStep('select'); setSelectedType(null); setInstituteSubType(null); setShowInstituteTypeModal(false); }} />
       ) : selectedType === 'scientist' ? (
-        <ScientistListing onCancel={() => { setStep('select'); setSelectedType(null); setInstituteSubType(null); setShowInstituteTypeModal(false); }} />
+        <ScientistListing
+          key={scientistListingId || scientistDraftId || 'new-scientist'}
+          listingId={scientistListingId}
+          draftId={scientistDraftId}
+          upgrade={scientistUpgrade}
+          onCancel={() => {
+            setScientistListingId(null);
+            setScientistDraftId(null);
+            setScientistUpgrade(false);
+            setStep('select');
+            setSelectedType(null);
+            setInstituteSubType(null);
+            setShowInstituteTypeModal(false);
+          }}
+        />
       ) : selectedType === 'institute' && instituteSubType === 'primary-secondary' ? (
         <PrimarySecondaryListing onCancel={() => { setStep('select'); setSelectedType(null); setInstituteSubType(null); setShowInstituteTypeModal(false); }} />
       ) : selectedType === 'institute' && instituteSubType === 'university' ? (

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
-import { priceToInput, priceToStorage } from '@/lib/utils';
+import { priceToInput, priceToStorage, formatAmountInput, parseAmountInput } from '@/lib/utils';
 
 export type PriceSide = 'african' | 'nonAfrican';
 
@@ -79,11 +79,10 @@ export default function PriceSideDialog({
     <label className="block space-y-1">
       <span className="text-[11px] font-semibold text-neutral-gray-dark">{label}</span>
       <input
-        type="number"
-        min="0"
-        step="any"
-        value={value}
-        onChange={(e) => setter(e.target.value)}
+        type="text"
+        inputMode="decimal"
+        value={formatAmountInput(value)}
+        onChange={(e) => setter(parseAmountInput(e.target.value))}
         placeholder={placeholder}
         className="w-full px-3 py-2.5 rounded-xl border border-neutral-gray-light text-sm focus:ring-2 focus:ring-[#453DD8] focus:border-[#453DD8] outline-none"
       />

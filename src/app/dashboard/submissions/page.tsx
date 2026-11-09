@@ -112,21 +112,24 @@ export default function DashboardSubmissions() {
     [router]
   );
 
-  const innovationRows: ListingTableRow[] = useMemo(
+  const listingRows: ListingTableRow[] = useMemo(
     () =>
-      pending.map((listing) => ({
-        id: `innovation-${listing.id}`,
-        name: listing.name,
-        category: listing.category,
-        status: listing.status,
-        image: listing.image,
-        submittedAt: listing.submittedAt,
-        payingUser: listing.payingUser,
-        onPreview: () => router.push(`/dashboard/my-listings/${listing.id}`),
-        onEdit: () => router.push(`/dashboard/upload-new-listing?id=${listing.id}`),
-        onUpgrade: () =>
-          router.push(`/dashboard/upload-new-listing?id=${listing.id}&upgrade=pro`),
-      })),
+      pending.map((listing) => {
+        const typeQuery = listing.categoryId === 'scientist' ? '&type=scientist' : '';
+        return {
+          id: `${listing.categoryId}-${listing.id}`,
+          name: listing.name,
+          category: listing.category,
+          status: listing.status,
+          image: listing.image,
+          submittedAt: listing.submittedAt,
+          payingUser: listing.payingUser,
+          onPreview: () => router.push(`/dashboard/my-listings/${listing.id}?type=${listing.categoryId}`),
+          onEdit: () => router.push(`/dashboard/upload-new-listing?id=${listing.id}${typeQuery}`),
+          onUpgrade: () =>
+            router.push(`/dashboard/upload-new-listing?id=${listing.id}${typeQuery}&upgrade=pro`),
+        };
+      }),
     [pending, router]
   );
 
@@ -145,15 +148,20 @@ export default function DashboardSubmissions() {
   );
 
   const allRows = useMemo(
-    () => [...innovationRows, ...competitionRows],
-    [innovationRows, competitionRows]
+    () => [...listingRows, ...competitionRows],
+    [listingRows, competitionRows]
   );
+
+  const listingRowsFor = (id: SubmissionTabId) =>
+    pending
+      .filter((listing) => listing.categoryId === id)
+      .map((listing) => listingRows.find((row) => row.id === `${listing.categoryId}-${listing.id}`))
+      .filter((row): row is ListingTableRow => Boolean(row));
 
   const countFor = (id: SubmissionTabId) => {
     if (id === 'all') return allRows.length;
-    if (id === 'innovation') return innovationRows.length;
     if (id === 'competition') return competitionRows.length;
-    return 0;
+    return pending.filter((listing) => listing.categoryId === id).length;
   };
 
   const tabs: ListingTabItem[] = SUBMISSION_TABS.map((tab) => ({
@@ -163,10 +171,10 @@ export default function DashboardSubmissions() {
 
   const rows = useMemo(() => {
     if (activeTab === 'all') return allRows;
-    if (activeTab === 'innovation') return innovationRows;
     if (activeTab === 'competition') return competitionRows;
-    return [];
-  }, [activeTab, allRows, innovationRows, competitionRows]);
+    return listingRowsFor(activeTab);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, allRows, competitionRows, pending, listingRows]);
 
   const activeLabel = SUBMISSION_TABS.find((tab) => tab.id === activeTab)?.label ?? 'submissions';
 

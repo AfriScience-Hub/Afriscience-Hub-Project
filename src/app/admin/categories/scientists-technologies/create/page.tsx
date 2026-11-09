@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/app/context/AuthContext';
+import { useScientistOptions } from '@/app/data/scientistOptions';
 import FormActions from '@/app/dashboard/upload-new-listing/components/FormActions';
 import UndertakingSection from '@/app/dashboard/upload-new-listing/components/UndertakingSection';
 import { type DocEntry, EMPTY_DOC } from '@/app/dashboard/upload-new-listing/components/DocList';
@@ -44,6 +45,7 @@ const EMPTY_HIGHLIGHT: ProfessionalHighlight = { responseTime: '', workDays: [],
 export default function AdminCreateScientistPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const options = useScientistOptions();
 
   const [profile, setProfile] = useState<ScientistProfile>(EMPTY_PROFILE);
   const [details, setDetails] = useState<ProfessionalDetails>(EMPTY_DETAILS);
@@ -140,7 +142,14 @@ export default function AdminCreateScientistPage() {
 
       <ScientistProfileSection profile={profile} onChange={patchProfile} />
 
-      <ProfessionalDetailsSection details={details} onChange={patchDetails} />
+      <ProfessionalDetailsSection
+        details={details}
+        onChange={patchDetails}
+        fields={options.fields}
+        degrees={options.degrees}
+        services={options.services}
+        professions={options.professions}
+      />
 
       <ScientistFeesSection services={details.services} fees={fees} onChange={patchFees} />
 

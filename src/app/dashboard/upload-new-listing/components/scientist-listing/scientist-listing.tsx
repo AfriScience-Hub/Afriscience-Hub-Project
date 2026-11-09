@@ -1,15 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { useAuth } from '@/app/context/AuthContext';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchFullProfile } from '@/store/profileSlice';
-import FormActions from '../FormActions';
-import ListingSuccessModal from '../ListingSuccessModal';
-import UndertakingSection from '../UndertakingSection';
 import { useRouter } from 'next/navigation';
-import { type DocEntry, EMPTY_DOC } from '../DocList';
+import { Info, Loader2 } from 'lucide-react';
+import ListingSuccessModal from '../afro-innovation-listing/components/ListingSuccessModal';
+import FormActions from '../FormActions';
+import UndertakingSection from '../UndertakingSection';
 import ScientistProfileSection from './components/ScientistProfileSection';
 import ProfessionalDetailsSection from './components/ProfessionalDetailsSection';
 import ScientistFeesSection from './components/ScientistFeesSection';
@@ -18,149 +13,123 @@ import ScientistDocumentsSection from './components/ScientistDocumentsSection';
 import ProfessionalHighlightSection from './components/ProfessionalHighlightSection';
 import ScientistGallerySection from './components/ScientistGallerySection';
 import ScientistContactSection from './components/ScientistContactSection';
-import type { ProfessionalDetails, ProfessionalHighlight, ScientistContact, ScientistFees, ScientistProfile } from './types';
-import type { MediaItem } from './components/ScientistGallerySection';
-
-const EMPTY_PROFILE: ScientistProfile = {
-  profileImage: null, backgroundImage: null, name: '', country: '', stateRegion: '', bio: '',
-};
-
-const EMPTY_DETAILS: ProfessionalDetails = {
-  field: '', professions: [], professionOther: '', degree: '', degreeCertificate: '', services: [],
-};
-
-const EMPTY_FEES: ScientistFees = { serviceCosts: {}, otherCharges: [] };
-
-const EMPTY_CONTACT: ScientistContact = {
-  phone: '', email: '', website: '',
-  socials: { LinkedIn: '', Twitter: '', Instagram: '', Facebook: '' },
-};
-
-const EMPTY_HIGHLIGHT: ProfessionalHighlight = {
-  responseTime: '', workDays: [], workHours: [],
-};
+import ScientistPriceModal from './components/ScientistPriceModal';
+import { useScientistListingForm } from './useScientistListingForm';
 
 interface ScientistListingProps {
   onCancel: () => void;
+  /** Existing listing being edited. */
+  listingId?: string | null;
+  /** Saved draft being continued. */
+  draftId?: string | null;
+  /** Start the upgrade-to-Pro flow. */
+  upgrade?: boolean;
 }
 
-export default function ScientistListing({ onCancel }: ScientistListingProps) {
-  const dispatch = useAppDispatch();
-  const { user } = useAuth();
+export default function ScientistListing({ onCancel, listingId, draftId, upgrade = false }: ScientistListingProps) {
   const router = useRouter();
-  const personal = useAppSelector((s) => s.profile.personal);
+  const form = useScientistListingForm({ listingId, draftId, upgrade });
 
-  const [profile, setProfile] = useState<ScientistProfile>(EMPTY_PROFILE);
-  const [details, setDetails] = useState<ProfessionalDetails>(EMPTY_DETAILS);
-  const [fees, setFees] = useState<ScientistFees>(EMPTY_FEES);
-  const [scopes, setScopes] = useState<string[]>([]);
-  const [policies, setPolicies] = useState<string[]>([]);
-  const [certifications, setCertifications] = useState<DocEntry[]>([EMPTY_DOC]);
-  const [achievements, setAchievements] = useState<DocEntry[]>([EMPTY_DOC]);
-  const [highlight, setHighlight] = useState<ProfessionalHighlight>(EMPTY_HIGHLIGHT);
-  const [media, setMedia] = useState<MediaItem[]>([]);
-  const [contact, setContact] = useState<ScientistContact>(EMPTY_CONTACT);
-  const [agreed, setAgreed] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-
-  const finish = () => {
-    setShowSuccess(false);
-    resetForm();
+  const finish = (path = '/dashboard/submissions') => {
+    form.setSuccess(null);
+    form.resetForm();
     onCancel();
+    router.push(path);
   };
 
-  useEffect(() => { dispatch(fetchFullProfile()); }, [dispatch]);
-
-  const fullName = personal?.fullName || (personal ? [personal.firstname, personal.middlename, personal.surname].filter(Boolean).join(' ') : (user?.name || ''));
-  const profilePhone = personal?.phone || user?.phone || '';
-  const profileEmail = (personal as any)?.email || user?.email || '';
-
-  useEffect(() => {
-    setProfile(prev => ({ ...prev, name: prev.name || fullName }));
-    setContact(prev => ({ ...prev, phone: prev.phone || profilePhone, email: prev.email || profileEmail }));
-  }, [fullName, profilePhone, profileEmail]);
-
-  const patchProfile = (patch: Partial<ScientistProfile>) => setProfile(prev => ({ ...prev, ...patch }));
-  const patchDetails = (patch: Partial<ProfessionalDetails>) => setDetails(prev => ({ ...prev, ...patch }));
-  const patchFees = (patch: Partial<ScientistFees>) => setFees(prev => ({ ...prev, ...patch }));
-  const patchHighlight = (patch: Partial<ProfessionalHighlight>) => setHighlight(prev => ({ ...prev, ...patch }));
-  const patchContact = (patch: Partial<ScientistContact>) => setContact(prev => ({ ...prev, ...patch }));
-
-  const resetForm = () => {
-    setProfile(EMPTY_PROFILE);
-    setDetails(EMPTY_DETAILS);
-    setFees(EMPTY_FEES);
-    setScopes([]); setPolicies([]); setCertifications([EMPTY_DOC]); setAchievements([EMPTY_DOC]);
-    setHighlight(EMPTY_HIGHLIGHT);
-    setMedia([]); setContact(EMPTY_CONTACT); setAgreed(false);
-  };
-
-  const hasAnySocial = Object.values(contact.socials).some(v => v.trim().length > 0);
-  const bioWords = profile.bio.trim() ? profile.bio.trim().split(/\s+/).length : 0;
-  const certificatesOk = !details.degree || ['Field Expert | No Degree', 'Others'].includes(details.degree) || !!details.degreeCertificate;
-  const highlightOk = !!highlight.responseTime && highlight.workDays.length > 0 && highlight.workHours.length > 0;
-
-  const isFormValid =
-    profile.name.trim() && profile.country && profile.bio.trim() && bioWords <= 1000 &&
-    details.field && details.professions.length > 0 && details.degree &&
-    (details.professions.includes('Other') ? details.professionOther.trim() : true) &&
-    details.services.length > 0 && certificatesOk && highlightOk &&
-    contact.phone.trim() && contact.email.trim() && hasAnySocial && agreed;
-
-  const handleSubmit = () => {
-    if (bioWords > 1000) return toast.error('Short Bio must be a maximum of 1000 words');
-    if (!profile.name.trim() || !profile.country) return toast.error('Please fill in your Name and Country');
-    if (!details.field) return toast.error('Please select a Field');
-    if (details.professions.length === 0) return toast.error('Please select at least one Profession');
-    if (details.professions.includes('Other') && !details.professionOther.trim()) return toast.error('Please specify the other Profession');
-    if (!details.degree) return toast.error('Please select a Degree');
-    if (!certificatesOk) return toast.error('Please upload your Degree Certificate to verify your academic qualification');
-    if (!highlight.responseTime) return toast.error('Please select a Response Time');
-    if (highlight.workDays.length === 0) return toast.error('Please select at least one Work Day');
-    if (highlight.workHours.length === 0) return toast.error('Please add at least one Work Hour');
-    if (details.services.length === 0) return toast.error('Please select at least one Service');
-    if (!contact.phone.trim() || !contact.email.trim()) return toast.error('Please provide your Phone Number and E-mail');
-    if (!hasAnySocial) return toast.error('Please provide at least one social handle');
-    if (!agreed) return toast.error('Please accept the undertaking remark before submitting');
-
-    setShowSuccess(true);
-  };
+  if (form.recordLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-neutral-gray-light bg-white py-20 shadow-sm">
+        <Loader2 className="h-7 w-7 animate-spin text-brand-red-600" />
+        <p className="text-sm text-neutral-gray-medium">Loading listing details...</p>
+      </div>
+    );
+  }
 
   return (
     <>
-      <ScientistProfileSection profile={profile} onChange={patchProfile} />
+      {form.approvedEditMode && (
+        <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
+          <Info className="mt-0.5 h-4 w-4 shrink-0" />
+          <p>
+            This listing is approved. You can update services, costs, images, degree, scopes, policies, highlights,
+            certificates, achievements, media and work hours. Existing services, scopes, certificates and achievements
+            cannot be removed.
+          </p>
+        </div>
+      )}
 
-      <ProfessionalDetailsSection details={details} onChange={patchDetails} />
+      <ScientistProfileSection profile={form.profile} onChange={form.patchProfile} approvedEditMode={form.approvedEditMode} />
 
-      <ScientistFeesSection services={details.services} fees={fees} onChange={patchFees} />
-
-      <ScientistScopePolicySection scopes={scopes} setScopes={setScopes} policies={policies} setPolicies={setPolicies} />
-
-      <ScientistDocumentsSection
-        certifications={certifications} setCertifications={setCertifications}
-        achievements={achievements} setAchievements={setAchievements}
+      <ProfessionalDetailsSection
+        details={form.details}
+        onChange={form.patchDetails}
+        fields={form.options.fields}
+        degrees={form.options.degrees}
+        services={form.options.services}
+        professions={form.options.professions}
+        approvedEditMode={form.approvedEditMode}
       />
 
-      <ProfessionalHighlightSection highlight={highlight} onChange={patchHighlight} />
+      <ScientistFeesSection services={form.details.services} fees={form.fees} onChange={form.patchFees} />
 
-      <ScientistGallerySection media={media} onChange={setMedia} />
+      <ScientistScopePolicySection
+        scopes={form.scopes}
+        setScopes={form.setScopes}
+        policies={form.policies}
+        setPolicies={form.setPolicies}
+        approvedEditMode={form.approvedEditMode}
+      />
 
-      <ScientistContactSection contact={contact} onChange={patchContact} />
+      <ScientistDocumentsSection
+        certifications={form.certifications}
+        setCertifications={form.setCertifications}
+        achievements={form.achievements}
+        setAchievements={form.setAchievements}
+        approvedEditMode={form.approvedEditMode}
+      />
 
-      <UndertakingSection agreed={agreed} setAgreed={setAgreed} />
+      <ProfessionalHighlightSection highlight={form.highlight} onChange={form.patchHighlight} />
+
+      <ScientistGallerySection media={form.media} onChange={form.setMedia} />
+
+      <ScientistContactSection contact={form.contact} onChange={form.patchContact} approvedEditMode={form.approvedEditMode} />
+
+      <UndertakingSection agreed={form.agreed} setAgreed={form.setAgreed} />
 
       <FormActions
-        onCancel={() => { resetForm(); onCancel(); }}
-        onSubmit={handleSubmit}
-        disabled={!isFormValid}
+        onCancel={() => { form.resetForm(); onCancel(); }}
+        onSubmit={form.handleSubmit}
+        onSaveDraft={form.approvedEditMode ? undefined : () => { void form.handleSaveDraft(); }}
+        showDraft={!form.approvedEditMode}
+        draftLabel={form.savedDraftId ? 'Update Draft' : 'Save as Draft'}
+        draftDisabled={form.saving}
+        submitLabel={upgrade ? 'Upgrade to Pro' : listingId ? 'Save changes' : 'Submit for Review'}
+        disabled={form.saving || !form.isFormValid}
+        loading={form.saving && !form.draftSaving}
+        draftLoading={form.draftSaving}
+      />
+
+      <ScientistPriceModal
+        open={form.showPrice}
+        price={form.priceQuote?.price}
+        extraCharge={form.priceQuote?.extraCharge}
+        professionCount={form.professionCount}
+        regionLabel={form.isAfrican ? 'African' : 'Non-African'}
+        saving={form.saving}
+        upgrade={upgrade}
+        onConfirm={(plan) => { void form.performSubmit(plan); }}
+        onEditEntries={upgrade ? () => form.setShowPrice(false) : undefined}
+        onCancel={() => form.setShowPrice(false)}
       />
 
       <ListingSuccessModal
-        open={showSuccess}
-        title="Scientist & Technologist submitted"
-        message="Your scientist & technologist listing has been submitted and is now waiting for review."
-        onClose={finish}
-        onGoToSubmissions={() => { finish(); router.push('/dashboard/submissions'); }}
+        open={!!form.success}
+        title={form.success?.title}
+        message={form.success?.message}
+        actionLabel={form.success?.actionLabel}
+        onClose={() => finish(form.success?.actionPath || '/dashboard/submissions')}
+        onGoToSubmissions={() => finish(form.success?.actionPath || '/dashboard/submissions')}
       />
     </>
   );

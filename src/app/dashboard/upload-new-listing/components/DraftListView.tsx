@@ -6,12 +6,14 @@ import { ArrowLeft, FileText, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
 import { normalizeFileSrc } from '@/lib/files';
-import { deleteInnovation, fetchInnovationDrafts } from '../innovationApi';
+import { deleteInnovation, fetchInnovationDrafts } from './afro-innovation-listing/innovationApi';
+import { deleteScientistDraft, fetchScientistDrafts } from './scientist-listing/scientistApi';
+import { isDraftStatus } from '../../my-listings/statusUtils';
 import DraftRowMenu from './DraftRowMenu';
 
 interface DraftListViewProps {
   onBack: () => void;
-  onContinue: (id: string) => Promise<void>;
+  onContinue: (id: string, category: 'innovation' | 'scientist') => Promise<void>;
 }
 
 function draftDate(value?: string | null): string {
@@ -23,6 +25,7 @@ function draftDate(value?: string | null): string {
 
 /** Infers which listing category a draft belongs to. */
 function categoryLabel(draft: any): string {
+  if (draft.__category === 'scientist') return 'Scientist & Technologist';
   const raw = draft.listingType ?? draft.listingCategory ?? draft.categoryId ?? draft.category;
   if (raw) {
     return String(raw)
@@ -31,6 +34,7 @@ function categoryLabel(draft: any): string {
       .replace(/\b\w/g, (c: string) => c.toUpperCase());
   }
   if (draft.innovationName || draft.innovFields || draft.materialsUsed) return 'Afro-Innovation';
+  if (draft.professions || draft.scopes || draft.highlights) return 'Scientist & Technologist';
   return 'Listing';
 }
 
@@ -45,8 +49,15 @@ export default function DraftListView({ onBack, onContinue }: DraftListViewProps
     setLoading(true);
     setError(null);
     try {
-      const list = await fetchInnovationDrafts();
-      setDrafts(Array.isArray(list) ? list : []);
+      const [innovations, scientists] = await Promise.all([
+        fetchInnovationDrafts().catch(() => []),
+        fetchScientistDrafts().catch(() => []),
+      ]);
+      const tagged = [
+        ...(Array.isArray(innovations) ? innovations : []).filter((d: any) => !d.status || isDraftStatus(d.status)).map((d: any) => ({ ...d, __category: 'innovation' as const })),
+        ...(Array.isArray(scientists) ? scientists : []).filter((d: any) => !d.status || isDraftStatus(d.status)).map((d: any) => ({ ...d, __category: 'scientist' as const })),
+      ];
+      setDrafts(tagged);
     } catch (e: any) {
       setError(e?.message || 'Failed to load drafts');
     } finally {
@@ -56,10 +67,10 @@ export default function DraftListView({ onBack, onContinue }: DraftListViewProps
 
   useEffect(() => { void load(); }, [load]);
 
-  const handleContinue = async (id: string) => {
+  const handleContinue = async (id: string, category: 'innovation' | 'scientist') => {
     setBusyId(id);
     try {
-      await onContinue(id);
+      await onContinue(id, category);
     } catch (e: any) {
       toast.error(e?.message || 'Failed to open draft');
     } finally {
@@ -67,11 +78,12 @@ export default function DraftListView({ onBack, onContinue }: DraftListViewProps
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string, category: 'innovation' | 'scientist') => {
     if (!window.confirm(`Delete the draft "${name}"? This cannot be undone.`)) return;
     setBusyId(id);
     try {
-      await deleteInnovation(id);
+      if (category === 'scientist') await deleteScientistDraft(id);
+      else await deleteInnovation(id);
       setDrafts((prev) => prev.filter((d) => String(d.id) !== id));
       toast.success('Draft deleted');
     } catch (e: any) {
@@ -174,8 +186,8 @@ export default function DraftListView({ onBack, onContinue }: DraftListViewProps
                     <DraftRowMenu
                       title={title}
                       busy={busy}
-                      onContinue={() => void handleContinue(id)}
-                      onDelete={() => void handleDelete(id, title)}
+                      onContinue={() => void handleContinue(id, draft.__category)}
+                      onDelete={() => void handleDelete(id, title, draft.__category)}
                     />
                   </li>
                 );

@@ -13,10 +13,12 @@ interface ScientistContactSectionProps {
     socials: Record<(typeof SOCIAL_PLATFORMS)[number], string>;
   };
   onChange: (patch: Partial<{ phone: string; email: string; website: string; socials: Record<(typeof SOCIAL_PLATFORMS)[number], string> }>) => void;
+  /** Approved listings cannot change contact information. */
+  approvedEditMode?: boolean;
 }
 
-export default function ScientistContactSection({ contact, onChange }: ScientistContactSectionProps) {
-  const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600';
+export default function ScientistContactSection({ contact, onChange, approvedEditMode = false }: ScientistContactSectionProps) {
+  const inputClass = 'w-full rounded-lg border border-neutral-gray-light px-4 py-2.5 text-sm focus:border-brand-red-600 focus:ring-1 focus:ring-brand-red-600 disabled:cursor-not-allowed disabled:bg-neutral-bg-light disabled:text-neutral-gray-medium';
 
   return (
     <CollapsibleSection title="Contact information" icon={<Phone className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
@@ -24,17 +26,17 @@ export default function ScientistContactSection({ contact, onChange }: Scientist
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-neutral-black mb-1">Phone Number <span className="text-red-500">*</span></label>
-            <input type="tel" value={contact.phone} onChange={(e) => onChange({ phone: e.target.value })} className={inputClass} placeholder="+234 800 000 0000" />
+            <input type="tel" value={contact.phone} onChange={(e) => onChange({ phone: e.target.value })} className={inputClass} placeholder="Enter your phone number" disabled={approvedEditMode} />
           </div>
           <div>
             <label className="block text-sm font-medium text-neutral-black mb-1">E-mail <span className="text-red-500">*</span></label>
-            <input type="email" value={contact.email} onChange={(e) => onChange({ email: e.target.value })} className={inputClass} placeholder="you@example.com" />
+            <input type="email" value={contact.email} onChange={(e) => onChange({ email: e.target.value })} className={inputClass} placeholder="you@example.com" disabled={approvedEditMode} />
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">Website</label>
-          <input type="url" value={contact.website} onChange={(e) => onChange({ website: e.target.value })} className={`${inputClass} flex items-center`} placeholder="https://www.example.com (optional)" />
+          <input type="url" value={contact.website} onChange={(e) => onChange({ website: e.target.value })} className={`${inputClass} flex items-center`} placeholder="https://www.example.com" disabled={approvedEditMode} />
         </div>
 
         <div>
@@ -51,6 +53,7 @@ export default function ScientistContactSection({ contact, onChange }: Scientist
                   onChange={(e) => onChange({ socials: { ...contact.socials, [platform]: e.target.value } })}
                   className={inputClass}
                   placeholder={`@your${platform.toLowerCase()}handle`}
+                  disabled={approvedEditMode}
                 />
               </div>
             ))}
