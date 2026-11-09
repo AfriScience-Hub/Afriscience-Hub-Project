@@ -16,6 +16,9 @@ interface SplitPricingTableProps {
   nonAfricanTitle?: string;
   /** Optional subtitle/note under the table. */
   footnote?: string;
+  /** Additional charge for the region (stored in the smallest unit). */
+  africanExtraCharge?: string;
+  nonAfricanExtraCharge?: string;
   onEditAfrican: () => void;
   onEditNonAfrican: () => void;
 }
@@ -27,12 +30,14 @@ export default function SplitPricingTable({
   africanTitle = 'African Listings',
   nonAfricanTitle = 'Non-African Listings',
   footnote,
+  africanExtraCharge,
+  nonAfricanExtraCharge,
   onEditAfrican,
   onEditNonAfrican,
 }: SplitPricingTableProps) {
   const plural = itemNounPlural || `${itemNoun}s`;
-  const hasAfrican = Boolean(price.africaOne || price.africaTwoOrMore);
-  const hasNonAfrican = Boolean(price.nonAfricaOne || price.nonAfricaTwoOrMore);
+  const hasAfrican = Boolean(price.africaOne || price.africaTwoOrMore || africanExtraCharge);
+  const hasNonAfrican = Boolean(price.nonAfricaOne || price.nonAfricaTwoOrMore || nonAfricanExtraCharge);
 
   const editButton = (hasValues: boolean, onClick: () => void) => (
     <button
@@ -67,9 +72,7 @@ export default function SplitPricingTable({
           <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-neutral-gray-light bg-[#453DD8]/[0.04]">
             <Globe className="h-4 w-4 text-[#453DD8]" />
             <span className="text-xs font-bold text-neutral-black">{africanTitle}</span>
-            <span className="ml-auto rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-              No country fee
-            </span>
+            
             {editButton(hasAfrican, onEditAfrican)}
           </div>
 
@@ -99,6 +102,18 @@ export default function SplitPricingTable({
               </div>
               <span className="text-sm font-bold text-neutral-black">
                 {price.africaTwoOrMore ? formatPrice(price.africaTwoOrMore) : '—'}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between px-4 py-4 bg-neutral-bg-light/20">
+              <div>
+                <p className="text-xs font-semibold text-neutral-black">Additional charge</p>
+                <p className="text-[11px] text-neutral-gray-medium mt-0.5">
+                  Added on top of the African listing prices
+                </p>
+              </div>
+              <span className="text-sm font-bold text-neutral-black">
+                {africanExtraCharge ? formatPrice(africanExtraCharge) : '—'}
               </span>
             </div>
           </div>
@@ -139,6 +154,18 @@ export default function SplitPricingTable({
               </div>
               <span className="text-sm font-bold text-neutral-black">
                 {price.nonAfricaTwoOrMore ? formatPrice(price.nonAfricaTwoOrMore) : '—'}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between px-4 py-4 bg-neutral-bg-light/20">
+              <div>
+                <p className="text-xs font-semibold text-neutral-black">Additional charge</p>
+                <p className="text-[11px] text-neutral-gray-medium mt-0.5">
+                  Added on top of the Non-African listing prices
+                </p>
+              </div>
+              <span className="text-sm font-bold text-neutral-black">
+                {nonAfricanExtraCharge ? formatPrice(nonAfricanExtraCharge) : '—'}
               </span>
             </div>
           </div>

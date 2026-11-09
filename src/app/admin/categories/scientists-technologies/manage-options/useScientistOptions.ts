@@ -28,11 +28,16 @@ const OPTION_TYPES: Partial<Record<ManageTab, 'FIELD' | 'SERVICE' | 'DEGREE'>> =
 };
 
 const EMPTY_OPTIONS: Record<ManageTab, ManagedOption[]> = {
-  Fields: [], Profession: [], Degree: [], Services: [], Price: [], Country: [],
+  Fields: [], Profession: [], Degree: [], Services: [], Price: [],
 };
 
 /** The four UI price cells, keyed to the API location/type pairs. */
 type PriceSlotKey = 'africaOne' | 'africaTwoOrMore' | 'nonAfricaOne' | 'nonAfricaTwoOrMore';
+
+/** Additional charge configured per region (shown on the Price tab). */
+type ExtraCharges = { african: string; nonAfrican: string };
+
+const EMPTY_EXTRA_CHARGES: ExtraCharges = { african: '', nonAfrican: '' };
 
 export type SavePayload = {
   content: string;
@@ -104,6 +109,8 @@ export function useScientistOptions() {
   /** Fields fetched from the API, used for the profession dropdown + grouping. */
   const [availableFields, setAvailableFields] = useState<ManagedOption[]>([]);
   const [professionPrice, setProfessionPrice] = useState<CategoryPrice>(EMPTY_PROFESSION_PRICE);
+  /** Additional per-region charge, kept separately from the four price cells. */
+  const [extraCharges, setExtraCharges] = useState<ExtraCharges>(EMPTY_EXTRA_CHARGES);
   /** API id for each of the four price cells, so edits PATCH the right record. */
   const [priceIds, setPriceIds] = useState<Partial<Record<PriceSlotKey, string>>>({});
   const [search, setSearch] = useState('');
@@ -144,7 +151,7 @@ export function useScientistOptions() {
     return list;
   }, []);
 
-  /** Loads one tab from the API. Country has no list endpoint yet. */
+  /** Loads one tab from the API. */
   const fetchTab = useCallback(async (tab: ManageTab): Promise<ManagedOption[] | null> => {
     if (tab === 'Profession') {
       const fields = await fetchFields();
@@ -169,6 +176,7 @@ export function useScientistOptions() {
     const list = listFrom<Record<string, unknown>>(res);
     const price: CategoryPrice = {};
     const ids: Partial<Record<PriceSlotKey, string>> = {};
+    const extra: ExtraCharges = { ...EMPTY_EXTRA_CHARGES };
 
     for (const item of list) {
       const location = String(item.location ?? '').toUpperCase().replace(/[^A-Z]/g, '');
@@ -186,21 +194,30 @@ export function useScientistOptions() {
         ?? item.price
         ?? (typeof item.amount === 'number' ? Math.round(item.amount * 100) : undefined);
       price[key] = raw == null ? '' : String(raw);
+
+      const extraCharge =
+        item.extraChargeMinor
+        ?? item.extra_charge_minor
+        ?? item.extraCharge
+        ?? item.extra_charge
+        ?? item.additionalCharge;
+      if (extraCharge != null) {
+        if (isAfrican) extra.african = String(extraCharge);
+        else extra.nonAfrican = String(extraCharge);
+      }
+
       const id = item.id ?? item.scientistPriceId ?? item._id;
       if (id != null) ids[key] = String(id);
     }
 
     setProfessionPrice(price);
+    setExtraCharges(extra);
     setPriceIds(ids);
     return price;
   }, []);
 
   useEffect(() => {
     let cancelled = false;
-    if (activeTab === 'Country') {
-      setIsLoading(false);
-      return;
-    }
     setIsLoading(true);
 
     const load: Promise<unknown> = activeTab === 'Price'
@@ -243,22 +260,6 @@ export function useScientistOptions() {
         };
         if (isEdit && id) await api.patch(`/scientists/professions/${id}`, body);
         else await api.post('/scientists/professions', body);
-      } else if (activeTab === 'Country') {
-        setOptions((prev) => ({
-          ...prev,
-          Country: isEdit && id
-            ? prev.Country.map((o) => (o.id === id ? { ...o, name: payload.content } : o))
-            : [
-              {
-                id: `Country-${Date.now()}`,
-                name: payload.content,
-                status: 'Active',
-                isActive: true,
-                count: 0,
-              },
-              ...prev.Country,
-            ],
-        }));
       } else {
         const type = OPTION_TYPES[activeTab];
         if (!type) throw new Error('This tab is not supported yet.');
@@ -335,15 +336,19 @@ export function useScientistOptions() {
   };
 
   /**
-   * Persists the two prices for one region. Values arrive exactly as typed
-   * (no /100 or *100 conversion); existing records are PATCHed by id, missing
-   * ones are POSTed.
+   * Persists the two prices and the additional charge for one region. Values
+   * arrive exactly as typed (no /100 or *100 conversion); existing records are
+   * PATCHed by id, missing ones are POSTed. The location is preset by the side
+   * whose button was clicked, so the modal never needs a location picker.
    */
   const handleSidePriceSave = async (
     side: PriceSide,
-    values: { one?: string; twoOrMore?: string },
+    values: { one?: string; twoOrMore?: string; extraCharge?: string },
   ) => {
     const isAfrican = side === 'african';
+    const extraRaw = values.extraCharge?.trim();
+    const parsedExtra = extraRaw ? Number(extraRaw) : 0;
+    const extraCharge = Number.isFinite(parsedExtra) ? parsedExtra : 0;
     const entries: { key: PriceSlotKey; type: 'SINGLE' | 'MULTIPLE'; value?: string }[] = [
       { key: isAfrican ? 'africaOne' : 'nonAfricaOne', type: 'SINGLE', value: values.one },
       { key: isAfrican ? 'africaTwoOrMore' : 'nonAfricaTwoOrMore', type: 'MULTIPLE', value: values.twoOrMore },
@@ -357,12 +362,13 @@ export function useScientistOptions() {
 
         const id = priceIds[key];
         if (id) {
-          await api.patch(`/scientists/prices/${id}`, { price: amount });
+          await api.patch(`/scientists/prices/${id}`, { price: amount, extraCharge });
         } else {
           await api.post('/scientists/prices', {
             location: isAfrican ? 'AFRICAN' : 'NON-AFRICAN',
             type,
             price: amount,
+            extraCharge,
           });
         }
       }),
@@ -382,6 +388,7 @@ export function useScientistOptions() {
     availableFields,
     professionFields,
     professionPrice,
+    extraCharges,
     search,
     setSearch,
     isLoading,

@@ -15,7 +15,7 @@ export interface ManagedOption {
   note?: string;
 }
 
-export type ManageTab = 'Fields' | 'Profession' | 'Degree' | 'Services' | 'Price' | 'Country';
+export type ManageTab = 'Fields' | 'Profession' | 'Degree' | 'Services' | 'Price';
 
 export const MANAGE_TABS: { id: ManageTab; label: string }[] = [
   { id: 'Fields', label: 'Fields' },
@@ -23,7 +23,6 @@ export const MANAGE_TABS: { id: ManageTab; label: string }[] = [
   { id: 'Degree', label: 'Degree' },
   { id: 'Services', label: 'Services' },
   { id: 'Price', label: 'Price' },
-  { id: 'Country', label: 'Country' },
 ];
 
 export const TAB_SINGULAR: Record<ManageTab, string> = {
@@ -32,7 +31,6 @@ export const TAB_SINGULAR: Record<ManageTab, string> = {
   Degree: 'Degree',
   Services: 'Service',
   Price: 'Price',
-  Country: 'Country',
 };
 
 export const TAB_DESCRIPTIONS: Record<ManageTab, string> = {
@@ -40,11 +38,10 @@ export const TAB_DESCRIPTIONS: Record<ManageTab, string> = {
   Profession: 'Professions list the specific roles or titles a scientist or technologist holds under each scientific field.',
   Degree: 'Degrees set the academic qualification levels a scientist can declare.',
   Services: 'Services are shared across every field and are not tied to a specific scientific discipline.',
-  Price: 'Configure the shared listing prices for African and non-African scientists based on the number of professions they select.',
-  Country: 'Countries available for scientist and technologist listings.',
+  Price: 'Configure the shared listing prices and additional country charge for African and non-African scientists based on the number of professions they select.',
 };
 
 /** Only Professions carry the info icon, so only they get a note field. */
-export const TABS_WITHOUT_NOTE: ManageTab[] = ['Fields', 'Degree', 'Services', 'Price', 'Country'];
+export const TABS_WITHOUT_NOTE: ManageTab[] = ['Fields', 'Degree', 'Services', 'Price'];
 
 

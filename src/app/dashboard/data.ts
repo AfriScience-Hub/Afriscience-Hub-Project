@@ -1,7 +1,7 @@
-import { LayoutDashboard, User, ListChecks, UploadCloud, Briefcase, MessageCircle, FileText, Bell, Star, ShieldCheck, Settings, Eye, ThumbsUp, Share2, Clock, ArrowUpRight, CalendarCheck, Users, Trophy, Award, HandCoins, Archive, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, User, ListChecks, UploadCloud, Briefcase, MessageCircle, FileText, Bell, Star, ShieldCheck, Settings, Eye, ThumbsUp, Share2, Clock, ArrowUpRight, CalendarCheck, Users, Trophy, Award, HandCoins, Archive, ClipboardList, Wallet } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-export type SidebarTab = 'overview' | 'profile' | 'listings' | 'upload' | 'messages' | 'invoices' | 'notifications' | 'reviews' | 'verification' | 'settings' | 'donations' | 'archive' | 'awards' | 'submissions';
+export type SidebarTab = 'overview' | 'profile' | 'listings' | 'upload' | 'messages' | 'invoices' | 'payout' | 'notifications' | 'reviews' | 'verification' | 'settings' | 'donations' | 'archive' | 'awards' | 'submissions';
 
 export const SIDEBAR_ITEMS: { key: SidebarTab; label: string; icon: LucideIcon }[] = [
   { key: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -11,6 +11,7 @@ export const SIDEBAR_ITEMS: { key: SidebarTab; label: string; icon: LucideIcon }
   { key: 'submissions', label: 'Submissions', icon: ClipboardList },
   { key: 'messages', label: 'Messages', icon: MessageCircle },
   { key: 'invoices', label: 'Invoices', icon: FileText },
+  { key: 'payout', label: 'Payout', icon: Wallet },
   { key: 'notifications', label: 'Notifications', icon: Bell },
   { key: 'reviews', label: 'Reviews', icon: Star },
   { key: 'verification', label: 'Verification Status', icon: ShieldCheck },
@@ -28,6 +29,7 @@ export const TAB_TO_PATH: Record<SidebarTab, string> = {
   submissions: '/dashboard/submissions',
   messages: '/dashboard/messages',
   invoices: '/dashboard/invoices',
+  payout: '/dashboard/payout',
   notifications: '/dashboard/notifications',
   reviews: '/dashboard/reviews',
   verification: '/dashboard/verification-status',
@@ -45,6 +47,7 @@ export const PATH_TO_TAB: Record<string, SidebarTab> = {
   '/dashboard/submissions': 'submissions',
   '/dashboard/messages': 'messages',
   '/dashboard/invoices': 'invoices',
+  '/dashboard/payout': 'payout',
   '/dashboard/notifications': 'notifications',
   '/dashboard/reviews': 'reviews',
   '/dashboard/verification-status': 'verification',

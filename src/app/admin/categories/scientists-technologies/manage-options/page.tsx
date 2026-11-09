@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
   ArrowLeft, Users, Search, Plus, LayoutGrid, GraduationCap,
-  Briefcase, Wrench, Globe, Tag, Loader2,
+  Briefcase, Wrench, Tag, Loader2,
 } from 'lucide-react';
 import OptionDialog from '../../special-centres/manage-options/components/OptionDialog';
 import PriceSideDialog from '../../special-centres/manage-options/components/PriceSideDialog';
@@ -22,7 +22,6 @@ const TAB_ICONS: Record<ManageTab, React.ComponentType<{ className?: string }>> 
   Degree: GraduationCap,
   Services: Briefcase,
   Price: Tag,
-  Country: Globe,
 };
 
 export default function ScientistManageOptionsPage() {
@@ -97,7 +96,9 @@ export default function ScientistManageOptionsPage() {
                 itemNounPlural="professions"
                 africanTitle="African Scientists"
                 nonAfricanTitle="Non-African Scientists"
-                footnote="Non-African scientist and technologist listings also add the Country fee."
+                africanExtraCharge={s.extraCharges.african}
+                nonAfricanExtraCharge={s.extraCharges.nonAfrican}
+                footnote="The additional charge is applied on top of the listing price for each region."
                 onEditAfrican={() => s.setPriceSide('african')}
                 onEditNonAfrican={() => s.setPriceSide('nonAfrican')}
               />
@@ -161,6 +162,8 @@ export default function ScientistManageOptionsPage() {
         side={s.priceSide}
         one={s.priceSide === 'nonAfrican' ? s.professionPrice.nonAfricaOne : s.professionPrice.africaOne}
         twoOrMore={s.priceSide === 'nonAfrican' ? s.professionPrice.nonAfricaTwoOrMore : s.professionPrice.africaTwoOrMore}
+        extraCharge={s.priceSide === 'nonAfrican' ? s.extraCharges.nonAfrican : s.extraCharges.african}
+        showExtraCharge
         itemNoun="profession"
         onClose={() => s.setPriceSide(null)}
         onSave={s.handleSidePriceSave}

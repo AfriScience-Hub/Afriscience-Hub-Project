@@ -67,9 +67,7 @@ export default function SplitPricingTable({
           <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-neutral-gray-light bg-[#453DD8]/[0.04]">
             <Globe className="h-4 w-4 text-[#453DD8]" />
             <span className="text-xs font-bold text-neutral-black">{africanTitle}</span>
-            <span className="ml-auto rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-              No country fee
-            </span>
+            
             {editButton(hasAfrican, onEditAfrican)}
           </div>
 
