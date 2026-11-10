@@ -9,7 +9,10 @@ interface ScientistScopePolicySectionProps {
   setScopes: (v: string[]) => void;
   policies: string[];
   setPolicies: (v: string[]) => void;
-  /** Approved listings can add scopes but not remove existing ones. */
+  /**
+   * Restricted (approved / Pro-upgrade) edits: scopes can be added but not
+   * removed. Engagement policies stay fully editable.
+   */
   approvedEditMode?: boolean;
 }
 

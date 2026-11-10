@@ -5,22 +5,35 @@ export type Verification = 'Verified' | 'Pending' | 'Unverified';
 export interface ServiceCost {
   service: string;
   range: string;
+  description?: string;
+  min?: string;
+  max?: string;
+  currency?: string;
 }
 
 export interface OtherFee {
   name: string;
   amount: string;
+  description?: string;
+  service?: string;
+  min?: string;
+  max?: string;
+  currency?: string;
 }
 
 export interface Credential {
   name: string;
   issuer: string;
   year: string;
+  document?: string;
 }
 
 export interface Achievement {
   title: string;
   description: string;
+  document?: string;
+  issuer?: string;
+  year?: string;
 }
 
 export interface AdminScientist {
@@ -53,6 +66,9 @@ export interface AdminScientist {
   pendingUpdate?: boolean;
   views: number;
   image: string;
+  /** Raw profile/background keys so the admin preview matches the user preview. */
+  profileImage?: string;
+  backgroundImage?: string;
 
   // Full record used by the detail modal.
   bio: string;
@@ -60,12 +76,23 @@ export interface AdminScientist {
   email: string;
   website: string;
   services: string[];
+  /** Uploaded degree certificate, when the API returns one. */
+  degreeDocument?: string;
   scopes: string[];
   serviceCost: ServiceCost[];
   otherFees: OtherFee[];
   certifications: Credential[];
   policies: string[];
   achievements: Achievement[];
+  /** Social handles shown instead of phone/email/website on the public listing. */
+  socials?: { platform: string; link: string }[];
+  /** Availability summary from the professional highlight section. */
+  highlights?: {
+    responseTime: string;
+    workDays: string[];
+    startHours: string;
+    endHours: string;
+  };
   reason?: string;
 }
 

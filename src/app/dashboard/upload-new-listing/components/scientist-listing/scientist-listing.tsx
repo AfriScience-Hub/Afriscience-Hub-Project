@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Info, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import ListingSuccessModal from '../afro-innovation-listing/components/ListingSuccessModal';
 import FormActions from '../FormActions';
 import UndertakingSection from '../UndertakingSection';
@@ -49,17 +49,6 @@ export default function ScientistListing({ onCancel, listingId, draftId, upgrade
 
   return (
     <>
-      {form.approvedEditMode && (
-        <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
-          <Info className="mt-0.5 h-4 w-4 shrink-0" />
-          <p>
-            This listing is approved. You can update services, costs, images, degree, scopes, policies, highlights,
-            certificates, achievements, media and work hours. Existing services, scopes, certificates and achievements
-            cannot be removed.
-          </p>
-        </div>
-      )}
-
       <ScientistProfileSection profile={form.profile} onChange={form.patchProfile} approvedEditMode={form.approvedEditMode} />
 
       <ProfessionalDetailsSection

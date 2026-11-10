@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowLeft, Users, Search, MoreVertical, Eye,
-  EyeOff, CheckCircle, BadgeCheck, Star, CalendarCheck,
+  ArrowLeft, Users, Search, MoreVertical, Eye, CheckCircle,
+  BadgeCheck, Star, CalendarCheck, Loader2,
 } from 'lucide-react';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
 import { toast } from 'sonner';
@@ -13,16 +13,14 @@ import StatCard from '../../special-centres/components/StatCard';
 import PagePagination from '../../special-centres/components/PagePagination';
 import ScientistDetailModal from '../components/ScientistDetailModal';
 import SubscriptionBadge from '../../afro-innovations/components/SubscriptionBadge';
-import {
-  ADMIN_SCIENTISTS, SCIENTIST_STATS, SCIENTIST_TRENDS,
-  type AdminScientist, type Verification,
-} from '../data';
-import { SCIENTIST_FIELDS, SCIENTIST_DEGREES, SCIENTIST_SERVICES, PROFESSIONS_BY_FIELD } from '@/app/data/mockData';
+import type { AdminScientist } from '../data';
+import { fetchPublicScientistListing, fetchPublicScientistListings, setScientistVerification } from '../api';
 
 type ViewTab = 'Live' | 'Updated';
 type DisplayStatus = 'Live' | 'Unpublished' | 'Updated';
 
 const VERIFICATION_OPTIONS = ['All Verification', 'Verified', 'Unverified'];
+const distinctOptions = (values: string[]) => [...new Set(values.filter(Boolean))].sort();
 
 function displayStatus(r: AdminScientist): DisplayStatus {
   if (r.pendingUpdate) return 'Updated';
@@ -30,7 +28,8 @@ function displayStatus(r: AdminScientist): DisplayStatus {
 }
 
 export default function AllScientistsPage() {
-  const [records, setRecords] = useState<AdminScientist[]>(ADMIN_SCIENTISTS);
+  const [records, setRecords] = useState<AdminScientist[]>([]);
+  const [loading, setLoading] = useState(true);
   const [view, setView] = useState<ViewTab>('Live');
   const [search, setSearch] = useState('');
   const [fieldFilter, setFieldFilter] = useState('All Fields');
@@ -43,13 +42,35 @@ export default function AllScientistsPage() {
   const [subscriptionFilter, setSubscriptionFilter] = useState('All Subscriptions');
   const [bookingFilter, setBookingFilter] = useState('All Bookings');
   const [selected, setSelected] = useState<AdminScientist | null>(null);
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const detailRequest = useRef(0);
   const perPage = 8;
 
-  const countries = useMemo(() => [...new Set(records.map((r) => r.country))].sort(), [records]);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const rows = await fetchPublicScientistListings();
+        if (!cancelled) setRecords(rows);
+      } catch (e: any) {
+        toast.error(e?.message || 'Failed to load public scientist listings');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const countries = useMemo(() => distinctOptions(records.map((r) => r.country)), [records]);
+  const fields = useMemo(() => distinctOptions(records.map((r) => r.field)), [records]);
+  const allProfessions = useMemo(() => distinctOptions(records.flatMap((r) => r.professions)), [records]);
+  const degrees = useMemo(() => distinctOptions(records.flatMap((r) => r.degrees)), [records]);
+  const services = useMemo(() => distinctOptions(records.flatMap((r) => r.services)), [records]);
+
   const professions = fieldFilter === 'All Fields'
-    ? [...new Set(records.flatMap((r) => r.professions))].sort()
-    : (PROFESSIONS_BY_FIELD[fieldFilter] || []);
+    ? allProfessions
+    : distinctOptions(records.filter((r) => r.field === fieldFilter).flatMap((r) => r.professions));
 
   const liveRows = useMemo(
     () => records.filter((r) => r.listingStatus === 'Published' && !r.pendingUpdate),
@@ -81,26 +102,41 @@ export default function AllScientistsPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
 
-  const setStatus = (s: AdminScientist, status: 'Published' | 'Unpublished') => {
-    setRecords((prev) => prev.map((r) => (
-      r.id === s.id ? { ...r, listingStatus: status, pendingUpdate: false } : r
-    )));
-    setSelected(null);
-    toast.success(status === 'Published' ? 'Listing published successfully' : 'Listing unpublished');
+  const openRecord = async (record: AdminScientist) => {
+    const request = ++detailRequest.current;
+    setSelected(record);
+    try {
+      const detail = await fetchPublicScientistListing(record.id);
+      if (request !== detailRequest.current) return;
+      setSelected(detail);
+      setRecords((prev) => prev.map((r) => (r.id === detail.id ? detail : r)));
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to load the full listing');
+    }
   };
 
-  const toggleVerification = (s: AdminScientist) => {
-    const next: Verification = s.verification === 'Verified' ? 'Unverified' : 'Verified';
-    setRecords((prev) => prev.map((r) => (r.id === s.id ? { ...r, verification: next } : r)));
-    setSelected(null);
-    toast.success(next === 'Verified' ? 'Scientist verified' : 'Scientist unverified');
+  const toggleVerify = async (record: AdminScientist) => {
+    if (verifyingId) return;
+    const nextVerified = record.verification !== 'Verified';
+    setVerifyingId(record.id);
+    try {
+      await setScientistVerification(record.id, nextVerified);
+      const verification: AdminScientist['verification'] = nextVerified ? 'Verified' : 'Unverified';
+      setRecords((prev) => prev.map((r) => (r.id === record.id ? { ...r, verification } : r)));
+      setSelected((prev) => (prev && prev.id === record.id ? { ...prev, verification } : prev));
+      toast.success(nextVerified ? 'Scientist verified' : 'Scientist unverified');
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to update verification');
+    } finally {
+      setVerifyingId(null);
+    }
   };
 
   const stats = [
-    { label: 'Total Scientists', value: SCIENTIST_STATS.total, ...SCIENTIST_TRENDS.total, iconBg: 'bg-purple-100 text-purple-600', icon: <Users className="h-4 w-4" /> },
-    { label: 'Live', value: liveRows.length, ...SCIENTIST_TRENDS.published, iconBg: 'bg-green-100 text-green-600', icon: <CheckCircle className="h-4 w-4" /> },
-    { label: 'Verified', value: records.filter((r) => r.verification === 'Verified').length, ...SCIENTIST_TRENDS.approved, iconBg: 'bg-blue-100 text-blue-600', icon: <BadgeCheck className="h-4 w-4" /> },
-    { label: 'Updated', value: updatedRows.length, ...SCIENTIST_TRENDS.total, iconBg: 'bg-amber-100 text-amber-600', icon: <CalendarCheck className="h-4 w-4" /> },
+    { label: 'Total Scientists', value: records.length, iconBg: 'bg-purple-100 text-purple-600', icon: <Users className="h-4 w-4" /> },
+    { label: 'Live', value: liveRows.length, iconBg: 'bg-green-100 text-green-600', icon: <CheckCircle className="h-4 w-4" /> },
+    { label: 'Verified', value: records.filter((r) => r.verification === 'Verified').length, iconBg: 'bg-blue-100 text-blue-600', icon: <BadgeCheck className="h-4 w-4" /> },
+    { label: 'Updated', value: updatedRows.length, iconBg: 'bg-amber-100 text-amber-600', icon: <CalendarCheck className="h-4 w-4" /> },
   ];
 
   return (
@@ -127,7 +163,7 @@ export default function AllScientistsPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map((s) => (
-          <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} iconBg={s.iconBg} change={s.change} positive={s.positive} />
+          <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} iconBg={s.iconBg} />
         ))}
       </div>
 
@@ -153,16 +189,16 @@ export default function AllScientistsPage() {
             className="w-full pl-9 pr-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs focus:ring-2 focus:ring-[#453DD8] outline-none" />
         </div>
         <select value={fieldFilter} onChange={(e) => { setFieldFilter(e.target.value); setProfessionFilter('All Professions'); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
-          <option>All Fields</option>{SCIENTIST_FIELDS.map((f) => <option key={f}>{f}</option>)}
+          <option>All Fields</option>{fields.map((f) => <option key={f}>{f}</option>)}
         </select>
         <select value={professionFilter} onChange={(e) => { setProfessionFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Professions</option>{professions.map((p) => <option key={p}>{p}</option>)}
         </select>
         <select value={degreeFilter} onChange={(e) => { setDegreeFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
-          <option>All Degrees</option>{SCIENTIST_DEGREES.map((d) => <option key={d}>{d}</option>)}
+          <option>All Degrees</option>{degrees.map((d) => <option key={d}>{d}</option>)}
         </select>
         <select value={serviceFilter} onChange={(e) => { setServiceFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
-          <option>All Services</option>{SCIENTIST_SERVICES.map((s) => <option key={s}>{s}</option>)}
+          <option>All Services</option>{services.map((s) => <option key={s}>{s}</option>)}
         </select>
         <select value={countryFilter} onChange={(e) => { setCountryFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Countries</option>{countries.map((c) => <option key={c}>{c}</option>)}
@@ -200,10 +236,18 @@ export default function AllScientistsPage() {
               </tr>
             </thead>
             <tbody>
-              {paginated.map((r) => {
+              {loading && (
+                <tr>
+                  <td colSpan={11} className="px-3 py-12 text-center">
+                    <Loader2 className="mx-auto h-5 w-5 animate-spin text-[#453DD8]" />
+                    <p className="mt-2 text-xs text-neutral-gray-medium">Loading scientists...</p>
+                  </td>
+                </tr>
+              )}
+              {!loading && paginated.map((r) => {
                 const status = displayStatus(r);
                 return (
-                  <tr key={r.id} onClick={() => setSelected(r)} className="border-b border-neutral-gray-light/60 last:border-0 hover:bg-neutral-bg-light/40 cursor-pointer">
+                  <tr key={r.id} onClick={() => void openRecord(r)} className="border-b border-neutral-gray-light/60 last:border-0 hover:bg-neutral-bg-light/40 cursor-pointer">
                     <td className="px-3 py-3">
                       <div className="flex gap-3 items-start max-w-[220px]">
                         <div className="relative h-10 w-10 rounded-lg overflow-hidden shrink-0 bg-brand-navy-900">
@@ -215,9 +259,9 @@ export default function AllScientistsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-3 py-3"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.field}</span></td>
+                    <td className="px-3 py-3"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.field || '—'}</span></td>
                     <td className="px-3 py-3 text-xs text-neutral-gray-dark max-w-[160px]">
-                      <p className="truncate">{r.professions[0]}</p>
+                      <p className="truncate">{r.professions[0] || '—'}</p>
                       {r.professions.length > 1 && <p className="text-[11px] text-neutral-gray-medium">+{r.professions.length - 1} more</p>}
                     </td>
                     <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{r.degrees.join(', ') || '—'}</td>
@@ -228,11 +272,11 @@ export default function AllScientistsPage() {
                       </span>
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap">
-                      <p className="text-xs text-neutral-gray-dark">{r.country}</p>
+                      <p className="text-xs text-neutral-gray-dark">{r.country || '—'}</p>
                       <p className="text-[11px] text-neutral-gray-medium">{r.city}</p>
                     </td>
                     <td className="px-3 py-3 text-xs font-semibold text-neutral-black whitespace-nowrap">{r.bookings.toLocaleString()}</td>
-                    <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{r.submittedOn}<br /><span className="text-[11px] text-neutral-gray-medium">{r.submittedTime}</span></td>
+                    <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{r.submittedOn || '—'}<br /><span className="text-[11px] text-neutral-gray-medium">{r.submittedTime}</span></td>
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-1.5">
                         <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${
@@ -247,40 +291,41 @@ export default function AllScientistsPage() {
                     </td>
                     <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                       <TableActionMenu
-                        triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
+                        triggerIcon={verifyingId === r.id
+                          ? <Loader2 className="h-4 w-4 animate-spin text-neutral-gray-dark" />
+                          : <MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                         items={[
-                          { label: 'View Details', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
+                          { label: 'View Details', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => void openRecord(r) },
                           {
-                            label: r.verification === 'Verified' ? 'Unverify' : 'Verify',
-                            icon: <BadgeCheck className="h-3.5 w-3.5" />,
-                            onClick: () => toggleVerification(r),
+                            label: verifyingId === r.id
+                              ? 'Updating...'
+                              : r.verification === 'Verified' ? 'Unverify' : 'Verify',
+                            icon: verifyingId === r.id
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <BadgeCheck className="h-3.5 w-3.5" />,
+                            onClick: () => { if (verifyingId !== r.id) void toggleVerify(r); },
                           },
-                          ...(r.listingStatus === 'Published' && !r.pendingUpdate
-                            ? [{ label: 'Unpublish', icon: <EyeOff className="h-3.5 w-3.5" />, onClick: () => setStatus(r, 'Unpublished'), danger: true }]
-                            : [{ label: r.pendingUpdate ? 'Publish Update' : 'Publish', icon: <CheckCircle className="h-3.5 w-3.5" />, onClick: () => setStatus(r, 'Published') }]),
                         ]}
                       />
                     </td>
                   </tr>
                 );
               })}
-              {paginated.length === 0 && (
+              {!loading && paginated.length === 0 && (
                 <tr><td colSpan={11} className="px-3 py-10 text-center text-xs text-neutral-gray-medium">No scientists match these filters.</td></tr>
               )}
             </tbody>
           </table>
         </div>
-        <PagePagination page={page} totalPages={totalPages} perPage={perPage} total={SCIENTIST_STATS.total} count={filtered.length} noun="scientists" onPage={setPage} />
+        <PagePagination page={page} totalPages={totalPages} perPage={perPage} total={records.length} count={filtered.length} noun="scientists" onPage={setPage} />
       </div>
 
       <ScientistDetailModal
         scientist={selected}
         open={!!selected}
         onClose={() => setSelected(null)}
-        onEdit={() => setSelected(null)}
         onApprove={() => setSelected(null)}
         onReject={() => setSelected(null)}
-        onTogglePublish={(s) => setStatus(s, s.listingStatus === 'Published' ? 'Unpublished' : 'Published')}
       />
     </div>
   );

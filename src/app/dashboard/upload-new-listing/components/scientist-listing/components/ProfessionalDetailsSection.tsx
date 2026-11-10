@@ -219,10 +219,21 @@ export default function ProfessionalDetailsSection({
             onChange={(v) => onChange({ degree: v })}
             loading={loading && degrees.length === 0}
           />
-          <label className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-brand-red-300 px-3 py-2.5 text-xs font-medium text-brand-red-600 transition-colors hover:bg-brand-red-50">
-            <input type="file" accept=".pdf,image/*" onChange={handleCertificate} className="hidden" />
-            <Upload className="h-3.5 w-3.5" /> {details.degreeCertificateName || (details.degreeCertificate ? 'Certificate uploaded' : 'Upload Degree Certificate (to verify academic qualification)')}
-          </label>
+          {approvedEditMode ? (
+            <div className="mt-3 rounded-lg border border-neutral-gray-light bg-neutral-bg-light px-3 py-2.5 text-xs text-neutral-gray-medium">
+              <p className="font-semibold text-neutral-gray-dark">Degree certificate</p>
+              <p className="mt-0.5">
+                {details.degreeCertificateName || details.degreeCertificate
+                  ? 'A degree certificate is already on file and cannot be replaced on this listing.'
+                  : 'No degree certificate on file.'}
+              </p>
+            </div>
+          ) : (
+            <label className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-brand-red-300 px-3 py-2.5 text-xs font-medium text-brand-red-600 transition-colors hover:bg-brand-red-50">
+              <input type="file" accept=".pdf,image/*" onChange={handleCertificate} className="hidden" />
+              <Upload className="h-3.5 w-3.5" /> {details.degreeCertificateName || (details.degreeCertificate ? 'Certificate uploaded' : 'Upload Degree Certificate (to verify academic qualification)')}
+            </label>
+          )}
         </div>
 
         <div>

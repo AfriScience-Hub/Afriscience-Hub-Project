@@ -140,7 +140,15 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
   const patchHighlight = (patch: Partial<ProfessionalHighlight>) => setHighlight((prev) => ({ ...prev, ...patch }));
   const patchContact = (patch: Partial<ScientistContact>) => setContact((prev) => ({ ...prev, ...patch }));
 
-  const approvedEditMode = !!listingId && statusKind(editStatus) === 'approved';
+  /**
+   * Restricted edit mode. Approved listings — and any Pro-plan upgrade — only
+   * allow a limited set of fields to change: services, costs, images, degree,
+   * scopes, highlights, documents, media and work hours. Everything else
+   * (name, location, bio, field, professions, degree certificate, policies and
+   * socials) stays locked.
+   */
+  const isApprovedRecord = !!listingId && statusKind(editStatus) === 'approved';
+  const approvedEditMode = isApprovedRecord || (!!listingId && upgrade);
   const hasAnySocial = Object.values(contact.socials).some((value) => value.trim().length > 0);
   const bioWords = profile.bio.trim() ? profile.bio.trim().split(/\s+/).length : 0;
   const highlightOk = !!highlight.responseTime && highlight.workDays.length > 0 && highlight.workHours.length > 0;

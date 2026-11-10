@@ -2,20 +2,18 @@
 
 import Image from 'next/image';
 import {
-  X, IdCard, Microscope, MapPin, Pencil, CheckCircle, XCircle, EyeOff, Award, Wrench,
+  X, IdCard, Microscope, MapPin, CheckCircle, XCircle, Award, Wrench, Clock,
 } from 'lucide-react';
 import CollapsibleSection from '@/app/dashboard/upload-new-listing/components/CollapsibleSection';
 import type { AdminScientist, SubmissionStatus } from '../data';
+import ScientistDocumentGallery from './ScientistDocumentGallery';
 
 interface Props {
   scientist: AdminScientist | null;
   open: boolean;
   onClose: () => void;
-  onEdit: (s: AdminScientist) => void;
   onApprove: (s: AdminScientist) => void;
   onReject: (s: AdminScientist) => void;
-  /** Optional publish toggle, supplied by the All Scientists table. */
-  onTogglePublish?: (s: AdminScientist) => void;
 }
 
 function Field({ label, value }: { label: string; value?: string | string[] }) {
@@ -49,12 +47,38 @@ function Bullets({ items }: { items: string[] }) {
   );
 }
 
+function CostCard({ title, service, description, price }: {
+  title: string;
+  service?: string;
+  description?: string;
+  price: string;
+}) {
+  return (
+    <div className="rounded-lg border border-neutral-gray-light p-3">
+      <p className="text-sm font-semibold text-neutral-black">{title}</p>
+      {service && <p className="mt-0.5 text-[11px] font-medium text-neutral-gray-dark">Service: {service}</p>}
+      {description && <p className="mt-0.5 text-xs text-neutral-gray-medium">{description}</p>}
+      <p className="mt-1 text-xs font-medium text-neutral-black">{price}</p>
+    </div>
+  );
+}
+
 function SubHeading({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
   return (
     <p className="text-sm font-bold text-neutral-black mb-2 flex items-center gap-1.5">
       <Icon className="h-4 w-4 text-neutral-gray-medium" /> {children}
     </p>
   );
+}
+
+function formatTime(value: string): string {
+  if (!value) return '';
+  if (/am|pm/i.test(value)) return value;
+  const [hourRaw, minuteRaw] = value.split(':');
+  const hour = Number(hourRaw);
+  if (!Number.isFinite(hour)) return value;
+  const suffix = hour >= 12 ? 'PM' : 'AM';
+  return `${hour % 12 || 12}:${(minuteRaw ?? '00').slice(0, 2)} ${suffix}`;
 }
 
 const STATUS_TONE: Record<SubmissionStatus, string> = {
@@ -66,14 +90,38 @@ const STATUS_TONE: Record<SubmissionStatus, string> = {
 
 /**
  * Full record for one scientist or technologist, shown when a table row is
- * clicked. Uses the same collapsible sections as the centre detail modal.
+ * clicked. The profile and document sections mirror the user-side preview.
  */
-export default function ScientistDetailModal({ scientist, open, onClose, onEdit, onApprove, onReject, onTogglePublish }: Props) {
+export default function ScientistDetailModal({ scientist, open, onClose, onApprove, onReject }: Props) {
   if (!open || !scientist) return null;
 
   const isPending = scientist.status === 'Pending Review';
   const isPublished = scientist.listingStatus === 'Published';
   const canReject = isPending && !isPublished;
+  const socials = scientist.socials ?? [];
+  const highlights = scientist.highlights;
+  const showHighlights = highlights && (
+    highlights.responseTime || highlights.workDays.length || highlights.startHours || highlights.endHours
+  );
+  const certificateItems = [
+    ...(scientist.degreeDocument
+      ? [{ id: 'degree-document', name: 'Degree Certificate', document: scientist.degreeDocument }]
+      : []),
+    ...scientist.certifications.map((c, index) => ({
+      id: `certificate-${index}`,
+      name: c.name,
+      issuer: c.issuer,
+      year: c.year,
+      document: c.document,
+    })),
+  ];
+  const achievementItems = scientist.achievements.map((a, index) => ({
+    id: `achievement-${index}`,
+    name: a.title,
+    issuer: a.issuer,
+    year: a.year,
+    document: a.document,
+  }));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
@@ -85,38 +133,35 @@ export default function ScientistDetailModal({ scientist, open, onClose, onEdit,
               {scientist.title} &middot; Submitted on {scientist.submittedOn} {scientist.submittedTime}
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => onEdit(scientist)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer"
-            >
-              <Pencil className="h-3.5 w-3.5" /> Edit
-            </button>
-            <button onClick={onClose} className="h-9 w-9 rounded-full bg-neutral-bg-light hover:bg-neutral-gray-light flex items-center justify-center cursor-pointer shrink-0">
-              <X className="h-5 w-5" />
-            </button>
-          </div>
+          <button onClick={onClose} className="h-9 w-9 rounded-full bg-neutral-bg-light hover:bg-neutral-gray-light flex items-center justify-center cursor-pointer shrink-0">
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           <CollapsibleSection title="Scientist Identity" icon={<IdCard className="h-5 w-5 text-brand-red-600" />} defaultOpen>
             <div className="space-y-4">
-              <div className="flex gap-4 items-start">
-                <Image
-                  src={scientist.image}
-                  alt={scientist.name}
-                  width={72}
-                  height={72}
-                  sizes="80px"
-                  className="rounded-xl object-cover border border-neutral-gray-light shrink-0 w-20 h-20"
-                />
-                <div className="min-w-0">
-                  <h3 className="text-sm font-bold text-neutral-black">{scientist.name}</h3>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold">{scientist.field}</span>
-                    <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[11px] font-semibold">{scientist.degrees.join(' · ') || '—'}</span>
-                    <span className="px-2 py-0.5 rounded-full bg-white border border-neutral-gray-light text-neutral-gray-dark text-[11px]">{scientist.location}</span>
-                  </div>
+              {(scientist.profileImage || scientist.backgroundImage) && (
+                <div className="overflow-hidden rounded-xl border border-neutral-gray-light">
+                  {scientist.backgroundImage && (
+                    <div className="relative h-36 w-full">
+                      <Image src={scientist.backgroundImage} alt="Background" fill sizes="100vw" className="object-cover" />
+                    </div>
+                  )}
+                  {scientist.profileImage && (
+                    <div className="relative -mt-10 ml-4 h-20 w-20 overflow-hidden rounded-full border-2 border-white">
+                      <Image src={scientist.profileImage} alt={scientist.name} fill sizes="80px" className="object-cover" />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="min-w-0">
+                <h3 className="text-sm font-bold text-neutral-black">{scientist.name}</h3>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold">{scientist.field}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[11px] font-semibold">{scientist.degrees.join(' · ') || '—'}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-white border border-neutral-gray-light text-neutral-gray-dark text-[11px]">{scientist.location}</span>
                 </div>
               </div>
 
@@ -142,7 +187,7 @@ export default function ScientistDetailModal({ scientist, open, onClose, onEdit,
 
               <div className="pt-2">
                 <p className="text-[11px] font-semibold text-neutral-gray-medium uppercase mb-1">Short Bio</p>
-                <p className="text-sm text-neutral-gray-dark leading-relaxed whitespace-pre-wrap">{scientist.bio}</p>
+                <p className="text-sm text-neutral-gray-dark leading-relaxed whitespace-pre-wrap">{scientist.bio || '—'}</p>
               </div>
             </div>
           </CollapsibleSection>
@@ -164,30 +209,76 @@ export default function ScientistDetailModal({ scientist, open, onClose, onEdit,
                 <Bullets items={scientist.scopes} />
               </div>
 
-              <div className="rounded-xl border border-neutral-gray-light bg-white p-4 space-y-3">
+              <div className="space-y-3">
                 <SubHeading icon={Wrench}>Service Fees</SubHeading>
                 {scientist.serviceCost.length === 0 ? (
                   <p className="text-sm text-neutral-gray-medium">—</p>
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-3">
-                    {scientist.serviceCost.map((s) => (
-                      <Field key={s.service} label={s.service} value={s.range} />
-                    ))}
-                  </div>
-                )}
-                {scientist.otherFees.length > 0 && (
-                  <div className="grid sm:grid-cols-2 gap-3 pt-3 border-t border-neutral-gray-light">
-                    {scientist.otherFees.map((f) => (
-                      <Field key={f.name} label={f.name} value={f.amount} />
-                    ))}
+                    {scientist.serviceCost.map((s, index) => {
+                      const currency = s.currency || 'USD';
+                      const price = s.min
+                        ? `Min ${currency} ${s.min}${s.max ? ` · Max ${currency} ${s.max}` : ''}`
+                        : s.range;
+                      return (
+                        <CostCard
+                          key={`${s.service}-${index}`}
+                          title={s.service}
+                          description={s.description}
+                          price={price}
+                        />
+                      );
+                    })}
                   </div>
                 )}
               </div>
 
+              {scientist.otherFees.length > 0 && (
+                <div className="space-y-3">
+                  <SubHeading icon={Wrench}>Other Charges</SubHeading>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {scientist.otherFees.map((f, index) => {
+                      const currency = f.currency || 'USD';
+                      const price = f.min
+                        ? `Min ${currency} ${f.min}${f.max ? ` · Max ${currency} ${f.max}` : ''}`
+                        : f.amount;
+                      return (
+                        <CostCard
+                          key={`${f.name}-${index}`}
+                          title={f.name}
+                          service={f.service}
+                          description={f.description}
+                          price={price}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div>
-                <SubHeading icon={Award}>Certifications &amp; Achievements</SubHeading>
-                <Bullets items={[...scientist.certifications.map((c) => `${c.name} — ${c.issuer}, ${c.year}`), ...scientist.achievements.map((a) => a.title)]} />
+                <SubHeading icon={Award}>Certificates</SubHeading>
+                <ScientistDocumentGallery items={certificateItems} />
               </div>
+
+              <div>
+                <SubHeading icon={Award}>Achievements</SubHeading>
+                <ScientistDocumentGallery items={achievementItems} />
+              </div>
+
+              {showHighlights && highlights && (
+                <div className="rounded-xl border border-neutral-gray-light bg-white p-4">
+                  <SubHeading icon={Clock}>Professional Highlight</SubHeading>
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <Field label="Response Time" value={highlights.responseTime} />
+                    <Field label="Work Days" value={highlights.workDays} />
+                    <Field
+                      label="Work Hours"
+                      value={[formatTime(highlights.startHours), formatTime(highlights.endHours)].filter(Boolean).join(' – ')}
+                    />
+                  </div>
+                </div>
+              )}
 
               <div>
                 <SubHeading icon={Microscope}>Engagement Policies</SubHeading>
@@ -196,12 +287,21 @@ export default function ScientistDetailModal({ scientist, open, onClose, onEdit,
             </div>
           </CollapsibleSection>
 
-          <CollapsibleSection title="Contact Information" icon={<MapPin className="h-5 w-5 text-brand-navy-900" />} defaultOpen>
+          <CollapsibleSection title="Social & Location" icon={<MapPin className="h-5 w-5 text-brand-navy-900" />} defaultOpen>
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Phone" value={scientist.phone} />
-              <Field label="E-mail" value={scientist.email} />
-              <Field label="Website" value={scientist.website} />
               <Field label="Location" value={scientist.location} />
+              {socials.length === 0 ? (
+                <Field label="Social Handles" value="" />
+              ) : (
+                socials.map((social, idx) => (
+                  <div key={`${social.platform}-${idx}`}>
+                    <p className="text-[11px] font-semibold text-neutral-gray-medium uppercase">{social.platform}</p>
+                    <a href={social.link} target="_blank" rel="noreferrer" className="text-sm text-brand-red-600 hover:underline break-all">
+                      {social.link}
+                    </a>
+                  </div>
+                ))
+              )}
             </div>
           </CollapsibleSection>
         </div>
@@ -221,21 +321,11 @@ export default function ScientistDetailModal({ scientist, open, onClose, onEdit,
                   onClick={() => { onApprove(scientist); onClose(); }}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 cursor-pointer"
                 >
-                  <CheckCircle className="h-4 w-4" /> Published
+                  <CheckCircle className="h-4 w-4" /> Approve
                 </button>
               </>
             ) : (
-              <>
-                <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${STATUS_TONE[scientist.status]}`}>{scientist.status}</span>
-                {onTogglePublish && (
-                  <button
-                    onClick={() => { onTogglePublish(scientist); onClose(); }}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#3a33c0] cursor-pointer"
-                  >
-                    <EyeOff className="h-3.5 w-3.5" /> {isPublished ? 'Unpublish' : 'Publish'}
-                  </button>
-                )}
-              </>
+              <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${STATUS_TONE[scientist.status]}`}>{scientist.status}</span>
             )}
           </div>
         </div>

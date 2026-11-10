@@ -1,25 +1,34 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
   ArrowLeft, FileText, Search, MoreVertical, Eye, CheckCircle, XCircle,
-  ShieldCheck, Clock, X,
+  ShieldCheck, Clock, Loader2,
 } from 'lucide-react';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
 import { toast } from 'sonner';
 import StatCard from '../../special-centres/components/StatCard';
 import PagePagination from '../../special-centres/components/PagePagination';
 import ScientistDetailModal from '../components/ScientistDetailModal';
-import { ADMIN_SCIENTISTS, SCIENTIST_STATS, SCIENTIST_TRENDS, type AdminScientist } from '../data';
+import RejectScientistModal from '../components/RejectScientistModal';
+import type { AdminScientist } from '../data';
 import SubscriptionBadge from '../../afro-innovations/components/SubscriptionBadge';
-import { SCIENTIST_FIELDS, SCIENTIST_DEGREES, SCIENTIST_SERVICES } from '@/app/data/mockData';
+import {
+  approveAdminScientistListing,
+  fetchAdminScientistListing,
+  fetchAdminScientistListings,
+  rejectAdminScientistListing,
+} from '../api';
 
 type TabId = 'all' | 'pending' | 'approved' | 'rejected';
 
+const distinctOptions = (values: string[]) => [...new Set(values.filter(Boolean))].sort();
+
 export default function ScientistSubmissionsPage() {
-  const [records, setRecords] = useState<AdminScientist[]>(ADMIN_SCIENTISTS);
+  const [records, setRecords] = useState<AdminScientist[]>([]);
+  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<TabId>('all');
   const [search, setSearch] = useState('');
   const [fieldFilter, setFieldFilter] = useState('All Fields');
@@ -29,12 +38,33 @@ export default function ScientistSubmissionsPage() {
   const [subscriptionFilter, setSubscriptionFilter] = useState('All Subscriptions');
   const [sort, setSort] = useState('Newest First');
   const [selected, setSelected] = useState<AdminScientist | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [rejectSaving, setRejectSaving] = useState(false);
   const [page, setPage] = useState(1);
+  const detailRequest = useRef(0);
   const perPage = 8;
 
-  const countries = useMemo(() => [...new Set(records.map((r) => r.country))].sort(), [records]);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const rows = await fetchAdminScientistListings();
+        if (!cancelled) setRecords(rows);
+      } catch (e: any) {
+        toast.error(e?.message || 'Failed to load scientist submissions');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const countries = useMemo(() => distinctOptions(records.map((r) => r.country)), [records]);
+  const fields = useMemo(() => distinctOptions(records.map((r) => r.field)), [records]);
+  const degrees = useMemo(() => distinctOptions(records.flatMap((r) => r.degrees)), [records]);
+  const services = useMemo(() => distinctOptions(records.flatMap((r) => r.services)), [records]);
 
   const filtered = useMemo(() => {
     const rows = records.filter((r) => {
@@ -55,26 +85,67 @@ export default function ScientistSubmissionsPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
 
-  const approve = (s: AdminScientist) => {
-    setRecords((prev) => prev.map((r) => (r.id === s.id ? { ...r, status: 'Approved' } : r)));
-    setSelected(null);
-    toast.success('Listing approved');
+  const openRecord = async (record: AdminScientist) => {
+    const request = ++detailRequest.current;
+    setSelected(record);
+    try {
+      const detail = await fetchAdminScientistListing(record.id);
+      if (request !== detailRequest.current) return;
+      setSelected(detail);
+      setRecords((prev) => prev.map((r) => (r.id === detail.id ? detail : r)));
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to load the full listing');
+    }
   };
 
-  const confirmReject = () => {
-    if (!rejectingId || !rejectReason.trim()) return;
-    setRecords((prev) => prev.map((r) => (r.id === rejectingId ? { ...r, status: 'Rejected', reason: rejectReason.trim() } : r)));
-    setRejectingId(null);
-    setRejectReason('');
-    setSelected(null);
-    toast.success('Listing rejected');
+  const approve = async (s: AdminScientist) => {
+    if (approvingId) return;
+    setApprovingId(s.id);
+    try {
+      await approveAdminScientistListing(s.id);
+      setRecords((prev) => prev.map((r) => (
+        r.id === s.id ? { ...r, status: 'Approved', listingStatus: 'Published' } : r
+      )));
+      setSelected(null);
+      toast.success('Listing approved');
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to approve listing');
+    } finally {
+      setApprovingId(null);
+    }
   };
+
+  const confirmReject = async () => {
+    if (!rejectingId || !rejectReason.trim() || rejectSaving) return;
+    setRejectSaving(true);
+    try {
+      await rejectAdminScientistListing(rejectingId, rejectReason.trim());
+      setRecords((prev) => prev.map((r) => (
+        r.id === rejectingId
+          ? { ...r, status: 'Rejected', listingStatus: 'Unpublished', reason: rejectReason.trim() }
+          : r
+      )));
+      setRejectingId(null);
+      setRejectReason('');
+      setSelected(null);
+      toast.success('Listing rejected');
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to reject listing');
+    } finally {
+      setRejectSaving(false);
+    }
+  };
+
+  const total = records.length;
+  const pending = records.filter((r) => r.status === 'Pending Review').length;
+  const approved = records.filter((r) => r.status === 'Approved' || r.status === 'Published').length;
+  const rejected = records.filter((r) => r.status === 'Rejected').length;
 
   const tabs: { id: TabId; label: string; count: number; icon: React.ReactNode; tone: string }[] = [
-    { id: 'all', label: 'All Submissions', count: SCIENTIST_STATS.total, icon: <FileText className="h-3.5 w-3.5" />, tone: 'text-[#453DD8]' },
-    { id: 'pending', label: 'Pending', count: SCIENTIST_STATS.pending, icon: <Clock className="h-3.5 w-3.5" />, tone: 'text-amber-600' },
-    { id: 'approved', label: 'Approved', count: SCIENTIST_STATS.approved, icon: <CheckCircle className="h-3.5 w-3.5" />, tone: 'text-emerald-600' },
-    { id: 'rejected', label: 'Rejected', count: SCIENTIST_STATS.rejected, icon: <XCircle className="h-3.5 w-3.5" />, tone: 'text-red-500' },
+    { id: 'all', label: 'All Submissions', count: total, icon: <FileText className="h-3.5 w-3.5" />, tone: 'text-[#453DD8]' },
+    { id: 'pending', label: 'Pending', count: pending, icon: <Clock className="h-3.5 w-3.5" />, tone: 'text-amber-600' },
+    { id: 'approved', label: 'Approved', count: approved, icon: <CheckCircle className="h-3.5 w-3.5" />, tone: 'text-emerald-600' },
+    { id: 'rejected', label: 'Rejected', count: rejected, icon: <XCircle className="h-3.5 w-3.5" />, tone: 'text-red-500' },
   ];
 
   return (
@@ -100,10 +171,10 @@ export default function ScientistSubmissionsPage() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard iconBg="bg-purple-100 text-purple-600" icon={<ShieldCheck className="h-4 w-4" />} label="Total Submissions" value={SCIENTIST_STATS.total} change={SCIENTIST_TRENDS.total.change} positive />
-        <StatCard iconBg="bg-green-100 text-green-600" icon={<CheckCircle className="h-4 w-4" />} label="Approved" value={SCIENTIST_STATS.approved} change={SCIENTIST_TRENDS.approved.change} positive />
-        <StatCard iconBg="bg-amber-100 text-amber-600" icon={<Clock className="h-4 w-4" />} label="Pending Review" value={SCIENTIST_STATS.pending} change={SCIENTIST_TRENDS.pending.change} positive />
-        <StatCard iconBg="bg-red-100 text-red-600" icon={<XCircle className="h-4 w-4" />} label="Rejected" value={SCIENTIST_STATS.rejected} change={SCIENTIST_TRENDS.rejected.change} positive={false} />
+        <StatCard iconBg="bg-purple-100 text-purple-600" icon={<ShieldCheck className="h-4 w-4" />} label="Total Submissions" value={total} />
+        <StatCard iconBg="bg-green-100 text-green-600" icon={<CheckCircle className="h-4 w-4" />} label="Approved" value={approved} />
+        <StatCard iconBg="bg-amber-100 text-amber-600" icon={<Clock className="h-4 w-4" />} label="Pending Review" value={pending} />
+        <StatCard iconBg="bg-red-100 text-red-600" icon={<XCircle className="h-4 w-4" />} label="Rejected" value={rejected} />
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -134,16 +205,16 @@ export default function ScientistSubmissionsPage() {
           />
         </div>
         <select value={fieldFilter} onChange={(e) => { setFieldFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
-          <option>All Fields</option>{SCIENTIST_FIELDS.map((f) => <option key={f}>{f}</option>)}
+          <option>All Fields</option>{fields.map((f) => <option key={f}>{f}</option>)}
         </select>
         <select value={countryFilter} onChange={(e) => { setCountryFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Countries</option>{countries.map((c) => <option key={c}>{c}</option>)}
         </select>
         <select value={degreeFilter} onChange={(e) => { setDegreeFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
-          <option>All Degrees</option>{SCIENTIST_DEGREES.map((d) => <option key={d}>{d}</option>)}
+          <option>All Degrees</option>{degrees.map((d) => <option key={d}>{d}</option>)}
         </select>
         <select value={serviceFilter} onChange={(e) => { setServiceFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
-          <option>All Services</option>{SCIENTIST_SERVICES.map((s) => <option key={s}>{s}</option>)}
+          <option>All Services</option>{services.map((s) => <option key={s}>{s}</option>)}
         </select>
         <select value={subscriptionFilter} onChange={(e) => { setSubscriptionFilter(e.target.value); setPage(1); }} className="px-3 py-2 rounded-lg border border-neutral-gray-light bg-white text-xs cursor-pointer outline-none">
           <option>All Subscriptions</option><option>Pro Plan</option><option>Free Plan</option>
@@ -173,8 +244,16 @@ export default function ScientistSubmissionsPage() {
               </tr>
             </thead>
             <tbody>
-              {paginated.map((r) => (
-                <tr key={r.id} onClick={() => setSelected(r)} className="border-b border-neutral-gray-light/60 last:border-0 hover:bg-neutral-bg-light/40 cursor-pointer">
+              {loading && (
+                <tr>
+                  <td colSpan={11} className="px-3 py-12 text-center">
+                    <Loader2 className="mx-auto h-5 w-5 animate-spin text-[#453DD8]" />
+                    <p className="mt-2 text-xs text-neutral-gray-medium">Loading submissions...</p>
+                  </td>
+                </tr>
+              )}
+              {!loading && paginated.map((r) => (
+                <tr key={r.id} onClick={() => void openRecord(r)} className="border-b border-neutral-gray-light/60 last:border-0 hover:bg-neutral-bg-light/40 cursor-pointer">
                   <td className="px-3 py-3">
                     <div className="flex gap-3 items-start max-w-[220px]">
                       <div className="relative h-10 w-10 rounded-lg overflow-hidden shrink-0 bg-brand-navy-900">
@@ -186,7 +265,7 @@ export default function ScientistSubmissionsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-3"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.field}</span></td>
+                  <td className="px-3 py-3"><span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 whitespace-nowrap">{r.field || '—'}</span></td>
                   <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{r.degrees.join(', ') || '—'}</td>
                   <td className="px-3 py-3 text-xs text-neutral-gray-dark max-w-[180px]">
                     <p className="truncate">{r.services.slice(0, 2).join(', ') || '—'}</p>
@@ -194,18 +273,18 @@ export default function ScientistSubmissionsPage() {
                   </td>
                   <td className="px-3 py-3"><SubscriptionBadge payingUser={r.subscription === 'Pro Plan'} /></td>
                   <td className="px-3 py-3 text-xs text-neutral-gray-dark max-w-[180px]">
-                    <p className="truncate">{r.professions[0]}</p>
+                    <p className="truncate">{r.professions[0] || '—'}</p>
                     {r.professions.length > 1 && <p className="text-[11px] text-neutral-gray-medium">+{r.professions.length - 1} more</p>}
                   </td>
                   <td className="px-3 py-3 whitespace-nowrap">
-                    <p className="text-xs text-neutral-gray-dark">{r.country}</p>
+                    <p className="text-xs text-neutral-gray-dark">{r.country || '—'}</p>
                     <p className="text-[11px] text-neutral-gray-medium">{r.city}</p>
                   </td>
                   <td className="px-3 py-3">
-                    <p className="text-xs font-medium text-neutral-black truncate">{r.submittedBy}</p>
+                    <p className="text-xs font-medium text-neutral-black truncate">{r.submittedBy || '—'}</p>
                     <p className="text-[11px] text-neutral-gray-medium truncate">{r.submitterEmail}</p>
                   </td>
-                  <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{r.submittedOn}<br /><span className="text-[11px] text-neutral-gray-medium">{r.submittedTime}</span></td>
+                  <td className="px-3 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">{r.submittedOn || '—'}<br /><span className="text-[11px] text-neutral-gray-medium">{r.submittedTime}</span></td>
                   <td className="px-3 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${
                       r.status === 'Pending Review' ? 'bg-amber-50 text-amber-700'
@@ -215,11 +294,19 @@ export default function ScientistSubmissionsPage() {
                   </td>
                   <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                     <TableActionMenu
-                      triggerIcon={<MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
+                      triggerIcon={approvingId === r.id
+                        ? <Loader2 className="h-4 w-4 animate-spin text-neutral-gray-dark" />
+                        : <MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
                       items={[
-                        { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(r) },
+                        { label: 'View', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => void openRecord(r) },
                         ...(r.status === 'Pending Review' ? [
-                          { label: 'Approve', icon: <CheckCircle className="h-3.5 w-3.5" />, onClick: () => approve(r) },
+                          {
+                            label: approvingId === r.id ? 'Approving...' : 'Approve',
+                            icon: approvingId === r.id
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <CheckCircle className="h-3.5 w-3.5" />,
+                            onClick: () => { if (!approvingId) void approve(r); },
+                          },
                           { label: 'Reject', icon: <XCircle className="h-3.5 w-3.5" />, onClick: () => { setRejectingId(r.id); setRejectReason(''); }, danger: true },
                         ] : []),
                       ]}
@@ -227,43 +314,31 @@ export default function ScientistSubmissionsPage() {
                   </td>
                 </tr>
               ))}
-              {paginated.length === 0 && (
+              {!loading && paginated.length === 0 && (
                 <tr><td colSpan={11} className="px-3 py-10 text-center text-xs text-neutral-gray-medium">No submissions match these filters.</td></tr>
               )}
             </tbody>
           </table>
         </div>
-        <PagePagination page={page} totalPages={totalPages} perPage={perPage} total={SCIENTIST_STATS.total} count={filtered.length} noun="submissions" onPage={setPage} />
+        <PagePagination page={page} totalPages={totalPages} perPage={perPage} total={records.length} count={filtered.length} noun="submissions" onPage={setPage} />
       </div>
 
       <ScientistDetailModal
         scientist={selected}
         open={!!selected}
         onClose={() => setSelected(null)}
-        onEdit={() => setSelected(null)}
-        onApprove={approve}
+        onApprove={(s) => void approve(s)}
         onReject={(s) => { setRejectingId(s.id); setRejectReason(''); }}
       />
 
-      {rejectingId && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4" onClick={() => setRejectingId(null)}>
-          <div className="bg-white rounded-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-4 border-b border-neutral-gray-light">
-              <h3 className="text-lg font-bold text-neutral-black">Reject Listing</h3>
-              <button onClick={() => setRejectingId(null)} className="p-2 rounded-lg hover:bg-neutral-bg-light"><X className="h-5 w-5" /></button>
-            </div>
-            <div className="p-4 space-y-4">
-              <p className="text-sm text-neutral-gray-dark">Please provide a reason for rejecting this listing. The submitter will be notified.</p>
-              <textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} placeholder="Enter reason for rejection..." rows={4}
-                className="w-full px-3 py-2 rounded-lg border border-neutral-gray-light text-sm focus:outline-none focus:border-brand-red-600 resize-none" />
-              <div className="flex justify-end gap-2">
-                <button onClick={() => setRejectingId(null)} className="px-4 py-2 rounded-xl border border-neutral-gray-light text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer">Cancel</button>
-                <button onClick={confirmReject} disabled={!rejectReason.trim()} className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 cursor-pointer disabled:opacity-50">Confirm Rejection</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <RejectScientistModal
+        open={!!rejectingId}
+        reason={rejectReason}
+        saving={rejectSaving}
+        onReason={setRejectReason}
+        onCancel={() => { if (!rejectSaving) { setRejectingId(null); setRejectReason(''); } }}
+        onConfirm={() => void confirmReject()}
+      />
     </div>
   );
 }

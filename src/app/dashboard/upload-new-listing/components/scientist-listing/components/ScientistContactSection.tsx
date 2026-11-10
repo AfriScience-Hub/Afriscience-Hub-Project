@@ -9,7 +9,10 @@ const SOCIAL_PLATFORMS = ['LinkedIn', 'Twitter', 'Instagram', 'Facebook'] as con
 interface ScientistContactSectionProps {
   contact: ScientistContact;
   onChange: (patch: Partial<ScientistContact>) => void;
-  /** Approved listings cannot change contact information. */
+  /**
+   * Approved / Pro-upgrade edits: handles already filled in are locked, but
+   * empty platforms can still be filled in.
+   */
   approvedEditMode?: boolean;
 }
 
@@ -24,19 +27,24 @@ export default function ScientistContactSection({ contact, onChange, approvedEdi
           <span className="text-[10px] font-normal text-neutral-gray-medium">(provide at least one)</span>
         </label>
         <div className="grid gap-3 sm:grid-cols-2">
-          {SOCIAL_PLATFORMS.map((platform) => (
-            <div key={platform}>
-              <label className="mb-1 block text-[11px] font-medium text-neutral-gray-medium">{platform}</label>
-              <input
-                type="text"
-                value={contact.socials[platform]}
-                onChange={(e) => onChange({ socials: { ...contact.socials, [platform]: e.target.value } })}
-                className={inputClass}
-                placeholder={`@your${platform.toLowerCase()}handle`}
-                disabled={approvedEditMode}
-              />
-            </div>
-          ))}
+          {SOCIAL_PLATFORMS.map((platform) => {
+            // Restricted edits: a handle that already has a value is locked,
+            // while empty platforms can still be filled in.
+            const locked = approvedEditMode && contact.socials[platform].trim().length > 0;
+            return (
+              <div key={platform}>
+                <label className="mb-1 block text-[11px] font-medium text-neutral-gray-medium">{platform}</label>
+                <input
+                  type="text"
+                  value={contact.socials[platform]}
+                  onChange={(e) => onChange({ socials: { ...contact.socials, [platform]: e.target.value } })}
+                  className={inputClass}
+                  placeholder={`@your${platform.toLowerCase()}handle`}
+                  disabled={locked}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </CollapsibleSection>
