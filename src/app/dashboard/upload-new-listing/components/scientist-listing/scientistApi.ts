@@ -46,6 +46,7 @@ export interface ScientistAchievement {
   name: string;
   issuer: string;
   year: string;
+  document: string;
 }
 
 export interface ScientistHighlights {
@@ -96,17 +97,22 @@ function num(value: string | number | undefined | null): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-/** Reads the first integer-time range ("9:00 AM – 5:00 PM") into 24h values. */
+/** Reads the first time range ("9:00 AM – 5:00 PM" or "09:00 – 17:00") into 24h values. */
 export function parseWorkHours(range?: string): { startHours: string; endHours: string } {
   if (!range) return { startHours: '', endHours: '' };
-  const matches = [...range.matchAll(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi)];
-  if (matches.length < 2) return { startHours: '', endHours: '' };
+  const matches = [...range.matchAll(/(\d{1,2}):(\d{2})\s*(AM|PM)?/gi)];
+  const timed = matches.filter((match) => match[3] || Number(match[1]) <= 23);
+  if (timed.length < 2) return { startHours: '', endHours: '' };
   const to24 = (match: RegExpMatchArray) => {
-    let hour = Number(match[1]) % 12;
-    if (match[3].toUpperCase() === 'PM') hour += 12;
+    let hour = Number(match[1]);
+    const suffix = (match[3] || '').toUpperCase();
+    if (suffix) {
+      hour %= 12;
+      if (suffix === 'PM') hour += 12;
+    }
     return `${String(hour).padStart(2, '0')}:${match[2]}`;
   };
-  return { startHours: to24(matches[0]), endHours: to24(matches[1]) };
+  return { startHours: to24(timed[0]), endHours: to24(timed[1]) };
 }
 
 /** Converts 24h "09:00" values back into the readable range used by the form. */
@@ -139,7 +145,7 @@ export interface BuildScientistPayloadInput {
   scopes: string[];
   policies: string[];
   certificates: { name: string; issuer: string; year: string; document: string }[];
-  achievements: { name: string; issuer: string; year: string }[];
+  achievements: { name: string; issuer: string; year: string; document: string }[];
   media: string[];
   socials: Record<string, string>;
   highlights: { responseTime: string; workDays: string[]; workHours: string[] };
@@ -217,6 +223,7 @@ export function buildScientistPayload(input: BuildScientistPayloadInput): Scient
         name: a.name.trim(),
         issuer: a.issuer.trim(),
         year: String(a.year || ''),
+        document: toStorageKey(a.document),
       })),
     media: input.media.map((m) => toStorageKey(m)).filter(Boolean),
     socials: Object.entries(input.socials)

@@ -31,7 +31,6 @@ const EMPTY_DETAILS: ProfessionalDetails = {
 const EMPTY_FEES: ScientistFees = { serviceCosts: {}, otherCharges: [] };
 
 const EMPTY_CONTACT: ScientistContact = {
-  phone: '', email: '', website: '',
   socials: { LinkedIn: '', Twitter: '', Instagram: '', Facebook: '' },
 };
 
@@ -85,7 +84,7 @@ export default function AdminCreateScientistPage() {
     details.field && details.professions.length > 0 && details.degree &&
     (details.professions.includes('Other') ? details.professionOther.trim() : true) &&
     details.services.length > 0 && certificatesOk && highlightOk &&
-    contact.phone.trim() && contact.email.trim() && hasAnySocial && agreed;
+    hasAnySocial && agreed;
 
   const handleSubmit = () => {
     if (bioWords > 1000) return toast.error('Short Bio must be a maximum of 1000 words');
@@ -99,7 +98,6 @@ export default function AdminCreateScientistPage() {
     if (highlight.workDays.length === 0) return toast.error('Please select at least one Work Day');
     if (highlight.workHours.length === 0) return toast.error('Please add at least one Work Hour');
     if (details.services.length === 0) return toast.error('Please select at least one Service');
-    if (!contact.phone.trim() || !contact.email.trim()) return toast.error('Please provide the Phone Number and E-mail');
     if (!hasAnySocial) return toast.error('Please provide at least one social handle');
     if (!agreed) return toast.error('Please accept the undertaking remark before submitting');
 

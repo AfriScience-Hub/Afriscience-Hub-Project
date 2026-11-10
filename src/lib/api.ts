@@ -168,8 +168,12 @@ function requestError(data: ApiResponse<unknown>, status: number): Error {
     Array.isArray(details)
       ? details.join('\n')
       : data.message || data.error || `Request failed (${status})`,
-  ) as Error & { status?: number };
+  ) as Error & { status?: number; details?: unknown; payload?: unknown };
   error.status = status;
+  // Keep the machine-readable details (e.g. wallet required/available) so
+  // callers can show a useful message before redirecting.
+  error.details = (data as any)?.details;
+  error.payload = data;
   return error;
 }
 

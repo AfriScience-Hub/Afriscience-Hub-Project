@@ -61,9 +61,22 @@ export default function HighlightFields({
 
       {/* Work days */}
       <div>
-        <label className="block text-sm font-medium text-neutral-black mb-2">
-          Work days <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple selections allowed)</span>
-        </label>
+        <div className="mb-2 flex items-start gap-3">
+          <label className="block text-sm font-medium text-neutral-black">
+            Work days <span className="text-[10px] font-normal text-neutral-gray-medium">(multiple selections allowed)</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => onChange({
+              workDays: WORK_DAYS.every(day => highlight.workDays.includes(day))
+                ? []
+                : [...WORK_DAYS],
+            })}
+            className="shrink-0 cursor-pointer text-[11px] font-semibold text-brand-red-600 hover:bg-red-500 border border-red-500 py-0.5 px-2 rounded-md"
+          >
+            {WORK_DAYS.every(day => highlight.workDays.includes(day)) ? 'Clear all' : 'Select all'}
+          </button>
+        </div>
         <p className="text-xs text-neutral-gray-medium mb-2">{workDaysHint}</p>
         <div className="grid gap-2 sm:grid-cols-4">
           {WORK_DAYS.map(day => (

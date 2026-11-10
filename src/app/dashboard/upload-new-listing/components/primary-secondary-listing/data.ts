@@ -99,7 +99,7 @@ export const ALL_CURRENCIES = [
   'SSP', 'STN', 'SYP', 'SZL', 'THB', 'TJS', 'TMT', 'TND', 'TOP', 'TRY',
   'TTD', 'TVD', 'TWD', 'UAH', 'UYU', 'UZS', 'VES', 'VND', 'VUV', 'WST',
   'XCD', 'XDR', 'XPF', 'YER', 'ZWL'
-];
+].sort((a, b) => a.localeCompare(b));
 
 export { CURRENCIES, YEARS } from '../../data';
 export { WORLD_COUNTRIES } from '@/app/data/mockData';

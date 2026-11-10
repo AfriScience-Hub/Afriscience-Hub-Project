@@ -14,6 +14,7 @@ import ProfessionalHighlightSection from './components/ProfessionalHighlightSect
 import ScientistGallerySection from './components/ScientistGallerySection';
 import ScientistContactSection from './components/ScientistContactSection';
 import ScientistPriceModal from './components/ScientistPriceModal';
+import DraftSavedModal from './components/DraftSavedModal';
 import { useScientistListingForm } from './useScientistListingForm';
 
 interface ScientistListingProps {
@@ -97,6 +98,12 @@ export default function ScientistListing({ onCancel, listingId, draftId, upgrade
 
       <UndertakingSection agreed={form.agreed} setAgreed={form.setAgreed} />
 
+      {!form.isFormValid && form.validationError && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs text-amber-800">
+          <span className="font-semibold">Before you submit:</span> {form.validationError}
+        </div>
+      )}
+
       <FormActions
         onCancel={() => { form.resetForm(); onCancel(); }}
         onSubmit={form.handleSubmit}
@@ -105,7 +112,7 @@ export default function ScientistListing({ onCancel, listingId, draftId, upgrade
         draftLabel={form.savedDraftId ? 'Update Draft' : 'Save as Draft'}
         draftDisabled={form.saving}
         submitLabel={upgrade ? 'Upgrade to Pro' : listingId ? 'Save changes' : 'Submit for Review'}
-        disabled={form.saving || !form.isFormValid}
+        disabled={form.saving}
         loading={form.saving && !form.draftSaving}
         draftLoading={form.draftSaving}
       />
@@ -113,7 +120,7 @@ export default function ScientistListing({ onCancel, listingId, draftId, upgrade
       <ScientistPriceModal
         open={form.showPrice}
         price={form.priceQuote?.price}
-        extraCharge={form.priceQuote?.extraCharge}
+        extraCharge={form.isAfrican ? form.priceQuote?.extraCharge : undefined}
         professionCount={form.professionCount}
         regionLabel={form.isAfrican ? 'African' : 'Non-African'}
         saving={form.saving}
@@ -121,6 +128,13 @@ export default function ScientistListing({ onCancel, listingId, draftId, upgrade
         onConfirm={(plan) => { void form.performSubmit(plan); }}
         onEditEntries={upgrade ? () => form.setShowPrice(false) : undefined}
         onCancel={() => form.setShowPrice(false)}
+      />
+
+      <DraftSavedModal
+        open={!!form.draftNotice}
+        title={form.draftNotice?.title}
+        message={form.draftNotice?.message}
+        onClose={() => form.setDraftNotice(null)}
       />
 
       <ListingSuccessModal

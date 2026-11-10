@@ -98,9 +98,13 @@ function mapProfessions(item: Entity, lookup: Lookup): string[] {
     return raw
       .map((entry) => {
         const record = asEntity(entry);
-        const id = text(record?.id ?? record?.professionId ?? (typeof entry === 'string' ? '' : ''));
-        const name = pick(entry, ['name', 'profession', 'title', 'value']);
-        return name || resolveName(lookup.professions, id);
+        const nested = asEntity(record?.profession);
+        const id = text(record?.professionId ?? nested?.id ?? (typeof entry === 'string' ? entry : ''));
+        const name =
+          pick(nested, ['name', 'title']) ||
+          pick(entry, ['name', 'profession', 'title', 'value']) ||
+          resolveName(lookup.professions, id);
+        return name;
       })
       .filter(Boolean);
   }
@@ -114,9 +118,13 @@ function mapServices(item: Entity, lookup: Lookup): string[] {
     return raw
       .map((entry) => {
         const record = asEntity(entry);
-        const id = text(record?.id ?? record?.serviceId ?? record?.serviceOptionId ?? (typeof entry === 'string' ? '' : ''));
-        const name = pick(entry, ['name', 'service', 'title', 'value']);
-        return name || resolveName(lookup.services, id);
+        const nested = asEntity(record?.serviceOption);
+        const id = text(nested?.id ?? record?.serviceOptionId ?? record?.serviceId ?? (typeof entry === 'string' ? entry : ''));
+        const name =
+          pick(nested, ['name', 'title']) ||
+          pick(entry, ['service', 'name', 'title', 'value']) ||
+          resolveName(lookup.services, id);
+        return name;
       })
       .filter(Boolean);
   }
@@ -131,7 +139,9 @@ function mapDegree(item: Entity, lookup: Lookup): { degree: string; document: st
     const nested = asEntity(first?.degree);
     const id = text(first?.degreeId ?? nested?.id ?? (typeof raw[0] === 'string' ? raw[0] : ''));
     const name = pick(nested ?? raw[0], ['name', 'degree', 'title', 'value']) || resolveName(lookup.degrees, id);
-    const document = toStorageKey(text(first?.document ?? first?.certificate));
+    const document = toStorageKey(text(
+      first?.document ?? first?.certificate ?? first?.degreeCertificate ?? item.degreeCertificate,
+    ));
     return { degree: name, document, documentName: fileLabel(document) };
   }
   const direct = pick(item.degree, ['name', 'title', 'value']);
@@ -155,8 +165,12 @@ function mapServiceCosts(item: Entity, lookup: Lookup, serviceNames: string[]): 
 
   for (const entry of entries) {
     const record = asEntity(entry) ?? {};
-    const id = text(record.serviceOptionId ?? record.serviceId ?? record.id);
-    const name = pick(record, ['serviceName', 'name', 'service']) || resolveName(lookup.services, id);
+    const nested = asEntity(record.service);
+    const id = text(record.serviceOptionId ?? nested?.serviceId ?? record.serviceId ?? record.id);
+    const name =
+      pick(record, ['serviceName', 'name', 'service']) ||
+      pick(nested, ['service', 'name']) ||
+      resolveName(lookup.services, id);
     const key = name || serviceNames[0];
     if (!key) continue;
     const min = record.minCost ?? record.min ?? record.amount;
@@ -255,8 +269,11 @@ function mapSocials(raw: unknown): ScientistContact['socials'] {
   } else {
     const record = asEntity(raw);
     if (record) {
-      for (const key of Object.keys(socials) as Array<keyof typeof socials>) {
-        socials[key] = text(record[key]);
+      for (const [platform, link] of Object.entries(record)) {
+        const key = (Object.keys(socials) as Array<keyof typeof socials>).find(
+          (platformKey) => platformKey.toLowerCase() === platform.toLowerCase(),
+        );
+        if (key) socials[key] = text(link);
       }
     }
   }
@@ -281,8 +298,14 @@ export function mapScientistRecord(item: unknown, lookup: Lookup): MappedScienti
     bio: limitWords(text(record.bio), 1000),
   };
 
+  const fieldEntry = Array.isArray(record.fields) ? asEntity(record.fields[0]) : null;
+  const fieldName =
+    pick(fieldEntry, ['field', 'name', 'title']) ||
+    pick(record.field, ['name', 'title', 'value']) ||
+    resolveName(lookup.fields, text(fieldEntry?.fieldId ?? record.fieldId));
+
   const details: ProfessionalDetails = {
-    field: pick(record.field, ['name', 'title', 'value']) || resolveName(lookup.fields, text(record.fieldId)),
+    field: fieldName,
     professions: professionNames,
     professionOther: '',
     degree: degree.degree,
@@ -293,9 +316,6 @@ export function mapScientistRecord(item: unknown, lookup: Lookup): MappedScienti
   };
 
   const contact: ScientistContact = {
-    phone: text(record.phone),
-    email: text(record.email),
-    website: text(record.website),
     socials: mapSocials(record.socials),
   };
 

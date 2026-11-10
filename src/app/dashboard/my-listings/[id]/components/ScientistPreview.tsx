@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { User, FileText, DollarSign, Flag, ShieldCheck, Clock, Camera, Phone } from 'lucide-react';
+import { User, FileText, DollarSign, Flag, ShieldCheck, Clock, Camera, Globe } from 'lucide-react';
 import CollapsibleSection from '@/app/dashboard/upload-new-listing/components/CollapsibleSection';
 import { normalizeFileSrc } from '@/lib/files';
-import { formatAmountDisplay } from '@/lib/utils';
-import { pickValue, toStringArray, splitLines } from './previewUtils';
+import { formatAmountDisplay } from '@/lib/amounts';
+import { pickValue, splitLines } from './previewUtils';
+import ScientistDocumentGrid from './ScientistDocumentGrid';
 
 function Field({ label, value }: { label: string; value?: string | null }) {
   const text = value != null && String(value).trim() ? String(value) : '\u2014';
@@ -45,36 +46,81 @@ function mediaUrl(item: unknown): string {
   return String(record?.mediaFile ?? record?.url ?? record?.file ?? '');
 }
 
+/** Converts a 24-hour time ("15:30") into a 12-hour label ("3:30 PM"). */
+function formatClock(value?: string): string {
+  if (!value) return '';
+  const [hourString, minute = '00'] = value.split(':');
+  const hour = Number(hourString);
+  if (!Number.isFinite(hour)) return value;
+  const suffix = hour >= 12 ? 'PM' : 'AM';
+  return `${hour % 12 || 12}:${minute} ${suffix}`;
+}
+
+const SOCIAL_BASES: Record<string, string> = {
+  linkedin: 'https://www.linkedin.com/in/',
+  twitter: 'https://twitter.com/',
+  instagram: 'https://www.instagram.com/',
+  facebook: 'https://www.facebook.com/',
+};
+
+/** Turns a handle or a bare domain into a clickable social profile link. */
+function socialHref(platform: string, link: string): string {
+  const value = link.trim();
+  if (!value) return '';
+  if (/^https?:\/\//i.test(value)) return value;
+  if (value.startsWith('@')) {
+    const base = SOCIAL_BASES[platform.trim().toLowerCase()] || 'https://';
+    return `${base}${value.slice(1)}`;
+  }
+  return `https://${value.replace(/^\/+/, '')}`;
+}
+
 /** Read-only preview of a scientist/technologist listing. */
 export default function ScientistPreview({ item }: { item: any }) {
   const profileImage = normalizeFileSrc(item.profileImage || item.image);
   const backgroundImage = normalizeFileSrc(item.backgroundImage || item.background);
-  const professions = [
-    ...toStringArray(item.professions, ['name', 'profession', 'title', 'value']),
-    ...toStringArray(item.professionIds, ['name', 'professionId']),
-  ];
-  const services = [
-    ...toStringArray(item.services, ['name', 'service', 'title', 'value']),
-    ...toStringArray(item.serviceIds, ['name', 'serviceId']),
-  ];
+
+  const fieldNames = (Array.isArray(item.fields) ? item.fields : [])
+    .map((entry: any) => entry?.field || entry?.name || '')
+    .filter(Boolean);
+  const field = fieldNames.join(', ') || pickValue(item.field, ['name', 'title', 'value']) || item.fieldName || '';
+
+  const professions = (Array.isArray(item.professions) ? item.professions : [])
+    .map((entry: any) =>
+      entry?.profession?.name ||
+      (typeof entry?.profession === 'string' ? entry.profession : '') ||
+      entry?.name ||
+      (typeof entry === 'string' ? entry : ''),
+    )
+    .filter(Boolean);
+
+  const services = (Array.isArray(item.services) ? item.services : [])
+    .map((entry: any) => entry?.serviceOption?.name || entry?.service?.service || entry?.service || entry?.name || '')
+    .filter(Boolean);
+
   const degrees = Array.isArray(item.degrees) ? item.degrees : [];
   const degree = degrees.length
     ? pickValue(degrees[0]?.degree ?? degrees[0], ['name', 'degree', 'title', 'value'])
     : pickValue(item.degree, ['name', 'title', 'value']);
+
   const serviceCosts = Array.isArray(item.serviceCosts) ? item.serviceCosts : [];
   const otherCosts = Array.isArray(item.otherCosts) ? item.otherCosts : [];
   const certificates = Array.isArray(item.certificates) ? item.certificates : [];
   const achievements = Array.isArray(item.achievements) ? item.achievements : [];
   const media = Array.isArray(item.media) ? item.media : [];
+
   const socials = Array.isArray(item.socials)
     ? item.socials
     : item.socials && typeof item.socials === 'object'
       ? Object.entries(item.socials).map(([platform, link]) => ({ platform, link }))
       : [];
+
   const highlights = item.highlights && typeof item.highlights === 'object' ? item.highlights : {};
   const workHours = highlights.startHours && highlights.endHours
-    ? `${highlights.startHours} - ${highlights.endHours}`
+    ? `${formatClock(highlights.startHours)} – ${formatClock(highlights.endHours)}`
     : '';
+
+  const listingName = item.name || 'Scientist';
 
   return (
     <div className="space-y-5">
@@ -89,7 +135,7 @@ export default function ScientistPreview({ item }: { item: any }) {
               )}
               {profileImage && (
                 <div className="relative -mt-10 ml-4 h-20 w-20 overflow-hidden rounded-full border-2 border-white">
-                  <Image src={profileImage} alt={item.name || 'Scientist'} fill sizes="80px" className="object-cover" />
+                  <Image src={profileImage} alt={listingName} fill sizes="80px" className="object-cover" />
                 </div>
               )}
             </div>
@@ -106,7 +152,7 @@ export default function ScientistPreview({ item }: { item: any }) {
 
       <CollapsibleSection title="Professional details" icon={<FileText className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
         <div className="space-y-4">
-          <Field label="Field" value={pickValue(item.field, ['name', 'title', 'value']) || item.fieldName} />
+          <Field label="Field" value={field} />
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase text-neutral-gray-medium">Professions</p>
             <Chips items={professions} />
@@ -122,22 +168,39 @@ export default function ScientistPreview({ item }: { item: any }) {
       <CollapsibleSection title="Service costs & other charges" icon={<DollarSign className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
         <div className="space-y-4">
           {serviceCosts.length === 0 && <p className="text-sm text-neutral-gray-medium">No service costs provided.</p>}
-          {serviceCosts.map((cost: any, index: number) => (
-            <div key={cost.id ?? index} className="rounded-lg border border-neutral-gray-light p-3">
-              <p className="text-sm font-semibold text-neutral-black">
-                {pickValue(cost.service ?? cost.serviceOption, ['name', 'title']) || cost.serviceName || `Service ${index + 1}`}
-              </p>
-              {cost.description && <p className="text-xs text-neutral-gray-medium">{cost.description}</p>}
-              <p className="mt-1 text-xs text-neutral-black">
-                {cost.currency || 'USD'} {formatAmountDisplay(cost.minCost ?? cost.amount)}
-                {cost.maxCost != null ? ` - ${formatAmountDisplay(cost.maxCost)}` : ''}
-              </p>
-            </div>
-          ))}
+          {serviceCosts.map((cost: any, index: number) => {
+            const title = cost.name || cost.service?.service || cost.serviceOption?.name || `Service ${index + 1}`;
+            const min = cost.minCost ?? cost.amount;
+            const max = cost.maxCost;
+            return (
+              <div key={cost.id ?? index} className="rounded-lg border border-neutral-gray-light p-3">
+                <p className="text-sm font-semibold text-neutral-black">{title}</p>
+                {cost.description && <p className="mt-0.5 text-xs text-neutral-gray-medium">{cost.description}</p>}
+                <p className="mt-1 text-xs text-neutral-black">
+                  {cost.currency || 'USD'} {formatAmountDisplay(min)}
+                  {max != null ? ` – ${formatAmountDisplay(max)}` : ''}
+                </p>
+              </div>
+            );
+          })}
+
           {otherCosts.length > 0 && (
-            <div>
-              <p className="mb-2 text-[11px] font-semibold uppercase text-neutral-gray-medium">Other charges</p>
-              <Bullets items={otherCosts.map((cost: any) => `${cost.name || 'Charge'}${cost.description ? ` - ${cost.description}` : ''}${cost.amount != null ? ` (${formatAmountDisplay(cost.amount)})` : cost.minCost != null ? ` (${formatAmountDisplay(cost.minCost)}${cost.maxCost != null ? ` - ${formatAmountDisplay(cost.maxCost)}` : ''})` : ''}`)} />
+            <div className="space-y-3">
+              <p className="text-[11px] font-semibold uppercase text-neutral-gray-medium">Other charges</p>
+              {otherCosts.map((cost: any, index: number) => {
+                const min = cost.minCost ?? cost.amount;
+                const max = cost.maxCost;
+                return (
+                  <div key={cost.id ?? index} className="rounded-lg border border-neutral-gray-light p-3">
+                    <p className="text-sm font-semibold text-neutral-black">{cost.name || `Charge ${index + 1}`}</p>
+                    {cost.description && <p className="mt-0.5 text-xs text-neutral-gray-medium">{cost.description}</p>}
+                    <p className="mt-1 text-xs text-neutral-black">
+                      {cost.currency || 'USD'} {formatAmountDisplay(min)}
+                      {max != null ? ` – ${formatAmountDisplay(max)}` : ''}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -160,27 +223,11 @@ export default function ScientistPreview({ item }: { item: any }) {
         <div className="space-y-4">
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase text-neutral-gray-medium">Certificates</p>
-            {certificates.length === 0 ? <p className="text-sm text-neutral-gray-medium">\u2014</p> : (
-              <ul className="space-y-1 text-sm text-neutral-black">
-                {certificates.map((cert: any, index: number) => (
-                  <li key={cert.id ?? index}>
-                    {cert.name || 'Certificate'}{cert.issuer ? ` - ${cert.issuer}` : ''}{cert.year ? ` (${cert.year})` : ''}
-                  </li>
-                ))}
-              </ul>
-            )}
+            <ScientistDocumentGrid items={certificates} />
           </div>
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase text-neutral-gray-medium">Achievements</p>
-            {achievements.length === 0 ? <p className="text-sm text-neutral-gray-medium">\u2014</p> : (
-              <ul className="space-y-1 text-sm text-neutral-black">
-                {achievements.map((award: any, index: number) => (
-                  <li key={award.id ?? index}>
-                    {award.name || 'Achievement'}{award.issuer ? ` - ${award.issuer}` : ''}{award.year ? ` (${award.year})` : ''}
-                  </li>
-                ))}
-              </ul>
-            )}
+            <ScientistDocumentGrid items={achievements} />
           </div>
         </div>
       </CollapsibleSection>
@@ -209,22 +256,48 @@ export default function ScientistPreview({ item }: { item: any }) {
         )}
       </CollapsibleSection>
 
-      <CollapsibleSection title="Contact information" icon={<Phone className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Phone" value={item.phone} />
-          <Field label="E-mail" value={item.email} />
-          <Field label="Website" value={item.website} />
-        </div>
-        {socials.length > 0 && (
-          <div className="mt-3">
-            <p className="mb-2 text-[11px] font-semibold uppercase text-neutral-gray-medium">Social handles</p>
-            <ul className="space-y-1 text-sm text-neutral-black">
-              {socials.map((social: any, index: number) => (
-                <li key={index}>{social.platform}: {social.link}</li>
-              ))}
-            </ul>
+      <CollapsibleSection title="Contact information" icon={<Globe className="h-5 w-5 text-brand-red-600" />} defaultOpen={false}>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 rounded-xl border border-neutral-gray-light bg-white p-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-red-50 text-lg font-bold text-brand-red-600">
+              {(listingName || '?').charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-neutral-black">{listingName}</p>
+              <p className="truncate text-xs text-neutral-gray-medium">
+                {[item.country, item.state || item.stateRegion].filter(Boolean).join(', ') || '\u2014'}
+              </p>
+            </div>
           </div>
-        )}
+
+          <div>
+            <p className="mb-2 text-xs font-bold uppercase text-neutral-gray-medium">Social Media Handles</p>
+            {socials.length === 0 ? (
+              <p className="text-sm text-neutral-gray-medium">{'\u2014'}</p>
+            ) : (
+              <div className="space-y-2">
+                {socials.map((social: any, index: number) => {
+                  const platform = String(social.platform || '').trim();
+                  const link = String(social.link || '').trim();
+                  const href = socialHref(platform, link);
+                  return (
+                    <div key={`${platform}-${index}`} className="flex items-center gap-3 rounded-lg border border-neutral-gray-light bg-white p-3">
+                      <Globe className="h-4 w-4 shrink-0 text-neutral-gray-medium" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-neutral-black">{platform || 'Social'}</p>
+                        {href && (
+                          <a href={href} target="_blank" rel="noopener noreferrer" className="block truncate text-xs text-blue-600 hover:underline">
+                            {link}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
       </CollapsibleSection>
     </div>
   );

@@ -51,9 +51,6 @@ export interface ProfessionalHighlight {
 }
 
 export interface ScientistContact {
-  phone: string;
-  email: string;
-  website: string;
   socials: {
     LinkedIn: string;
     Twitter: string;

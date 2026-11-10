@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
@@ -11,7 +11,6 @@ import {
   INSTITUTE_SUBTYPE_LABEL,
   type InstituteSubType,
 } from '../components/InstituteTypeSelectorModal';
-import { MOCK_SUBMISSIONS, type Submission } from '../data';
 import { getCategory } from '../submissionCategories';
 import {
   fetchUserInnovations,
@@ -44,27 +43,6 @@ const SUB_TABS: ListingTabItem[] = INSTITUTE_SUBTYPES.map((type) => ({
   id: type.id,
   label: type.label,
 }));
-
-/** Rebuilds the payload the competition submission page expects. */
-function storeCompetitionApplication(sub: Submission) {
-  sessionStorage.setItem(
-    'comp_application',
-    JSON.stringify({
-      refNo: sub.refNo,
-      compId: sub.compId,
-      compTitle: sub.compTitle,
-      compType: sub.compType,
-      category: sub.category,
-      country: sub.country,
-      deadline: sub.deadline,
-      topic: sub.topic || '',
-      schoolName: sub.schoolName || '',
-      schoolAddress: sub.schoolAddress || '',
-      applicationDate: sub.applicationDate,
-      mediaType: sub.mediaType,
-    })
-  );
-}
 
 export default function DashboardSubmissions() {
   const router = useRouter();
@@ -104,14 +82,6 @@ export default function DashboardSubmissions() {
   // Approved listings live on the listings page - only pending/rejected here.
   const pending = useMemo(() => unapprovedListings(listings), [listings]);
 
-  const openCompetition = useCallback(
-    (sub: Submission) => {
-      storeCompetitionApplication(sub);
-      router.push(`/competitions/${sub.compId}/submission`);
-    },
-    [router]
-  );
-
   const listingRows: ListingTableRow[] = useMemo(
     () =>
       pending.map((listing) => {
@@ -133,24 +103,7 @@ export default function DashboardSubmissions() {
     [pending, router]
   );
 
-  const competitionRows: ListingTableRow[] = useMemo(
-    () =>
-      MOCK_SUBMISSIONS.map((sub) => ({
-        id: `competition-${sub.id}`,
-        name: sub.compTitle,
-        category: sub.compType,
-        status: sub.status,
-        submittedAt: sub.submissionDate,
-        onPreview: () => openCompetition(sub),
-        onEdit: () => openCompetition(sub),
-      })),
-    [openCompetition]
-  );
-
-  const allRows = useMemo(
-    () => [...listingRows, ...competitionRows],
-    [listingRows, competitionRows]
-  );
+  const allRows = listingRows;
 
   const listingRowsFor = (id: SubmissionTabId) =>
     pending
@@ -160,7 +113,6 @@ export default function DashboardSubmissions() {
 
   const countFor = (id: SubmissionTabId) => {
     if (id === 'all') return allRows.length;
-    if (id === 'competition') return competitionRows.length;
     return pending.filter((listing) => listing.categoryId === id).length;
   };
 
@@ -171,10 +123,10 @@ export default function DashboardSubmissions() {
 
   const rows = useMemo(() => {
     if (activeTab === 'all') return allRows;
-    if (activeTab === 'competition') return competitionRows;
+    if (activeTab === 'competition') return [];
     return listingRowsFor(activeTab);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, allRows, competitionRows, pending, listingRows]);
+  }, [activeTab, allRows, pending, listingRows]);
 
   const activeLabel = SUBMISSION_TABS.find((tab) => tab.id === activeTab)?.label ?? 'submissions';
 
@@ -222,7 +174,7 @@ export default function DashboardSubmissions() {
 
         <ListingTable
           rows={rows}
-          loading={loading && activeTab !== 'competition'}
+          loading={loading}
           emptyTitle="No submissions yet"
           emptyDescription={emptyDescription}
         />

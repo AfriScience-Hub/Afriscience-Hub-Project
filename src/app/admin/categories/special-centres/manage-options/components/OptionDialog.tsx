@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { X, Loader2, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import type { ManagedOption } from '../data';
-import { formatAmountInput, parseAmountInput, priceToInput, priceToStorage } from '@/lib/utils';
+import { formatAmountInput, parseAmountInput } from '@/lib/amounts';
+import { priceToInput, priceToStorage } from '@/lib/utils';
 
 interface Props {
   open: boolean;

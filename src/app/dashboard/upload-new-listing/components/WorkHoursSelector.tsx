@@ -49,6 +49,19 @@ export default function WorkHoursSelector({ entries, onChange, single = false }:
 
   useEffect(() => {
     if (!single) return;
+    // Keep the visible inputs in sync when an existing range is loaded or
+    // replaced externally. Empty entries are ignored so clearing one side
+    // while editing does not wipe the other side.
+    const saved = entries[0];
+    if (!saved) return;
+    const parsed = parseRange(saved);
+    if (!parsed.opening || !parsed.closing) return;
+    setOpening((prev) => (prev === parsed.opening ? prev : parsed.opening));
+    setClosing((prev) => (prev === parsed.closing ? prev : parsed.closing));
+  }, [entries, single]);
+
+  useEffect(() => {
+    if (!single) return;
     if (!opening || !closing) {
       setError('');
       if (entries.length > 0) onChange([]);

@@ -3,7 +3,7 @@
 import { Plus, X, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/app/components/ui/Button';
-import { formatAmountInput, parseAmountInput } from '@/lib/utils';
+import { formatAmountInput, parseAmountInput } from '@/lib/amounts';
 import CurrencySelect from '../../CurrencySelect';
 import { countWords, limitWords, DESCRIPTION_WORD_LIMIT } from '../../wordLimit';
 import type { CenterFees, OtherFee, ServiceFee } from '../types';

@@ -16,7 +16,9 @@ function getSymbol(code: string): string {
   }
 }
 
-const CURRENCY_OPTIONS = ALL_CURRENCIES.map((code) => ({ code, symbol: getSymbol(code) }));
+const CURRENCY_OPTIONS = [...ALL_CURRENCIES]
+  .sort((a, b) => a.localeCompare(b))
+  .map((code) => ({ code, symbol: getSymbol(code) }));
 
 interface CurrencySelectProps {
   value: string;
@@ -33,9 +35,14 @@ export default function CurrencySelect({ value, onChange, className }: CurrencyS
       aria-label="Currency"
       className={className}
     >
-      {CURRENCY_OPTIONS.map(({ code, symbol }) => (
-        <option key={code} value={code}>{symbol} {code}</option>
-      ))}
+      {CURRENCY_OPTIONS.map(({ code, symbol }) => {
+        const cleanSymbol = symbol.trim();
+        return (
+          <option key={code} value={code}>
+            {cleanSymbol && cleanSymbol !== code ? `${cleanSymbol} ${code}` : code}
+          </option>
+        );
+      })}
     </select>
   );
 }

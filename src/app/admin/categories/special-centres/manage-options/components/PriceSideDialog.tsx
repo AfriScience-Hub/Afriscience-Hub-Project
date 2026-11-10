@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
-import { priceToInput, priceToStorage, formatAmountInput, parseAmountInput } from '@/lib/utils';
+import { formatAmountInput, parseAmountInput } from '@/lib/amounts';
+import { priceToInput, priceToStorage } from '@/lib/utils';
 
 export type PriceSide = 'african' | 'nonAfrican';
 
