@@ -53,7 +53,7 @@ export interface ProfessionalHighlight {
 export interface ScientistContact {
   socials: {
     LinkedIn: string;
-    Twitter: string;
+    X: string;
     Instagram: string;
     Facebook: string;
   };

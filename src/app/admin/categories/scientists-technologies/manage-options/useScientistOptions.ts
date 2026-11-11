@@ -257,13 +257,19 @@ export function useScientistOptions() {
           name: payload.content,
           fieldId: field.id,
           isActive: payload.isActive ?? editing?.isActive ?? true,
+          // Forwarded for when the professions endpoint accepts notes.
+          note: payload.notes ?? editing?.note ?? '',
         };
         if (isEdit && id) await api.patch(`/scientists/professions/${id}`, body);
         else await api.post('/scientists/professions', body);
       } else {
         const type = OPTION_TYPES[activeTab];
         if (!type) throw new Error('This tab is not supported yet.');
-        const body = { name: payload.content, isActive: payload.isActive ?? editing?.isActive ?? true };
+        const body = {
+          name: payload.content,
+          isActive: payload.isActive ?? editing?.isActive ?? true,
+          note: payload.notes ?? editing?.note ?? '',
+        };
         if (isEdit && id) await api.patch(`/scientists/options/${type}/${id}`, body);
         else await api.post('/scientists/options', { ...body, type });
       }

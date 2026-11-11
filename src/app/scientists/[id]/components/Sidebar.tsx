@@ -6,9 +6,35 @@ import { Button } from '@/app/components/ui/Button';
 
 interface SidebarProps {
   scientist: any;
+  /** Opens the same booking modal as the primary "Book a Service" button. */
+  onBookNow?: () => void;
 }
 
-export default function Sidebar({ scientist }: SidebarProps) {
+const SHORT_DAYS: Record<string, string> = {
+  monday: 'Mon',
+  tuesday: 'Tues',
+  wednesday: 'Wed',
+  thursday: 'Thurs',
+  friday: 'Fri',
+  saturday: 'Sat',
+  sunday: 'Sun',
+};
+
+function shortDay(day: string): string {
+  const key = day.trim().toLowerCase();
+  return SHORT_DAYS[key] || day.trim();
+}
+
+/** "Monday, Tuesday, Wednesday" → "Mon, Tues, Wed"; "Monday - Friday" → "Mon – Fri". */
+function formatWorkDays(value?: string): string {
+  const raw = (value || '').trim();
+  if (!raw) return 'Mon – Fri';
+  const range = raw.split(/\s+[-–—]\s+/).filter(Boolean);
+  if (range.length === 2) return `${shortDay(range[0])} – ${shortDay(range[1])}`;
+  return raw.split(/\s*,\s*/).filter(Boolean).map(shortDay).join(', ');
+}
+
+export default function Sidebar({ scientist, onBookNow }: SidebarProps) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light self-start lg:sticky lg:top-24">
       <h3 className="text-sm font-bold text-neutral-gray-dark uppercase tracking-wider mb-4">Professional Highlights</h3>
@@ -35,12 +61,12 @@ export default function Sidebar({ scientist }: SidebarProps) {
           <span className="text-sm text-brand-navy-900 font-medium">{scientist.responseTime || 'Within 24hrs'}</span>
         </div>
 
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-neutral-black flex items-center gap-1.5">
+        <div className="flex items-start justify-between gap-3">
+          <span className="text-sm text-neutral-black flex items-center gap-1.5 shrink-0">
             <Calendar className="h-3.5 w-3.5 text-neutral-gray-medium" /> Work Days
           </span>
-          <span className="text-sm text-neutral-gray-dark font-medium">
-            {scientist.availability?.workDays || 'Mon - Fri'}
+          <span className="w-1/2 text-right text-sm text-neutral-gray-dark font-medium leading-snug">
+            {formatWorkDays(scientist.availability?.workDays)}
           </span>
         </div>
 
@@ -76,7 +102,7 @@ export default function Sidebar({ scientist }: SidebarProps) {
         </div>
 
         <div className="pt-4 border-t border-neutral-gray-light">
-          <Button className="w-full mb-3 bg-brand-navy-900 hover:bg-brand-navy-800">
+          <Button className="w-full mb-3 bg-brand-navy-900 hover:bg-brand-navy-800" onClick={onBookNow}>
             Book Now
           </Button>
           <p className="text-xs text-neutral-gray-medium text-center">

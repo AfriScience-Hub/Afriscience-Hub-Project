@@ -1,13 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
-import { SCIENTISTS } from '../data/mockData';
 import { Button } from '../components/ui/Button';
 import { toast } from 'sonner';
 import ScientistHeader from './components/ScientistHeader';
 import ScientistFilters from './components/ScientistFilters';
 import ScientistCard from './components/ScientistCard';
+import {
+  fetchPublicScientists,
+  fetchScientistFilterOptions,
+  type PublicScientist,
+  type ScientistFilterOptions,
+} from './publicApi';
+
+const EMPTY_OPTIONS: ScientistFilterOptions = {
+  fields: [],
+  degrees: [],
+  services: [],
+  professionsByField: {},
+  professionNotes: {},
+};
 
 export default function Scientists() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +33,9 @@ export default function Scientists() {
   const [selectedState, setSelectedState] = useState<string>('');
   const [archivedIds, setArchivedIds] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [scientists, setScientists] = useState<PublicScientist[]>([]);
+  const [filterOptions, setFilterOptions] = useState<ScientistFilterOptions>(EMPTY_OPTIONS);
+  const [loading, setLoading] = useState(true);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
     fields: false,
     profession: false,
@@ -33,6 +49,31 @@ export default function Scientists() {
   const toggleSection = (key: string) =>
     setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
 
+  const loadListings = useCallback(async () => {
+    setLoading(true);
+    try {
+      const rows = await fetchPublicScientists();
+      setScientists(rows);
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to load scientists and technologists');
+      setScientists([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadListings();
+  }, [loadListings]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchScientistFilterOptions()
+      .then((options) => { if (!cancelled) setFilterOptions(options); })
+      .catch(() => { /* keep the bundled fallback lists */ });
+    return () => { cancelled = true; };
+  }, []);
+
   const handleFieldChange = (field: string) => {
     if (selectedField === field) {
       setSelectedField('');
@@ -43,7 +84,7 @@ export default function Scientists() {
     setSelectedProfessions([]);
   };
 
-  const filteredScientists = SCIENTISTS.filter(sci => {
+  const filteredScientists = scientists.filter(sci => {
     const q = searchTerm.toLowerCase();
     const matchesSearch = !q ||
       sci.name.toLowerCase().includes(q) ||
@@ -61,7 +102,7 @@ export default function Scientists() {
     const matchesService = selectedServices.length === 0 || sci.services.some(s => selectedServices.includes(s));
     const matchesStatus = !selectedStatus || sci.status === selectedStatus;
     const matchesCountry = !selectedCountry || sci.country === selectedCountry;
-    const matchesState = !selectedState || sci.state.toLowerCase().includes(selectedState.toLowerCase());
+    const matchesState = !selectedState || (sci.state || '').toLowerCase().includes(selectedState.toLowerCase());
 
     return matchesSearch && matchesField && matchesProfession && matchesDegree && matchesService && matchesStatus && matchesCountry && matchesState;
   });
@@ -120,6 +161,11 @@ export default function Scientists() {
             toggleSection={toggleSection}
             activeFilterCount={activeFilterCount}
             resetFilters={resetFilters}
+            fields={filterOptions.fields}
+            degrees={filterOptions.degrees}
+            services={filterOptions.services}
+            professionsByField={filterOptions.professionsByField}
+            professionNotes={filterOptions.professionNotes}
           />
 
           <div className="flex-1">
@@ -139,17 +185,34 @@ export default function Scientists() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredScientists.map((sci) => (
-                <ScientistCard
-                  key={sci.id}
-                  sci={sci}
-                  archived={archivedIds.includes(sci.id)}
-                  onToggleArchive={() => toggleArchive(sci.id)}
-                />
-              ))}
+              {loading
+                ? Array.from({ length: 6 }).map((_, index) => (
+                    <div
+                      key={`skeleton-${index}`}
+                      className="animate-pulse overflow-hidden rounded-xl border border-neutral-gray-light bg-white shadow-sm"
+                      aria-hidden="true"
+                    >
+                      <div className="h-40 bg-neutral-bg-light" />
+                      <div className="space-y-3 p-3.5">
+                        <div className="h-4 w-2/5 rounded bg-neutral-bg-light" />
+                        <div className="h-3 w-3/5 rounded bg-neutral-bg-light" />
+                        <div className="h-3 w-1/2 rounded bg-neutral-bg-light" />
+                        <div className="h-3 w-4/5 rounded bg-neutral-bg-light" />
+                        <div className="mt-4 h-8 w-full rounded bg-neutral-bg-light" />
+                      </div>
+                    </div>
+                  ))
+                : filteredScientists.map((sci) => (
+                    <ScientistCard
+                      key={sci.id}
+                      sci={sci}
+                      archived={archivedIds.includes(sci.id)}
+                      onToggleArchive={() => toggleArchive(sci.id)}
+                    />
+                  ))}
             </div>
 
-            {filteredScientists.length === 0 && (
+            {!loading && filteredScientists.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 text-center rounded-xl border-2 border-dashed border-neutral-gray-light bg-white">
                 <div className="h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
                   <Search className="h-8 w-8 text-slate-300" />

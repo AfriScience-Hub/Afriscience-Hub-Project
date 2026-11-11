@@ -25,6 +25,8 @@ export interface ScientistProfession {
   fieldId: string;
   fieldName: string;
   isActive: boolean;
+  /** Optional admin note. Not provided by the API yet — UI is ready for it. */
+  note?: string;
 }
 
 function listFrom<T>(response: unknown): T[] {
@@ -70,6 +72,7 @@ function toProfession(item: unknown): ScientistProfession {
     fieldId,
     fieldName,
     isActive: record.isActive !== false,
+    note: String(record.note ?? record.notes ?? record.description ?? '').trim() || undefined,
   };
 }
 

@@ -34,7 +34,7 @@ export const MAX_BIO_WORDS = 1000;
 const EMPTY_PROFILE: ScientistProfile = { profileImage: null, backgroundImage: null, name: '', country: '', stateRegion: '', bio: '' };
 const EMPTY_DETAILS: ProfessionalDetails = { field: '', professions: [], professionOther: '', degree: '', degreeCertificate: '', services: [] };
 const EMPTY_FEES: ScientistFees = { serviceCosts: {}, otherCharges: [] };
-const EMPTY_CONTACT: ScientistContact = { socials: { LinkedIn: '', Twitter: '', Instagram: '', Facebook: '' } };
+const EMPTY_CONTACT: ScientistContact = { socials: { LinkedIn: '', X: '', Instagram: '', Facebook: '' } };
 const EMPTY_HIGHLIGHT: ProfessionalHighlight = { responseTime: '', workDays: [], workHours: [] };
 
 export interface SuccessInfo {
@@ -68,6 +68,8 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
   const [highlight, setHighlight] = useState<ProfessionalHighlight>(EMPTY_HIGHLIGHT);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [contact, setContact] = useState<ScientistContact>(EMPTY_CONTACT);
+  /** Social platforms that already had a value when the record was loaded. */
+  const [lockedSocials, setLockedSocials] = useState<string[]>([]);
   const [agreed, setAgreed] = useState(false);
   const [payingUser, setPayingUser] = useState(false);
   const [editStatus, setEditStatus] = useState<string | null>(null);
@@ -115,6 +117,13 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
     setHighlight(mapped.highlight);
     setMedia(mapped.media);
     setContact(mapped.contact);
+    // Only handles present on the saved record are locked for restricted
+    // edits; anything the user fills in now stays editable.
+    setLockedSocials(
+      Object.entries(mapped.contact.socials)
+        .filter(([, link]) => link.trim().length > 0)
+        .map(([platform]) => platform),
+    );
     setPayingUser(mapped.payingUser);
     setEditStatus(mapped.status);
     setPrefilled(true);
@@ -177,7 +186,7 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
   const resetForm = () => {
     setProfile(EMPTY_PROFILE); setDetails(EMPTY_DETAILS); setFees(EMPTY_FEES);
     setScopes([]); setPolicies([]); setCertifications([EMPTY_DOC]); setAchievements([EMPTY_DOC]);
-    setHighlight(EMPTY_HIGHLIGHT); setMedia([]); setContact(EMPTY_CONTACT); setAgreed(false);
+    setHighlight(EMPTY_HIGHLIGHT); setMedia([]); setContact(EMPTY_CONTACT); setLockedSocials([]); setAgreed(false);
     setPayingUser(false); setEditStatus(null); setRecord(null); setPrefilled(false);
     setShowPrice(false); setPriceQuote(null); setSavedDraftId(null); setDraftNotice(null);
   };
@@ -395,6 +404,7 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
 
   return {
     profile, details, fees, scopes, policies, certifications, achievements, highlight, media, contact, agreed,
+    lockedSocials,
     setScopes, setPolicies, setCertifications, setAchievements, setMedia, setAgreed,
     patchProfile, patchDetails, patchFees, patchHighlight, patchContact,
     options, saving, draftSaving, showPrice, setShowPrice, priceQuote, success, setSuccess,

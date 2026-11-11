@@ -17,7 +17,7 @@ export default function ContactTab({ scientist }: ContactTabProps) {
     { key: 'phone', icon: Phone, label: 'Phone', value: contact.phone, href: contact.phone ? `tel:${contact.phone}` : undefined },
     { key: 'website', icon: Globe, label: 'Website', value: contact.website, href: contact.website ? `https://${contact.website}` : undefined },
     { key: 'linkedin', icon: Linkedin, label: 'LinkedIn', value: contact.linkedin, href: contact.linkedin ? `https://${contact.linkedin}` : undefined },
-    { key: 'twitter', icon: Twitter, label: 'Twitter', value: contact.twitter, href: contact.twitter && !String(contact.twitter).startsWith('@') ? `https://${contact.twitter}` : undefined },
+    { key: 'twitter', icon: Twitter, label: 'X', value: contact.twitter, href: contact.twitter && !String(contact.twitter).startsWith('@') ? `https://${contact.twitter}` : undefined },
     { key: 'instagram', icon: Instagram, label: 'Instagram', value: contact.instagram, href: contact.instagram ? `https://${contact.instagram}` : undefined },
     { key: 'facebook', icon: Facebook, label: 'Facebook', value: contact.facebook, href: contact.facebook ? `https://${contact.facebook}` : undefined },
   ].filter(row => row.value);

@@ -31,7 +31,7 @@ const EMPTY_DETAILS: ProfessionalDetails = {
 const EMPTY_FEES: ScientistFees = { serviceCosts: {}, otherCharges: [] };
 
 const EMPTY_CONTACT: ScientistContact = {
-  socials: { LinkedIn: '', Twitter: '', Instagram: '', Facebook: '' },
+  socials: { LinkedIn: '', X: '', Instagram: '', Facebook: '' },
 };
 
 const EMPTY_HIGHLIGHT: ProfessionalHighlight = { responseTime: '', workDays: [], workHours: [] };

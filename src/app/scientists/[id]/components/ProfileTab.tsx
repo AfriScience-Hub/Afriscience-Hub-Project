@@ -65,15 +65,15 @@ export default function ProfileTab({ scientist }: ProfileTabProps) {
             <table className="w-full text-sm text-left">
               <thead className="bg-neutral-bg-light text-neutral-gray-dark font-semibold border-b border-neutral-gray-light">
                 <tr>
-                  <th className="px-4 py-3">Service</th>
-                  <th className="px-4 py-3">Estimated Cost</th>
+                  <th className="px-4 py-3 text-left">Service</th>
+                  <th className="px-4 py-3 text-right">Estimated Cost</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-gray-light">
                 {scientist.serviceCost.map((cost: any, idx: number) => (
                   <tr key={idx} className="hover:bg-neutral-bg-light/50">
                     <td className="px-4 py-3 font-medium text-neutral-black">{cost.service}</td>
-                    <td className="px-4 py-3 text-brand-navy-900 font-bold">{cost.range}</td>
+                    <td className="px-4 py-3 text-right text-brand-navy-900 font-bold">{cost.range}</td>
                   </tr>
                 ))}
               </tbody>
@@ -94,15 +94,15 @@ export default function ProfileTab({ scientist }: ProfileTabProps) {
             <table className="w-full text-sm text-left">
               <thead className="bg-neutral-bg-light text-neutral-gray-dark font-semibold border-b border-neutral-gray-light">
                 <tr>
-                  <th className="px-4 py-3">Charge</th>
-                  <th className="px-4 py-3">Amount</th>
+                  <th className="px-4 py-3 text-left">Charge</th>
+                  <th className="px-4 py-3 text-right">Amount</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-gray-light">
                 {scientist.otherFees.map((fee: any, idx: number) => (
                   <tr key={idx} className="hover:bg-neutral-bg-light/50">
                     <td className="px-4 py-3 font-medium text-neutral-black">{fee.name}</td>
-                    <td className="px-4 py-3 text-brand-navy-900 font-bold">{fee.amount}</td>
+                    <td className="px-4 py-3 text-right text-brand-navy-900 font-bold">{fee.amount}</td>
                   </tr>
                 ))}
               </tbody>

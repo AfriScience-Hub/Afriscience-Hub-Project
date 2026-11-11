@@ -83,7 +83,12 @@ export default function ScientistListing({ onCancel, listingId, draftId, upgrade
 
       <ScientistGallerySection media={form.media} onChange={form.setMedia} />
 
-      <ScientistContactSection contact={form.contact} onChange={form.patchContact} approvedEditMode={form.approvedEditMode} />
+      <ScientistContactSection
+        contact={form.contact}
+        onChange={form.patchContact}
+        approvedEditMode={form.approvedEditMode}
+        lockedSocials={form.lockedSocials}
+      />
 
       <UndertakingSection agreed={form.agreed} setAgreed={form.setAgreed} />
 

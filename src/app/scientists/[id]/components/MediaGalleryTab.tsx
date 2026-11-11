@@ -19,7 +19,7 @@ export default function MediaGalleryTab({ gallery }: MediaGalleryTabProps) {
         <h3 className="text-lg font-bold text-neutral-black flex items-center gap-2">
           <Images className="h-5 w-5 text-brand-red-600" /> Media Gallery
         </h3>
-        <span className="text-xs text-neutral-gray-medium">{items.length} of {MAX_MEDIA_FILES} max · pictures or videos</span>
+        <span className="text-xs text-neutral-gray-medium">{items.length} of {MAX_MEDIA_FILES} · pictures or videos</span>
       </div>
 
       {items.length > 0 ? (

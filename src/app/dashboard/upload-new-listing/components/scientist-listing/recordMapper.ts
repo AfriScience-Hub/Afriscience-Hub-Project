@@ -254,25 +254,34 @@ function mapHighlight(item: Entity): ProfessionalHighlight {
   return { responseTime, workDays, workHours };
 }
 
+/**
+ * Maps a stored social platform name onto the form's social keys. `X` and
+ * `Twitter` are the same platform and both resolve to the `X` field.
+ */
+function socialKeyFor(platform: string): keyof ScientistContact['socials'] | null {
+  const name = platform.trim().toLowerCase();
+  if (name === 'x' || name === 'twitter') return 'X';
+  if (name === 'linkedin') return 'LinkedIn';
+  if (name === 'instagram') return 'Instagram';
+  if (name === 'facebook') return 'Facebook';
+  return null;
+}
+
 function mapSocials(raw: unknown): ScientistContact['socials'] {
-  const socials: ScientistContact['socials'] = { LinkedIn: '', Twitter: '', Instagram: '', Facebook: '' };
+  const socials: ScientistContact['socials'] = { LinkedIn: '', X: '', Instagram: '', Facebook: '' };
   if (Array.isArray(raw)) {
     for (const entry of raw) {
       const record = asEntity(entry) ?? {};
       const platform = text(record.platform ?? record.name);
       const link = text(record.link ?? record.url ?? record.value);
-      const key = (Object.keys(socials) as Array<keyof typeof socials>).find(
-        (platformKey) => platformKey.toLowerCase() === platform.toLowerCase(),
-      );
+      const key = socialKeyFor(platform);
       if (key) socials[key] = link;
     }
   } else {
     const record = asEntity(raw);
     if (record) {
       for (const [platform, link] of Object.entries(record)) {
-        const key = (Object.keys(socials) as Array<keyof typeof socials>).find(
-          (platformKey) => platformKey.toLowerCase() === platform.toLowerCase(),
-        );
+        const key = socialKeyFor(platform);
         if (key) socials[key] = text(link);
       }
     }

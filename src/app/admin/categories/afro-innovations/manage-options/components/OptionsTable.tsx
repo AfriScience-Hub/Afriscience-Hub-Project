@@ -2,6 +2,7 @@
 
 import { MoreVertical, Pencil, Power, Trash2, Loader2 } from 'lucide-react';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
+import NoteInfo from '@/app/admin/components/NoteInfo';
 import { formatPrice } from '@/lib/utils';
 import type { ManagedOption } from '../data';
 
@@ -42,9 +43,7 @@ export default function OptionsTable({
               <td className="px-4 py-3 text-xs font-medium text-neutral-black">
                 <span className="inline-flex items-center gap-1.5">
                   {opt.name}
-                  {opt.note && (
-                    <span title={opt.note} aria-label="Note" className="cursor-help text-[#453DD8]">&#9432;</span>
-                  )}
+                  {opt.note && <NoteInfo note={opt.note} />}
                 </span>
               </td>
               {showPrice && (

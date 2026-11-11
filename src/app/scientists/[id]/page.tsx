@@ -13,6 +13,7 @@ import { Button } from '@/app/components/ui/Button';
 import { SCIENTISTS } from '@/app/data/mockData';
 import { cn, formatCount, formatJoinedDate } from '@/lib/utils';
 import { toast } from 'sonner';
+import { fetchPublicScientist } from '../publicApi';
 import { ContactServiceProviderModal } from '@/app/components/modals/ContactServiceProviderModal';
 import { MessagingModal } from '@/app/components/modals/MessagingModal';
 import ImagePreviewModal from '../components/ImagePreviewModal';
@@ -35,7 +36,21 @@ export default function ScientistDetails() {
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   const [isDpPreviewOpen, setIsDpPreviewOpen] = useState(false);
 
-  const scientist = SCIENTISTS.find(sci => sci.id === id);
+  // Public endpoint record. The bundled record is only a fallback so the page
+  // keeps its layout while the request is in flight.
+  const fallbackScientist = SCIENTISTS.find(sci => sci.id === id);
+  const [scientist, setScientist] = useState<any>(fallbackScientist ?? null);
+  const [loading, setLoading] = useState(!fallbackScientist);
+
+  React.useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+    fetchPublicScientist(id)
+      .then((row) => { if (!cancelled && row) setScientist(row); })
+      .catch(() => { /* keep the fallback record */ })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [id]);
 
   React.useEffect(() => {
     if (scientist) {
@@ -43,6 +58,14 @@ export default function ScientistDetails() {
       setSharesCount(scientist.shares || 0);
     }
   }, [scientist]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-bg-light">
+        <p className="text-sm text-neutral-gray-medium">Loading scientist profile...</p>
+      </div>
+    );
+  }
 
   if (!scientist) {
     return (
@@ -163,15 +186,13 @@ export default function ScientistDetails() {
                   <Button className="w-full bg-brand-red-600 hover:bg-brand-red-700 shadow-sm py-6 text-lg" onClick={() => setIsBookServiceOpen(true)}>
                     Book a Service
                   </Button>
-                  {scientist.bookingsCount && (
-                    <p className="text-xs text-center text-brand-navy-900 font-medium -mt-2">
-                      <CheckCircle className="inline h-3 w-3 mr-1" />
-                      {scientist.bookingsCount}+ successful bookings
-                    </p>
-                  )}
+                  <p className="text-xs text-center text-brand-navy-900 font-medium">
+                    <CheckCircle className="inline h-3 w-3 mr-1" />
+                    {scientist.bookingsCount || 0} successful bookings
+                  </p>
                   <div className="flex gap-2">
                     <div className="flex-1 grid grid-cols-2 gap-2">
-                      <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Call">
+                      <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Call" onClick={() => setIsBookServiceOpen(true)}>
                         <Phone className="h-4 w-4" />
                       </Button>
                       <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Message" onClick={() => setIsMessagingOpen(true)}>
@@ -195,7 +216,7 @@ export default function ScientistDetails() {
                       <Button variant="outline" className="px-3" title="Share Profile" onClick={handleShare}>
                         <Share2 className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" onClick={handleArchiveToggle} className={cn(isArchived && "bg-neutral-bg-light text-neutral-gray-dark")}>
+                      <Button variant="outline" title={isArchived ? "Unarchive" : "Archive"} onClick={handleArchiveToggle} className={cn(isArchived && "bg-neutral-bg-light text-neutral-gray-dark")}>
                         {isArchived ? <ArchiveX className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
                       </Button>
                     </div>
@@ -255,7 +276,7 @@ export default function ScientistDetails() {
           </div>
 
           {/* SIDEBAR */}
-          <Sidebar scientist={scientist} />
+          <Sidebar scientist={scientist} onBookNow={() => setIsBookServiceOpen(true)} />
 
         </div>
       </div>

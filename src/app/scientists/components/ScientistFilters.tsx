@@ -2,6 +2,7 @@
 
 import { Filter, ChevronDown } from 'lucide-react';
 import { cn } from '../../../lib/utils';
+import ProfessionNote from './ProfessionNote';
 import { SCIENTIST_FIELDS, SCIENTIST_DEGREES, SCIENTIST_SERVICES, PROFESSIONS_BY_FIELD, WORLD_COUNTRIES } from '../../data/mockData';
 
 type ScientistFiltersProps = {
@@ -24,6 +25,16 @@ type ScientistFiltersProps = {
   toggleSection: (key: string) => void;
   activeFilterCount: number;
   resetFilters: () => void;
+  /** Field options fetched from `GET /scientists/options/FIELD`. */
+  fields?: string[];
+  /** Degree options fetched from `GET /scientists/options/DEGREE`. */
+  degrees?: string[];
+  /** Service options fetched from `GET /scientists/options/SERVICE`. */
+  services?: string[];
+  /** Professions grouped by field, fetched from `GET /scientists/professions`. */
+  professionsByField?: Record<string, string[]>;
+  /** Optional note per profession name, shown behind an info icon. */
+  professionNotes?: Record<string, string>;
 };
 
 const inputCls = 'border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5';
@@ -39,8 +50,20 @@ export default function ScientistFilters({
   showFilters,
   collapsedSections, toggleSection,
   activeFilterCount, resetFilters,
+  fields = [],
+  degrees = [],
+  services = [],
+  professionsByField = {},
+  professionNotes = {},
 }: ScientistFiltersProps) {
-  const availableProfessions = selectedField ? PROFESSIONS_BY_FIELD[selectedField] || [] : [];
+  // Fetched options win; the bundled lists are only a fallback when the
+  // endpoints return nothing.
+  const fieldOptions = fields.length > 0 ? fields : SCIENTIST_FIELDS;
+  const degreeOptions = degrees.length > 0 ? degrees : SCIENTIST_DEGREES;
+  const serviceOptions = services.length > 0 ? services : SCIENTIST_SERVICES;
+  const professionMap = Object.keys(professionsByField).length > 0 ? professionsByField : PROFESSIONS_BY_FIELD;
+
+  const availableProfessions = selectedField ? professionMap[selectedField] || [] : [];
 
   const toggleProfession = (item: string) => {
     setSelectedProfessions(
@@ -93,7 +116,7 @@ export default function ScientistFilters({
             </button>
             {!collapsedSections.fields && (
               <div className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar animate-in fade-in duration-200">
-                {SCIENTIST_FIELDS.map((field) => (
+                {fieldOptions.map((field) => (
                   <label key={field} className="flex items-center gap-2 cursor-pointer group">
                     <input type="radio" name="scientist-field" checked={selectedField === field}
                       onChange={() => handleFieldChange(field)} className={inputCls} />
@@ -127,6 +150,7 @@ export default function ScientistFilters({
                     <input type="checkbox" checked={selectedProfessions.includes(prof)}
                       onChange={() => toggleProfession(prof)} className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
                     <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{prof}</span>
+                    <ProfessionNote note={professionNotes[prof] || 'Detailed notes for this profession will be available soon.'} />
                   </label>
                 )) : (
                   <p className="text-xs text-neutral-gray-medium italic">Select a field to see professions.</p>
@@ -148,7 +172,7 @@ export default function ScientistFilters({
             </button>
             {!collapsedSections.degree && (
               <div className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar animate-in fade-in duration-200">
-                {SCIENTIST_DEGREES.map((degree) => (
+                {degreeOptions.map((degree) => (
                   <label key={degree} className="flex items-center gap-2 cursor-pointer group">
                     <input type="radio" name="scientist-degree" checked={selectedDegree === degree}
                       onChange={() => setSelectedDegree(selectedDegree === degree ? '' : degree)} className={inputCls} />
@@ -172,7 +196,7 @@ export default function ScientistFilters({
             </button>
             {!collapsedSections.services && (
               <div className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar animate-in fade-in duration-200">
-                {SCIENTIST_SERVICES.map((svc) => (
+                {serviceOptions.map((svc) => (
                   <label key={svc} className="flex items-center gap-2 cursor-pointer group">
                     <input type="checkbox" checked={selectedServices.includes(svc)}
                       onChange={() => toggleService(svc)} className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
@@ -237,8 +261,9 @@ export default function ScientistFilters({
                   type="text"
                   value={selectedState}
                   onChange={(e) => setSelectedState(e.target.value)}
-                  placeholder="Type a state or region..."
-                  className="w-full rounded-lg border border-neutral-gray-light text-sm p-2 bg-neutral-bg-light focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600"
+                  placeholder={selectedCountry ? 'Type a state or region...' : 'Select a country first'}
+                  disabled={!selectedCountry}
+                  className="w-full rounded-lg border border-neutral-gray-light bg-white text-sm p-2 text-neutral-black placeholder:text-neutral-gray-medium focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 disabled:cursor-not-allowed disabled:bg-white"
                 />
               </div>
             )}

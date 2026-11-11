@@ -2,8 +2,9 @@
 
 import { useRef, useState } from 'react';
 import Image from 'next/image';
-import { Edit3 } from 'lucide-react';
+import { Edit3, Eye } from 'lucide-react';
 import { normalizeFileSrc } from '@/lib/files';
+import AvatarPreviewModal from './AvatarPreviewModal';
 
 function getInitials(name: string): string {
   return name
@@ -29,6 +30,7 @@ export function ProfileHeader({ fullName, username, completionPct, avatar, showA
   const initials = getInitials(fullName);
   const src = normalizeFileSrc(avatar);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const showImage = !!src && src !== failedSrc;
   return (
     <div className="rounded-2xl border border-neutral-gray-light bg-white shadow-sm overflow-hidden mb-6">
@@ -64,6 +66,17 @@ export function ProfileHeader({ fullName, username, completionPct, avatar, showA
                 </div>
               )}
             </div>
+            {showImage && !avatarUploading && (
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(true)}
+                aria-label="Preview profile photo"
+                title="Preview profile photo"
+                className="absolute bottom-0 left-0 z-10 h-10 w-10 rounded-full bg-brand-navy-900 cursor-pointer hover:bg-brand-navy-800 flex items-center justify-center text-white shadow-lg transition-colors"
+              >
+                <Eye className="h-4 w-4" />
+              </button>
+            )}
             {showAvatarEdit && !avatarUploading && (
               <>
                 <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onAvatarChange} />
@@ -93,6 +106,12 @@ export function ProfileHeader({ fullName, username, completionPct, avatar, showA
           </div>
         </div>
       </div>
+      <AvatarPreviewModal
+        open={previewOpen}
+        src={src}
+        alt={fullName}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   );
 }
