@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { fetchPublicScientist } from '../publicApi';
 import { ContactServiceProviderModal } from '@/app/components/modals/ContactServiceProviderModal';
 import { MessagingModal } from '@/app/components/modals/MessagingModal';
+import { recordScientistServiceInterest } from '@/app/dashboard/invoices/api';
 import ImagePreviewModal from '../components/ImagePreviewModal';
 import TabButton from './components/TabButton';
 import ProfileTab from './components/ProfileTab';
@@ -98,6 +99,15 @@ export default function ScientistDetails() {
     }
   };
 
+  // Message opens a different modal, so record the service interest here too.
+  // The contact modal records it automatically when it opens.
+  const openMessaging = () => {
+    if (scientist?.id) {
+      void recordScientistServiceInterest(scientist.id).catch(() => { /* guest or not signed in */ });
+    }
+    setIsMessagingOpen(true);
+  };
+
   const scrollToReviews = () => {
     setActiveTab('reviews');
     setTimeout(() => {
@@ -149,7 +159,7 @@ export default function ScientistDetails() {
                 <div>
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <span className={cn(
-                      "px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide border",
+                      "px-2 py-0.5 rounded text-xs font-bold tracking-wide border",
                       scientist.status === 'Online'
                         ? "bg-green-100 text-green-700 border-green-200"
                         : "bg-neutral-bg-light text-neutral-gray-dark border-neutral-gray-light"
@@ -195,7 +205,7 @@ export default function ScientistDetails() {
                       <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Call" onClick={() => setIsBookServiceOpen(true)}>
                         <Phone className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Message" onClick={() => setIsMessagingOpen(true)}>
+                      <Button variant="outline" className="border-neutral-gray-light text-neutral-gray-dark hover:bg-neutral-bg-light" title="Message" onClick={openMessaging}>
                         <Mail className="h-4 w-4" />
                       </Button>
                     </div>
@@ -289,7 +299,7 @@ export default function ScientistDetails() {
         providerId={scientist.id}
         providerPhone={scientist.contact?.phone}
         profileType="scientist"
-        onOpenMessaging={() => setIsMessagingOpen(true)}
+        onOpenMessaging={openMessaging}
       />
 
       <MessagingModal

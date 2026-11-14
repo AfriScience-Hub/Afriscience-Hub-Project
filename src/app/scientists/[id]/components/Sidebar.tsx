@@ -42,7 +42,7 @@ export default function Sidebar({ scientist, onBookNow }: SidebarProps) {
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-black">Status</span>
           <span className={cn(
-            "px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide border",
+            "px-2 py-0.5 rounded text-xs font-bold tracking-wide border",
             scientist.status === 'Online'
               ? "bg-green-100 text-green-700 border-green-200"
               : "bg-neutral-bg-light text-neutral-gray-dark border-neutral-gray-light"

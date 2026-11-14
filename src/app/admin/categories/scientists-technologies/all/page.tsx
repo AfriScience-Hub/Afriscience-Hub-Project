@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   ArrowLeft, Users, Search, MoreVertical, Eye, CheckCircle,
-  BadgeCheck, Star, CalendarCheck, Loader2,
+  BadgeCheck, Star, CalendarCheck, Loader2, Receipt,
 } from 'lucide-react';
 import TableActionMenu from '@/app/admin/components/TableActionMenu';
 import { toast } from 'sonner';
@@ -155,6 +155,9 @@ export default function AllScientistsPage() {
           <p className="text-[11px] text-neutral-gray-dark mt-1">Manage, view and update all scientist and technologist listings on AfriScience Hub.</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <Link href="/admin/categories/scientists-technologies/invoice-ledger" className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 cursor-pointer">
+            <Receipt className="h-4 w-4" /> Invoice Ledger
+          </Link>
           <Link href="/admin/categories/scientists-technologies" className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-gray-light bg-white text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer">
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
