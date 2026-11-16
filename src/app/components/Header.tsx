@@ -229,6 +229,14 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <SafeLink href="/about" className={navigationMenuTriggerStyle()}>
+                      About
+                    </SafeLink>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
                   <NavigationMenuTrigger>Explore</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="w-[420px] p-4 md:w-[540px] lg:w-[640px]">
@@ -267,22 +275,6 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <SafeLink href="/about" className={navigationMenuTriggerStyle()}>
-                      About
-                    </SafeLink>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <SafeLink href="/contact" className={navigationMenuTriggerStyle()}>
-                      Contact
-                    </SafeLink>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
                     <SafeLink href="/impact" className={navigationMenuTriggerStyle()}>
                       Impact
                     </SafeLink>
@@ -291,7 +283,7 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
 
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>Support</NavigationMenuTrigger>
-                  <NavigationMenuContent style={{ left: 'auto', right: 0 }}>
+                  <NavigationMenuContent style={{ left: 'auto', right: 'auto' }}>
                     <ul className="grid w-[350px] gap-3 p-4">
                       <li>
                         <NavigationMenuLink asChild>
@@ -344,6 +336,15 @@ export function Header({ isSearchOpen, setIsSearchOpen }: HeaderProps) {
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <SafeLink href="/contact" className={navigationMenuTriggerStyle()}>
+                      Contact
+                    </SafeLink>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
               </NavigationMenuList>
             </NavigationMenu>
           </div>
