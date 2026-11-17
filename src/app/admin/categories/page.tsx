@@ -17,7 +17,7 @@ import {
 import { ADMIN_ROUTES } from '../data/routes';
 
 const CATEGORIES = [
-  { label: 'Institutes', href: ADMIN_ROUTES.institutes, icon: Building2, iconCls: 'bg-purple-100 text-purple-600', description: 'Manage registered science and technology institutes.' },
+  { label: 'Educational Institutes', href: ADMIN_ROUTES.institutes, icon: Building2, iconCls: 'bg-purple-100 text-purple-600', description: 'Manage registered science and technology educational institutes.' },
   { label: 'Scientists & Technologies', href: ADMIN_ROUTES.scientistsTechnologies, icon: Beaker, iconCls: 'bg-blue-100 text-blue-600', description: 'Review and manage scientist and technology listings.' },
   { label: 'Special Centres', href: ADMIN_ROUTES.specialCentres, icon: Target, iconCls: 'bg-amber-100 text-amber-600', description: 'Administer special centres and their details.' },
   { label: 'Afro Innovations', href: ADMIN_ROUTES.afroInnovations, icon: Lightbulb, iconCls: 'bg-green-100 text-green-600', description: 'Manage innovations, options and submissions.' },

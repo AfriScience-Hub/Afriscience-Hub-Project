@@ -150,12 +150,12 @@ export default function InstituteManageOptionsPage() {
         <div>
           <div className="flex items-center gap-1.5 text-[11px] text-neutral-gray-medium mb-4">
             <Link href="/admin/dashboard" className="hover:underline">Dashboard</Link><span>›</span>
-            <Link href="/admin/categories/institutes" className="hover:underline">Institutes</Link><span>›</span>
+            <Link href="/admin/categories/institutes" className="hover:underline">Educational Institutes</Link><span>›</span>
             <span className="text-neutral-black font-medium">Manage Options</span>
           </div>
           <h1 className="text-xl font-bold text-neutral-black flex items-center gap-2">
             <Building2 className="h-5 w-5 text-purple-600" />
-            Manage Institute Options
+            Manage Educational Institute Options
           </h1>
           <p className="text-xs text-neutral-black mt-1 max-w-2xl">
             Add, edit and organize the options that users will see when submitting an institute listing and in filters on the public site.

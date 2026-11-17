@@ -49,7 +49,7 @@ export default function SchoolDetailModal({ school, open, onClose, onEdit, onApp
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          <CollapsibleSection title="Institute identity" icon={<IdCard className="h-5 w-5 text-brand-red-600" />} defaultOpen>
+          <CollapsibleSection title="Educational Institute identity" icon={<IdCard className="h-5 w-5 text-brand-red-600" />} defaultOpen>
             <div className="space-y-4">
               <div className="flex gap-4 items-start">
                 <Image

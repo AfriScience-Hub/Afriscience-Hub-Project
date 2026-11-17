@@ -55,7 +55,7 @@ const quickActions = [
 
 const pendingApprovals = [
   { category: 'Scientists & Technologists', count: 14 },
-  { category: 'Institutes', count: 6 },
+  { category: 'Educational Institutes', count: 6 },
   { category: 'Afro Innovations', count: 9 },
   { category: 'Special Centres', count: 5 },
   { category: 'Competitions', count: 1 },
@@ -73,7 +73,7 @@ const recentActivity = [
 
 const verificationQueue = [
   { category: 'Scientists & Technologists', pending: 8 },
-  { category: 'Institutes', pending: 5 },
+  { category: 'Educational Institutes', pending: 5 },
   { category: 'Innovation Owners', pending: 6 },
   { category: 'Organizations', pending: 4 },
   { category: 'Volunteers', pending: 3 },
@@ -258,7 +258,7 @@ export default function AdminDashboardPage() {
           <h3 className="text-sm font-semibold text-neutral-black mb-3">Top Insights</h3>
           <div className="space-y-3 text-xs">
             <div className="flex justify-between"><span className="text-neutral-gray-medium">Most Viewed Scientist</span><span className="font-medium text-neutral-black">Dr. Ayodele John</span></div>
-            <div className="flex justify-between"><span className="text-neutral-gray-medium">Most Visited Institute</span><span className="font-medium text-neutral-black">University of Lagos</span></div>
+            <div className="flex justify-between"><span className="text-neutral-gray-medium">Most Visited Educational Institute</span><span className="font-medium text-neutral-black">University of Lagos</span></div>
             <div className="flex justify-between"><span className="text-neutral-gray-medium">Trending Innovation</span><span className="font-medium text-neutral-black">AI Crop Predictor</span></div>
             <div className="flex justify-between"><span className="text-neutral-gray-medium">Top Competition</span><span className="font-medium text-neutral-black">AI Africa Challenge</span></div>
             <div className="flex justify-between"><span className="text-neutral-gray-medium">Top Country</span><span className="font-medium text-neutral-black">Nigeria</span></div>

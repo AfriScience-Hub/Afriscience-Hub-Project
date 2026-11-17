@@ -13,11 +13,11 @@ export function Footer() {
       {/* Creative Background Text - AFRISCIENCE HUB in dotted outline */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div
-          className="text-[7rem] sm:text-[10rem] lg:text-[14rem] xl:text-[18rem] font-black select-none whitespace-nowrap"
+          className="text-[3rem] sm:text-[4rem] lg:text-[6rem] xl:text-[10rem] font-black select-none whitespace-nowrap"
           style={{
             color: 'transparent',
             letterSpacing: '0.02em',
-            opacity: 0.08,
+            opacity: 0.20,
             textShadow: `
                 0 0 0 rgba(226, 232, 240, 0.06),
                 1px 1px 0 rgba(226, 232, 240, 0.04),
@@ -61,33 +61,33 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center">
-              <div className="bg-white p-2.5 rounded-xl shadow-sm">
-                <Image src={footerLogoSrc.src} alt="AFRISCIENCE HUB" width={0} height={0} sizes="100vw" className="h-14 w-auto" />
+              <div className="bg-white p-1 rounded-xl shadow-sm">
+                <Image src={footerLogoSrc.src} alt="AFRISCIENCE HUB" width={0} height={0} sizes="100vw" className="h-20 w-auto" />
               </div>
             </div>
             <p className="text-sm text-slate-400">
-              Connecting Institutes, Scientists/Technologists, Laboratories, Specialists, Innovators and Sponsors across the African continent.
+              Connecting experts, innovators and specialized institutions to foster growth &amp; development across the African continent.
             </p>
 
             {/* Social Media Handles */}
             <div className="flex gap-4 pt-2">
-              <a suppressHydrationWarning href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
+              <a suppressHydrationWarning href="https://www.linkedin.com/company/afrisciencehub" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-slate-400 hover:text-brand-red-600 transition-colors">
                 <span className="sr-only">LinkedIn</span>
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a suppressHydrationWarning href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
+              <a suppressHydrationWarning href="https://www.facebook.com/afrisciencehub" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-slate-400 hover:text-brand-red-600 transition-colors">
                 <span className="sr-only">Facebook</span>
                 <Facebook className="h-5 w-5" />
               </a>
-              <a suppressHydrationWarning href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
+              <a suppressHydrationWarning href="https://x.com/afrisciencehub" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)" className="text-slate-400 hover:text-brand-red-600 transition-colors">
                 <span className="sr-only">Twitter</span>
                 <Twitter className="h-5 w-5" />
               </a>
-              <a suppressHydrationWarning href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
+              <a suppressHydrationWarning href="https://www.youtube.com/@afrisciencehub" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="text-slate-400 hover:text-brand-red-600 transition-colors">
                 <span className="sr-only">YouTube</span>
                 <Youtube className="h-5 w-5" />
               </a>
-              <a suppressHydrationWarning href="#" className="text-slate-400 hover:text-brand-red-600 transition-colors">
+              <a suppressHydrationWarning href="https://www.instagram.com/afrisciencehub" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-slate-400 hover:text-brand-red-600 transition-colors">
                 <span className="sr-only">Instagram</span>
                 <Instagram className="h-5 w-5" />
               </a>
@@ -101,13 +101,13 @@ export function Footer() {
             </h3>
             <ul className="space-y-2 text-sm">
               <li><SafeLink href="/about" className="hover:text-brand-red-600">About Us</SafeLink></li>
-              <li><SafeLink href="/institutes" className="hover:text-brand-red-600">Institutes</SafeLink></li>
-              <li><SafeLink href="/scientists" className="hover:text-brand-red-600">Scientists & Technologists</SafeLink></li>
+              <li><SafeLink href="/institutes" className="hover:text-brand-red-600">Educational Institutes</SafeLink></li>
+              <li><SafeLink href="/scientists" className="hover:text-brand-red-600">Scientists &amp; Technologists</SafeLink></li>
               <li><SafeLink href="/specialist-centers" className="hover:text-brand-red-600">Specialist Centers</SafeLink></li>
               <li><SafeLink href="/innovations" className="hover:text-brand-red-600">Afro-Innovations</SafeLink></li>
               <li><SafeLink href="/competitions" className="hover:text-brand-red-600">Competitions</SafeLink></li>
-              <li><SafeLink href="/awards" className="hover:text-brand-red-600">Awards</SafeLink></li>
               <li><SafeLink href="/voting" className="hover:text-brand-red-600">Voting</SafeLink></li>
+              <li><SafeLink href="/awards" className="hover:text-brand-red-600">Awards</SafeLink></li>
             </ul>
           </div>
 
@@ -145,7 +145,7 @@ export function Footer() {
               Stay Updated
             </h3>
             <p className="mb-4 text-sm text-slate-400">
-              Subscribe to our newsletter for the latest African innovations.
+              Subscribe to our newsletter for the latest science &amp; technology updates across African ecosystems.
             </p>
             <div className="flex flex-col gap-2">
               <input
@@ -158,7 +158,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 border-t border-brand-navy-800 pt-8 text-center text-xs text-slate-500">
-          &copy; 2024 AfriScience Hub. All rights reserved.
+          &copy; {new Date().getFullYear()} AfriScience Hub. All rights reserved.
         </div>
       </div>
     </footer>

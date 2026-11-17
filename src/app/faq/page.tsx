@@ -29,10 +29,10 @@ const FAQ_DATA: FAQCategory[] = [
     ]
   },
   {
-    title: "Institutes",
+    title: "Educational Institutes",
     items: [
       {
-        question: "What Institutes can be listed?",
+        question: "What Educational Institutes can be listed?",
         answer: "\"Universities\" alongside \"Primary & Secondary Schools\" globally can be listed. Listed institutes must have the capacity to host African students and help them facilitate their academic requirements."
       },
       {

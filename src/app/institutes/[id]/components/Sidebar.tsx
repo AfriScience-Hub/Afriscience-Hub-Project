@@ -148,7 +148,7 @@ export default function Sidebar({ institute, onRegister }: { institute: Institut
 
       <section>
         <h3 className="text-sm font-bold text-neutral-gray-medium uppercase tracking-wider mb-4 px-2">
-          {isUniversity ? 'Similar Institutes' : 'Similar Schools'}
+          {isUniversity ? 'Similar Educational Institutes' : 'Similar Schools'}
         </h3>
         <div className="space-y-4">
           {similar.map((sim: any) => (

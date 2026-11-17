@@ -8,7 +8,7 @@ export interface ServiceEntry {
 }
 
 export const LISTING_TYPES = [
-  { id: 'institute', label: 'Institute', icon: GraduationCap, description: 'University, school, or research institute' },
+  { id: 'institute', label: 'Educational Institute', icon: GraduationCap, description: 'University, school, or research institute' },
   { id: 'scientist', label: 'Scientist / Technologist', icon: Beaker, description: 'Individual scientist, researcher, or technologist' },
   { id: 'center', label: 'Specialist Center', icon: Microscope, description: 'Specialized research or innovation center' },
   { id: 'innovation', label: 'Afro-Innovation', icon: Lightbulb, description: 'African-born innovation or product' },

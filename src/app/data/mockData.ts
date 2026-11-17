@@ -6,15 +6,27 @@ import {
   GraduationCap, 
   Microscope,
   Stethoscope,
-  Code
+  Code,
+  Vote,
+  Award,
+  TrendingUp,
+  Handshake,
+  HeartHandshake,
+  Users
 } from 'lucide-react';
 
 export const CATEGORIES = [
-  { id: 'institutes', name: 'Institutes', icon: Building2, path: '/institutes' },
-  { id: 'scientists', name: 'Scientists', icon: Beaker, path: '/scientists' },
-  { id: 'centers', name: 'Specialist Centers', icon: Microscope, path: '/centers' },
+  { id: 'institutes', name: 'Educational Institutes', icon: GraduationCap, path: '/institutes' },
+  { id: 'scientists', name: 'Scientists & Technologists', icon: Beaker, path: '/scientists' },
+  { id: 'centers', name: 'Specialist Centers', icon: Microscope, path: '/specialist-centers' },
   { id: 'innovations', name: 'Afro-Innovations', icon: Lightbulb, path: '/innovations' },
   { id: 'competitions', name: 'Competitions', icon: Trophy, path: '/competitions' },
+  { id: 'voting', name: 'Voting', icon: Vote, path: '/voting' },
+  { id: 'awards', name: 'Awards', icon: Award, path: '/awards' },
+  { id: 'impacts', name: 'Impacts', icon: TrendingUp, path: '/impact' },
+  { id: 'sponsors', name: 'Sponsors', icon: Handshake, path: '/support/sponsor' },
+  { id: 'donate', name: 'Donate', icon: HeartHandshake, path: '/support/donate' },
+  { id: 'volunteer', name: 'Volunteer', icon: Users, path: '/support/volunteer' },
 ];
 
 export const INSTITUTES = [

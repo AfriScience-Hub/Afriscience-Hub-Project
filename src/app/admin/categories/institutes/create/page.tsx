@@ -120,7 +120,7 @@ function CreateInstituteContent() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <Link href="/admin/categories/institutes" className="inline-flex items-center gap-1.5 text-xs font-medium text-[#453DD8] hover:underline mb-1.5">
-            <ArrowLeft className="h-3.5 w-3.5" /> Back to Institutes
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to Educational Institutes
           </Link>
           <h1 className="text-lg font-bold text-neutral-black flex items-center gap-2">
             {subType === 'university' ? <GraduationCap className="h-5 w-5 text-brand-red-600" /> : <Building2 className="h-5 w-5 text-brand-red-600" />}

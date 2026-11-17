@@ -36,7 +36,7 @@ export default function CategorySpecificSection({
   return (
     <>
       {selectedType === 'institute' && (
-        <CollapsibleSection title="Institute classification" icon={<Building2 className="h-5 w-5 text-brand-red-600" />}>
+        <CollapsibleSection title="Educational Institute classification" icon={<Building2 className="h-5 w-5 text-brand-red-600" />}>
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <label className="block text-sm font-medium text-neutral-black mb-1">Class / Type <span className="text-red-500">*</span></label>

@@ -61,7 +61,7 @@ export const SIDEBAR_NAV: SidebarItem[] = [
     label: 'Categories',
     icon: Layers,
     children: [
-      { label: 'Institutes', href: ADMIN_ROUTES.institutes },
+      { label: 'Educational Institutes', href: ADMIN_ROUTES.institutes },
       { label: 'Scientists & Technologies', href: ADMIN_ROUTES.scientistsTechnologies },
       { label: 'Specialist Centers', href: ADMIN_ROUTES.specialCentres },
       { label: 'Afro Innovations', href: ADMIN_ROUTES.afroInnovations },

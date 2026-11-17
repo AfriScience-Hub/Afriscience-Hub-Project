@@ -24,12 +24,12 @@ export default function AllInstitutesPage() {
         <div>
           <div className="flex items-center gap-1.5 text-[11px] text-neutral-gray-medium mb-4">
             <Link href="/admin/dashboard" className="hover:underline">Dashboard</Link><span>›</span>
-            <Link href="/admin/categories/institutes" className="hover:underline">Institutes</Link><span>›</span>
-            <span className="text-neutral-black font-medium">All Institutes</span>
+            <Link href="/admin/categories/institutes" className="hover:underline">Educational Institutes</Link><span>›</span>
+            <span className="text-neutral-black font-medium">All Educational Institutes</span>
           </div>
           <h1 className="text-xl font-bold text-neutral-black flex items-center gap-2">
             <span className="h-9 w-9 rounded-xl bg-purple-100 text-purple-600 grid place-items-center"><Building2 className="h-5 w-5" /></span>
-            All Institutes
+            All Educational Institutes
           </h1>
           <p className="text-[11px] text-neutral-gray-dark mt-1">Manage, view and update all institute listings on AfriScience Hub.</p>
         </div>

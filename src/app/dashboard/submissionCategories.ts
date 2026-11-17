@@ -30,7 +30,7 @@ export interface SubmissionCategory {
 export const SUBMISSION_CATEGORIES: SubmissionCategory[] = [
   {
     id: 'institute',
-    label: 'Institute',
+    label: 'Educational Institute',
     icon: Building2,
     description: 'University, school, or research institute',
     hasEndpoint: false,

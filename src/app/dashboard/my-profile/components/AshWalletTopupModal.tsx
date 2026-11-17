@@ -141,6 +141,7 @@ export function AshWalletTopupModal({ open, currency, onClose }: AshWalletTopupM
                 <span className="text-sm font-semibold text-neutral-gray-dark whitespace-nowrap">{currency}</span>
               </div>
               <p className="text-xs text-neutral-gray-medium mt-1">A processing fee of 1.5% applies to this top up.</p>
+              <p className="text-xs text-neutral-gray-medium mt-0.5">1 USD = 1 ASH coin</p>
             </div>
 
             {errorMsg && (

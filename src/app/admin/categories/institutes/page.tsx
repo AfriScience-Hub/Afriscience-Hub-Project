@@ -66,7 +66,7 @@ export default function InstitutesAdminPage() {
   const recent = [...feed].reverse().slice(0, 5);
 
   const stats = [
-    { label: 'Total Institutes', value: INSTITUTE_STATS.total, change: '+10%', positive: true, iconBg: 'bg-purple-100 text-purple-600', icon: <Building2 className="h-4 w-4" /> },
+    { label: 'Total Educational Institutes', value: INSTITUTE_STATS.total, change: '+10%', positive: true, iconBg: 'bg-purple-100 text-purple-600', icon: <Building2 className="h-4 w-4" /> },
     { label: 'Pending Review', value: INSTITUTE_STATS.pending, change: '+5%', positive: true, iconBg: 'bg-amber-100 text-amber-600', icon: <Clock className="h-4 w-4" /> },
     { label: 'Published', value: INSTITUTE_STATS.published, change: '+15%', positive: true, iconBg: 'bg-green-100 text-green-600', icon: <CheckCircle className="h-4 w-4" /> },
     { label: 'Rejected', value: INSTITUTE_STATS.rejected, change: '−3%', positive: false, iconBg: 'bg-red-100 text-red-600', icon: <XCircle className="h-4 w-4" /> },
@@ -78,13 +78,13 @@ export default function InstitutesAdminPage() {
         <div>
           <div className="flex items-center gap-1.5 text-[11px] text-neutral-gray-medium mb-4">
             <span>Dashboard</span><span>/</span><span>Categories</span><span>/</span>
-            <span className="text-neutral-black font-medium">Institutes</span>
+            <span className="text-neutral-black font-medium">Educational Institutes</span>
           </div>
           <h1 className="text-xl font-bold text-neutral-black flex items-center gap-2">
             <span className="h-9 w-9 rounded-xl bg-purple-100 text-purple-600 grid place-items-center">
               <Building2 className="h-5 w-5" />
             </span>
-            Institutes
+            Educational Institutes
           </h1>
           <p className="text-[11px] text-neutral-gray-dark mt-1">
             Overview of primary &amp; secondary schools and universities on AfriScience Hub.
@@ -103,7 +103,7 @@ export default function InstitutesAdminPage() {
             <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-neutral-gray-light rounded-xl shadow-xl py-1.5 z-50 overflow-hidden">
               <Link href="/admin/categories/institutes/all" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-3.5 py-2.5 hover:bg-neutral-bg-light cursor-pointer">
                 <span className="h-8 w-8 rounded-lg bg-[#453DD8]/10 flex items-center justify-center shrink-0"><LayoutGrid className="h-4 w-4 text-[#453DD8]" /></span>
-                <span className="text-xs font-semibold text-neutral-black">All Institutes</span>
+                <span className="text-xs font-semibold text-neutral-black">All Educational Institutes</span>
               </Link>
               <Link href="/admin/categories/institutes/manage-options" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-3.5 py-2.5 hover:bg-neutral-bg-light cursor-pointer">
                 <span className="h-8 w-8 rounded-lg bg-[#453DD8]/10 flex items-center justify-center shrink-0"><Settings2 className="h-4 w-4 text-[#453DD8]" /></span>
@@ -119,7 +119,7 @@ export default function InstitutesAdminPage() {
                 className="w-full flex items-center gap-3 px-3.5 py-2.5 hover:bg-neutral-bg-light cursor-pointer text-left"
               >
                 <span className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0"><Plus className="h-4 w-4 text-purple-600" /></span>
-                <span className="text-xs font-semibold text-neutral-black">Create Institute</span>
+                <span className="text-xs font-semibold text-neutral-black">Create Educational Institute</span>
               </button>
             </div>
           )}
@@ -190,7 +190,7 @@ export default function InstitutesAdminPage() {
         </ListCard>
 
         <div className="bg-white rounded-lg border border-neutral-gray-light p-6">
-          <h3 className="text-xs font-semibold text-neutral-black mb-5">Institutes by type</h3>
+          <h3 className="text-xs font-semibold text-neutral-black mb-5">Educational Institutes by type</h3>
           <div className="space-y-5">
             {INSTITUTE_BY_TYPE.map((t) => (
               <div key={t.name} className="flex items-center gap-4">

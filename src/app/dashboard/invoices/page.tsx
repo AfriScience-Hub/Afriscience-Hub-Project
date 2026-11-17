@@ -238,7 +238,7 @@ export default function InvoicesPage() {
               <Stethoscope className="h-10 w-10 text-neutral-gray-light mx-auto mb-3" />
             )}
             <p className="font-bold text-neutral-black">
-              {typeTab === 'institutes' ? 'Institute invoices are coming soon' : 'Specialist centre invoices are coming soon'}
+              {typeTab === 'institutes' ? 'Educational Institute invoices are coming soon' : 'Specialist centre invoices are coming soon'}
             </p>
             <p className="text-sm text-neutral-gray-medium mt-1 max-w-md mx-auto">
               This tab is ready for the listing type. Invoice endpoints are currently integrated for scientist and technologist listings.

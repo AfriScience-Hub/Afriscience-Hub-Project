@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Lightbulb } from 'lucide-react';
 import { INNOVATIONS } from '@/app/data/mockData';
 import { Button } from '@/app/components/ui/Button';
 import { ProtectedLink } from '@/app/components/ProtectedLink';
@@ -12,8 +12,11 @@ export function HomeInnovationsSection() {
     <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="mb-8 flex flex-col md:flex-row items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-neutral-black">Trending Innovations</h2>
-          <p className="text-slate-500">Breakthrough solutions tackling African challenges.</p>
+          <h2 className="text-2xl font-bold text-neutral-black flex items-center gap-2">
+            <Lightbulb className="h-6 w-6 text-brand-red-600" />
+            Trending Innovations
+          </h2>
+          <p className="text-slate-500">Discover ground-breaking solutions developed by African minds to solve global challenges.</p>
         </div>
         <Link href="/innovations" className="flex items-center gap-1 text-brand-red-600 hover:underline">
           View All <ArrowRight className="h-4 w-4" />
@@ -22,9 +25,10 @@ export function HomeInnovationsSection() {
       <div className="grid gap-6 md:grid-cols-3">
         {INNOVATIONS.slice(0, 3).map((item) => (
           <div key={item.id} className="group relative overflow-hidden rounded-xl bg-brand-navy-900">
-            <div className="aspect-[4/3]">
-              <img src={item.image} alt={item.name}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-80 group-hover:opacity-60"
+            <div className="relative aspect-[4/3]">
+              <Image src={item.image} alt={item.name} fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-105 opacity-80 group-hover:opacity-60"
               />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-900 via-transparent to-transparent" />
@@ -40,7 +44,7 @@ export function HomeInnovationsSection() {
               <h3 className="text-xl font-bold text-white mb-1">{item.name}</h3>
               <p className="text-slate-300 text-sm mb-4 line-clamp-1">by {item.creator}</p>
               <ProtectedLink href={`/innovations/${item.id}`}>
-                <Button size="sm" className="w-full bg-white text-brand-navy-900 hover:bg-neutral-bg-light">Learn More</Button>
+                <Button size="sm" className="w-full bg-brand-red-600 text-white hover:bg-brand-red-700 shadow-md">Learn More</Button>
               </ProtectedLink>
             </div>
           </div>

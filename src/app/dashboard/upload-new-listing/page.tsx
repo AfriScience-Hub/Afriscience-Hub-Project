@@ -832,7 +832,7 @@ export default function UploadNewListing() {
             <h3 className="text-lg font-bold text-neutral-black mb-2">University Listing</h3>
             <p className="text-neutral-gray-medium mb-6">University listing form coming soon.</p>
             <Button variant="outline" onClick={() => { setStep('select'); setSelectedType(null); setInstituteSubType(null); setShowInstituteTypeModal(false); }}>
-              Back to Institute Types
+              Back to Educational Institute Types
             </Button>
           </div>
         </div>

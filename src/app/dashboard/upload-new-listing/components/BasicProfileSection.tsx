@@ -82,7 +82,7 @@ export default function BasicProfileSection({
 
         <div>
           <label className="block text-sm font-medium text-neutral-black mb-1">
-            {selectedType === 'institute' ? 'Institute Name' :
+            {selectedType === 'institute' ? 'Educational Institute Name' :
               selectedType === 'scientist' ? 'Full Name' :
                 selectedType === 'center' ? 'Center Name' :
                   selectedType === 'innovation' ? 'Innovation Name' :

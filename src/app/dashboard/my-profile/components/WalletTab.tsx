@@ -1,15 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Wallet, Plus, RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
+import { Wallet, Plus, RefreshCw, Loader2, AlertTriangle, Coins } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchWalletBalance, fetchWalletHistory } from '@/store/walletSlice';
-import { formatMinor } from '../walletUtils';
 import { AshWalletTopupModal } from './AshWalletTopupModal';
 import { TransactionHistory } from './TransactionHistory';
 
 // All wallet money is USD-denominated, regardless of the user's profile country.
 const CURRENCY = 'USD';
+
+/**
+ * Balances are ASH coins, so they are rendered as a plain figure next to a
+ * coin icon — never with a currency symbol. Top-ups remain USD-denominated.
+ */
+function formatCoins(value: number | undefined | null): string {
+  return new Intl.NumberFormat('en', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value ?? 0) || 0);
+}
 
 export function WalletTab() {
   const dispatch = useAppDispatch();
@@ -61,11 +71,17 @@ export function WalletTab() {
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl bg-gradient-to-br from-brand-navy-900 to-brand-navy-700 p-6 text-white">
               <p className="text-xs text-neutral-200 mb-1">Available Balance</p>
-              <p className="text-3xl font-bold">{formatMinor(wallet.balance, CURRENCY)}</p>
+              <p className="flex items-center gap-2 text-3xl font-bold">
+                <Coins className="h-7 w-7 text-amber-300" />
+                {formatCoins(wallet.balance)}
+              </p>
             </div>
             <div className="rounded-xl bg-gradient-to-br from-amber-700 to-amber-500 p-6 text-white">
               <p className="text-xs text-amber-100 mb-1">Reserved Balance</p>
-              <p className="text-3xl font-bold">{formatMinor(wallet.reservedBalance ?? 0, CURRENCY)}</p>
+              <p className="flex items-center gap-2 text-3xl font-bold">
+                <Coins className="h-7 w-7 text-amber-100" />
+                {formatCoins(wallet.reservedBalance)}
+              </p>
               <p className="text-[11px] text-amber-100/90 mt-2">Held while a listing is pending review. Refunded if rejected.</p>
             </div>
           </div>

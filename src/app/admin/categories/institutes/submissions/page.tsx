@@ -24,7 +24,7 @@ export default function InstituteSubmissionsPage() {
         <div>
           <div className="flex items-center gap-1.5 text-[11px] text-neutral-gray-medium mb-4">
             <Link href="/admin/dashboard" className="hover:underline">Dashboard</Link><span>›</span>
-            <Link href="/admin/categories/institutes" className="hover:underline">Institutes</Link><span>›</span>
+            <Link href="/admin/categories/institutes" className="hover:underline">Educational Institutes</Link><span>›</span>
             <span className="text-neutral-black font-medium">View Submissions</span>
           </div>
           <h1 className="text-xl font-bold text-neutral-black flex items-center gap-2">

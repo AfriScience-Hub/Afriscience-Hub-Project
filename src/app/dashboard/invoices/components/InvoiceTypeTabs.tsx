@@ -7,7 +7,7 @@ export type InvoiceListingType = 'scientists' | 'institutes' | 'specialist-cente
 
 const TABS: { key: InvoiceListingType; label: string; icon: typeof FlaskConical }[] = [
   { key: 'scientists', label: 'Scientists & Technologists', icon: FlaskConical },
-  { key: 'institutes', label: 'Institutes', icon: Building2 },
+  { key: 'institutes', label: 'Educational Institutes', icon: Building2 },
   { key: 'specialist-centers', label: 'Specialist Centres', icon: Stethoscope },
 ];
 

@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Clock, Inbox } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, Inbox, Coins } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchWalletHistory, type WalletTransaction } from '@/store/walletSlice';
-import { formatMinor, formatISOString, statusTone } from '../walletUtils';
+import { formatAshCoins, formatISOString, statusTone } from '../walletUtils';
 import { TransactionDetailModal } from './TransactionDetailModal';
 
 export const GENERAL_TRANSACTIONS = [
@@ -175,7 +175,7 @@ export function TransactionHistory({ filter }: TransactionHistoryProps) {
                     id = w.reference || w.id;
                     date = formatISOString(w.createdAt);
                     desc = w.description || w.type || 'Wallet transaction';
-                    amount = formatMinor(w.amount, 'USD');
+                    amount = formatAshCoins(w.amount);
                     status = w.status;
                   }
 
@@ -194,7 +194,16 @@ export function TransactionHistory({ filter }: TransactionHistoryProps) {
                       <td className="px-4 py-3 text-neutral-gray-medium">
                         <HoverTip text={desc} className="block max-w-[240px] truncate" />
                       </td>
-                      <td className="px-4 py-3 text-right font-medium text-neutral-black">{amount}</td>
+                      <td className="px-4 py-3 text-right font-medium text-neutral-black">
+                        {isWallet ? (
+                          <span className="inline-flex items-center justify-end gap-1.5">
+                            <Coins className="h-3.5 w-3.5 text-amber-500" aria-hidden="true" />
+                            {amount}
+                          </span>
+                        ) : (
+                          amount
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-center">
                         <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${statusTone(status)}`}>
                           {status}

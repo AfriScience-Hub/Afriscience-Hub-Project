@@ -16,7 +16,7 @@ export function HomeSpecialistCentersSection() {
             <Microscope className="h-6 w-6 text-brand-red-600" />
             Specialist Centers
           </h2>
-          <p className="text-slate-500">Discover specialized hubs for advanced research and services.</p>
+          <p className="text-slate-500">Discover specialized hubs for different science and technology fields.</p>
         </div>
         <Link href="/specialist-centers" className="flex items-center gap-1 text-brand-red-600 hover:underline">
           View All <ArrowRight className="h-4 w-4" />
@@ -49,7 +49,7 @@ export function HomeSpecialistCentersSection() {
                 ))}
               </div>
               <ProtectedLink href={`/specialist-centers/${center.id}`}>
-                <Button variant="outline" className="w-full">View Center</Button>
+                <Button className="w-full bg-brand-red-600 text-white hover:bg-brand-red-700 shadow-sm">View Center</Button>
               </ProtectedLink>
             </div>
           </div>

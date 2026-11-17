@@ -5,7 +5,7 @@ export interface PayoutJob {
   reference: string;
   jobTitle: string;
   listingName: string;
-  listingCategory: 'Scientists & Technologists' | 'Specialist Centers' | 'Institutes' | 'Afro-Innovation';
+  listingCategory: 'Scientists & Technologists' | 'Specialist Centers' | 'Educational Institutes' | 'Afro-Innovation';
   clientName: string;
   clientEmail: string;
   price: number;
@@ -103,7 +103,7 @@ export const MOCK_PAYOUT_JOBS: PayoutJob[] = [
     reference: 'ESC-2026-0094',
     jobTitle: 'STEM Curriculum & Laboratory Setup Workshop',
     listingName: 'Lagos Science Academy',
-    listingCategory: 'Institutes',
+    listingCategory: 'Educational Institutes',
     clientName: 'EduForward Foundation',
     clientEmail: 'programs@eduforward.org',
     price: 600,

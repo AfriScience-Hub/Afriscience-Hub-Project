@@ -20,7 +20,7 @@ const LISTING_TABS: { id: ListingTabId; label: string }[] = [
   { id: 'all', label: 'All Listings' },
   { id: 'innovation', label: 'Afro-Innovation' },
   { id: 'center', label: 'Specialist Centers' },
-  { id: 'institute', label: 'Institute' },
+  { id: 'institute', label: 'Educational Institute' },
   { id: 'scientist', label: 'Scientists & Technologists' },
 ];
 

@@ -12,7 +12,7 @@ const reports = [
 
 const topInsights = [
   { metric: 'Most Viewed Scientist', value: 'Dr. Ayodele John', detail: '1,245 views' },
-  { metric: 'Most Visited Institute', value: 'University of Lagos', detail: '2,890 views' },
+  { metric: 'Most Visited Educational Institute', value: 'University of Lagos', detail: '2,890 views' },
   { metric: 'Trending Innovation', value: 'AI Crop Predictor', detail: '932 views' },
   { metric: 'Top Country', value: 'Nigeria', detail: '9,642 users' },
   { metric: 'Most Active User', value: 'John Doe', detail: '156 actions' },

@@ -126,7 +126,7 @@ export default function UniversitySubmissionsTab() {
           <table className="w-full text-sm min-w-[1080px]">
             <thead>
               <tr className="border-b border-neutral-gray-light bg-neutral-bg-light/60">
-                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Institute</th>
+                <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Educational Institute</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Ownership</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Gender</th>
                 <th className="text-left px-3 py-2.5 text-xs font-semibold text-neutral-gray-medium">Faculties</th>

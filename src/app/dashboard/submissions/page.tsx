@@ -32,7 +32,7 @@ const SUBMISSION_TABS: { id: SubmissionTabId; label: string }[] = [
   { id: 'all', label: 'All Submissions' },
   { id: 'innovation', label: 'Afro-Innovation' },
   { id: 'center', label: 'Specialist Centers' },
-  { id: 'institute', label: 'Institute' },
+  { id: 'institute', label: 'Educational Institute' },
   { id: 'scientist', label: 'Scientists & Technologists' },
   { id: 'sponsor', label: 'Sponsor' },
   { id: 'competition', label: 'Competition' },

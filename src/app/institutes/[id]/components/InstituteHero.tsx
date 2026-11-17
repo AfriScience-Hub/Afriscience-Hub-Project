@@ -59,7 +59,7 @@ export default function InstituteHero({
 
         <Link href="/institutes" className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 text-white/90 hover:text-white transition-colors z-10">
           <ArrowLeft className="h-5 w-5" />
-          <span className="text-sm font-medium">Back to Institutes</span>
+          <span className="text-sm font-medium">Back to Educational Institutes</span>
         </Link>
       </div>
 

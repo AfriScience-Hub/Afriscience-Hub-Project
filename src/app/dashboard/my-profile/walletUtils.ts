@@ -45,6 +45,15 @@ export function formatMinor(value: number | string | null | undefined, currency 
   }
 }
 
+/**
+ * ASH coin amounts are shown as a plain figure beside a coin icon — never
+ * with a currency symbol. Top-ups remain USD and use formatMinor above.
+ */
+export function formatAshCoins(value: number | string | null | undefined): string {
+  const num = Number(value ?? 0) || 0;
+  return new Intl.NumberFormat('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+}
+
 export function formatMajor(value: number | string | null | undefined, currency = 'USD'): string {
   const num = Number(value ?? 0) || 0;
   try {

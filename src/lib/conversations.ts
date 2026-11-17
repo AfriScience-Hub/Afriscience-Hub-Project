@@ -3,7 +3,7 @@ import { getStoredToken } from '@/lib/authStorage';
 
 export const LISTING_TYPES = [
   { value: 'AFRO_INNOVATION', label: 'Afro-Innovation' },
-  { value: 'INSTITUTE', label: 'Institute' },
+  { value: 'INSTITUTE', label: 'Educational Institute' },
   { value: 'SCIENTIST_TECHNOLOGIST', label: 'Scientist & Technologist' },
   { value: 'SPECIAL_CENTER', label: 'Special center' },
 ] as const;

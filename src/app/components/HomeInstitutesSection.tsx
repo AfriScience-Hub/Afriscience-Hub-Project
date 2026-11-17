@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Star, MapPin } from 'lucide-react';
+import { ArrowRight, Star, MapPin, GraduationCap } from 'lucide-react';
 import { INSTITUTES } from '@/app/data/mockData';
 import { Button } from '@/app/components/ui/Button';
 import { ProtectedLink } from '@/app/components/ProtectedLink';
@@ -13,8 +13,11 @@ export function HomeInstitutesSection() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col md:flex-row items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-neutral-black">Top Rated Institutes</h2>
-            <p className="text-slate-500">Discover verified educational centers of excellence.</p>
+            <h2 className="text-2xl font-bold text-neutral-black flex items-center gap-2">
+              <GraduationCap className="h-6 w-6 text-brand-red-600" />
+              Top Rated Educational Institutes
+            </h2>
+            <p className="text-slate-500">Discover leading educational centers globally, at all levels.</p>
           </div>
           <Link href="/institutes" className="flex items-center gap-1 text-brand-red-600 hover:underline">
             View All <ArrowRight className="h-4 w-4" />
@@ -48,7 +51,7 @@ export function HomeInstitutesSection() {
                     <span key={i} className="text-xs bg-neutral-bg-light text-slate-600 px-2 py-1 rounded">{s}</span>
                   ))}
                 </div>
-                <Button variant="outline" className="w-full">View Profile</Button>
+                <Button className="w-full bg-brand-red-600 text-white hover:bg-brand-red-700 shadow-sm">View Profile</Button>
               </div>
             </ProtectedLink>
           ))}
