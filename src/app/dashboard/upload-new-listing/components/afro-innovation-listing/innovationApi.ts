@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { extractList, extractRecord } from '@/lib/apiList';
 import { INNOVATION_USER_GROUPS } from '@/app/data/mockData';
 
 export interface InnovationPayload {
@@ -218,7 +219,7 @@ export async function createInnovation(body: InnovationPayload) {
   return unwrapData(r);
 }
 
-export async function updateInnovation(id: string, body: InnovationPayload) {
+export async function updateInnovation(id: string, body: Partial<InnovationPayload>) {
   const r = await api.patch(`/listings/innovations/${id}`, body as unknown as Record<string, unknown>);
   return unwrapData(r);
 }
@@ -230,19 +231,13 @@ export async function upgradeInnovationToPro(id: string) {
 }
 
 export async function fetchInnovations() {
-  const r: any = await api.get('/listings/innovations');
-  const data = unwrapData(r);
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.data)) return data.data;
-  if (Array.isArray(data?.innovations)) return data.innovations;
-  if (Array.isArray(data?.listings)) return data.listings;
-  if (Array.isArray(r)) return r;
-  return [];
+  const r = await api.get('/listings/innovations');
+  return extractList(r);
 }
 
 export async function fetchInnovation(id: string) {
-  const r: any = await api.get(`/listings/innovations/${id}`);
-  return unwrapData(r);
+  const r = await api.get(`/listings/innovations/${id}`);
+  return extractRecord(r);
 }
 
 /** Creates a new Afro-Innovation draft (the form can be incomplete). */
@@ -252,7 +247,7 @@ export async function createInnovationDraft(body: InnovationPayload) {
 }
 
 /** Updates an existing draft. */
-export async function updateInnovationDraft(id: string, body: InnovationPayload) {
+export async function updateInnovationDraft(id: string, body: Partial<InnovationPayload>) {
   const r = await api.patch(`/listings/innovations/${id}`, body as unknown as Record<string, unknown>);
   return unwrapData(r);
 }
@@ -265,14 +260,8 @@ export async function submitInnovationDraft(id: string, body: InnovationPayload)
 
 /** Lists the current user's listing drafts. */
 export async function fetchInnovationDrafts() {
-  const r: any = await api.get('/listings/innovations?status=DRAFT');
-  const data = unwrapData(r);
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.data)) return data.data;
-  if (Array.isArray(data?.innovations)) return data.innovations;
-  if (Array.isArray(data?.listings)) return data.listings;
-  if (Array.isArray(r)) return r;
-  return [];
+  const r = await api.get('/listings/innovations?status=DRAFT');
+  return extractList(r);
 }
 
 /** Deletes an innovation (used for drafts from the drafts list). */

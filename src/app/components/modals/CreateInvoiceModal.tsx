@@ -11,6 +11,7 @@ import {
   fetchPotentialClients,
   type OwnedScientistListing,
   type PotentialClient,
+  type ScientistInvoice,
 } from '@/app/dashboard/invoices/api';
 
 interface CreateInvoiceModalProps {
@@ -18,6 +19,8 @@ interface CreateInvoiceModalProps {
   onClose: () => void;
   listings: OwnedScientistListing[];
   onCreated?: () => void;
+  /** Called with the sent invoice so the page can show a confirmation modal. */
+  onSent?: (invoice: ScientistInvoice) => void;
   /** Optional prefill when creating from a pending invoice request. */
   initialListingId?: string;
   initialClientId?: string;
@@ -46,6 +49,7 @@ export function CreateInvoiceModal({
   onClose,
   listings,
   onCreated,
+  onSent,
   initialListingId,
   initialClientId,
 }: CreateInvoiceModalProps) {
@@ -163,8 +167,8 @@ export function CreateInvoiceModal({
           rateMinor: Math.round(item.rate * 100),
         })),
       });
-      toast.success(`Invoice ${invoice.invoiceNumber || ''} sent successfully.`);
       onCreated?.();
+      onSent?.(invoice);
       onClose();
     } catch (error) {
       toast.error(errorMessage(error));

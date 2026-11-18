@@ -103,7 +103,9 @@ export function ContactServiceProviderModal({
         const request = await requestInvoice(providerId);
         setPendingRequest(request);
         toast.success('Invoice request sent successfully.');
-        toast.info('You will be notified when the provider sends your invoice.');
+        window.setTimeout(() => {
+          toast.info('You will be notified when the provider sends your invoice.');
+        }, 1000);
       }
     } catch (error) {
       toast.error(errorMessage(error));

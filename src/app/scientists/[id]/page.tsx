@@ -173,7 +173,16 @@ export default function ScientistDetails() {
                     )}
                   </div>
                   <h1 className="text-3xl font-bold text-neutral-black leading-tight mb-1">{scientist.name}</h1>
-                  <p className="text-brand-red-600 font-medium mb-2">{scientist.professions.slice(0, 3).join(' \u2022 ')}</p>
+                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                    {scientist.professions.slice(0, 3).map((prof: string, idx: number) => (
+                      <span
+                        key={`${prof}-${idx}`}
+                        className="inline-block text-xs text-red-500 bg-brand-red-100 px-2 py-0.5 rounded-full font-semibold"
+                      >
+                        {prof}
+                      </span>
+                    ))}
+                  </div>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-neutral-gray-dark mb-3">
                     <span className="flex items-center gap-1.5">
                       <GraduationCap className="h-4 w-4 text-neutral-gray-medium" />

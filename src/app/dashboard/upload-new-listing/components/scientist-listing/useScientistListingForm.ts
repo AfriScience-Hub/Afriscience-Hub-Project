@@ -13,6 +13,7 @@ import { type DocEntry, EMPTY_DOC } from '../DocList';
 import type { MediaItem } from './components/ScientistGallerySection';
 import type { ScientistPlan } from './components/ScientistPriceModal';
 import { mapScientistRecord } from './recordMapper';
+import { diffPayload } from '@/lib/payloadDiff';
 import { limitWords } from '../../wordUtils';
 import { AFRICAN_COUNTRIES } from '../../data';
 import { statusKind } from '../../../my-listings/statusUtils';
@@ -83,6 +84,8 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
   const [success, setSuccess] = useState<SuccessInfo | null>(null);
   const [draftNotice, setDraftNotice] = useState<{ title: string; message: string } | null>(null);
   const [savedDraftId, setSavedDraftId] = useState<string | null>(draftId ?? null);
+  /** Payload captured when the record was loaded, used to PATCH only edits. */
+  const [baselinePayload, setBaselinePayload] = useState<ScientistPayload | null>(null);
 
   useEffect(() => { dispatch(fetchFullProfile()); }, [dispatch]);
 
@@ -91,6 +94,57 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
   useEffect(() => {
     setProfile((prev) => ({ ...prev, name: prev.name || fullName }));
   }, [fullName]);
+
+  interface PayloadSource {
+    profile: ScientistProfile;
+    details: ProfessionalDetails;
+    fees: ScientistFees;
+    scopes: string[];
+    policies: string[];
+    certifications: DocEntry[];
+    achievements: DocEntry[];
+    highlight: ProfessionalHighlight;
+    media: MediaItem[];
+    contact: ScientistContact;
+  }
+
+  /** Builds the API payload from form state without touching files. */
+  const buildPayloadFrom = (source: PayloadSource): ScientistPayload =>
+    buildScientistPayload({
+      name: source.profile.name,
+      bio: limitWords(source.profile.bio, MAX_BIO_WORDS),
+      country: source.profile.country,
+      state: source.profile.stateRegion,
+      profileImage: source.profile.profileImage,
+      backgroundImage: source.profile.backgroundImage,
+      professionNames: source.details.professions,
+      professionOther: source.details.professionOther,
+      serviceNames: source.details.services,
+      degreeName: source.details.degree,
+      degreeCertificate: source.details.degreeCertificate,
+      serviceCosts: source.fees.serviceCosts,
+      otherCosts: source.fees.otherCharges,
+      scopes: source.scopes,
+      policies: source.policies,
+      certificates: source.certifications.map((entry) => ({
+        name: entry.name,
+        issuer: entry.issuer,
+        year: entry.year,
+        document: entry.key || entry.previewUrl || '',
+      })),
+      achievements: source.achievements.map((entry) => ({
+        name: entry.name,
+        issuer: entry.issuer,
+        year: entry.year,
+        document: entry.key || entry.previewUrl || '',
+      })),
+      media: source.media.map((item) => item.url || item.previewUrl || item.name),
+      socials: source.contact.socials,
+      highlights: source.highlight,
+      professions: options.professions,
+      services: options.services,
+      degrees: options.degrees,
+    });
 
   useEffect(() => {
     const id = listingId || draftId;
@@ -126,6 +180,20 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
     );
     setPayingUser(mapped.payingUser);
     setEditStatus(mapped.status);
+    setBaselinePayload(buildPayloadFrom({
+      // Match the form's fallback so an empty stored name does not show up as
+      // a change on the first save.
+      profile: { ...mapped.profile, name: mapped.profile.name || fullName },
+      details: mapped.details,
+      fees: mapped.fees,
+      scopes: mapped.scopes,
+      policies: mapped.policies,
+      certifications: mapped.certifications,
+      achievements: mapped.achievements,
+      highlight: mapped.highlight,
+      media: mapped.media,
+      contact: mapped.contact,
+    }));
     setPrefilled(true);
     if (upgrade) setShowPrice(true);
   }, [record, options, prefilled, upgrade]);
@@ -188,6 +256,7 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
     setScopes([]); setPolicies([]); setCertifications([EMPTY_DOC]); setAchievements([EMPTY_DOC]);
     setHighlight(EMPTY_HIGHLIGHT); setMedia([]); setContact(EMPTY_CONTACT); setLockedSocials([]); setAgreed(false);
     setPayingUser(false); setEditStatus(null); setRecord(null); setPrefilled(false);
+    setBaselinePayload(null);
     setShowPrice(false); setPriceQuote(null); setSavedDraftId(null); setDraftNotice(null);
   };
 
@@ -276,31 +345,40 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
       throw new Error('Failed to upload some files. Please try again.');
     }
 
-    return buildScientistPayload({
-      name: profile.name,
-      bio: limitWords(profile.bio, MAX_BIO_WORDS),
-      country: profile.country,
-      state: profile.stateRegion,
-      profileImage: finalProfileImage,
-      backgroundImage: finalBackgroundImage,
-      professionNames: details.professions,
-      professionOther: details.professionOther,
-      serviceNames: details.services,
-      degreeName: details.degree,
-      degreeCertificate: finalDegreeCertificate,
-      serviceCosts: fees.serviceCosts,
-      otherCosts: fees.otherCharges,
+    return buildPayloadFrom({
+      profile: {
+        ...profile,
+        profileImage: finalProfileImage,
+        backgroundImage: finalBackgroundImage,
+        profileImageFile: null,
+        backgroundImageFile: null,
+      },
+      details: {
+        ...details,
+        degreeCertificate: finalDegreeCertificate,
+        degreeCertificateFile: null,
+      },
+      fees,
       scopes,
       policies,
-      certificates: finalCertificates.map((entry) => ({ name: entry.name, issuer: entry.issuer, year: entry.year, document: entry.key || entry.previewUrl || '' })),
-      achievements: finalAchievements.map((entry) => ({ name: entry.name, issuer: entry.issuer, year: entry.year, document: entry.key || entry.previewUrl || '' })),
-      media: finalMedia.map((item) => item.url || item.previewUrl || item.name),
-      socials: contact.socials,
-      highlights: highlight,
-      professions: options.professions,
-      services: options.services,
-      degrees: options.degrees,
+      certifications: finalCertificates,
+      achievements: finalAchievements,
+      highlight,
+      media: finalMedia,
+      contact,
     });
+  };
+
+  /**
+   * PATCHes only the fields that differ from the loaded record. Updates the
+   * baseline so a second save doesn't re-send the same values.
+   */
+  const persistChanges = async (id: string, payload: ScientistPayload) => {
+    const changes = baselinePayload ? diffPayload(baselinePayload, payload) : payload;
+    if (Object.keys(changes).length > 0) {
+      await updateScientistListing(id, changes as Partial<ScientistPayload>);
+    }
+    setBaselinePayload(payload);
   };
 
   const handleSubmit = () => {
@@ -317,10 +395,10 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
     try {
       const payload = await preparePayload(isPaid);
       if (savedDraftId) {
-        await updateScientistListing(savedDraftId, payload);
+        await persistChanges(savedDraftId, payload);
         await submitScientistListing(savedDraftId, isPaid);
       } else if (listingId) {
-        await updateScientistListing(listingId, payload);
+        await persistChanges(listingId, payload);
         if (upgrade && isPaid) await upgradeScientistListing(listingId);
       } else {
         const created: any = await createScientistDraft(payload);
@@ -374,13 +452,13 @@ export function useScientistListingForm({ listingId, draftId, upgrade = false }:
     try {
       const payload = await preparePayload(payingUser);
       if (savedDraftId) {
-        await updateScientistListing(savedDraftId, payload);
+        await persistChanges(savedDraftId, payload);
         setDraftNotice({
           title: 'Draft updated',
           message: 'Your draft has been updated. You can close this window and continue editing your listing.',
         });
       } else if (listingId) {
-        await updateScientistListing(listingId, payload);
+        await persistChanges(listingId, payload);
         setDraftNotice({
           title: 'Listing saved',
           message: 'Your changes have been saved. You can close this window and continue editing your listing.',

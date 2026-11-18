@@ -37,6 +37,7 @@ import InstituteTypeSelectorModal, { type InstituteSubType } from '@/app/dashboa
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchFullProfile } from '@/store/profileSlice';
 import { fetchWalletBalance } from '@/store/walletSlice';
+import { diffPayload } from '@/lib/payloadDiff';
 import { statusKind } from '../my-listings/statusUtils';
 import { countWords, limitWords, MAX_BIO_WORDS } from './wordUtils';
 
@@ -86,6 +87,7 @@ export default function UploadNewListing() {
   const [scientistDraftId, setScientistDraftId] = useState<string | null>(null);
   const [scientistUpgrade, setScientistUpgrade] = useState(false);
   const [editBaseline, setEditBaseline] = useState<string | null>(null);
+  const [editBaselinePayload, setEditBaselinePayload] = useState<InnovationPayload | null>(null);
   const [prefilled, setPrefilled] = useState(false);
   const [saving, setSaving] = useState(false);
   const [draftSaving, setDraftSaving] = useState(false);
@@ -271,6 +273,7 @@ export default function UploadNewListing() {
     setDraftId(asDraft ? id : null);
     setEditId(asDraft ? null : id);
     setEditBaseline(null);
+    setEditBaselinePayload(null);
     setPrefilled(false);
     setSelectedType('innovation');
     setStep('form');
@@ -420,6 +423,16 @@ export default function UploadNewListing() {
     await performSubmit();
   };
 
+  /** Builds an innovation payload from the current form state (no uploads). */
+  const buildFormPayload = (isPaid: boolean): InnovationPayload =>
+    buildInnovationPayload({
+      name, profileImage: profileImageKey, payingUser: isPaid, country, bio,
+      innovFields, innovInterests, innovOwnership, innovStage, innovSdgs, innovMaterials,
+      innovDimensions, innovWeight, innovUserGroups, innovApplications, innovImpact,
+      innovRecommendations, innovCautions, innovLicenses, innovAwards, innovGallery,
+      socialHandles, knownUserGroups: userGroupOptions,
+    });
+
   /** Uploads staged files and builds the API payload. Throws on upload failure. */
   const prepareUploadedPayload = async (isPaid: boolean): Promise<InnovationPayload> => {
     let finalProfileImageKey = profileImageKey;
@@ -485,7 +498,12 @@ export default function UploadNewListing() {
   /** Creates a new draft or updates the currently open draft. */
   const persistDraft = async (payload: InnovationPayload): Promise<string | null> => {
     if (draftId) {
-      await updateInnovationDraft(draftId, payload);
+      // Only send what changed since the draft was opened.
+      const changes = editBaselinePayload ? diffPayload(editBaselinePayload, payload) : payload;
+      if (Object.keys(changes).length > 0) {
+        await updateInnovationDraft(draftId, changes as Partial<InnovationPayload>);
+      }
+      setEditBaselinePayload(payload);
       return draftId;
     }
     const created: any = await createInnovationDraft(payload);
@@ -541,6 +559,7 @@ export default function UploadNewListing() {
     setEditId(null);
     setDraftId(null);
     setEditBaseline(null);
+    setEditBaselinePayload(null);
     setEditStatus(null);
     setPrefilled(false);
     setName(''); setProfileImage(null); setProfileImageKey(null); setProfileImageFile(null); setProfileImagePreview(null); setCountry(''); setStateRegion('');
@@ -621,9 +640,22 @@ export default function UploadNewListing() {
         // Use the dedicated switch-to-Pro endpoint, then persist any entries
         // the user changed through Edit Entries.
         await upgradeInnovationToPro(editId);
-        if (editDirty) await updateInnovation(editId, payload);
+        if (editDirty) {
+          const changes = editBaselinePayload
+            ? diffPayload(editBaselinePayload, payload)
+            : payload;
+          if (Object.keys(changes).length > 0) {
+            await updateInnovation(editId, changes as Partial<InnovationPayload>);
+          }
+        }
       } else if (editId) {
-        await updateInnovation(editId, payload);
+        // PATCH only the fields that differ from the record that was loaded.
+        const changes = editBaselinePayload
+          ? diffPayload(editBaselinePayload, payload)
+          : payload;
+        if (Object.keys(changes).length > 0) {
+          await updateInnovation(editId, changes as Partial<InnovationPayload>);
+        }
       } else {
         await createInnovation(payload);
       }
@@ -694,9 +726,13 @@ export default function UploadNewListing() {
       : agreed && hasAnySocial;
 
   useEffect(() => {
-    if (!editId || !prefilled || editBaseline) return;
-    setEditBaseline(listingSnapshot);
-  }, [editId, prefilled, editBaseline, listingSnapshot]);
+    if (!prefilled || editBaselinePayload) return;
+    if (!editId && !draftId) return;
+    // Capture the server state so edits can PATCH only the changed fields.
+    setEditBaselinePayload(buildFormPayload(payingUser));
+    if (editId && !editBaseline) setEditBaseline(listingSnapshot);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editId, draftId, prefilled, editBaseline, editBaselinePayload, listingSnapshot, payingUser]);
 
   const handleSelectType = (typeId: string) => {
     if (typeId === 'institute') {

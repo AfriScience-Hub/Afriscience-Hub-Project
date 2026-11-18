@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { extractList, extractRecord } from '@/lib/apiList';
 import { toStorageKey } from '../afro-innovation-listing/innovationApi';
 
 /**
@@ -82,14 +83,7 @@ function unwrapData(r: any) {
 }
 
 function listFrom(response: unknown): any[] {
-  const payload = (response as { data?: unknown })?.data ?? response;
-  const root = payload as Record<string, unknown> | undefined;
-  if (Array.isArray(payload)) return payload;
-  const candidates = ['data', 'listings', 'scientists', 'items', 'results'];
-  for (const key of candidates) {
-    if (Array.isArray(root?.[key])) return root[key] as any[];
-  }
-  return [];
+  return extractList(response);
 }
 
 function num(value: string | number | undefined | null): number {
@@ -244,8 +238,8 @@ export async function createScientistDraft(body: ScientistPayload) {
   return unwrapData(r);
 }
 
-/** Updates an existing scientist listing or draft. */
-export async function updateScientistListing(id: string, body: ScientistPayload) {
+/** Updates an existing scientist listing or draft with only the changed fields. */
+export async function updateScientistListing(id: string, body: Partial<ScientistPayload>) {
   const r = await api.patch(`/scientists/listings/${id}`, body as unknown as Record<string, unknown>);
   return unwrapData(r);
 }
@@ -269,7 +263,7 @@ export async function fetchScientistListings(): Promise<any[]> {
 
 export async function fetchScientistListing(id: string): Promise<any> {
   const r = await api.get(`/scientists/listings/${id}`);
-  return unwrapData(r);
+  return extractRecord(r);
 }
 
 /** Lists the current user's scientist drafts (filtered from the listings call). */

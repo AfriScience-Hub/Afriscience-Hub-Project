@@ -11,6 +11,8 @@ import InvoiceList from './components/InvoiceList';
 import InvoiceDetailModal from './components/InvoiceDetailModal';
 import InvoiceRequestDetailModal from './components/InvoiceRequestDetailModal';
 import InvoiceReasonModal from './components/InvoiceReasonModal';
+import InvoiceSentModal from './components/InvoiceSentModal';
+import InvoicePaymentModal from './components/InvoicePaymentModal';
 import { countByTab, buildInvoiceRows } from './rows';
 import {
   cancelInvoiceRequest,
@@ -24,6 +26,8 @@ import {
   voidInvoice,
   type InvoiceRequest,
   type OwnedScientistListing,
+  type PaymentLinkResult,
+  type ScientistInvoice,
 } from './api';
 
 type ReasonAction = { type: 'void' | 'decline' | 'cancel'; id: string } | null;
@@ -54,6 +58,9 @@ export default function InvoicesPage() {
   const [reasonAction, setReasonAction] = useState<ReasonAction>(null);
   const [reason, setReason] = useState('');
   const [working, setWorking] = useState(false);
+  const [sentInvoice, setSentInvoice] = useState<ScientistInvoice | null>(null);
+  const [payment, setPayment] = useState<PaymentLinkResult | null>(null);
+  const [preparingPayment, setPreparingPayment] = useState(false);
 
   const load = useCallback(async (silent = false) => {
     if (silent) setRefreshing(true);
@@ -119,15 +126,20 @@ export default function InvoicesPage() {
   };
 
   const handlePay = async (invoiceId: string) => {
+    if (preparingPayment) return;
+    setPreparingPayment(true);
     try {
       const result = await createInvoicePaymentLink(invoiceId);
       if (!result.paymentLink) {
         toast.error('No payment link was returned.');
         return;
       }
-      window.location.href = result.paymentLink;
+      // Show the redirect notice first; the hosted checkout opens from there.
+      setPayment(result);
     } catch (payError) {
       toast.error(errorMessage(payError));
+    } finally {
+      setPreparingPayment(false);
     }
   };
 
@@ -187,6 +199,8 @@ export default function InvoicesPage() {
       <div className="rounded-xl border border-neutral-gray-light bg-white p-6 shadow-sm">
         <InvoiceHeader
           onCreateInvoice={() => { setCreatePreset(null); setIsCreateOpen(true); }}
+          onRefresh={() => void load(true)}
+          refreshing={refreshing}
           canCreate={typeTab === 'scientists'}
         />
         <InvoiceTabs activeTab={statusTab} counts={counts} onTabChange={setStatusTab} />
@@ -254,6 +268,7 @@ export default function InvoicesPage() {
         initialListingId={createPreset?.listingId}
         initialClientId={createPreset?.clientId}
         onCreated={() => void load(true)}
+        onSent={setSentInvoice}
       />
 
       <InvoiceDetailModal
@@ -284,6 +299,10 @@ export default function InvoicesPage() {
         onCancel={() => { if (!working) setReasonAction(null); }}
         onConfirm={handleReasonConfirm}
       />
+
+      <InvoiceSentModal invoice={sentInvoice} onClose={() => setSentInvoice(null)} />
+
+      <InvoicePaymentModal payment={payment} onClose={() => setPayment(null)} />
     </div>
   );
 }

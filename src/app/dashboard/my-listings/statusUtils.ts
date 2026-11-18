@@ -13,12 +13,28 @@ const normalize = (status?: string | null): string =>
   (status ?? '').trim().toLowerCase().replace(/[\s-]+/g, '_');
 
 /**
+ * Statuses that mean the record is live. `UPDATED` / `PENDING_UPDATE` are
+ * approved listings whose latest edits are being reviewed - they still belong
+ * on My Listings, otherwise an edited listing disappears until re-approval.
+ */
+const APPROVED_STATUSES = new Set([
+  'approved',
+  'verified',
+  'published',
+  'online',
+  'active',
+  'updated',
+  'pending_update',
+  'update_pending',
+]);
+
+/**
  * Classifies a listing status. Anything that is not explicitly approved or
  * rejected (including unknown values) counts as still under review.
  */
 export function statusKind(status?: string | null): ListingStatusKind {
   const s = normalize(status);
-  if (s === 'approved' || s === 'verified') return 'approved';
+  if (APPROVED_STATUSES.has(s)) return 'approved';
   if (s === 'rejected' || s === 'declined' || s === 'disapproved') return 'rejected';
   return 'pending';
 }
@@ -39,6 +55,7 @@ export function statusLabel(status?: string | null): string {
   const kind = statusKind(status);
   const s = normalize(status);
   if (s) {
+    if (s === 'updated' || s === 'pending_update' || s === 'update_pending') return 'Updated';
     if (kind === 'approved') return 'Approved';
     if (kind === 'rejected') return 'Rejected';
     if (s.startsWith('pending')) return 'Pending Review';

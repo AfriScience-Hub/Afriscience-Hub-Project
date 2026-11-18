@@ -35,50 +35,72 @@ export async function fetchUserInnovations(): Promise<UserInnovation[]> {
   ]);
 
   const innovations = (Array.isArray(innovationRaw) ? innovationRaw : []).map((l: any) => {
-    const status = l.status || 'PENDING';
+    const item = recordOf(l);
+    const status = statusText(item.status);
     return {
-      id: String(l.id),
-      name: l.innovationName || l.name || 'Untitled',
+      id: String(item.id),
+      name: item.innovationName || item.name || 'Untitled',
       category: 'Afro-Innovation',
       categoryId: 'innovation' as const,
       status,
-      image: normalizeFileSrc(l.image) || '',
-      views: l.views || 0,
-      likes: l.likes || 0,
-      reviews: l.reviews || 0,
-      submittedAt: l.createdAt || l.submittedAt || null,
+      image: normalizeFileSrc(item.image) || '',
+      views: item.views || 0,
+      likes: item.likes || 0,
+      reviews: item.reviews || 0,
+      submittedAt: item.createdAt || item.submittedAt || null,
       approvedAt:
         statusKind(status) === 'approved'
-          ? l.approvedAt || l.approvalDate || l.reviewedAt || l.updatedAt || l.createdAt || null
+          ? item.approvedAt || item.approvalDate || item.reviewedAt || item.updatedAt || item.createdAt || null
           : null,
-      payingUser: l.payingUser === true,
-      isVerified: l.isVerified === true,
+      payingUser: item.payingUser === true,
+      isVerified: item.isVerified === true,
     };
   });
 
   const scientists = (Array.isArray(scientistRaw) ? scientistRaw : []).map((l: any) => {
-    const status = l.status || 'PENDING';
+    const item = recordOf(l);
+    const status = statusText(item.status);
     return {
-      id: String(l.id),
-      name: l.name || l.fullName || 'Untitled',
+      id: String(item.id),
+      name: item.name || item.fullName || 'Untitled',
       category: 'Scientists & Technologists',
       categoryId: 'scientist' as const,
       status,
-      image: normalizeFileSrc(l.profileImage || l.image) || '',
-      views: l.views || 0,
-      likes: l.likes || 0,
-      reviews: l.reviews || 0,
-      submittedAt: l.createdAt || l.submittedAt || null,
+      image: normalizeFileSrc(item.profileImage || item.image) || '',
+      views: item.views || 0,
+      likes: item.likes || 0,
+      reviews: item.reviews || 0,
+      submittedAt: item.createdAt || item.submittedAt || null,
       approvedAt:
         statusKind(status) === 'approved'
-          ? l.approvedAt || l.approvalDate || l.reviewedAt || l.updatedAt || l.createdAt || null
+          ? item.approvedAt || item.approvalDate || item.reviewedAt || item.updatedAt || item.createdAt || null
           : null,
-      payingUser: l.payingUser === true,
-      isVerified: l.isVerified === true,
+      payingUser: item.payingUser === true,
+      isVerified: item.isVerified === true,
     };
   });
 
   return [...innovations, ...scientists];
+}
+
+/**
+ * Some list endpoints wrap each row (`{ innovation: {...} }`) or return the
+ * status as an object (`{ name: 'APPROVED' }`). Normalise both so every row
+ * reaches the table with a usable record and status string.
+ */
+function recordOf(value: any): any {
+  if (!value || typeof value !== 'object') return {};
+  return value.innovation ?? value.listing ?? value.scientist ?? value.record ?? value;
+}
+
+function statusText(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    const nested = record.name ?? record.status ?? record.value ?? record.label;
+    if (typeof nested === 'string') return nested;
+  }
+  return '';
 }
 
 /** Listings the platform has approved - these are the ones shown publicly. */
