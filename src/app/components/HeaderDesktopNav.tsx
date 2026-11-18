@@ -79,7 +79,7 @@ export function HeaderDesktopNav() {
 
           <NavigationMenuItem>
             <NavigationMenuTrigger>Support</NavigationMenuTrigger>
-            <NavigationMenuContent className="left-auto right-0">
+            <NavigationMenuContent className="left-auto right-auto">
               <ul className="grid w-[350px] gap-1 p-4">
                 {SUPPORT_ITEMS.map((item) => (
                   <li key={item.id}>
