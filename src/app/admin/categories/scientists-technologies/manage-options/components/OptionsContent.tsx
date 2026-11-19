@@ -14,6 +14,7 @@ interface Props {
   filtered: ManagedOption[];
   total: number;
   showNote: boolean;
+  showNoteInline?: boolean;
   onEdit: (opt: ManagedOption) => void;
   onToggleStatus: (id: string, currentStatus: string) => void;
   onAddUnder: (field: string) => void;
@@ -22,7 +23,7 @@ interface Props {
 /** The tab table area: loader, field-grouped professions, or a flat table. */
 export default function OptionsContent({
   activeTab, isLoading, isFieldScoped, professionFields, availableFields,
-  filtered, total, showNote, onEdit, onToggleStatus, onAddUnder,
+  filtered, total, showNote, showNoteInline = false, onEdit, onToggleStatus, onAddUnder,
 }: Props) {
   return (
     <>
@@ -48,6 +49,7 @@ export default function OptionsContent({
               fields={professionFields}
               options={filtered}
               showNote={showNote}
+              showNoteInline={showNoteInline}
               singular={TAB_SINGULAR[activeTab]}
               emptyHint={`No ${activeTab.toLowerCase()} added under this field yet.`}
               onEdit={onEdit}
@@ -60,6 +62,7 @@ export default function OptionsContent({
         <OptionsTable
           options={filtered}
           showNote={showNote}
+          showNoteInline={showNoteInline}
           onEdit={onEdit}
           onToggleStatus={onToggleStatus}
         />

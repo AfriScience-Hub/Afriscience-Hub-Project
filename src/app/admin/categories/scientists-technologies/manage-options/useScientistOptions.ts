@@ -61,6 +61,13 @@ function listFrom<T>(response: unknown): T[] {
   return [];
 }
 
+function noteOf(item: Record<string, unknown>): string {
+  // Professions expose `notes`; other option types use `note`.
+  if (typeof item.notes === 'string') return item.notes;
+  if (typeof item.note === 'string') return item.note;
+  return '';
+}
+
 function toOption(item: Record<string, unknown>): ManagedOption {
   const id = item.id ?? item._id ?? item.optionId ?? item.name;
   return {
@@ -69,7 +76,7 @@ function toOption(item: Record<string, unknown>): ManagedOption {
     status: item.isActive === false ? 'Inactive' : 'Active',
     isActive: item.isActive !== false,
     count: Number(item.count ?? item.listingsCount ?? 0),
-    note: typeof item.note === 'string' ? item.note : '',
+    note: noteOf(item),
   };
 }
 
@@ -94,7 +101,7 @@ function toProfession(item: Record<string, unknown>, fields: ManagedOption[]): M
     status: item.isActive === false ? 'Inactive' : 'Active',
     isActive: item.isActive !== false,
     count: Number(item.count ?? item.listingsCount ?? 0),
-    note: typeof item.note === 'string' ? item.note : '',
+    note: noteOf(item),
   };
 }
 
@@ -253,15 +260,21 @@ export function useScientistOptions() {
         const fieldName = payload.field ?? editing?.field ?? availableFields[0]?.name;
         const field = availableFields.find((f) => f.name === fieldName);
         if (!field) throw new Error('Add a field first, then create a profession under it.');
+        const notes = (payload.notes ?? editing?.note ?? '').trim();
         const body = {
           name: payload.content,
           fieldId: field.id,
-          isActive: payload.isActive ?? editing?.isActive ?? true,
-          // Forwarded for when the professions endpoint accepts notes.
-          note: payload.notes ?? editing?.note ?? '',
+          // The professions API uses `notes`; null clears an existing note.
+          notes: notes || null,
         };
-        if (isEdit && id) await api.patch(`/scientists/professions/${id}`, body);
-        else await api.post('/scientists/professions', body);
+        if (isEdit && id) {
+          await api.patch(`/scientists/professions/${id}`, body);
+        } else {
+          await api.post('/scientists/professions', {
+            ...body,
+            isActive: payload.isActive ?? editing?.isActive ?? true,
+          });
+        }
       } else {
         const type = OPTION_TYPES[activeTab];
         if (!type) throw new Error('This tab is not supported yet.');

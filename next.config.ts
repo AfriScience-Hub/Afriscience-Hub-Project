@@ -1,16 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // OPTIONAL PROXY FIX for CORS: uncomment if backend needs cookies (credentials: 'include').
-  // Then set NEXT_PUBLIC_API_URL=/api/proxy and requests become same-origin.
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: '/api/proxy/:path*',
-  //       destination: 'https://ash-be-1.onrender.com/api/v1/:path*',
-  //     },
-  //   ];
-  // },
+  // Proxy the API through this origin so the HttpOnly refresh cookie is
+  // first-party. Cross-site API calls are treated as third-party cookies by
+  // modern browsers and can be dropped, which made every token refresh fail
+  // and forced users to sign in again. Set NEXT_PUBLIC_API_URL=/api/proxy.
+  async rewrites() {
+    return [
+      {
+        source: '/api/proxy/:path*',
+        destination: 'https://ash-be-1.onrender.com/api/v1/:path*',
+      },
+    ];
+  },
   /* config options here */
   images: {
     remotePatterns: [

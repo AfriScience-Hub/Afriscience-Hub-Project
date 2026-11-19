@@ -42,6 +42,8 @@ export interface PublicScientist {
   otherFees: { name: string; amount: string }[];
   gallery: string[];
   bio: string;
+  /** Admin/profile notes attached to the listing, when provided. */
+  notes: string;
   image: string;
   backgroundImage: string;
   location: string;
@@ -338,6 +340,12 @@ export function mapPublicScientist(raw: Entity): PublicScientist {
     otherFees: mapOtherFees(row),
     gallery: mapGallery(row),
     bio: text(row.bio ?? row.shortDescription),
+    notes: text(
+      row.notes ??
+        row.note ??
+        profile.notes ??
+        highlights.notes,
+    ),
     image: profileImage || backgroundImage || FALLBACK_IMAGE,
     backgroundImage,
     location: [state, country].filter(Boolean).join(', '),

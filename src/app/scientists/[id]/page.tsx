@@ -291,7 +291,7 @@ export default function ScientistDetails() {
             {activeTab === 'achievements' && <AchievementsTab scientist={scientist} />}
             {activeTab === 'reviews' && <ReviewsTab scientist={scientist} />}
             {activeTab === 'gallery' && <MediaGalleryTab gallery={scientist.gallery} />}
-            {activeTab === 'contact' && <ContactTab scientist={scientist} />}
+            {activeTab === 'contact' && <ContactTab scientist={scientist} onOpenMessaging={openMessaging} />}
           </div>
 
           {/* SIDEBAR */}

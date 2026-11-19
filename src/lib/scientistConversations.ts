@@ -68,10 +68,16 @@ export async function fetchScientistConversation(id: string): Promise<Conversati
 }
 
 /** Finds the current user's conversation for a scientist listing, if any. */
-export async function findScientistConversation(scientistId: string): Promise<Conversation | null> {
+export async function findScientistConversation(
+  scientistId: string,
+  scientistName?: string,
+): Promise<Conversation | null> {
   if (!scientistId) return null;
   const conversations = await fetchScientistConversations();
-  return conversations.find((conversation) => conversation.listingId === scientistId) ?? null;
+  return conversations.find((conversation) => (
+    conversation.listingId === scientistId
+    || (!!scientistName && conversation.listingName === scientistName)
+  )) ?? null;
 }
 
 /** POST /scientist-conversations - starts or reopens a conversation. */

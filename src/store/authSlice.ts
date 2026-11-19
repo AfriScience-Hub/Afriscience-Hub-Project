@@ -4,8 +4,10 @@ import { resolveAvatarSrc } from '@/lib/files';
 import {
   clearStoredAuth,
   clearStoredUser,
+  getStoredRefreshToken,
   getStoredToken,
   getStoredUser,
+  setStoredRefreshToken,
   setStoredToken,
   setStoredUser,
   type AuthScope,
@@ -68,8 +70,19 @@ interface AuthState {
 // So we only persist the short-lived access/session token here.
 function persistTokens(data: any, isAdmin = false, remember?: boolean) {
   if (typeof window === 'undefined') return;
+  const scope: AuthScope = isAdmin ? 'admin' : 'user';
   const access = data?.accessToken || data?.token || data?.data?.accessToken || data?.data?.token;
-  if (access) setStoredToken(isAdmin ? 'admin' : 'user', access, remember);
+  if (access) setStoredToken(scope, access, remember);
+  // Only set when the backend actually returns one in the body. Cookie-only
+  // refresh sessions must remain untouched (no JS copy is created).
+  const refresh =
+    data?.refreshToken ||
+    data?.data?.refreshToken ||
+    data?.refresh_token ||
+    data?.data?.refresh_token;
+  if (typeof refresh === 'string' && refresh) {
+    setStoredRefreshToken(scope, refresh, remember);
+  }
   localStorage.removeItem('afrisciencehub_refresh'); // legacy cleanup
 }
 
@@ -309,7 +322,7 @@ function createRefreshThunk(typePrefix: string, endpoint: string, isAdmin = fals
     typePrefix,
     async (_, { rejectWithValue }) => {
       try {
-        const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+        const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/proxy';
         const res = await fetch(`${BASE_URL}${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -412,8 +425,7 @@ export const fetchSessions = createAsyncThunk(
 /** Best-effort server logout. Local state is already cleared before this runs. */
 async function requestRemoteLogout(token: string | null, isAdmin: boolean) {
   if (typeof window === 'undefined') return;
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!baseUrl) return;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api/proxy';
 
   const endpoints = isAdmin
     ? ['/admin/auth/logout', '/auth/logout']
@@ -448,7 +460,7 @@ export const logoutThunk = createAsyncThunk('auth/logout', async (_, { getState,
 
   // Clear the UI and storage synchronously, before any network call. Logging
   // out must never wait on the server or be converted into "session expired".
-  dispatch(logoutLocal());
+  dispatch(logoutLocal(isAdmin ? 'admin' : 'user'));
   await requestRemoteLogout(token, isAdmin);
 });
 
@@ -527,7 +539,16 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       }
     },
-    logoutLocal(state) {
+    logoutLocal(state, action: PayloadAction<AuthScope | undefined>) {
+      // Each section owns its own session. Signing out of (or losing) the user
+      // session must never wipe an admin session, and vice versa.
+      const currentScope: AuthScope =
+        typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')
+          ? 'admin'
+          : 'user';
+      const scope = action.payload ?? currentScope;
+      if (scope !== currentScope) return;
+
       state.user = null;
       state.isAuthenticated = false;
       state.accessToken = null;
@@ -538,7 +559,7 @@ const authSlice = createSlice({
       state.sessionsError = null;
 
       if (typeof window !== 'undefined') {
-        clearStoredAuth();
+        clearStoredAuth(scope);
       }
     },
     clearError(state) {

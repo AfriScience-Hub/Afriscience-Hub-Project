@@ -21,6 +21,8 @@ interface Props {
   priceGroup?: 'africa' | 'nonAfrica' | 'both';
   /** Show the info icon (Categories only). */
   showNote?: boolean;
+  /** Render the note text under the name instead of behind the info icon. */
+  showNoteInline?: boolean;
   onEdit: (opt: ManagedOption) => void;
   onDelete?: (id: string, name: string) => void;
   onToggleStatus: (id: string, currentStatus: string) => void;
@@ -60,7 +62,8 @@ function PriceCell({ opt, mode, categoryPrice, priceGroup = 'africa' }: { opt: M
 }
 
 export default function OptionsTable({
-  options, showPrice = false, priceMode = 'row', categoryPrice, priceGroup = 'africa', showNote = false,
+  options, showPrice = false, priceMode = 'row', categoryPrice, priceGroup = 'africa',
+  showNote = false, showNoteInline = false,
   onEdit, onDelete, onToggleStatus,
 }: Props) {
   if (options.length === 0) {
@@ -92,8 +95,13 @@ export default function OptionsTable({
               <td className="px-4 py-3 text-xs font-medium text-neutral-black">
                 <span className="inline-flex items-center gap-1.5">
                   {opt.name}
-                  {showNote && opt.note ? <NoteInfo note={opt.note} /> : null}
+                  {showNote && !showNoteInline && opt.note ? <NoteInfo note={opt.note} /> : null}
                 </span>
+                {showNoteInline && opt.note ? (
+                  <p className="mt-1 max-w-prose text-[10px] font-normal leading-4 text-neutral-gray-medium">
+                    {opt.note}
+                  </p>
+                ) : null}
               </td>
               {showPrice && (
                 <td className="px-4 py-3 text-xs text-neutral-gray-dark whitespace-nowrap">

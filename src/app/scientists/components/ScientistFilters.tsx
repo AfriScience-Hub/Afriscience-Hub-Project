@@ -3,7 +3,7 @@
 import { Filter, ChevronDown } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import ProfessionNote from './ProfessionNote';
-import { SCIENTIST_FIELDS, SCIENTIST_DEGREES, SCIENTIST_SERVICES, PROFESSIONS_BY_FIELD, WORLD_COUNTRIES } from '../../data/mockData';
+import { WORLD_COUNTRIES } from '../../data/mockData';
 
 type ScientistFiltersProps = {
   selectedField: string;
@@ -56,12 +56,12 @@ export default function ScientistFilters({
   professionsByField = {},
   professionNotes = {},
 }: ScientistFiltersProps) {
-  // Fetched options win; the bundled lists are only a fallback when the
-  // endpoints return nothing.
-  const fieldOptions = fields.length > 0 ? fields : SCIENTIST_FIELDS;
-  const degreeOptions = degrees.length > 0 ? degrees : SCIENTIST_DEGREES;
-  const serviceOptions = services.length > 0 ? services : SCIENTIST_SERVICES;
-  const professionMap = Object.keys(professionsByField).length > 0 ? professionsByField : PROFESSIONS_BY_FIELD;
+  // Only render options the API actually returned. The bundled placeholder
+  // lists are intentionally gone so the sidebar never shows fake categories.
+  const fieldOptions = fields;
+  const degreeOptions = degrees;
+  const serviceOptions = services;
+  const professionMap = professionsByField;
 
   const availableProfessions = selectedField ? professionMap[selectedField] || [] : [];
 
@@ -116,13 +116,15 @@ export default function ScientistFilters({
             </button>
             {!collapsedSections.fields && (
               <div className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar animate-in fade-in duration-200">
-                {fieldOptions.map((field) => (
+                {fieldOptions.length > 0 ? fieldOptions.map((field) => (
                   <label key={field} className="flex items-center gap-2 cursor-pointer group">
                     <input type="radio" name="scientist-field" checked={selectedField === field}
                       onChange={() => handleFieldChange(field)} className={inputCls} />
                     <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{field}</span>
                   </label>
-                ))}
+                )) : (
+                  <p className="text-xs text-neutral-gray-medium italic">No fields available.</p>
+                )}
               </div>
             )}
           </div>
@@ -172,13 +174,15 @@ export default function ScientistFilters({
             </button>
             {!collapsedSections.degree && (
               <div className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar animate-in fade-in duration-200">
-                {degreeOptions.map((degree) => (
+                {degreeOptions.length > 0 ? degreeOptions.map((degree) => (
                   <label key={degree} className="flex items-center gap-2 cursor-pointer group">
                     <input type="radio" name="scientist-degree" checked={selectedDegree === degree}
                       onChange={() => setSelectedDegree(selectedDegree === degree ? '' : degree)} className={inputCls} />
                     <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors">{degree}</span>
                   </label>
-                ))}
+                )) : (
+                  <p className="text-xs text-neutral-gray-medium italic">No degrees available.</p>
+                )}
               </div>
             )}
           </div>
@@ -196,13 +200,15 @@ export default function ScientistFilters({
             </button>
             {!collapsedSections.services && (
               <div className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar animate-in fade-in duration-200">
-                {serviceOptions.map((svc) => (
+                {serviceOptions.length > 0 ? serviceOptions.map((svc) => (
                   <label key={svc} className="flex items-center gap-2 cursor-pointer group">
                     <input type="checkbox" checked={selectedServices.includes(svc)}
                       onChange={() => toggleService(svc)} className="rounded border-neutral-gray-light text-brand-red-600 focus:ring-brand-red-600 h-3.5 w-3.5" />
                     <span className="text-sm text-neutral-gray-dark group-hover:text-brand-navy-900 transition-colors truncate" title={svc}>{svc}</span>
                   </label>
-                ))}
+                )) : (
+                  <p className="text-xs text-neutral-gray-medium italic">No services available.</p>
+                )}
               </div>
             )}
           </div>

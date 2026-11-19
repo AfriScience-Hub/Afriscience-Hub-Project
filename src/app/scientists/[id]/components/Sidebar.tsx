@@ -1,7 +1,7 @@
 'use client';
 
 import { Calendar, Clock, Star } from 'lucide-react';
-import { cn, formatJoinedDate } from '@/lib/utils';
+import { cn, formatCount, formatJoinedDate } from '@/lib/utils';
 import { Button } from '@/app/components/ui/Button';
 
 interface SidebarProps {
@@ -28,13 +28,28 @@ function shortDay(day: string): string {
 /** "Monday, Tuesday, Wednesday" → "Mon, Tues, Wed"; "Monday - Friday" → "Mon – Fri". */
 function formatWorkDays(value?: string): string {
   const raw = (value || '').trim();
-  if (!raw) return 'Mon – Fri';
+  if (!raw) return '';
   const range = raw.split(/\s+[-–—]\s+/).filter(Boolean);
   if (range.length === 2) return `${shortDay(range[0])} – ${shortDay(range[1])}`;
   return raw.split(/\s*,\s*/).filter(Boolean).map(shortDay).join(', ');
 }
 
+/** An em dash is shown when the listing genuinely has no value. */
+const valueOrDash = (value: unknown): string => {
+  if (value === null || value === undefined) return '—';
+  const text = String(value).trim();
+  return text || '—';
+};
+
 export default function Sidebar({ scientist, onBookNow }: SidebarProps) {
+  const workDays = formatWorkDays(scientist.availability?.workDays);
+  const workHours = (scientist.availability?.time || '').trim();
+  const responseTime = (scientist.responseTime || '').trim();
+  const notes = (scientist.notes || '').trim();
+  const bookings =
+    typeof scientist.bookingsCount === 'number' ? formatCount(scientist.bookingsCount) : '';
+  const rating = Number(scientist.rating) > 0 ? scientist.rating : '';
+
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light self-start lg:sticky lg:top-24">
       <h3 className="text-sm font-bold text-neutral-gray-dark uppercase tracking-wider mb-4">Professional Highlights</h3>
@@ -47,18 +62,18 @@ export default function Sidebar({ scientist, onBookNow }: SidebarProps) {
               ? "bg-green-100 text-green-700 border-green-200"
               : "bg-neutral-bg-light text-neutral-gray-dark border-neutral-gray-light"
           )}>
-            {scientist.status}
+            {valueOrDash(scientist.status)}
           </span>
         </div>
 
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-black">Field</span>
-          <span className="text-sm text-brand-navy-900 font-medium">{scientist.field}</span>
+          <span className="text-sm text-brand-navy-900 font-medium">{valueOrDash(scientist.field)}</span>
         </div>
 
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-black">Response Time</span>
-          <span className="text-sm text-brand-navy-900 font-medium">{scientist.responseTime || 'Within 24hrs'}</span>
+          <span className="text-sm text-brand-navy-900 font-medium">{valueOrDash(responseTime)}</span>
         </div>
 
         <div className="flex items-start justify-between gap-3">
@@ -66,7 +81,7 @@ export default function Sidebar({ scientist, onBookNow }: SidebarProps) {
             <Calendar className="h-3.5 w-3.5 text-neutral-gray-medium" /> Work Days
           </span>
           <span className="w-1/2 text-right text-sm text-neutral-gray-dark font-medium leading-snug">
-            {formatWorkDays(scientist.availability?.workDays)}
+            {valueOrDash(workDays)}
           </span>
         </div>
 
@@ -75,13 +90,13 @@ export default function Sidebar({ scientist, onBookNow }: SidebarProps) {
             <Clock className="h-3.5 w-3.5 text-neutral-gray-medium" /> Work Hours
           </span>
           <span className="text-sm text-neutral-gray-dark font-medium">
-            {scientist.availability?.time || '9 AM - 5 PM'}
+            {valueOrDash(workHours)}
           </span>
         </div>
 
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-black">Bookings</span>
-          <span className="text-sm text-neutral-gray-dark font-medium">{scientist.bookingsCount || 0}+</span>
+          <span className="text-sm text-neutral-gray-dark font-medium">{valueOrDash(bookings)}</span>
         </div>
 
         <div className="flex items-center justify-between">
@@ -96,10 +111,17 @@ export default function Sidebar({ scientist, onBookNow }: SidebarProps) {
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-black">Rating</span>
           <div className="flex items-center gap-1">
-            <Star className="h-3 w-3 text-amber-500 fill-current" />
-            <span className="text-sm font-bold text-neutral-black">{scientist.rating}</span>
+            <Star className={cn("h-3 w-3", rating ? "text-amber-500 fill-current" : "text-neutral-gray-light")} />
+            <span className="text-sm font-bold text-neutral-black">{valueOrDash(rating)}</span>
           </div>
         </div>
+
+        {notes && (
+          <div className="pt-4 border-t border-neutral-gray-light">
+            <p className="text-xs font-bold uppercase tracking-wider text-neutral-gray-dark mb-1">Notes</p>
+            <p className="text-sm leading-relaxed text-neutral-gray-dark whitespace-pre-line">{notes}</p>
+          </div>
+        )}
 
         <div className="pt-4 border-t border-neutral-gray-light">
           <Button className="w-full mb-3 bg-brand-navy-900 hover:bg-brand-navy-800" onClick={onBookNow}>

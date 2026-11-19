@@ -28,8 +28,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // The API layer emits this when a refresh fails. On protected pages it will
   // also navigate to login; on public pages we simply continue as a guest.
   useEffect(() => {
-    const onSessionExpired = () => {
-      dispatch(logoutLocal());
+    const onSessionExpired = (event: Event) => {
+      const scope = (event as CustomEvent<{ scope?: 'user' | 'admin' }>).detail?.scope;
+      const pageScope = window.location.pathname.startsWith('/admin') ? 'admin' : 'user';
+      // A user-session failure on an admin page (or the reverse) belongs to the
+      // other section; do not tear down the session currently being used.
+      if (scope && scope !== pageScope) return;
+      dispatch(logoutLocal(scope));
       dispatch(resetProfile());
       dispatch(resetWallet());
     };

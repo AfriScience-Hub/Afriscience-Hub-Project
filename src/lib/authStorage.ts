@@ -11,6 +11,11 @@ const USER_KEYS: Record<AuthScope, string> = {
   admin: 'afrisciencehub_admin',
 };
 
+const REFRESH_KEYS: Record<AuthScope, string> = {
+  user: 'afrisciencehub_refresh_token',
+  admin: 'afrisciencehub_admin_refresh_token',
+};
+
 function getStorage(kind: AuthStorageKind): Storage | null {
   if (typeof window === 'undefined') return null;
   return kind === 'local' ? window.localStorage : window.sessionStorage;
@@ -61,6 +66,43 @@ export function setStoredToken(
   }
 }
 
+/**
+ * Refresh token returned in the login/refresh response body.
+ *
+ * The backend normally keeps this in an HttpOnly cookie, in which case this is
+ * empty and must not be touched. Some deployments return it in the JSON body
+ * instead, so we persist that value and send it back on refresh as a fallback.
+ * It lives next to the access token, in the same storage.
+ */
+export function getStoredRefreshToken(scope: AuthScope): string | null {
+  return (
+    getStorage('session')?.getItem(REFRESH_KEYS[scope]) ??
+    getStorage('local')?.getItem(REFRESH_KEYS[scope]) ??
+    null
+  );
+}
+
+export function setStoredRefreshToken(
+  scope: AuthScope,
+  token: string | null,
+  remember?: boolean,
+): void {
+  const current = getAuthStorageKind(scope);
+  const kind: AuthStorageKind =
+    remember === undefined ? current ?? 'local' : remember ? 'local' : 'session';
+  const target = getStorage(kind);
+  const other = getStorage(kind === 'local' ? 'session' : 'local');
+  if (!target) return;
+
+  if (token) {
+    target.setItem(REFRESH_KEYS[scope], token);
+    other?.removeItem(REFRESH_KEYS[scope]);
+  } else {
+    target.removeItem(REFRESH_KEYS[scope]);
+    other?.removeItem(REFRESH_KEYS[scope]);
+  }
+}
+
 /** Reads the cached user only from the storage that owns the current token. */
 export function getStoredUser(scope: AuthScope): string | null {
   const kind = getAuthStorageKind(scope);
@@ -102,6 +144,8 @@ export function clearStoredAuth(scope?: AuthScope): void {
   for (const current of scopes) {
     getStorage('local')?.removeItem(TOKEN_KEYS[current]);
     getStorage('session')?.removeItem(TOKEN_KEYS[current]);
+    getStorage('local')?.removeItem(REFRESH_KEYS[current]);
+    getStorage('session')?.removeItem(REFRESH_KEYS[current]);
     clearStoredUser(current);
   }
   // Legacy key removed by older builds.

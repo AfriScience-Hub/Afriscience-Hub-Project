@@ -1,9 +1,10 @@
 'use client';
 
-import { CheckCircle2, Loader2, Wallet } from 'lucide-react';
+import { Loader2, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatAdminMoney } from '../format';
 import type { InvoiceLedgerRow } from '../api';
+import LedgerActionMenu from './LedgerActionMenu';
 
 interface LedgerTableProps {
   rows: InvoiceLedgerRow[];
@@ -74,12 +75,10 @@ export default function LedgerTable({ rows, loading, onSettle }: LedgerTableProp
               <tr key={row.id} className="border-t border-neutral-gray-light align-top">
                 <td className="px-3 py-3">
                   <p className="font-semibold text-neutral-black">{row.invoice?.invoiceNumber || row.invoiceId}</p>
-                  <p className="text-[10px] text-neutral-gray-medium mt-0.5 font-mono">{row.reference || '—'}</p>
                   <p className="text-[10px] text-neutral-gray-medium mt-0.5">{row.provider || 'Provider'}</p>
                 </td>
                 <td className="px-3 py-3">
                   <p className="font-medium text-neutral-black">{row.scientist?.name || '—'}</p>
-                  <p className="text-[10px] text-neutral-gray-medium mt-0.5">{row.scientistId?.slice(0, 8)}</p>
                 </td>
                 <td className="px-3 py-3">
                   <p className="font-medium text-neutral-black">{row.client?.fullName || '—'}</p>
@@ -110,16 +109,7 @@ export default function LedgerTable({ rows, loading, onSettle }: LedgerTableProp
                   )}
                 </td>
                 <td className="px-3 py-3 text-right">
-                  {canSettle ? (
-                    <button
-                      onClick={() => onSettle(row)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#453DD8] text-white text-[10px] font-semibold hover:bg-[#372fb5] cursor-pointer whitespace-nowrap"
-                    >
-                      <CheckCircle2 className="h-3 w-3" /> Settle
-                    </button>
-                  ) : (
-                    <span className="text-[10px] text-neutral-gray-light">—</span>
-                  )}
+                  <LedgerActionMenu canSettle={canSettle} onSettle={() => onSettle(row)} />
                 </td>
               </tr>
             );

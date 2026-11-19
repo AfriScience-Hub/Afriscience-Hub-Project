@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logoutLocal } from '@/store/authSlice';
-import { isAccessTokenExpired, refreshAccessToken } from '@/lib/api';
+import { isAccessTokenExpired, refreshSession } from '@/lib/api';
 
 interface ProtectedPageProps {
   children: React.ReactNode;
@@ -44,11 +44,17 @@ export default function ProtectedPage({ children }: ProtectedPageProps) {
 
     let active = true;
     setChecking(true);
-    refreshAccessToken().then((token) => {
+    refreshSession().then((result) => {
       if (!active) return;
-      if (!token) {
-        dispatch(logoutLocal());
-        router.replace(`/login?reason=session_expired&from=${encodeURIComponent(from)}`);
+      if (!result.token) {
+        // Only end the session when the server explicitly rejected the refresh.
+        // A network hiccup must not sign the user out.
+        if (result.rejected) {
+          dispatch(logoutLocal('user'));
+          router.replace(`/login?reason=session_expired&from=${encodeURIComponent(from)}`);
+          return;
+        }
+        setChecking(false);
         return;
       }
       setChecking(false);

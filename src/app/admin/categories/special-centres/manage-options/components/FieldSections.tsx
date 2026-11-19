@@ -15,6 +15,8 @@ interface Props {
   priceGroup?: 'africa' | 'nonAfrica' | 'both';
   /** Only Categories carry the info icon. */
   showNote?: boolean;
+  /** Render note text inline instead of behind the info icon. */
+  showNoteInline?: boolean;
   singular: string;
   emptyHint: string;
   onEdit: (opt: ManagedOption) => void;
@@ -29,7 +31,8 @@ interface Props {
  * an empty table.
  */
 export default function FieldSections({
-  fields, options, showPrice = false, categoryPrice, priceGroup = 'africa', showNote = false,
+  fields, options, showPrice = false, categoryPrice, priceGroup = 'africa',
+  showNote = false, showNoteInline = false,
   singular, emptyHint, onEdit, onDelete, onToggleStatus, onAddUnder,
 }: Props) {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -81,6 +84,7 @@ export default function FieldSections({
                       categoryPrice={categoryPrice}
                       priceGroup={priceGroup}
                       showNote={showNote}
+                      showNoteInline={showNoteInline}
                       onEdit={onEdit}
                       onDelete={onDelete}
                       onToggleStatus={onToggleStatus}

@@ -134,6 +134,7 @@ export default function ScientistManageOptionsPage() {
               filtered={s.filtered}
               total={s.rows.length}
               showNote={showNote}
+              showNoteInline={s.activeTab === 'Profession'}
               onEdit={s.openEdit}
               onToggleStatus={s.handleToggleStatus}
               onAddUnder={s.openCreateUnder}

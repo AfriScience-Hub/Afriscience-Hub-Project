@@ -1,15 +1,15 @@
 'use client';
 
-import { Mail, Phone, Globe, Linkedin, Twitter, Instagram, Facebook } from 'lucide-react';
+import { Mail, Phone, Globe, Linkedin, Twitter, Instagram, Facebook, MessageCircle } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
-import { useAuth } from '@/app/context/AuthContext';
+import { Avatar } from '@/app/components/Avatar';
 
 interface ContactTabProps {
   scientist: any;
+  onOpenMessaging?: () => void;
 }
 
-export default function ContactTab({ scientist }: ContactTabProps) {
-  const { user } = useAuth();
+export default function ContactTab({ scientist, onOpenMessaging }: ContactTabProps) {
   const contact = scientist.contact || {};
 
   const rows = [
@@ -46,15 +46,27 @@ export default function ContactTab({ scientist }: ContactTabProps) {
       </section>
 
       <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-gray-light">
-        <h3 className="text-lg font-bold text-neutral-black mb-4">Send a Message</h3>
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input type="text" placeholder="Your Name" defaultValue={user?.name || ''} className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
-            <input type="email" placeholder="Your Email" defaultValue={user?.email || ''} className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
+        <h3 className="text-lg font-bold text-neutral-black mb-4">Messages</h3>
+        <div className="rounded-xl border border-neutral-gray-light overflow-hidden">
+          <div className="flex items-center gap-3 bg-neutral-bg-light/60 px-4 py-3">
+            <Avatar src={scientist.image} name={scientist.name || 'Scientist'} size="md" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-neutral-black">{scientist.name || 'Scientist'}</p>
+              <p className="truncate text-xs text-neutral-gray-medium">
+                Continue the conversation in your chat
+              </p>
+            </div>
+            <MessageCircle className="h-5 w-5 flex-shrink-0 text-brand-red-600" />
           </div>
-          <input type="text" placeholder="Subject" className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600" />
-          <textarea rows={4} placeholder="Your Message" className="w-full rounded-lg border border-neutral-gray-light p-3 text-sm focus:ring-1 focus:ring-brand-red-600 focus:border-brand-red-600 resize-none" />
-          <Button className="bg-brand-red-600 hover:bg-brand-red-700">Send Message</Button>
+          <div className="space-y-3 p-4">
+            <p className="text-sm text-neutral-gray-medium">
+              Send a message to {scientist.name || 'this scientist'} and see their replies here in a two-way chat.
+            </p>
+            <Button className="bg-brand-red-600 hover:bg-brand-red-700" onClick={onOpenMessaging}>
+              <MessageCircle className="mr-2 h-4 w-4" />
+              Open Conversation
+            </Button>
+          </div>
         </div>
       </section>
     </div>

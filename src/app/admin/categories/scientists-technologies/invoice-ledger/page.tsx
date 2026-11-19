@@ -38,7 +38,6 @@ export default function InvoiceLedgerPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [settleRow, setSettleRow] = useState<InvoiceLedgerRow | null>(null);
-  const [reference, setReference] = useState('');
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -68,19 +67,19 @@ export default function InvoiceLedgerPage() {
 
   const openSettle = (row: InvoiceLedgerRow) => {
     setSettleRow(row);
-    setReference('');
     setNote('');
   };
 
   const handleSettle = async () => {
-    if (!settleRow || !reference.trim()) {
-      toast.error('Settlement reference is required.');
+    const reference = (settleRow?.reference || '').trim();
+    if (!settleRow || !reference) {
+      toast.error('This ledger entry has no reference ID.');
       return;
     }
     setSaving(true);
     try {
       await settleInvoiceLedger(settleRow.id, {
-        reference: reference.trim(),
+        reference,
         note: note.trim() || undefined,
       });
       toast.success('Payment settled successfully.');
@@ -186,10 +185,8 @@ export default function InvoiceLedgerPage() {
 
       <SettleLedgerModal
         row={settleRow}
-        reference={reference}
         note={note}
         saving={saving}
-        onReference={setReference}
         onNote={setNote}
         onCancel={() => { if (!saving) setSettleRow(null); }}
         onConfirm={() => void handleSettle()}

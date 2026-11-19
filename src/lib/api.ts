@@ -1,7 +1,15 @@
 import { isAdminPath, isProtectedPath } from './authRoutes';
-import { clearStoredAuth, getStoredToken, setStoredToken } from './authStorage';
+import {
+  clearStoredAuth,
+  getStoredRefreshToken,
+  getStoredToken,
+  setStoredRefreshToken,
+  setStoredToken,
+} from './authStorage';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+// Same-origin proxy configured in next.config.ts. Using a relative URL keeps
+// the HttpOnly refresh cookie first-party so browsers do not block it.
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/proxy';
 
 interface ApiResponse<T = unknown> {
   data?: T;
@@ -28,7 +36,17 @@ export interface ApiRequestOptions extends RequestInit {
 
 type AuthScope = 'admin' | 'user';
 
-let refreshPromises: Record<AuthScope, Promise<string | null> | null> = {
+interface RefreshOutcome {
+  token: string | null;
+  /**
+   * True only when the server explicitly rejected the refresh session
+   * (401/403). Network errors and 5xx responses are inconclusive, so the local
+   * session must be kept for a later retry.
+   */
+  rejected: boolean;
+}
+
+let refreshPromises: Record<AuthScope, Promise<RefreshOutcome> | null> = {
   admin: null,
   user: null,
 };
@@ -56,14 +74,14 @@ function setAccessToken(access: string | null, scope: AuthScope) {
   setStoredToken(scope, access);
 }
 
-function clearAuthStorage() {
+function clearAuthStorage(scope: AuthScope) {
   if (typeof window === 'undefined') return;
-  clearStoredAuth();
-  // NOTE: refresh token lives in an HttpOnly cookie — never readable/writable here.
-  // It is sent automatically via `credentials: 'include'` and cleared server-side on logout.
-  // Let Redux clear the in-memory session as well. This is important on public
-  // pages where we continue as a guest instead of doing a hard redirect.
-  window.dispatchEvent(new Event('auth:session-expired'));
+  // Only the affected scope. A dead user session must never wipe an admin
+  // session (or vice versa) — both are stored independently.
+  clearStoredAuth(scope);
+  window.dispatchEvent(
+    new CustomEvent('auth:session-expired', { detail: { scope } }),
+  );
 }
 
 function decodeJwtExp(token: string): number | null {
@@ -95,40 +113,58 @@ export function isAccessTokenExpired(bufferMs = 30_000): boolean {
   return isTokenExpired(token, bufferMs);
 }
 
-async function performRefresh(scope: AuthScope): Promise<string | null> {
-  if (typeof window === 'undefined') return null;
-  const isAdmin = scope === 'admin';
-  const endpoint = isAdmin ? '/admin/auth/refresh' : '/auth/refresh';
+function extractToken(payload: any): string | null {
+  const token =
+    payload?.accessToken ||
+    payload?.token ||
+    payload?.data?.accessToken ||
+    payload?.data?.token ||
+    null;
+  return typeof token === 'string' && token ? token : null;
+}
+
+async function performRefresh(scope: AuthScope): Promise<RefreshOutcome> {
+  if (typeof window === 'undefined') return { token: null, rejected: false };
+  const endpoint = scope === 'admin' ? '/admin/auth/refresh' : '/auth/refresh';
+  const refreshToken = getStoredRefreshToken(scope);
 
   try {
-    // No body needed: the HttpOnly refresh cookie is sent automatically
-    // because of `credentials: 'include'`. Never read it from JS.
+    // The HttpOnly refresh cookie is sent automatically via `credentials:
+    // include`. If the backend also returned a refresh token in the login body,
+    // send it as a fallback for deployments that do not use the cookie.
     const refreshRes = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      body: refreshToken ? JSON.stringify({ refreshToken }) : undefined,
       credentials: 'include',
     });
     const refreshData = await refreshRes.json().catch(() => ({}));
-    const newAccess =
-      refreshData?.accessToken ||
-      refreshData?.token ||
-      (refreshData as any)?.data?.accessToken ||
-      (refreshData as any)?.data?.token ||
+    const newAccess = extractToken(refreshData);
+    const newRefresh =
+      (refreshData as any)?.refreshToken ||
+      (refreshData as any)?.data?.refreshToken ||
       null;
 
     if (refreshRes.ok && newAccess) {
       setAccessToken(newAccess, scope);
-      return newAccess;
+      if (typeof newRefresh === 'string' && newRefresh) {
+        setStoredRefreshToken(scope, newRefresh);
+      }
+      return { token: newAccess, rejected: false };
     }
-  } catch {
-    // Network failure or invalid refresh response. Caller decides what to do.
-  }
 
-  return null;
+    // An explicit 401/403 means the refresh session itself is gone (expired,
+    // revoked, or never established). Anything else is transient.
+    const rejected = refreshRes.status === 401 || refreshRes.status === 403;
+    return { token: null, rejected };
+  } catch {
+    // Network failure: keep the stored session so a later request can retry.
+    return { token: null, rejected: false };
+  }
 }
 
 /** Refreshes an access token, sharing one in-flight refresh per scope. */
-function refreshTokens(scope: AuthScope): Promise<string | null> {
+function refreshTokens(scope: AuthScope): Promise<RefreshOutcome> {
   if (!refreshPromises[scope]) {
     refreshPromises[scope] = performRefresh(scope).finally(() => {
       refreshPromises[scope] = null;
@@ -138,7 +174,37 @@ function refreshTokens(scope: AuthScope): Promise<string | null> {
 }
 
 export async function refreshAccessToken(isAdmin = false): Promise<string | null> {
+  const result = await refreshTokens(isAdmin ? 'admin' : 'user');
+  return result.token;
+}
+
+/** Like refreshAccessToken, but tells the caller whether the server rejected the session. */
+export function refreshSession(isAdmin = false): Promise<RefreshOutcome> {
   return refreshTokens(isAdmin ? 'admin' : 'user');
+}
+
+/** Login/signup/verification calls never carry a session to refresh. */
+function isCredentialEndpoint(endpoint: string): boolean {
+  return /\/auth\/(login|signup|register|verify|forgot-password|reset-password|google)/.test(
+    endpoint,
+  );
+}
+
+/**
+ * Whether the current request expects a signed-in session. `auth: 'required'`
+ * always does; optional requests only do on a page the app guards.
+ */
+function requiresSession(
+  auth: AuthMode,
+  endpoint: string,
+  options: ApiRequestOptions,
+): boolean {
+  if (isCredentialEndpoint(endpoint)) return false;
+  if (auth === 'required') return true;
+  if (options.suppressAuthRedirect || typeof window === 'undefined') return false;
+  return scopeFor(endpoint) === 'admin'
+    ? isAdminPath(window.location.pathname)
+    : isProtectedPath(window.location.pathname);
 }
 
 function shouldRedirectToLogin(scope: AuthScope, options: ApiRequestOptions): boolean {
@@ -158,7 +224,7 @@ function redirectToLogin(scope: AuthScope, options: ApiRequestOptions) {
 }
 
 function handleAuthFailure(scope: AuthScope, options: ApiRequestOptions) {
-  clearAuthStorage();
+  clearAuthStorage(scope);
   redirectToLogin(scope, options);
 }
 
@@ -191,21 +257,25 @@ async function request<T>(
     token: overrideToken,
     ...fetchOpts
   } = options;
-  const pageProtected =
-    typeof window !== 'undefined' && isProtectedPath(window.location.pathname);
+  const needsSession = requiresSession(auth, endpoint, options);
 
   let token = auth === 'none' ? null : getAccessToken(endpoint, overrideToken);
 
-  // Do not send a JWT we already know is expired. Try the refresh cookie first.
+  // Never send a JWT we already know is expired. Ask for a fresh one first.
   if (token && isTokenExpired(token) && !_retry) {
-    token = await refreshTokens(scope);
-    if (!token) {
-      clearAuthStorage();
-      if (auth === 'required' || pageProtected) {
-        redirectToLogin(scope, options);
+    const refresh = await refreshTokens(scope);
+    if (refresh.token) {
+      token = refresh.token;
+    } else {
+      token = null;
+      if (needsSession && refresh.rejected) {
+        // The server explicitly rejected the refresh session. Only now is it
+        // safe to treat the session as dead — and only for this scope.
+        handleAuthFailure(scope, options);
         throw new Error('Session expired, please sign in again');
       }
-      // Public optional request: continue anonymously rather than redirecting.
+      // Transient refresh failure: keep the stored session for a later retry.
+      // Continue without a bearer token so public/optional requests still work.
     }
   }
 
@@ -234,25 +304,32 @@ async function request<T>(
   if (!res.ok) {
     const msg = (data.message || data.error || '').toLowerCase();
     const isTokenError =
-      (res.status === 401 || res.status === 400) &&
-      (msg.includes('expired') || msg.includes('token'));
+      !isCredentialEndpoint(endpoint) &&
+      (res.status === 401 ||
+        ((res.status === 400 || res.status === 403) &&
+          (msg.includes('expired') ||
+            msg.includes('token') ||
+            msg.includes('unauthorized'))));
 
-    if (auth !== 'none' && isTokenError && !_retry) {
-      if (token) {
-        const newToken = await refreshTokens(scope);
-        if (newToken) {
-          return request<T>(endpoint, { ...options, _retry: true, token: newToken });
+    if (auth !== 'none' && isTokenError) {
+      if (!_retry) {
+        // Covers both "expired/invalid token" and "no token provided". The
+        // latter happens when local storage lost the access token but the
+        // refresh session is still valid, so never give up before trying.
+        const refresh = await refreshTokens(scope);
+        if (refresh.token) {
+          return request<T>(endpoint, { ...options, _retry: true, token: refresh.token });
         }
 
-        handleAuthFailure(scope, options);
-
-        // A public/optional request should still render as a guest if its
-        // endpoint allows anonymous access. Never hard-redirect the listing.
-        if (
-          auth !== 'required' &&
-          !pageProtected &&
-          !_anonymousRetry
-        ) {
+        if (needsSession) {
+          if (refresh.rejected) {
+            handleAuthFailure(scope, options);
+            throw new Error('Session expired, please sign in again');
+          }
+          // Transient failure: keep the session and surface the original error.
+        } else if (token && !_anonymousRetry) {
+          // Public page with a rejected token: render as a guest instead of
+          // logging the visitor out or redirecting to the login page.
           return request<T>(endpoint, {
             ...options,
             _retry: true,
@@ -260,12 +337,19 @@ async function request<T>(
             auth: 'none',
           });
         }
+      } else if (token && !_anonymousRetry) {
+        // A freshly-refreshed token was rejected. This is a real dead session;
+        // optional requests on public pages still get one anonymous retry.
+        if (needsSession) {
+          handleAuthFailure(scope, options);
+          throw new Error('Session expired, please sign in again');
+        }
+        return request<T>(endpoint, {
+          ...options,
+          _anonymousRetry: true,
+          auth: 'none',
+        });
       }
-      // No token was sent at all. That is a guest request to a public page —
-      // never attempt refresh or redirect from it.
-    } else if (isTokenError && _retry && token) {
-      // A freshly-refreshed token was rejected. Treat the session as dead.
-      handleAuthFailure(scope, options);
     }
 
     throw requestError(data, res.status);

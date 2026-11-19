@@ -6,22 +6,18 @@ import type { InvoiceLedgerRow } from '../api';
 
 interface SettleLedgerModalProps {
   row: InvoiceLedgerRow | null;
-  reference: string;
   note: string;
   saving: boolean;
-  onReference: (value: string) => void;
   onNote: (value: string) => void;
   onCancel: () => void;
   onConfirm: () => void;
 }
 
-/** Records the manual payout reference for a successful, unsettled ledger row. */
+/** Confirms payout for a successful, unsettled ledger row. */
 export default function SettleLedgerModal({
   row,
-  reference,
   note,
   saving,
-  onReference,
   onNote,
   onCancel,
   onConfirm,
@@ -58,12 +54,11 @@ export default function SettleLedgerModal({
           </div>
 
           <label className="block">
-            <span className="text-xs font-bold text-neutral-black">Settlement reference <span className="text-red-600">*</span></span>
+            <span className="text-xs font-bold text-neutral-black">Reference ID</span>
             <input
-              value={reference}
-              onChange={(event) => onReference(event.target.value)}
-              placeholder="BANK-TRANSFER-2026-0001"
-              className="mt-1 w-full px-3 py-2 rounded-lg border border-neutral-gray-light text-sm focus:outline-none focus:border-[#453DD8]"
+              value={row.reference || ''}
+              readOnly
+              className="mt-1 w-full rounded-lg border border-neutral-gray-light bg-neutral-bg-light px-3 py-2 font-mono text-sm text-neutral-gray-dark outline-none"
             />
           </label>
 
@@ -88,7 +83,7 @@ export default function SettleLedgerModal({
             </button>
             <button
               onClick={onConfirm}
-              disabled={!reference.trim() || saving}
+              disabled={!row.reference.trim() || saving}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#453DD8] text-white text-xs font-semibold hover:bg-[#372fb5] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
