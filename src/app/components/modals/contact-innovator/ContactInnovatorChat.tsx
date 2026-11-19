@@ -19,6 +19,8 @@ interface ContactInnovatorChatProps {
   refreshing: boolean;
   onSend: (message: string) => Promise<void>;
   onRefresh: () => void;
+  /** Noun used in helper copy (defaults to "innovator"). */
+  roleLabel?: string;
 }
 
 export default function ContactInnovatorChat({
@@ -32,6 +34,7 @@ export default function ContactInnovatorChat({
   refreshing,
   onSend,
   onRefresh,
+  roleLabel = 'innovator',
 }: ContactInnovatorChatProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -46,7 +49,7 @@ export default function ContactInnovatorChat({
           <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-600" />
           <div>
             <p className="text-sm font-medium text-green-900">Message sent successfully</p>
-            <p className="text-xs text-green-700">The innovator will respond in this conversation.</p>
+            <p className="text-xs text-green-700">The {roleLabel} will respond in this conversation.</p>
           </div>
         </div>
       )}
@@ -61,7 +64,7 @@ export default function ContactInnovatorChat({
           <div className="flex h-full flex-col items-center justify-center text-center">
             <p className="text-sm font-semibold text-neutral-black">No messages yet</p>
             <p className="mt-1 text-xs text-neutral-gray-medium">
-              {canReply ? 'Send your first message below.' : 'Waiting for the innovator to respond.'}
+              {canReply ? 'Send your first message below.' : `Waiting for the ${roleLabel} to respond.`}
             </p>
           </div>
         ) : (
@@ -91,7 +94,7 @@ export default function ContactInnovatorChat({
             <AlertCircle className="h-4 w-4 flex-shrink-0" />
             <span>
               {sendBlockedReason
-                || `Waiting for ${innovatorName || 'the innovator'} to respond before you can send another message.`}
+                || `Waiting for ${innovatorName || `the ${roleLabel}`} to respond before you can send another message.`}
             </span>
             {!sendBlockedReason && (
               <button

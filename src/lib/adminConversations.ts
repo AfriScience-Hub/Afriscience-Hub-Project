@@ -164,9 +164,17 @@ function extractObject(payload: unknown): Record<string, any> {
 export function normalizeAdminConversation(rawValue: unknown): AdminConversation {
   const raw = asRecord(rawValue);
   const listing = asRecord(
-    raw.listing ?? raw.innovation ?? raw.listingDetails ?? raw.innovationDetails ?? raw.subjectListing,
+    raw.listing
+      ?? raw.innovation
+      ?? raw.scientist
+      ?? raw.scientistListing
+      ?? raw.listingDetails
+      ?? raw.innovationDetails
+      ?? raw.subjectListing,
   );
-  const listingInfo = asRecord(listing.innovation ?? listing.listing ?? listing.details ?? listing);
+  const listingInfo = asRecord(
+    listing.innovation ?? listing.scientist ?? listing.listing ?? listing.details ?? listing,
+  );
   const listingType = normalizeListingType(
     raw.listingType,
     raw.listing_type,
@@ -184,7 +192,10 @@ export function normalizeAdminConversation(rawValue: unknown): AdminConversation
   });
   const ownerParticipant = participants.find((p: any) => {
     const r = String(p?.role ?? '').toUpperCase();
-    return ['OWNER', 'INNOVATOR', 'LISTING_OWNER', 'CREATOR', 'RECIPIENT', 'RECEIVER'].includes(r);
+    return [
+      'OWNER', 'INNOVATOR', 'LISTING_OWNER', 'CREATOR', 'RECIPIENT', 'RECEIVER',
+      'SCIENTIST', 'TECHNOLOGIST', 'PROVIDER',
+    ].includes(r);
   });
 
   const clientObj = asRecord(
@@ -199,6 +210,9 @@ export function normalizeAdminConversation(rawValue: unknown): AdminConversation
   );
   const innovatorObj = asRecord(
     raw.innovator
+      ?? raw.scientistUser
+      ?? raw.scientist
+      ?? raw.provider
       ?? raw.owner
       ?? raw.listingOwner
       ?? raw.creator
@@ -215,7 +229,15 @@ export function normalizeAdminConversation(rawValue: unknown): AdminConversation
     || textOf(raw.clientUserId, raw.clientId, raw.senderId, raw.initiatorId, raw.userId);
   const innovatorId =
     idOf(innovatorObj)
-    || textOf(raw.innovatorId, raw.ownerId, raw.listingOwnerId, raw.recipientId, listingInfo.userId);
+    || textOf(
+      raw.innovatorId,
+      raw.scientistId,
+      raw.scientistUserId,
+      raw.ownerId,
+      raw.listingOwnerId,
+      raw.recipientId,
+      listingInfo.userId,
+    );
 
   const lastMessageRaw = raw.lastMessage ?? raw.latestMessage ?? raw.message;
   const lastMessageRecord = asRecord(lastMessageRaw);
@@ -282,6 +304,8 @@ export function normalizeAdminConversation(rawValue: unknown): AdminConversation
     listingId: textOf(
       raw.listingId,
       raw.innovationId,
+      raw.scientistId,
+      raw.scientistListingId,
       listingInfo.id,
       listingInfo._id,
       raw.listing?.id,
@@ -289,8 +313,10 @@ export function normalizeAdminConversation(rawValue: unknown): AdminConversation
     listingName: textOf(
       raw.listingName,
       raw.innovationName,
+      raw.scientistName,
       listingInfo.innovationName,
       listingInfo.name,
+      listingInfo.fullName,
       listingInfo.title,
       raw.subject,
       'Innovation Listing',
@@ -311,7 +337,7 @@ export function normalizeAdminConversation(rawValue: unknown): AdminConversation
     innovatorId,
     innovatorName: personName(
       innovatorObj,
-      textOf(raw.innovatorName, raw.ownerName, listingInfo.creator, 'Innovator'),
+      textOf(raw.innovatorName, raw.scientistName, raw.ownerName, listingInfo.creator, 'Innovator'),
     ),
     innovatorEmail: personEmail(innovatorObj) || textOf(raw.innovatorEmail) || undefined,
     innovatorAvatar: personAvatar(innovatorObj) || textOf(raw.innovatorAvatar) || undefined,

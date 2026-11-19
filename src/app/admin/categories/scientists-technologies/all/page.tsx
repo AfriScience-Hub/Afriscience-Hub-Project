@@ -3,18 +3,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
-  ArrowLeft, Users, Search, MoreVertical, Eye, CheckCircle,
-  BadgeCheck, Star, CalendarCheck, Loader2, Receipt,
+  ArrowLeft, Users, Search, CheckCircle, BadgeCheck, Star, CalendarCheck, Loader2, Receipt,
 } from 'lucide-react';
-import TableActionMenu from '@/app/admin/components/TableActionMenu';
 import { toast } from 'sonner';
 import StatCard from '../../special-centres/components/StatCard';
 import PagePagination from '../../special-centres/components/PagePagination';
 import ScientistDetailModal from '../components/ScientistDetailModal';
+import UnpublishScientistModal from '../components/UnpublishScientistModal';
+import ScientistRowActions from '../components/ScientistRowActions';
+import { useScientistRowActions } from '../components/useScientistRowActions';
 import SubscriptionBadge from '../../afro-innovations/components/SubscriptionBadge';
 import type { AdminScientist } from '../data';
-import { fetchPublicScientistListing, fetchPublicScientistListings, setScientistVerification } from '../api';
+import { fetchPublicScientistListing, fetchPublicScientistListings } from '../api';
 
 type ViewTab = 'Live' | 'Updated';
 type DisplayStatus = 'Live' | 'Unpublished' | 'Updated';
@@ -28,6 +30,7 @@ function displayStatus(r: AdminScientist): DisplayStatus {
 }
 
 export default function AllScientistsPage() {
+  const router = useRouter();
   const [records, setRecords] = useState<AdminScientist[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<ViewTab>('Live');
@@ -42,10 +45,10 @@ export default function AllScientistsPage() {
   const [subscriptionFilter, setSubscriptionFilter] = useState('All Subscriptions');
   const [bookingFilter, setBookingFilter] = useState('All Bookings');
   const [selected, setSelected] = useState<AdminScientist | null>(null);
-  const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const detailRequest = useRef(0);
   const perPage = 8;
+  const rowActions = useScientistRowActions(setRecords, () => setSelected(null));
 
   useEffect(() => {
     let cancelled = false;
@@ -115,23 +118,6 @@ export default function AllScientistsPage() {
     }
   };
 
-  const toggleVerify = async (record: AdminScientist) => {
-    if (verifyingId) return;
-    const nextVerified = record.verification !== 'Verified';
-    setVerifyingId(record.id);
-    try {
-      await setScientistVerification(record.id, nextVerified);
-      const verification: AdminScientist['verification'] = nextVerified ? 'Verified' : 'Unverified';
-      setRecords((prev) => prev.map((r) => (r.id === record.id ? { ...r, verification } : r)));
-      setSelected((prev) => (prev && prev.id === record.id ? { ...prev, verification } : prev));
-      toast.success(nextVerified ? 'Scientist verified' : 'Scientist unverified');
-    } catch (e: any) {
-      toast.error(e?.message || 'Failed to update verification');
-    } finally {
-      setVerifyingId(null);
-    }
-  };
-
   const stats = [
     { label: 'Total Scientists', value: records.length, iconBg: 'bg-purple-100 text-purple-600', icon: <Users className="h-4 w-4" /> },
     { label: 'Live', value: liveRows.length, iconBg: 'bg-green-100 text-green-600', icon: <CheckCircle className="h-4 w-4" /> },
@@ -155,7 +141,7 @@ export default function AllScientistsPage() {
           <p className="text-[11px] text-neutral-gray-dark mt-1">Manage, view and update all scientist and technologist listings on AfriScience Hub.</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Link href="/admin/categories/scientists-technologies/invoice-ledger" className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 cursor-pointer">
+          <Link href="/admin/categories/scientists-technologies/invoice-ledger" className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-navy-900 text-white text-xs font-semibold hover:bg-brand-navy-800 cursor-pointer">
             <Receipt className="h-4 w-4" /> Invoice Ledger
           </Link>
           <Link href="/admin/categories/scientists-technologies" className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-gray-light bg-white text-xs font-semibold hover:bg-neutral-bg-light cursor-pointer">
@@ -293,22 +279,17 @@ export default function AllScientistsPage() {
                       </div>
                     </td>
                     <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                      <TableActionMenu
-                        triggerIcon={verifyingId === r.id
-                          ? <Loader2 className="h-4 w-4 animate-spin text-neutral-gray-dark" />
-                          : <MoreVertical className="h-4 w-4 text-neutral-gray-dark" />}
-                        items={[
-                          { label: 'View Details', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => void openRecord(r) },
-                          {
-                            label: verifyingId === r.id
-                              ? 'Updating...'
-                              : r.verification === 'Verified' ? 'Unverify' : 'Verify',
-                            icon: verifyingId === r.id
-                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                              : <BadgeCheck className="h-3.5 w-3.5" />,
-                            onClick: () => { if (verifyingId !== r.id) void toggleVerify(r); },
-                          },
-                        ]}
+                      <ScientistRowActions
+                        record={r}
+                        view={view}
+                        verifyingId={rowActions.verifyingId}
+                        approvingId={rowActions.approvingId}
+                        unpublishingId={rowActions.unpublishingId}
+                        onView={() => void openRecord(r)}
+                        onMessages={() => router.push(`/admin/categories/scientists-technologies/messages?scientistId=${encodeURIComponent(r.id)}&scientistName=${encodeURIComponent(r.name)}`)}
+                        onVerify={() => { if (rowActions.verifyingId !== r.id) void rowActions.toggleVerify(r); }}
+                        onPublish={() => { if (!rowActions.approvingId) void rowActions.publishUpdated(r); }}
+                        onUnpublish={() => { if (!rowActions.unpublishingId) rowActions.openUnpublishModal(r); }}
                       />
                     </td>
                   </tr>
@@ -323,12 +304,27 @@ export default function AllScientistsPage() {
         <PagePagination page={page} totalPages={totalPages} perPage={perPage} total={records.length} count={filtered.length} noun="scientists" onPage={setPage} />
       </div>
 
+      {rowActions.unpublishTarget && (
+        <UnpublishScientistModal
+          name={rowActions.unpublishTarget.name}
+          reason={rowActions.unpublishReason}
+          busy={rowActions.unpublishingId === rowActions.unpublishTarget.id}
+          onReasonChange={rowActions.setUnpublishReason}
+          onClose={rowActions.closeUnpublishModal}
+          onConfirm={rowActions.unpublish}
+        />
+      )}
+
       <ScientistDetailModal
         scientist={selected}
         open={!!selected}
         onClose={() => setSelected(null)}
         onApprove={() => setSelected(null)}
         onReject={() => setSelected(null)}
+        onSave={(updated) => {
+          setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+          setSelected(updated);
+        }}
       />
     </div>
   );

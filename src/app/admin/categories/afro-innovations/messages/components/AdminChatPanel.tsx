@@ -23,7 +23,7 @@ interface AdminChatPanelProps {
   actionBusy?: boolean;
   onBack: () => void;
   onBlockToggle: (conversation: AdminConversation) => void;
-  onSuspendToggle: (conversation: AdminConversation) => void;
+  onSuspendToggle?: (conversation: AdminConversation) => void;
 }
 
 export default function AdminChatPanel({
@@ -154,22 +154,24 @@ export default function AdminChatPanel({
                 </>
               )}
             </DropdownMenuItem>
-            <DropdownMenuItem
-              disabled={actionBusy || !conversation.clientId}
-              onSelect={() => onSuspendToggle(conversation)}
-            >
-              {conversation.messagingSuspended ? (
-                <>
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                  <span>Lift Conversation Suspension</span>
-                </>
-              ) : (
-                <>
-                  <ShieldAlert className="h-4 w-4 text-amber-600" />
-                  <span>Suspend Conversation</span>
-                </>
-              )}
-            </DropdownMenuItem>
+            {onSuspendToggle && (
+              <DropdownMenuItem
+                disabled={actionBusy || !conversation.clientId}
+                onSelect={() => onSuspendToggle(conversation)}
+              >
+                {conversation.messagingSuspended ? (
+                  <>
+                    <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                    <span>Lift Conversation Suspension</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldAlert className="h-4 w-4 text-amber-600" />
+                    <span>Suspend Conversation</span>
+                  </>
+                )}
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
@@ -304,7 +306,7 @@ export default function AdminChatPanel({
       </div>
 
       <footer className="border-t border-neutral-gray-light bg-white px-4 py-3 text-center text-xs text-neutral-gray-medium">
-        Admin moderation view &mdash; use the menu at the top right to block/unblock or suspend/lift suspension on this conversation.
+        Admin moderation view &mdash; use the menu at the top right to block or unblock this conversation.
       </footer>
     </div>
   );

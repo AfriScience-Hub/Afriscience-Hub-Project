@@ -21,6 +21,9 @@ export function getListingTypeLabel(type: string): string {
   return LISTING_TYPES.find((option) => option.value === type)?.label ?? LISTING_TYPES[0].label;
 }
 
+/** Which endpoint family owns a conversation. */
+export type ConversationSource = 'innovation' | 'scientist';
+
 export interface Conversation {
   id: string;
   listingId: string;
@@ -28,6 +31,8 @@ export interface Conversation {
   listingType: string;
   listingTypeLabel: string;
   listingImage?: string;
+  /** Set by the normalizer so the UI can route actions to the right API. */
+  source?: ConversationSource;
   participantId?: string;
   participantName: string;
   participantAvatar?: string;
@@ -157,7 +162,7 @@ function personAvatar(value: unknown): string {
   );
 }
 
-function extractArray(payload: unknown, keys: string[]): any[] {
+export function extractArray(payload: unknown, keys: string[]): any[] {
   const root = asRecord(payload);
   const data = root.data ?? payload;
   if (Array.isArray(data)) return data;
@@ -173,7 +178,7 @@ function extractArray(payload: unknown, keys: string[]): any[] {
   return [];
 }
 
-function extractObject(payload: unknown): Record<string, any> {
+export function extractObject(payload: unknown): Record<string, any> {
   const root = asRecord(payload);
   const data = root.data ?? payload;
   if (data && typeof data === 'object' && !Array.isArray(data)) {
@@ -183,12 +188,20 @@ function extractObject(payload: unknown): Record<string, any> {
   return {};
 }
 
-function normalizeConversation(rawValue: unknown, currentUserId?: string | null): Conversation {
+export function normalizeConversation(rawValue: unknown, currentUserId?: string | null): Conversation {
   const raw = asRecord(rawValue);
   const listing = asRecord(
-    raw.listing ?? raw.innovation ?? raw.listingDetails ?? raw.innovationDetails ?? raw.subjectListing,
+    raw.listing
+      ?? raw.innovation
+      ?? raw.scientist
+      ?? raw.scientistListing
+      ?? raw.listingDetails
+      ?? raw.innovationDetails
+      ?? raw.subjectListing,
   );
-  const listingInfo = asRecord(listing.innovation ?? listing.listing ?? listing.details ?? listing);
+  const listingInfo = asRecord(
+    listing.innovation ?? listing.scientist ?? listing.listing ?? listing.details ?? listing,
+  );
   const listingType = normalizeListingType(
     raw.listingType,
     raw.listing_type,
@@ -206,6 +219,9 @@ function normalizeConversation(rawValue: unknown, currentUserId?: string | null)
     raw.otherUser,
     raw.otherParticipant,
     raw.innovator,
+    raw.scientist,
+    raw.scientistUser,
+    raw.provider,
     raw.receiver,
     raw.recipient,
     raw.participant,
@@ -249,6 +265,8 @@ function normalizeConversation(rawValue: unknown, currentUserId?: string | null)
     listingId: textOf(
       raw.listingId,
       raw.innovationId,
+      raw.scientistId,
+      raw.scientistListingId,
       listingInfo.id,
       listingInfo._id,
       raw.listing?.id,
@@ -256,21 +274,24 @@ function normalizeConversation(rawValue: unknown, currentUserId?: string | null)
     listingName: textOf(
       raw.listingName,
       raw.innovationName,
+      raw.scientistName,
       listingInfo.innovationName,
       listingInfo.name,
+      listingInfo.fullName,
       listingInfo.title,
       raw.subject,
       'Listing',
     ),
     listingType,
     listingTypeLabel: getListingTypeLabel(listingType),
+    source: 'innovation',
     listingImage: textOf(
       raw.listingImage,
       listingInfo.image,
       listingInfo.displayPhoto,
       listingInfo.profileImage,
     ) || undefined,
-    participantId: idOf(other) || textOf(raw.participantId, raw.recipientId, raw.receiverId) || undefined,
+    participantId: idOf(other) || textOf(raw.participantId, raw.recipientId, raw.receiverId, raw.scientistId) || undefined,
     participantName: textOf(
       raw.participantName,
       raw.otherUserName,
@@ -298,7 +319,7 @@ function normalizeConversation(rawValue: unknown, currentUserId?: string | null)
   };
 }
 
-function normalizeMessage(
+export function normalizeMessage(
   rawValue: unknown,
   conversationId: string,
   currentUserId?: string | null,

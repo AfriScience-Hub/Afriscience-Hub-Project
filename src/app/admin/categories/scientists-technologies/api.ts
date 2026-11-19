@@ -428,9 +428,21 @@ export async function rejectAdminScientistListing(id: string, reason: string) {
   return api.post(`/scientists/listings/admin/${id}/reject`, { reason });
 }
 
-/** Toggles the public verification badge on a scientist listing. */
+/** POST /scientists/listings/verify/{id} — toggles the public verification badge. */
 export async function setScientistVerification(id: string, isVerified: boolean) {
-  return api.patch(`/scientists/listings/${id}`, { isVerified });
+  return api.post(`/scientists/listings/verify/${encodeURIComponent(id)}`, { verify: isVerified });
+}
+
+/**
+ * Takes a live scientist listing off the platform by returning it to the
+ * review queue, mirroring the Afro-Innovations unpublish flow.
+ */
+export async function unpublishScientistListing(id: string, reason: string) {
+  const response = await api.patch(`/scientists/listings/${id}`, {
+    status: 'PENDING',
+    reason: reason.trim(),
+  });
+  return unwrapData(response);
 }
 
 /** GET /scientists/listings/public — approved listings currently on the platform. */

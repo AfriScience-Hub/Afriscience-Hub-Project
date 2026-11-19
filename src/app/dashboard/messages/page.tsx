@@ -12,6 +12,12 @@ import {
   type ChatMessage,
   type Conversation,
 } from '@/lib/conversations';
+import {
+  fetchScientistConversations,
+  fetchScientistMessages,
+  markScientistConversationRead,
+  sendScientistMessage,
+} from '@/lib/scientistConversations';
 import { cn } from '@/lib/utils';
 import ChatPanel from './components/ChatPanel';
 import ConversationList from './components/ConversationList';
@@ -39,7 +45,22 @@ export default function MessagesPage() {
     setLoading(true);
     setLoadError(null);
     try {
-      const rows = await fetchConversations();
+      const [innovationResult, scientistResult] = await Promise.allSettled([
+        fetchConversations(),
+        fetchScientistConversations(),
+      ]);
+      const innovationRows = innovationResult.status === 'fulfilled' ? innovationResult.value : [];
+      const scientistRows = scientistResult.status === 'fulfilled' ? scientistResult.value : [];
+
+      if (innovationResult.status === 'rejected' && scientistResult.status === 'rejected') {
+        throw innovationResult.reason;
+      }
+
+      const rows = [...innovationRows, ...scientistRows].sort((a, b) => {
+        const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+        const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+        return bTime - aTime;
+      });
       setConversations(rows);
     } catch (error: any) {
       setConversations([]);
@@ -74,7 +95,11 @@ export default function MessagesPage() {
     if (conversation.isDemo || conversation.unreadCount === 0) return;
     setMarkingId(conversation.id);
     try {
-      await markConversationRead(conversation.id, messageId);
+      if (conversation.source === 'scientist') {
+        await markScientistConversationRead(conversation.id, messageId);
+      } else {
+        await markConversationRead(conversation.id, messageId);
+      }
       setConversations((previous) => previous.map((item) => (
         item.id === conversation.id ? { ...item, unreadCount: 0 } : item
       )));
@@ -97,7 +122,9 @@ export default function MessagesPage() {
     setMessagesLoading(true);
     setMessages([]);
     try {
-      const rows = await fetchMessages(conversation.id, conversation.participantId);
+      const rows = conversation.source === 'scientist'
+        ? await fetchScientistMessages(conversation.id, conversation.participantId)
+        : await fetchMessages(conversation.id, conversation.participantId);
       if (requestId !== messagesRequestRef.current) return;
       setMessages(rows);
       if (conversation.unreadCount > 0) {
@@ -134,7 +161,9 @@ export default function MessagesPage() {
     if (!activeConversation || activeConversation.isDemo) return;
     setSending(true);
     try {
-      const sent = await sendMessage(activeConversation.id, text, activeConversation.participantId);
+      const sent = activeConversation.source === 'scientist'
+        ? await sendScientistMessage(activeConversation.id, text, activeConversation.participantId)
+        : await sendMessage(activeConversation.id, text, activeConversation.participantId);
       setMessages((previous) => [...previous, sent]);
       setConversations((previous) => previous.map((conversation) => (
         conversation.id === activeConversation.id

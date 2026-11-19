@@ -15,7 +15,7 @@ import { cn, formatCount, formatJoinedDate } from '@/lib/utils';
 import { toast } from 'sonner';
 import { fetchPublicScientist } from '../publicApi';
 import { ContactServiceProviderModal } from '@/app/components/modals/ContactServiceProviderModal';
-import { MessagingModal } from '@/app/components/modals/MessagingModal';
+import { ContactScientistModal } from '@/app/components/modals/ContactScientistModal';
 import { recordScientistServiceInterest } from '@/app/dashboard/invoices/api';
 import ImagePreviewModal from '../components/ImagePreviewModal';
 import TabButton from './components/TabButton';
@@ -311,11 +311,12 @@ export default function ScientistDetails() {
         onOpenMessaging={openMessaging}
       />
 
-      <MessagingModal
+      <ContactScientistModal
         isOpen={isMessagingOpen}
         onClose={() => setIsMessagingOpen(false)}
-        providerName={scientist.name}
-        providerImage={scientist.image}
+        scientistId={scientist.id}
+        scientistName={scientist.name}
+        scientistImage={scientist.image}
       />
 
       {isDpPreviewOpen && (

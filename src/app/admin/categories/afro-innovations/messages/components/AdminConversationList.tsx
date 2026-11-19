@@ -19,7 +19,7 @@ interface AdminConversationListProps {
   actionId?: string | null;
   onSelect: (conversation: AdminConversation) => void;
   onBlockToggle: (conversation: AdminConversation) => void;
-  onSuspendToggle: (conversation: AdminConversation) => void;
+  onSuspendToggle?: (conversation: AdminConversation) => void;
 }
 
 export default function AdminConversationList({
@@ -157,23 +157,25 @@ export default function AdminConversationList({
                           </>
                         )}
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        disabled={busy || !conversation.clientId}
-                        onClick={(event) => event.stopPropagation()}
-                        onSelect={() => onSuspendToggle(conversation)}
-                      >
-                        {conversation.messagingSuspended ? (
-                          <>
-                            <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                            <span>Lift Conversation Suspension</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShieldAlert className="h-4 w-4 text-amber-600" />
-                            <span>Suspend Conversation</span>
-                          </>
-                        )}
-                      </DropdownMenuItem>
+                      {onSuspendToggle && (
+                        <DropdownMenuItem
+                          disabled={busy || !conversation.clientId}
+                          onClick={(event) => event.stopPropagation()}
+                          onSelect={() => onSuspendToggle(conversation)}
+                        >
+                          {conversation.messagingSuspended ? (
+                            <>
+                              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                              <span>Lift Conversation Suspension</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShieldAlert className="h-4 w-4 text-amber-600" />
+                              <span>Suspend Conversation</span>
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

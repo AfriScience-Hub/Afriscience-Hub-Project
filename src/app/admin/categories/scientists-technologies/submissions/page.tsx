@@ -329,6 +329,10 @@ export default function ScientistSubmissionsPage() {
         onClose={() => setSelected(null)}
         onApprove={(s) => void approve(s)}
         onReject={(s) => { setRejectingId(s.id); setRejectReason(''); }}
+        onSave={(updated) => {
+          setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+          setSelected(updated);
+        }}
       />
 
       <RejectScientistModal
